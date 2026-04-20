@@ -568,6 +568,100 @@ async def open_position(
 
 
 # ---------------------------------------------------------------------------
+# _place_emergency_stop (v2.4.1 — Run 2 finding fix)
+# ---------------------------------------------------------------------------
+
+async def _place_emergency_stop(
+    symbol: str,
+    position: dict,
+    sl_price: float,
+    exchange: ccxt_async.bingx,
+) -> dict:
+    """
+    v2.4.1: coloca stop_market de emergencia cuando reconcile_state
+    detecta posición sin stop asociado en BingX.
+
+    Invocado por execute_cycle cuando action["type"]="emergency_stop".
+    Restaura la red de seguridad que el no-op de update_trailing_stop
+    (v2.4.0) interrumpía al procesar indistintamente emergency_stop
+    y update_stop.
+
+    Semántica: sl_price ya viene calculado por reconcile_state
+    (líneas 666-669) con emergency floor aplicado
+    (entry × 0.95 long, × 1.05 short). Helper solo coloca la orden.
+    No ratchet, no compara con stop existente (por contrato:
+    reconcile solo emite cuando no hay stop).
+
+    Diferencia con update_trailing_stop (no-op desde v2.4.0):
+    - update_trailing_stop: TS ratcheteado vive on-close en brain
+      state.sl_level (no requiere acción en BingX).
+    - _place_emergency_stop: red de seguridad del reconcile (SÍ
+      requiere acción en BingX para restaurar protección ausente).
+
+    Returns dict con action:
+    - "emergency_stop_placed" + stop_order_id en happy path.
+    - "emergency_stop_placed_dry" en DRY_RUN.
+    - "emergency_stop_failed" + error en excepción.
+
+    Ver §13.4 v2.4.1 entrada "Run 2 finding — emergency_stop restored".
+    """
+    # DRY_RUN guard (consistente con set_leverage/cancel_order/
+    # close_position/open_position)
+    if DRY_RUN:
+        logger.info(
+            f"[EMERGENCY_STOP_DRY_V241] {symbol}: would place stop @ "
+            f"{sl_price:.6f} for {position.get('side', '')}."
+        )
+        return {
+            "symbol": symbol,
+            "action": "emergency_stop_placed_dry",
+            "sl_price": sl_price,
+        }
+
+    side = position.get("side", "")
+    size = position.get("size", 0.0)
+    stop_side = "sell" if side == "long" else "buy"
+    bingx_sym = to_bingx_symbol(symbol)
+
+    async def _do_stop():
+        return await exchange.create_order(
+            bingx_sym, "market", stop_side, size,
+            params={
+                "stopPrice": sl_price,
+                "reduceOnly": True,
+                "triggerType": "MARK_PRICE",
+            },
+        )
+
+    try:
+        new_stop = await _retry_async(
+            _do_stop,
+            f"[_place_emergency_stop] {symbol} @ {sl_price}",
+        )
+        logger.info(
+            f"[EMERGENCY_STOP_PLACED_V241] {symbol}: stop @ "
+            f"{sl_price:.6f} for {side} size={size}. "
+            f"order_id={new_stop['id']}."
+        )
+        return {
+            "symbol": symbol,
+            "action": "emergency_stop_placed",
+            "sl_price": sl_price,
+            "stop_order_id": new_stop["id"],
+        }
+    except Exception as e:
+        logger.critical(
+            f"[EMERGENCY_STOP_FAILED_V241] {symbol}: "
+            f"{type(e).__name__}: {e}. Position remains UNPROTECTED."
+        )
+        return {
+            "symbol": symbol,
+            "action": "emergency_stop_failed",
+            "error": str(e),
+        }
+
+
+# ---------------------------------------------------------------------------
 # 4. update_trailing_stop
 # ---------------------------------------------------------------------------
 
