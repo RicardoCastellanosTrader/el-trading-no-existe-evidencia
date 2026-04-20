@@ -53,6 +53,44 @@ Aplicaciones concretas:
 
 - Futuro: si Fidelidad 2 se confirma y el bot es rentable → sistema validado, scaling posible (incluyendo consideración de leverage con base empírica). Si Fidelidad 2 rota pero bot rentable → interesante, no es lo simulado pero funciona por otra razón, entender por qué. Si Fidelidad 2 OK pero bot no rentable → derivada 3, el problema está en el sistema subyacente o en el régimen actual de mercado.
 
+### 0.5 Aplicación a estrategia MR — 2026-04-20
+
+La estrategia Mean Reversion (MR) mantiene su propio canon de verdad en paralelo al TF. Ambas estrategias tienen Pine Script canónico como referencia, pero con semántica de zona INVERTIDA entre ellas:
+
+**Pine TF canónico** — `indicador_v44_0_smartdiv_v11_0_TF.pine`
+- Semántica zona: `ma_fast > ma_slow` → BULL (rápida ENCIMA de lenta)
+- Convención clásica: "la rápida marca el camino"
+- Kernel: `lab_historico_numba_v8_3.py`
+- Brain_engine rama TF
+- Fidelidad 1 TF auditada (ver §13.3)
+- Fidelidad 2 TF auditada y corregida (v2.4.0 + v2.4.1)
+
+**Pine MR canónico** — `indicador_v7_25_smartdiv_v40_28_MR.pine`
+- Semántica zona: `series_fast_line < series_slow_line` → BULL (rápida DEBAJO de lenta)
+- Convención invertida: "la lenta marca el camino". Precio bajo respecto a donde debería estar → señal BULL de reversión al alza.
+- Kernel: `mean_reversion_kernel.py`
+- Features: `mean_reversion_features.py`
+- Walk-forward: `mean_reversion_walk_forward.py`
+- Brain_engine rama MR
+- Versión Pine congelada con faltas conocidas (ver notas abajo)
+- Fidelidad 1 MR implementada en kernel; Fidelidad 2 MR pendiente de auditoría formal (ver §13.3)
+
+IMPORTANTE: no confundir los dos Pines. Regla mnemotécnica:
+- TF: rápida domina (`fast > slow` = bull)
+- MR: lenta domina (`fast < slow` = bull)
+
+**Faltas conocidas del Pine v7.25 MR** respecto al kernel MR moderno:
+- Hidden divergencia en Pine sin fix de inversión (kernel MR marca explícitamente "Hidden corregida" en bits 12-13 del config).
+
+**Mecanismos activos de la estrategia MR** (parte integral de la selección walk-forward, implementados en `mean_reversion_kernel.py` líneas 290-372):
+- bit 14 (cancel_zona): anti-repainting comparando zona `forming` al entrar vs `resolved` tras cierre del día.
+- bit 15 (cancel_tf): comparación `forming` vs `resolved` en filtros TF2 (bloque 4h) y TF3 (bloque diario).
+- bit 16 (cancel_ghost): verificación de trayectoria bar-a-bar para detectar cruces fantasma repintados.
+
+Cada config MR es probada por el walk-forward con cada combinación de los 3 bits; el selector escoge la combinación óptima por cluster.
+
+Los 4 mecanismos de stop (SL inicial desde mecha, TS on-close, SL emergency intrabar, trigger `close < sl_level`) son idénticos entre TF y MR en Pine y en kernel. El fix arquitectural v2.4.0+v2.4.1 en `execution_manager` aplica universalmente a ambas estrategias (brain `state.sl_level` ratchetea on-close igual en TF y MR).
+
 ---
 
 ## 1. ARQUITECTURA GENERAL
@@ -180,6 +218,8 @@ xx:00:00 UTC (diario) Health monitor + resumen
 | v2.3.9 | 19 Abr | Solo B1 aplicado (B2/B3 pospuestos a reciclaje con test diferencial completo — ver notas en §13.3). B1 _reset_state_on_exit helper top-level standalone (mr:bool flag para mr_zone_history) invocado desde los 2 exits TF/MR — resetea 8 campos completos (position, entry_price, sl_level, bars_since_entry, entry_bar_timestamp, entry_filters_forming, stop_order_id, entry_timestamp_ms). Non-regression verificada con _run_verify_test (4 senales, 2 trades, PnL +1.2940%, bars 511/523/610/617 identicos pre/post). Validacion empirica de v2.3.8-B7 en cycle 134 (APT partial fill 8.5/8.59) |
 | v2.3.10 | 19 Abr | D4 Telegram alerts fire-and-forget (reduce latencia cycle 1-3s): asyncio.create_task reemplaza await secuencial en los 2 loops de _post_cycle (OPEN alerts + CLOSE alerts). Alertas son observabilidad, _send_alert tiene try/except interno, event loop retiene tasks hasta completion. Test latencia: sequential 5010ms → fire-and-forget 0ms (100% reduccion). _run_verify_test idéntico al baseline (sanity check brain). Single alerts (ERROR, DD, daily_summary) se mantienen como await — no son el bottleneck |
 | v2.3.11 | 19 Abr | Fidelidad 2 restaurada (opción b del HALLAZGO §13.2 lag estructural 1 bar). download_all_ohlcv apendiza/actualiza bar forming determinísticamente: fetch adicional sin `since` (limit=2) tras paginated. 3 ramas: (a) paginated sin forming → append; (b) paginated ya trae forming → update OHLC in-place con snapshot fresh; (c) ts inconsistente → warn y df sin modificar. iloc[-1] siempre pasa a ser bar t en curso. close_forming ≈ close_real a ~6s del cierre (reducción del lag 60 min → 6 s). brain_engine sin cambios (state.entry_bar_timestamp ahora es hora t, alineado con kernel lab). _run_verify_test invariante (histórico sin forming). Latency +1s (0.88s → ~1.8s, tolerable). Tests 5/5 PASS (3 ramas + 2 fallbacks) |
+| v2.4.0 | 20 Abr | Fidelidad 2 TS restaurada: update_trailing_stop no-op (execution_manager.py). cp1252 fix en lab_historico_numba_v8_3.py (sys.stdout reconfigure UTF-8). Deploy 14:08 UTC, 20s downtime. Primer cycle post-deploy 6 TS_NOOP_V240 + 2 cierres on-close (ONDO, RENDER). 3 commits rama v2.4.0-fidelity2-ts. Ver §13.4 entrada v2.4.0 deploy. |
+| v2.4.1 | 20 Abr | Emergency stop path protegido ante no-op TS (finding Run 2 /ultrareview). `_place_emergency_stop` helper extraído con firma minimalista (symbol, position, sl_price, exchange), invocado desde `reconcile_state` (líneas 652-676) cuando se detecta posición abierta sin stop. `update_trailing_stop` renombra action `stop_noop_v240` → `noop_v240` (defensa in-depth vs `startswith("stop")` en callers). Fail-loud size guard: `size<=0` loggea CRITICAL `EMERGENCY_STOP_INVALID_SIZE_V241` y retorna `emergency_stop_failed` en vez de enviar orden inválida. Semantic identifiers en docstring. Tests T7-T10 todos PASS (5 subtests). Smoke-A boot 19:07:59 UTC limpio + Smoke-B cycle 166 (20:00 UTC) PASS: 7 TS_NOOP_V240, 0 EMERGENCY_STOP_*_V241, 0 UPDATE_TS, cycle 17347ms (+3s atribuible a open+close, dentro de rango 14-22s). Red de seguridad armada sin haber disparado (consistente con frecuencia histórica 0/11 días). Fidelidad 2 TS preservada (brain on-close → close_position MARKET sigue camino canónico). 3 commits rama v2.4.1-emergency-stop-fix → merge main. Ver §13.4 entrada v2.4.1 Smoke-B PASS. |
 | analyzer v2.4.1 | 17 Abr | Ultra review fixes: C1 entry_candle inferido, C2 consistency check por precios, C3 COMBOLAB_DIR via env/CLI, C4 rollover con ENGINE_STATE.t, S1/S2/S5/S7/M9 + S3/S4/S6/M3 |
 | audit v5.1 | 17 Abr | Ultra review fixes: C1 entry/exit semantics correctas, C2 kernel parity checksum (opcion C: lab solo tiene Numba), C3 flag recon organic, C4 MR cluster_hint via SIGNALS_RAW/GMM, C5 rollover con ENGINE_STATE.t, C6 path env/CLI, C7 CSV 12col, C8 tolerancia +-1, S4/S5/S8/S10/M4/M6 |
 
@@ -221,7 +261,7 @@ xx:00:00 UTC (diario) Health monitor + resumen
 7. v2.3.8 B5: OHLCV pagination primera fetch vacia caia al else con ohlcv=[] sin reintento — simbolo quedaba con DataFrame vacio y brain saltaba evaluacion. Fix: `raise ValueError(...)` activa outer retry del for attempt. Preserva `since` parameter (critico para Fase 1 opcion-a decision de lag estructural).
 8. v2.3.11 Fidelidad 2: BingX paginated con `since` incluye el forming INCONSISTENTEMENTE (a veces iloc[-1] es forming, a veces es last closed; verificado empíricamente 2026-04-19). Fix determiniza via fetch adicional sin `since` (limit=2) tras el paginated y rama 3-way: (a) `forming_ts == last_paginated + 1h` → append forming; (b) `forming_ts == last_paginated` → update OHLC in-place con snapshot fresh del forming fetch; (c) otro → warn y df sin modificar (inconsistencia real tipo race xx:00:00). Fallback robusto en excepción: warn y df sin modificar (modo lag solo ese símbolo ese ciclo). iloc[-1] pasa a ser siempre el bar t en curso (Fidelidad 2 restaurada vs kernel lab que decide-y-entra con close[t]). Latencia +~1s (0.88s paginated → ~1.8s total con forming serial por símbolo).
 
-**execution_manager.py (9):**
+**execution_manager.py (10):**
 1. DRY_RUN entry_price=0 → fetch_ticker
 2. size_usdt no se pasaba a log_trade
 3. setLeverage: params={'side': 'BOTH'}
@@ -231,6 +271,8 @@ xx:00:00 UTC (diario) Health monitor + resumen
 7. sl_trigger_hit: BingX cierra por stop entre ciclos → estima PnL, registra en CSV
 8. v2.3.7 E5: fill_price=0 no se detectaba explícitamente en open_position → stop_price_bingx=0, BingX rechazaba con mensaje oscuro. Fix: guard `if fill_price <= 0: return {"action": "open_failed", "error": ...}` antes de calcular stop_price.
 9. v2.3.8 B7: stop y emergency_close usaban `size` (requested) no `entry_order.filled` (real). Partial fills dejaban stop sobredimensionado rechazado por reduceOnly. Fix: `filled_size = float(entry_order.get("filled", 0) or 0)` con warning log y fallback a `size` si ccxt no expone filled. size del dict de return tambien usa filled_size.
+10. v2.4.0 update_trailing_stop convertido en no-op (log_info TS_NOOP_V240 + return stop_noop_v240 action). Brain TS vive on-close en state.sl_level; BingX mantiene stop_market al 5% emergency fijo desde entry. Cierre por TS ejecutado on-close vía close_position MARKET cuando brain detecta close < sl_level en cycle. Cuerpo de 153 líneas reemplazado por 45 líneas (no-op + docstring). Restaura Fidelidad 2 con Pine y kernel lab (ambos evalúan TS on-close). Ver §13.4 RESUELTO v2.4.0 deploy.
+11. v2.4.1 emergency_stop path protegido. Finding Run 2 /ultrareview detectó que el no-op de v2.4.0 atrapaba también el caller `atype="emergency_stop"` de `reconcile_state` (líneas 652-676 → `execute_cycle` línea 802), desactivando silenciosamente la red de seguridad que repone stop_market cuando detecta posición sin stop en BingX. Fix: helper `_place_emergency_stop` extraído con DRY_RUN guard preservado (consistencia con `set_leverage`/`cancel_order`/`close_position`/`open_position`), `triggerType=MARK_PRICE`, `logger.critical` en fail path. Dict interno usa `"size"` (canon `get_open_positions` línea 335 `data_feed.py`), no `"contracts"` — descubrimiento crítico pre-edit (spec original con `abs(position["contracts"])` habría dado KeyError). Rename `stop_noop_v240` → `noop_v240` defensivo (evita misroute en callers `startswith("stop")`). Size guard fail-loud: `size<=0` retorna `emergency_stop_failed` con `EMERGENCY_STOP_INVALID_SIZE_V241` CRITICAL en vez de enviar orden inválida. Ver §13.4 RESUELTO v2.4.1 Smoke-B PASS.
 
 **portfolio_manager.py (5):**
 1. Emojis Unicode → texto plano
@@ -656,10 +698,30 @@ Referencias: sección 9.2.1, brain_engine.py bifurcación TF/MR, live_engine.py 
 
 ### 13.2 ACTIVO
 
+**[HALLAZGO] [ACTIVO] BRAIN_RECONCILE no registra cierres legacy en trade_history.csv — 2026-04-20**
+Contexto: descubierto durante investigación de anomalía UNI/USDT en Smoke-B post-v2.4.0 (2026-04-20 cycle 161). Cuando brain detecta posición en su state pero BingX no tiene la posición (cerrada entre cycles por stop tensado intrabar o apertura fantasma que no persistió), emite BRAIN_RECONCILE reset. Este path NO dispara log_trade — el cierre no queda en trade_history.csv.
+Diferencia con ORPHAN_CLOSE existente:
+- ORPHAN_CLOSE (§13.4 RESUELTO 2026-04-20 OP/USDT verificado 3 casos) se dispara cuando el path de close_position() intenta cancelar un stop_order_id y BingX responde "no existe" o "position not found" → reconstrucción y log_trade.
+- BRAIN_RECONCILE (este ítem) se dispara antes, al inicio del cycle cuando fetch_positions() no retorna la posición esperada. No intenta cancelar stop, solo resetea state. Sin log_trade.
+Impacto operacional:
+1. Ventana migración Opción B v2.4.0 (próximas horas a 1 semana): 6 posiciones legacy con stops tensados heredados pueden dispararse intrabar. Si eso ocurre entre cycles sin que close_position se invoque, el trade NO se registra. Pérdida silenciosa del dato.
+2. Aperturas fantasma (patrón B-UNI-1 observado en UNI/USDT desde cycle 154 del 2026-04-20): signal emitido, apertura no persiste (likely min_order_precision con balance bajo, mismo patrón ETH), brain state marca abierto, cycle siguiente detecta gap y BRAIN_RECONCILE resetea. En este caso NO hay trade real, el no-registro es correcto. Pero el patrón recurrente satura logs (1× por cycle, 7+ cycles confirmados para UNI).
+3. Audit v5.1 futuro: trades legacy cerrados durante ventana migración no estarán en CSV → gap en comparación fidelidad vs kernel. Requerirá exclusión explícita de la ventana 2026-04-20 14:08 UTC → cierre de última posición legacy.
+Decisión provisional 2026-04-20: Opción A — aceptar pérdida de registro durante migración. Documentar. Cuando llegue audit v5.1 post-N≥50 segmentar explícitamente el período.
+Fix futuro (candidato v2.4.1): modificar BRAIN_RECONCILE para que intente obtener fill_price via fetch_my_trades(symbol, since) para el período entre last_known_state y current_cycle, y si encuentra un trade consistente (SELL si era LONG, BUY si era SHORT) con approximate timing, invocar log_trade con dato reconstruido. Similar a ORPHAN_CLOSE pero sin depender del stop_order_id.
+Disparo:
+- Inmediato (para decisión): contar cuántos trades legacy se pierden durante ventana migración.
+- v2.4.1 candidate: tras estabilidad v2.4.0 confirmada en 48h, considerar implementación de reconstrucción.
+Cierre: implementado v2.4.1 o aceptado como pérdida permanente con documentación rigurosa.
+Referencias:
+- Smoke-B cycle 161 2026-04-20 15:00:09 UTC: BRAIN_RECONCILE UNI/USDT reset sin trade en CSV.
+- Patrón observado desde 08:00 UTC (cycle 154) pre-deploy, no introducido por v2.4.0.
+- ORPHAN_CLOSE mecanismo fiel vinculado en §13.4 entrada 2026-04-20.
+
 **[HALLAZGO] [ACTIVO] Divergencia de Fidelidad 2 en TS — 2026-04-20**
 Contexto: auditoría del 2026-04-20 confirmó con citas literales que Fidelidad 1 (Pine ↔ kernel lab) está intacta en los 4 mecanismos de stop, pero Fidelidad 2 (kernel ↔ bot live) está rota en el TS.
 Especificación de la divergencia:
-- Pine evalúa `close < stopLossLevel_logic` on-close (barstate.isconfirmed, líneas 897-906 + 944 del indicador_v44_0_smartdiv_v11_0.pine).
+- Pine evalúa `close < stopLossLevel_logic` on-close (barstate.isconfirmed, líneas 897-906 + 944 del indicador_v44_0_smartdiv_v11_0_TF.pine).
 - Kernel lab (lab_historico_numba_v8_3.py líneas 1503-1509) evalúa `close_p < sl_level` on-close. FIEL a Pine.
 - Bot live (execution_manager.py update_trailing_stop, líneas 574-740): traduce state.sl_level del brain a stop_market en BingX que se ejecuta intrabar al toque (MARK_PRICE trigger). ROMPE convención.
 Los 3 ORPHAN_CLOSE OP/USDT del 2026-04-18 07:00, 2026-04-19 01:00 y 2026-04-19 23:00 son manifestación directa de esta divergencia. Precio tocó el nivel tensado intrabar y BingX cerró; Pine/kernel no habrían cerrado si el close del mismo bar estaba por encima del sl_level (caso plausible en mercados choppy).
@@ -680,10 +742,12 @@ Testing pre-deploy: T1 cp1252 smoke, T2 syntax no-op, T3 unit test on-close vs i
 Disparo para aplicación: próxima sesión. Target: v2.4.0 en ~1-2 sesiones.
 Cierre: post-v2.4.0 deploy + validación con _run_verify_test + observación de 10+ cycles post-deploy sin regresión + primera verificación orgánica de que un TS-intrabar potencial no se ejecuta (precio toca sl_level brain pero close por encima → posición se mantiene).
 Referencias:
-- Pine: indicador_v44_0_smartdiv_v11_0.pine líneas 786-808 (emergency intrabar), 897-906 (TS update), 905 (trigger on-close), 1039-1054 (SL inicial).
+- Pine: indicador_v44_0_smartdiv_v11_0_TF.pine líneas 786-808 (emergency intrabar), 897-906 (TS update), 905 (trigger on-close), 1039-1054 (SL inicial).
 - Kernel: lab_historico_numba_v8_3.py líneas 1476-1509 (TS update + emergency intrabar + TS/SL close check).
 - Live: execution_manager.py update_trailing_stop líneas 574-740 (función a convertir en no-op en v2.4.0).
 - Audit completo: §13.4 entrada "[RESUELTO-CORRECCIÓN] Audit fidelidad 4x3 — 2026-04-20".
+
+[RESUELTO 2026-04-20 v2.4.0 deploy] — ver §13.4 entrada v2.4.0 deploy.
 
 **[DECISION] [ACTIVO] Sesión 2026-04-19 — 15 fixes aplicados, 5 despliegues — 2026-04-19**
 Contexto: Segunda sesión grande del proyecto tras auditorias del 2026-04-17. Foco: atacar masivamente los serios pendientes de §13.3 antes del primer reporte audit v5.1 con N>=50.
@@ -1042,6 +1106,31 @@ Referencias: analyze_performance_attribution.py bloque attribute_trade(), test d
 
 ### 13.3 EN_ESPERA
 
+**[AUDITORIA] [EN_ESPERA] Fidelidad 2 MR formal — 2026-04-20**
+Contexto: la estrategia MR tiene Pine canónico (`indicador_v7_25_smartdiv_v40_28_MR.pine`), kernel dedicado (`mean_reversion_kernel.py` + `features.py` + `walk_forward.py`), pero no se ha auditado formalmente Fidelidad 2 (brain live ↔ kernel MR) como sí se hizo para TF el 2026-04-20.
+Método propuesto (análogo al audit 4×3 TF de 2026-04-20):
+1. Citas literales de los 4 mecanismos de stop en 3 capas: Pine v7.25 MR → `mean_reversion_kernel.py` → `brain_engine.py` (ruta MR).
+2. Citas literales de los 3 mecanismos de cancelación: Pine v7.25 MR → `mean_reversion_kernel.py` → `brain_engine.py` (ruta MR). Especialmente relevante porque las cancelaciones son diferenciales de MR y no existen en TF.
+3. Verificar que brain live aplica el fix v2.4.0 (no-op `update_trailing_stop`) y v2.4.1 (`_place_emergency_stop`) también a posiciones MR. Hipótesis optimista: sí, porque fix es universal en `execution_manager`.
+4. Empírico: `_run_verify_test` con símbolo MR. Comparar [1/2] brain vs [2/2] kernel MR. Esperado: FIDELIDAD CONFIRMADA.
+Disparadores:
+- Inmediato: próxima sesión dedicada de auditoría (estimado 1-2h).
+- Orgánico: primer dato divergente empírico simulado vs real en posiciones MR observado durante operación normal.
+- Pre-P1: obligatorio antes de activar leverage variable.
+Referencias:
+- Pine v7.25 MR: `indicador_v7_25_smartdiv_v40_28_MR.pine` (en ambas carpetas desde 2026-04-20).
+- Kernel MR: `mean_reversion_kernel.py`.
+- §0.5 Filosofía ampliada 2026-04-20.
+Cierre: al completar la auditoría formal. Marcar como RESUELTO con referencia al reporte producido.
+
+**[MEJORA] [EN_ESPERA] UNI/USDT reapertura fantasma recurrente — 2026-04-20**
+Contexto: observado durante investigación post-v2.4.0 Smoke-B. Desde cycle 154 (2026-04-20 08:00 UTC) hasta cycle 161 (15:00 UTC), BRAIN_RECONCILE resetea UNI/USDT SHORT cada hora. Brain emite signal SHORT UNI, open_position probablemente falla por min_order_precision (balance bajo 297 USDT, mismo patrón ETH §13.3 documentado), BingX no confirma, cycle siguiente gap detectado, reset. Loop 7+ cycles.
+Relación con §13.4 "BRAIN_RECONCILE frecuencia alta con balance bajo — 2026-04-16": correlación probable — signals optimistas + balance bajo + filtros portfolio que descartan genera falsas entradas.
+Impacto: ruido log (1× BRAIN_RECONCILE por cycle), cero impacto operacional (no se pierden trades reales porque nunca se abrieron).
+Disparador: balance crece >500 USDT (suaviza edge case precision), o activación P1 leverage (§13.3 diferido), o fix explícito de portfolio_manager para descartar signals pre-execution cuando sizing < min_precision.
+Cierre: fix en portfolio_manager (skip silencioso pre-open) o resolución orgánica por balance.
+Referencias: §13.3 ETH below min precision bug similar, patrón observado cycles 154-161 del 2026-04-20.
+
 **[MEJORA] [EN_ESPERA] ETH "below min precision" CRITICALs en logs — 2026-04-20**
 Contexto: Balance 297 USDT + precio ETH ~$3000 produce sizing por debajo de mínimo BingX (0.01 ETH = ~$30, pero sizing vw-ajustado entrega ~7 USDT = 0.00233 ETH). 6 ocurrencias observadas en verificación empírica 2026-04-20 (5 consecutivas 2026-04-17 21:00 → 2026-04-18 01:00 + 1 hoy 10:00 UTC). Cada ocurrencia genera `CRITICAL [EXEC] OPEN LONG ETH/USDT FALLIDO: Invalid order: bingx amount of ETH/USDT:USDT must be greater than minimum amount precision of 0.01` + BRAIN_RECONCILE reset de ETH. Funcionalmente manejado (position no se abre, state se limpia), pero el CRITICAL en logs es ruido — no es error operacional real, es edge case de balance bajo.
 Disparo: post-v2.4.0 estable (no interferir con deploy mayor), o crecimiento orgánico de balance > 500 USDT (reduce frecuencia), o activación P1 leverage con cap de safety (leverage 5-10x para ETH multiplica sizing por 5-10 y resuelve colateralmente).
@@ -1303,8 +1392,45 @@ Referencias: analyze_performance_attribution.py verificación al final de attrib
 
 ### 13.4 RESUELTO
 
+**[RESUELTO] v2.4.1 Emergency stop path protegido — Smoke-B PASS 2026-04-20**
+Contexto: finding Run 2 /ultrareview sobre rama v2.4.0-fidelity2-ts detectó que `update_trailing_stop` no-op introducido en v2.4.0 atrapaba también caller `atype="emergency_stop"` de `reconcile_state` (líneas 652-676 → `execute_cycle` 802). Red de seguridad desactivada en escenario de posición abierta sin stop. Medición histórica confirmó agujero teórico (0 disparos en 11 días × ~264 cycles/día = ~2900 evaluaciones reconcile); fix correcto independiente de frecuencia.
+3 commits aplicados sobre v2.4.0-fidelity2-ts:
+- be8c272: `_place_emergency_stop` helper (+94)
+- 6d9c7cd: re-route + rename action + docstring (+16/-13)
+- db4f8a1: fail-loud size guard (+16/-0)
+Validación:
+- Tests T7-T10 todos PASS (5 subtests: dry long/short, happy, fail, invalid_size a/b/c + update_trailing_stop rename + FIDELIDAD brain=kernel diff 0.0000).
+- Smoke-A boot 19:07:59 UTC limpio: 8 posiciones sincronizadas, balance 297.02 USDT, 35s downtime total.
+- Smoke-B cycle 166 (20:00 UTC): 7 TS_NOOP_V240, 0 EMERGENCY_STOP_*_V241, 0 UPDATE_TS post-deploy, duration 17347ms (+3s atribuible a 1 open + 1 close en el cycle, dentro de rango 14-22s), 0 errores/CRITICALS nuevos.
+Descubrimiento pre-edit crítico: investigación de estructura `position` dict confirmó que canon es key `"size"` (línea 335 `get_open_positions` de `data_feed.py`), no `"contracts"`. Spec original del fix usaba `abs(position["contracts"])` que habría dado KeyError en producción. Helper final usa `position.get("size", 0.0)` consistente con `close_position:257` y pre-v2.4.0.
+Cierre: merge v2.4.1-emergency-stop-fix → main aplicado tras Smoke-B PASS.
+Referencias:
+- `execution_manager.py` `_place_emergency_stop` + `update_trailing_stop`.
+- Commits be8c272, 6d9c7cd, db4f8a1.
+- MD5 v2.4.1: `50b126bea56a643003ff8f57592076bb`.
+
+**[RESUELTO] v2.4.0 deploy + validación — Fidelidad 2 TS restaurada — 2026-04-20**
+Contexto: tras auditoría de fidelidad 4×3 del 2026-04-20 (§13.4 RESUELTO) + verificación literal del kernel (§13.2 HALLAZGO confirmado) + lectura Pine por Ricardo, se implementó v2.4.0 con dos cambios: cp1252 fix + update_trailing_stop no-op. Rama git v2.4.0-fidelity2-ts, base commit baseline 8af9094, 3 commits (6b5743c docs + 607199a cp1252 + bc42352 no-op).
+Deploy VPS 2026-04-20 14:08:22 UTC:
+- Backup v2.3.11: execution_manager.py.bak-v2311-20260420-140719, lab_historico_numba_v8_3.py.bak-v2311-20260420-140719.
+- MD5 3-way sincronizado (comboclaude + combolab + VPS).
+- Downtime: 20s.
+- Boot limpio: 45 GMM + 45 specialists + 45 sectores + 9 posiciones sincronizadas + balance 297 USDT.
+- Cycle 161 post-v2.4.0 (15:00:07-15:00:09): 6 TS_NOOP_V240 (BNB, ALGO, IMX, MANA, GRT, THETA) + 2 cierres on-close vía close_position MARKET (ONDO div_exit PnL=0.00, RENDER zone_exit PnL=+0.25), 0 UPDATE_TS cancel+place-new.
+Comportamiento validado:
+- Brain TS vive on-close en state.sl_level (Pine/kernel fiel).
+- BingX conserva stop_market al 5% emergency (colocado en open_position).
+- close_position MARKET ejecuta cierres on-close normales (div_exit, zone_exit, sl_hit).
+- Ventana migración Opción B: 8 posiciones legacy mantienen stop tensado hasta cerrarse. Ver ítem B-UNI-2 en §13.2 sobre implicación para trade_history.csv.
+Cycle duration: cycle 161 = 16311ms. No medición pura porque incluyó 2 closes. Smoke-C pendiente para validar reducción esperada en cycle "puro TS" (-1.5 a -2s vs cycles v2.3.11 que promediaban 16s).
+Referencias:
+- §13.2 HALLAZGO Divergencia Fidelidad 2 TS — marcado RESUELTO.
+- commit bc42352 (no-op) y 607199a (cp1252).
+- MD5 post-deploy: e498e486...5ebf (execution_manager), 464137d7...4f32 (lab_historico_numba).
+Cierre: Fidelidad 2 restaurada para TS. Los siguientes cierres por TS ratcheteado ejecutarán on-close via close_position MARKET, no por stop_market intrabar. Futuros audit v5.1 podrán comparar directamente kernel ↔ bot live sin la deuda arquitectural previa.
+
 **[RESUELTO-CORRECCIÓN] Audit fidelidad 4x3 — revisión tras lectura Pine por Ricardo — 2026-04-20**
-Contexto: auditoría inicial del 2026-04-20 concluyó "sistema materialmente FIEL al Pine" incluyendo TS. Ricardo leyó el Pine directamente (indicador_v44_0_smartdiv_v11_0.pine) y detectó divergencia no capturada: Pine evalúa TS on-close (`barstate.isconfirmed` + `close < stopLossLevel_logic` línea 905), bot live delega a BingX stop_market que ejecuta intrabar.
+Contexto: auditoría inicial del 2026-04-20 concluyó "sistema materialmente FIEL al Pine" incluyendo TS. Ricardo leyó el Pine directamente (indicador_v44_0_smartdiv_v11_0_TF.pine) y detectó divergencia no capturada: Pine evalúa TS on-close (`barstate.isconfirmed` + `close < stopLossLevel_logic` línea 905), bot live delega a BingX stop_market que ejecuta intrabar.
 Verificación adicional del kernel lab confirmó que éste es FIEL a Pine (on-close): líneas 1503-1509 `close_p < sl_level`. Divergencia aislada en execution_manager.py del bot live (update_trailing_stop líneas 574-740).
 Audit original corregido:
 - Mecanismo 1 (TS): veredicto FIEL → DIVERGENCIA MATERIAL (solo capa live, Fidelidad 1 intacta).
@@ -1313,7 +1439,7 @@ Audit original corregido:
 - Mecanismo 4 (Cooldown R1): DIVERGENCIA CONSCIENTE brain ↔ Pine/kernel (sin cambios en interpretación, post-N>=50).
 Lección metodológica: auditar por citas literales en las 3 capas no es suficiente para detectar divergencias cuando una capa delega comportamiento a un tercero (BingX en este caso). Hay que rastrear el flujo completo: brain calcula X → execution traduce X a orden Y → BingX ejecuta Y con su propia semántica (intrabar). La semántica final es la del exchange, no la del cálculo del brain. En auditorías futuras, cuando un mecanismo se delega al exchange, documentar explícitamente qué trigger type usa (MARK_PRICE vs LIMIT vs on-close equivalent) y cómo se compara con la semántica simulada.
 Acción derivada: v2.4.0 para alinear execution con Pine/kernel on-close (ver §13.2 [HALLAZGO] ACTIVO).
-Referencias: audit inicial del 2026-04-20 (mismo día, horas previas), verificación literal del kernel líneas 1476-1509, indicador_v44_0_smartdiv_v11_0.pine línea 905 (trigger `close < stopLossLevel_logic` en barstate.isconfirmed).
+Referencias: audit inicial del 2026-04-20 (mismo día, horas previas), verificación literal del kernel líneas 1476-1509, indicador_v44_0_smartdiv_v11_0_TF.pine línea 905 (trigger `close < stopLossLevel_logic` en barstate.isconfirmed).
 
 **[RESUELTO] v2.3.11 estabilidad extendida verificada — 2026-04-20 10:00 UTC**
 Contexto: tras 17 ciclos desde deploy v2.3.11 (17:51 UTC 2026-04-19 → 10:00 UTC 2026-04-20), verificación empírica vía SSH al VPS confirma estabilidad operacional sin regresión silenciosa.
@@ -1396,7 +1522,7 @@ Configuración final:
 - Sin remote configurado.
 - .gitignore con patrón *.bak* (catch-all) + excepciones !regime_wf/*.bak-TF-* y !regime_wf/*.bak-MR-* para preservar backups semánticos documentados (cláusula rollback §9.2.1).
 - Total archivos commiteados: 524 (7 backups automáticos .bak_20260410_* pre-sesión 17-abril excluidos del versionado pero conservados en disco para recuperación manual).
-- Archivos clave incluidos: lab_historico_numba_v8_3.py (kernel lab), indicador_v44_0_smartdiv_v11_0.pine (fuente original Pine Script), 45 specialist_configs, data_cache parquets, antiguos de referencia/.
+- Archivos clave incluidos: lab_historico_numba_v8_3.py (kernel lab), indicador_v44_0_smartdiv_v11_0_TF.pine (fuente original Pine Script), 45 specialist_configs, data_cache parquets, antiguos de referencia/.
 - Baseline commit: v2.3.11 tras Fidelidad 2 restaurada.
 - Rama actual: main (limpia).
 Workflow de deploy VPS: sin cambios. Sigue siendo scp + systemctl. Git local es para versionado y /ultrareview, no para deploy. Si en el futuro se quiere deploy via git, añadir pull al VPS sería cambio menor.

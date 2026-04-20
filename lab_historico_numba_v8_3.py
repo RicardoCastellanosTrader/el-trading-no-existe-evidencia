@@ -37,6 +37,12 @@
 # Comisiones: round-trip integrado (default 0.10%)
 # ============================================
 
+import sys
+# v2.4.0: reconfigure stdout UTF-8 para prints con emojis (cp1252 compat en Windows).
+# Preserva emojis en output en Linux/VPS. Alcance: módulo-wide (también al ser importado).
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+
 import time
 import ccxt
 import pandas as pd
