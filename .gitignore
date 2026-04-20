@@ -46,3 +46,6 @@ desktop.ini
 venv/
 env/
 .venv/
+
+# Claude Code local state (per-user, per-machine)
+.claude/
