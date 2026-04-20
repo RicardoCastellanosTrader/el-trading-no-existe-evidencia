@@ -685,13 +685,15 @@ async def update_trailing_stop(
     cruza sl_level on-close, brain emite CLOSE → close_position() MARKET
     reduceOnly. Alinea execution con Pine/kernel.
 
-    Callers compatibles (grep update_trailing_stop):
-    - atype=="update_stop" (línea 991): check "updated" in action → False.
-      Silencioso (equivalente a stop_unchanged pre-v2.4.0). Path normal.
-    - atype=="emergency_stop" (línea 920): check action.startswith("stop")
-      → True. Va a report.stops_placed (cosmético; BingX queda sin stop nuevo).
-      Edge case raro: open_position ya colocó 5% emergency al abrir.
-      Protección on-close vía brain + close_position.
+    Callers (post-v2.4.1):
+    - atype==update_stop (execute_cycle): consume result via
+      "updated" in action → False, silencioso. Path normal del TS
+      ratcheteado que vive on-close en brain state.sl_level.
+      Action del return es "noop_v240" (sin prefijo "stop" desde
+      v2.4.1, defense-in-depth vs misroute startswith).
+    - atype==emergency_stop (execute_cycle): ya NO invoca esta
+      función. Ruteado a _place_emergency_stop desde v2.4.1
+      (Run 2 finding — ver §13.4 v2.4.1).
 
     Rama sl_trigger_hit del cuerpo original eliminada. Detección de stop
     trigger entre ciclos delegada a ORPHAN_CLOSE del reconcile
@@ -702,7 +704,7 @@ async def update_trailing_stop(
 
     Log marker: [TS_NOOP_V240] — grep post-deploy para validar no-op activo.
     Rollback: restaurar cuerpo del commit padre (607199a).
-    Ver §13.4 entrada v2.4.0.
+    Ver §13.4 entradas v2.4.0 y v2.4.1.
     """
     logger.info(
         f"[TS_NOOP_V240] {symbol}: brain state.sl_level={new_sl_price:.6f}. "
@@ -711,7 +713,7 @@ async def update_trailing_stop(
     )
     return {
         "symbol": symbol,
-        "action": "stop_noop_v240",
+        "action": "noop_v240",
         "new_sl_price": new_sl_price,
     }
 
@@ -898,11 +900,12 @@ async def execute_cycle(
                     f"[EXEC] EMERGENCIA: {sym} sin stop — "
                     f"colocando SL @ {action['sl_price']}"
                 )
-                result = await update_trailing_stop(
-                    sym, action["position"], action["sl_price"],
-                    current_orders, exchange,
+                result = await _place_emergency_stop(
+                    sym, action["position"], action["sl_price"], exchange,
                 )
-                if result.get("action", "").startswith("stop"):
+                if result.get("action") in (
+                    "emergency_stop_placed", "emergency_stop_placed_dry",
+                ):
                     report.stops_placed.append(result)
                 else:
                     report.errors.append(result)
