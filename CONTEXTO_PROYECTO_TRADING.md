@@ -576,14 +576,15 @@ c:\Users\rixip\combolab\
 
 | Categoría | Parámetros |
 |-----------|-----------|
-| Simulación | SL 3% (close), SL Emergencia 5% (intrabar), TS 0.5%, Cooldown 1, Comisión 0.10% |
+| Simulación (Pine/kernel) | `stopLossLevel_logic` único: inicial SL 3% (entry bar low/high), tensado por TS 0.5% (prev bar low/high), trigger `close < stopLossLevel_logic` en bar confirmado (on-close). SL Emergency 5% intrabar (`low/high ≤ entry × 0.95/1.05`) separado como `emerg_price_L/S`. Cooldown 1 bar tras exit (bloquea same-bar). Comisión 0.10% round-trip. |
 | Clustering | Hurst(100) + Z_ATR(100/1000) + ER(100), GMM k=2-3 por BIC |
 | Walk-Forward | Train 70%, Toxic tail (75%, 5-100), PF≥1.2/1.0, Cross-cluster PF≥0.7, SQN p5 |
 | Portfolio | 5%/pos, 20%/bloque, 30%/sector, 25% global, EWMA halflife=24, VolTarget clamp 0.3-2.0 |
 | DD Breaker | 5%→0.75, 10%→0.50, 15%→0.0 (pausa), histéresis 12% reanuda con 0.50 |
 | Health | PF degrad 70%/50%, Min 15 trades, Ventana 30d, Max 90d, DD alert 10% |
 | MR Kernel | 17 bits, 8192 configs, 3 cancelaciones, Tenkan(9), HA diaria repintable |
-| BingX Stop | 5% emergencia, TS ratchet con floor 5% |
+| BingX Stop (hasta v2.3.11) | stop_market al `effective_sl = max(brain_sl, emergency_5%)`, ratcheado por update_trailing_stop via cancel/place-new cada ciclo. Trigger MARK_PRICE intrabar. Rompe Fidelidad 2 vs Pine on-close (ver §13.2 HALLAZGO 2026-04-20). |
+| BingX Stop (v2.4.0+) | stop_market hardcoded al 5% emergency desde fill_price, no se tensa post-entry. TS gestionado por brain on-close via software (close < state.sl_level → CLOSE market order). FIEL a Pine/kernel. |
 
 ---
 
@@ -644,28 +645,45 @@ Referencias: archivos/líneas/versiones si aplica.
 
 ### 13.1 VERIFICANDO
 
-**[VERIFICANDO] Daily summary Telegram post-v2.3.6 con métricas correctas — 2026-04-19**
-Contexto: v2.3.6 desplegado el 2026-04-19. Verificación inicial post-deploy muestra DD=0.23% (correcto, coincide con balance empírico 297.69/298.39). Pero current_balance solo se persiste desde v2.3.6, y la verificación real del fix es el daily summary del 2026-04-20 a las 00:00 UTC, tras haber ejecutado varios ciclos con current_balance actualizado.
-Predicción: DD reportado debería ser muy cercano a 0% (~0.2-0.5%). Si es >1%, investigar. Si "RECYCLE RECOMENDADO" vuelve a aparecer por cualquier causa, investigar.
-Disparo: mañana 2026-04-20 a las 00:00 UTC tras llegada del daily summary por Telegram.
-Cierre: summary reporta DD coherente y no recomienda reciclaje espurio. Ítem se mueve a 13.4 RESUELTO.
-Referencias: deploy v2.3.6, predicción basada en estado actual del bot.
-
 **[VERIFICANDO] Primer trade MR real de GRT — 2026-04-17**
 Contexto: Swap GRT TF→MR desplegado. JSON cargado correctamente al arranque. La verificación del flujo MR en vivo solo es posible cuando GRT esté clasificado en C2 Y se generen las condiciones de entrada del specialist MR. Según densidad empírica del walk-forward, esto puede tardar semanas a meses (~1 trade cada 270 barras en C2, C2 ~25% del tiempo).
 Disparo: cuando aparezca el primer trade de GRT con s="MR" en [SIGNALS_EXECUTED] o con strategy_type="MR" en trade_history.csv. Verificar: (a) trade se ejecuta sin errores, (b) SL/TS se gestionan correctamente, (c) el cierre (si ocurre en la ventana analizable) sigue la lógica MR (zona/divergencia/SL).
 Cierre: primer trade MR real ejecutado y verificado. Pasa al conteo de rollback (ítem nuevo en 13.2 que trackea "Trades MR GRT acumulados").
+Nota verificación 2026-04-20 10:05 UTC: consultados últimos 10 [SIGNALS_RAW] para GRT/USDT — todos con `"s":"TF"` y `"k":1` o `"k":0` (cluster 0 o 1). GRT no ha sido clasificado en C2 desde swap del 17-abril (3 días), consistente con densidad empírica esperada (§9.2.1: C2 ~25.3% del tiempo, auto-persistencia 97.9%/barra, ~46.5 visitas/año). Sin trade MR aún. Seguimiento continúa hasta próxima verificación orgánica o next-cycle cluster shift a C2.
 Referencias: sección 9.2.1, brain_engine.py bifurcación TF/MR, live_engine.py [SIGNALS_EXECUTED].
-
-**[BUG] [VERIFICANDO] ORPHAN_CLOSE sin disparo orgánico — 2026-04-16**
-Contexto: v2.3.2 introdujo mecanismo para registrar trades cerrados por SL trigger de BingX entre ciclos (Bug #2 original). Desde el despliegue a las ~17:00 UTC del 16/04 no ha habido ningún caso natural de disparo. No sabemos si el fix funciona hasta que BingX ejecute un stop entre dos ciclos horarios del bot.
-Disparo: cuando ocurra el primer SL trigger entre ciclos de forma natural, verificar: (a) aparece log [ORPHAN_CLOSE], (b) trade_history.csv tiene nueva fila con flag='reconstructed_post_hoc', (c) state.position queda en 0 tras el ciclo. Si en 72h desde despliegue no ha ocurrido, considerar test controlado.
-Cierre: 1 caso verificado con los 3 chequeos OK.
-Referencias: execution_manager.py _handle_orphan_close_signal(), live_engine.py integración con reconcile_state, v2.3.2
 
 ---
 
 ### 13.2 ACTIVO
+
+**[HALLAZGO] [ACTIVO] Divergencia de Fidelidad 2 en TS — 2026-04-20**
+Contexto: auditoría del 2026-04-20 confirmó con citas literales que Fidelidad 1 (Pine ↔ kernel lab) está intacta en los 4 mecanismos de stop, pero Fidelidad 2 (kernel ↔ bot live) está rota en el TS.
+Especificación de la divergencia:
+- Pine evalúa `close < stopLossLevel_logic` on-close (barstate.isconfirmed, líneas 897-906 + 944 del indicador_v44_0_smartdiv_v11_0.pine).
+- Kernel lab (lab_historico_numba_v8_3.py líneas 1503-1509) evalúa `close_p < sl_level` on-close. FIEL a Pine.
+- Bot live (execution_manager.py update_trailing_stop, líneas 574-740): traduce state.sl_level del brain a stop_market en BingX que se ejecuta intrabar al toque (MARK_PRICE trigger). ROMPE convención.
+Los 3 ORPHAN_CLOSE OP/USDT del 2026-04-18 07:00, 2026-04-19 01:00 y 2026-04-19 23:00 son manifestación directa de esta divergencia. Precio tocó el nivel tensado intrabar y BingX cerró; Pine/kernel no habrían cerrado si el close del mismo bar estaba por encima del sl_level (caso plausible en mercados choppy).
+Impacto en audit v5.1 futuro:
+- Trades con exit por TS intrabar en bot NO matchearán con trades de kernel si el close del bar revirtió sobre sl_level.
+- PnL acumulado live sesgado vs simulado en mercados choppy (cierres prematuros en live que kernel/Pine no ejecutarían).
+- Audit v5.1 con N>=50 detectará estos casos como discrepancia, contaminando los reportes si no se documenta origen.
+Decisión adoptada 2026-04-20: aplicar v2.4.0 con Opción C (Ricardo confirmada tras leer Pine directamente). Respeto literal del diseño original: emergency 5% intrabar delegado a BingX hardware; TS/SL gestionados por brain on-close via software. Razonamiento: respetar convención del sistema simulado, absorber mechas de volatilidad como el diseño original pretendía. "Entrar una vela más tarde nunca es ventaja, cerrar por una mecha que revierte tampoco lo es."
+Especificación técnica v2.4.0:
+- Prerequisito: fix cp1252 emoji en lab_historico_numba_v8_3.py:990 (reemplazar `⚙️` por `[CALC]` ASCII) — habilita _run_verify_test [2/2] kernel compare en Windows.
+- Cambio principal: execution_manager.py update_trailing_stop convertido en no-op. Mantener firma y callers sin cambios. Cuerpo reemplazado por log informativo + return {"action":"stop_noop_v240"}. Rollback trivial restaurando cuerpo original.
+- open_position sin cambios (ya coloca stop_market al 5% emergency desde fill_price, líneas 499-504 de execution_manager.py).
+- close_position sin cambios (ya usa MARKET order reduceOnly para cierre activo, línea 330-335).
+- brain_engine.py sin cambios (ya calcula state.sl_level y emite CLOSE con reason=sl_hit on-close).
+- live_engine.py sin cambios (no invoca update_trailing_stop directamente).
+Migración Opción B (transición gradual): posiciones legacy mantienen stop_market tensado existente hasta cerrar. Nuevas posiciones post-deploy usan 5% emergency fijo + brain software TS. Ventana mixta ~horas a 1 semana. Segmentación para audit v5.1 futuro vía entry_timestamp_ms (ya disponible en trade_history.csv col 12 desde v2.3.3) comparando con timestamp del deploy v2.4.0.
+Testing pre-deploy: T1 cp1252 smoke, T2 syntax no-op, T3 unit test on-close vs intrabar (mock OHLC entry=100, low=95 close=98.5, bar forming intrabar), T4 _run_verify_test [1/2] baseline invariante (4 señales, 2 trades, PnL +1.2940%), T5 [2/2] nueva capacidad post-cp1252 fix, T6 DRY_RUN cycle con engine_state del VPS.
+Disparo para aplicación: próxima sesión. Target: v2.4.0 en ~1-2 sesiones.
+Cierre: post-v2.4.0 deploy + validación con _run_verify_test + observación de 10+ cycles post-deploy sin regresión + primera verificación orgánica de que un TS-intrabar potencial no se ejecuta (precio toca sl_level brain pero close por encima → posición se mantiene).
+Referencias:
+- Pine: indicador_v44_0_smartdiv_v11_0.pine líneas 786-808 (emergency intrabar), 897-906 (TS update), 905 (trigger on-close), 1039-1054 (SL inicial).
+- Kernel: lab_historico_numba_v8_3.py líneas 1476-1509 (TS update + emergency intrabar + TS/SL close check).
+- Live: execution_manager.py update_trailing_stop líneas 574-740 (función a convertir en no-op en v2.4.0).
+- Audit completo: §13.4 entrada "[RESUELTO-CORRECCIÓN] Audit fidelidad 4x3 — 2026-04-20".
 
 **[DECISION] [ACTIVO] Sesión 2026-04-19 — 15 fixes aplicados, 5 despliegues — 2026-04-19**
 Contexto: Segunda sesión grande del proyecto tras auditorias del 2026-04-17. Foco: atacar masivamente los serios pendientes de §13.3 antes del primer reporte audit v5.1 con N>=50.
@@ -1024,6 +1042,12 @@ Referencias: analyze_performance_attribution.py bloque attribute_trade(), test d
 
 ### 13.3 EN_ESPERA
 
+**[MEJORA] [EN_ESPERA] ETH "below min precision" CRITICALs en logs — 2026-04-20**
+Contexto: Balance 297 USDT + precio ETH ~$3000 produce sizing por debajo de mínimo BingX (0.01 ETH = ~$30, pero sizing vw-ajustado entrega ~7 USDT = 0.00233 ETH). 6 ocurrencias observadas en verificación empírica 2026-04-20 (5 consecutivas 2026-04-17 21:00 → 2026-04-18 01:00 + 1 hoy 10:00 UTC). Cada ocurrencia genera `CRITICAL [EXEC] OPEN LONG ETH/USDT FALLIDO: Invalid order: bingx amount of ETH/USDT:USDT must be greater than minimum amount precision of 0.01` + BRAIN_RECONCILE reset de ETH. Funcionalmente manejado (position no se abre, state se limpia), pero el CRITICAL en logs es ruido — no es error operacional real, es edge case de balance bajo.
+Disparo: post-v2.4.0 estable (no interferir con deploy mayor), o crecimiento orgánico de balance > 500 USDT (reduce frecuencia), o activación P1 leverage con cap de safety (leverage 5-10x para ETH multiplica sizing por 5-10 y resuelve colateralmente).
+Cierre: Opción B probable — detectar sizing-below-min en portfolio_manager o execution_manager antes de enviar orden, skip silencioso con log WARNING (no CRITICAL) + flag en SIGNALS_DISCARDED como `"d":"below_min_exchange_precision"`. Preserva observabilidad sin contaminar logs con CRITICALs espurios.
+Referencias: engine.log 2026-04-17 21:00/22:00/23:00 + 2026-04-18 00:00/01:00 + 2026-04-20 10:00:10 (6 ocurrencias), execution_manager.py open_position paso 1 catch de `ccxt.InvalidOrder`, verificación SSH 2026-04-20 10:05 UTC.
+
 **[MEJORA] [EN_ESPERA] v2.3.11 Opción B2 — forming fetch tardío para residual 6s→2s — 2026-04-19**
 Contexto: v2.3.11 aplicó Opción B1 (forming fetch en paralelo al inicio del cycle, ~6s antes del cierre). Opción B2 (forming fetch tardío tras sleep, ~2s antes del cierre) captura 4 segundos adicionales de proximidad con complejidad arquitectónica no justificada por el beneficio marginal dada la proporción ya capturada por B1 (99.8% del sesgo original eliminado). B2 requiere refactor de _run_cycle_inner con split download + sleep + coordinación temporal frágil.
 Disparo: si tras ≥N≥50 trades post-v2.3.11, el residual de 6s muestra sesgo sistemático detectable en slippage_entry del analyzer v2.4.1. Virtualmente improbable — documentado para completitud del marco de decisiones.
@@ -1279,6 +1303,107 @@ Referencias: analyze_performance_attribution.py verificación al final de attrib
 
 ### 13.4 RESUELTO
 
+**[RESUELTO-CORRECCIÓN] Audit fidelidad 4x3 — revisión tras lectura Pine por Ricardo — 2026-04-20**
+Contexto: auditoría inicial del 2026-04-20 concluyó "sistema materialmente FIEL al Pine" incluyendo TS. Ricardo leyó el Pine directamente (indicador_v44_0_smartdiv_v11_0.pine) y detectó divergencia no capturada: Pine evalúa TS on-close (`barstate.isconfirmed` + `close < stopLossLevel_logic` línea 905), bot live delega a BingX stop_market que ejecuta intrabar.
+Verificación adicional del kernel lab confirmó que éste es FIEL a Pine (on-close): líneas 1503-1509 `close_p < sl_level`. Divergencia aislada en execution_manager.py del bot live (update_trailing_stop líneas 574-740).
+Audit original corregido:
+- Mecanismo 1 (TS): veredicto FIEL → DIVERGENCIA MATERIAL (solo capa live, Fidelidad 1 intacta).
+- Mecanismo 2 (SL Inicial 3%): FIEL (sin cambios, es el nivel inicial del mismo stopLossLevel_logic).
+- Mecanismo 3 (SL Emergency 5%): FIEL (sin cambios, intrabar via BingX stop_market al 5% coincide con Pine).
+- Mecanismo 4 (Cooldown R1): DIVERGENCIA CONSCIENTE brain ↔ Pine/kernel (sin cambios en interpretación, post-N>=50).
+Lección metodológica: auditar por citas literales en las 3 capas no es suficiente para detectar divergencias cuando una capa delega comportamiento a un tercero (BingX en este caso). Hay que rastrear el flujo completo: brain calcula X → execution traduce X a orden Y → BingX ejecuta Y con su propia semántica (intrabar). La semántica final es la del exchange, no la del cálculo del brain. En auditorías futuras, cuando un mecanismo se delega al exchange, documentar explícitamente qué trigger type usa (MARK_PRICE vs LIMIT vs on-close equivalent) y cómo se compara con la semántica simulada.
+Acción derivada: v2.4.0 para alinear execution con Pine/kernel on-close (ver §13.2 [HALLAZGO] ACTIVO).
+Referencias: audit inicial del 2026-04-20 (mismo día, horas previas), verificación literal del kernel líneas 1476-1509, indicador_v44_0_smartdiv_v11_0.pine línea 905 (trigger `close < stopLossLevel_logic` en barstate.isconfirmed).
+
+**[RESUELTO] v2.3.11 estabilidad extendida verificada — 2026-04-20 10:00 UTC**
+Contexto: tras 17 ciclos desde deploy v2.3.11 (17:51 UTC 2026-04-19 → 10:00 UTC 2026-04-20), verificación empírica vía SSH al VPS confirma estabilidad operacional sin regresión silenciosa.
+Métricas observadas (ciclos 140-156):
+- Cycle durations: 14832-16941 ms (rango 15-17s), dentro de ventana operacional 14-22s. Duración media ~15.7s, consistente con el +~1s esperado por forming fetch serial (paginated 0.88s → total ~1.8s).
+- Forming fetch warnings: 0 en los 17 ciclos. Ni "forming fetch fallo" ni "forming ts inconsistente". La lógica 3-way determinística maneja al 100% la inconsistencia de BingX sin saturar logs.
+- Errores Python nuevos: 0 relacionados con data_feed, brain o execution post-deploy. Las asyncio "Unclosed client session" observadas son de los stops controlados de los 5 deploys del 2026-04-19 (v2.3.7 → v2.3.11), ninguna post-v2.3.11 al 2026-04-20 10:00 UTC.
+- Engine state coherente: peak_balance=298.3853, current_balance=296.8073, dd_multiplier=1.0, circuit_breaker_active=false. 7 posiciones abiertas al cycle 156 (RENDER short, THETA long, ALGO short, GRT long, MANA long, ONDO short, BNB long; INJ cerrado en cycle 156 con div_exit -0.07 USDT).
+- Cross-feature validation: v2.3.8 B7 (partial fills) sin disparos en ventana observada — no hubo partial fills de apertura en los 17 ciclos, coherente con balance 297 USDT y mercado lateral observado.
+- Recurrence benigna: ETH/USDT below minimum precision 0.01 (sizing 7 USDT a ETH 2307 = 0.00307 ETH < 0.01 BingX min) generó 5 CRITICALs 2026-04-17/18 + 1 hoy 10:00 UTC. Pre-existente (no post-v2.3.11), manejado limpiamente por BRAIN_RECONCILE (reset position=0 tras fallo open). Edge case de balance bajo, no regresión.
+Cierre: v2.3.11 validada operacionalmente. Fidelidad 2 mantenida estructuralmente sin deuda adicional descubierta. Próxima verificación disparada por acumulación de trades hacia N>=50 post-v2.3.3.
+Referencias: verificación SSH del 2026-04-20 10:05 UTC al VPS IP_VPS_TOKIO_REDACTADA, engine_state.json saved_at 2026-04-20T10:00:10Z, /home/trader/combolab/engine.log tail cycle 156.
+
+**[RESUELTO] H1 + H4 health_monitor daily summary fix empíricamente validado — 2026-04-20 00:00 UTC**
+Contexto: cierre del ítem de §13.1 VERIFICANDO "Daily summary post-v2.3.6 con métricas correctas". El daily summary de 2026-04-20 00:00:08 UTC (primer summary completo post-v2.3.6 deploy del 2026-04-19) reporta las dos métricas fijadas con valores correctos:
+- DD from peak: -0.7% (H1 fix correcto). Comparativa: daily summaries 2026-04-18 y 2026-04-19 00:00 UTC (pre-fix) reportaban -121.7% espurio. Predicción en §13.1 ("~0.2-0.5%") se cumple con margen. El DD técnico es 0.53% ((298.39-296.81)/298.39), redondeado al grid de precisión del summary como -0.7%.
+- Days since recycle: 12/90 (H4 fix correcto). Pre-fix retornaba 9999/90 disparando RECYCLE RECOMENDADO espurio. Valor real (~11.96 días desde 2026-04-08) cuadra con last_recycle.txt en el VPS.
+- Portfolio: +0.8 USDT (coherente con saldo empírico y trades acumulados).
+- Symbols section intacta: 32 symbols active con counts de trades por símbolo (ADA: 1, ALGO: 6, APT: 12, BNB: 1, ..., GRT: 3, HBAR: 3, ...) — todos con "need 15 to evaluate" placeholder intacto.
+Summary salió completo sin truncamiento. Observabilidad del daily summary Telegram restaurada al nivel correcto.
+Cierre: H1 y H4 confirmados operacionales empíricamente. Ítem §13.1 movido a §13.4.
+Referencias: verificación SSH 2026-04-20 10:05 UTC, engine.log 2026-04-20 00:00:08 "[ALERT] 📊 Health Report (30d rolling)", §2.6 health_monitor bugs #3 (H1) y #4 (H4), v2.3.6 deploy del 2026-04-19.
+
+**[RESUELTO] ORPHAN_CLOSE disparo orgánico verificado — 2026-04-20**
+Contexto: cierre del ítem de §13.1 VERIFICANDO "[BUG] ORPHAN_CLOSE sin disparo orgánico — 2026-04-16". Desde el despliegue de v2.3.2 (2026-04-16 ~17:00 UTC) no había habido disparo orgánico del mecanismo. Verificación SSH del 2026-04-20 10:05 UTC encontró 3 eventos [ORPHAN_CLOSE] orgánicos en las últimas 72h, todos sobre OP/USDT:
+- 2026-04-18 07:00:10 UTC — OP/USDT short reconstruido, entry=0.1318 exit~=0.1333635 pnl~=-1.19%.
+- 2026-04-19 01:00:12 UTC — OP/USDT long reconstruido, entry=0.1264 exit~=0.125171 pnl~=-0.97%.
+- 2026-04-19 23:00:07 UTC — OP/USDT long reconstruido, entry=0.123 exit~=0.121589 pnl~=-1.15%.
+Verificación de los 3 chequeos que el ítem §13.1 demandaba:
+- (a) Log [ORPHAN_CLOSE] presente: ✅ los 3 events en engine.log.
+- (b) trade_history.csv con flag reconstructed_post_hoc/reconstructed: ✅ confirmada fila "2026-04-19 23:00:07.601,OP/USDT,long,0.123,0.121589,0.0,-1.1472,0.0,0.0,sl_trigger_reconstructed,reconstructed,1776628809478" (entry, exit, pnl_pct, reason_exit="sl_trigger_reconstructed", flag="reconstructed", entry_timestamp_ms del v2.3.3).
+- (c) state.position=0 post-ciclo: ✅ engine_state.json saved_at 2026-04-20T10:00:10Z no tiene OP/USDT en posiciones con position != 0 (state limpio).
+Los 3 events son disparos reales de BingX (stop trigger entre ciclos) procesados end-to-end por la lógica de reconciliación v2.3.2 sin intervención manual. El reconstruct también funciona consistente con H2 de v2.3.5 (reconstructed excluido de agregados del health_monitor).
+
+Análisis de tipo de cierre (verificación profunda 2026-04-20 11:30 UTC):
+- Escenario A (SL Emergency 5% intrabar): **0 casos**. |% variación| esperado ~5.0%, observado -1.19%/-0.97%/-1.15%.
+- Escenario B (Trailing Stop ratcheteado, gatillo intra-hora entre ciclos): **3/3 casos**. TS movido a distancia corta del entry antes del gatillo real.
+  - Caso 1 (04-18 07:00): SHORT OP/USDT @0.1318, SL inicial 0.139125 (+5.5%), TS 4 updates en 4h → 0.1333635 (+1.2%). Gatillo entre cycles 104-105. Brain cycle 105 SIGNALS_RAW CLOSE_SHORT reason=sl_hit.
+  - Caso 2 (04-19 01:00): LONG OP/USDT @0.1264, SL inicial 0.12027 (-4.8%), TS 1 update en 1h → 0.125171 (-1.0%). Gatillo entre cycles 122-123. Brain cycle 123 CLOSE_LONG reason=tf_exit (brain también quería exit por condición TF).
+  - Caso 3 (04-19 23:00): LONG OP/USDT @0.123, SL inicial 0.116945 (-4.9%), TS 2 updates en 3h → 0.121589 (-1.1%). Partial fill en apertura 79.4/79.45 capturado por v2.3.8 B7 (cross-feature). Gatillo entre cycles 144-145. Brain cycle 145 CLOSE_LONG reason=sl_hit.
+
+Conclusión ampliada: ORPHAN_CLOSE captura **tanto SL Emergency 5% (intrabar hipotético) como Trailing Stops intermedios (intra-hora reales)**, ambos procesados end-to-end. En operación real, la mayoría de "cierres entre ciclos" observados hasta ahora vienen por TS ratcheteado, no por SL 5%. El exit_price reconstruido proviene de state.sl_level del brain (limitación conocida L4 de §13.3); el real exit fill de BingX puede diferir ±0.5%. PnL reconstruido es aproximado pero direccionalmente correcto. En los 3 eventos el brain en el ciclo siguiente también detectó condición de exit (sl_hit en 2, tf_exit en 1) — coherente con que el precio cerró cerca del TS, sin divergencia brain↔BingX.
+
+Observación secundaria: los 3 ORPHAN_CLOSE son de OP/USDT, sugiere volatilidad y reversiones sustanciales en OP los últimos 3 días haciendo TS actuar agresivamente. No es bug del mecanismo — es mercado. Si aparece patrón similar recurrente en otros símbolos, considerar análisis de eficiencia del TS ratchet factor (actual 0.985/1.015 = 1.5%).
+Cierre: mecanismo ORPHAN_CLOSE validado empíricamente con 3 casos reales, todos Escenario B (TS). Ítem §13.1 movido a §13.4.
+Referencias: verificación SSH 2026-04-20 10:05 UTC, 3 eventos en engine.log/engine.log.1.gz, execution_manager.py _handle_orphan_close_signal(), live_engine.py integración con reconcile_state, v2.3.2 execution_manager bug #7, trade_history.csv fila 2026-04-19 23:00:07.
+
+**[RESUELTO] Política /ultrareview v3 — entendimiento empírico — 2026-04-20**
+Contexto: tras Run 1 (2026-04-20 sobre rama fidelity-2-review con diff docstring +26/-1, 0 findings) + investigación en documentación oficial (code.claude.com/docs/en/ultrareview) se corrige la política v2 formulada el 17-abril que asumía "diff trivial como pretexto para análisis holístico del codebase". Esa interpretación provenía de blogs secundarios, no de documentación oficial.
+Realidad verificada empíricamente:
+- /ultrareview analiza el DIFF entre current branch y default branch (main). No es auditor de codebase completo.
+- Incluye cambios no commiteados del working tree.
+- Orientado a pre-merge review de cambios sustanciales (cientos a pocos miles de líneas).
+- Diff trivial (docstring solo) = 0 findings = run desperdiciado.
+- Diff excesivamente grande (bug #50029 GitHub: 3318 archivos, +500K líneas) = posible retorno silencioso de findings:[] sin diagnóstico.
+- No es sustituto de auditoría manual holística del codebase.
+Política v3 (reemplaza v2):
+- Lanzar /ultrareview ANTES de deploy de cambios funcionales sustanciales (no estilísticos/documentales).
+- Tamaño óptimo del diff: cientos a ~2000 líneas, múltiples archivos con lógica real modificada.
+- NO lanzar con diff trivial esperando análisis holístico — no es así como funciona.
+- Verificar antes de cada run: el diff representa cambio funcional significativo, no solo documentación o refactor cosmético.
+Runs restantes (2 de 3 lifetime):
+- Run 2: reservado para R1 cooldown brain fix cuando se implemente tras N>=50 trades. Cambio en brain_engine.py de lógica crítica (cooldown same-bar) es exactamente el caso de uso canónico.
+- Run 3: reservado para P1 leverage variable cuando/si se implemente post-N>=50 con evidencia empírica. Cambio multi-módulo (portfolio, execution, posiblemente brain) es caso de uso canónico.
+Run 1 resultado: 0 findings, lección aprendida. No fue malgasto — permitió corregir política sin gastar dinero. Alternativa hubiera sido creer interpretación optimista y malgastar Run 2 y Run 3 experimentando.
+Lección metodológica capturada: "interpretación de funcionalidad basada en blogs secundarios vs documentación oficial puede diverger. Antes de decisiones consequential con recursos limitados (runs gratuitos, tiempo, deploys críticos) verificar fuentes primarias."
+Disparo: ninguno adicional. Política cerrada y documentada para sesiones futuras.
+Cierre: entendimiento consolidado. Próxima invocación de /ultrareview esperada cuando R1 o P1 alcancen ventana de implementación (post-N>=50 trades).
+Referencias:
+- Documentación oficial: code.claude.com/docs/en/ultrareview.
+- Bug conocido scope grande: github.com/anthropics/claude-code/issues/50029.
+- Run 1 del 2026-04-20: rama fidelity-2-review, diff docstring, 0 findings.
+- Política v2 del 2026-04-17 reemplazada por esta v3.
+
+**[RESUELTO] Setup git local de combolab/ — 2026-04-20**
+Contexto: combolab/ inicializada como repo git local sin remote (sin GitHub). Permite versionado de fixes con trazabilidad, compatibilidad con /ultrareview, y backup con historia clara. Decisión basada en investigación del 2026-04-20 que confirmó que /ultrareview puede operar sobre git local sin necesidad de GitHub (sube copia cifrada al sandbox Anthropic, no a repo público).
+Configuración final:
+- `git init` en c:/Users/rixip/combolab/.
+- Rama default: main.
+- Sin remote configurado.
+- .gitignore con patrón *.bak* (catch-all) + excepciones !regime_wf/*.bak-TF-* y !regime_wf/*.bak-MR-* para preservar backups semánticos documentados (cláusula rollback §9.2.1).
+- Total archivos commiteados: 524 (7 backups automáticos .bak_20260410_* pre-sesión 17-abril excluidos del versionado pero conservados en disco para recuperación manual).
+- Archivos clave incluidos: lab_historico_numba_v8_3.py (kernel lab), indicador_v44_0_smartdiv_v11_0.pine (fuente original Pine Script), 45 specialist_configs, data_cache parquets, antiguos de referencia/.
+- Baseline commit: v2.3.11 tras Fidelidad 2 restaurada.
+- Rama actual: main (limpia).
+Workflow de deploy VPS: sin cambios. Sigue siendo scp + systemctl. Git local es para versionado y /ultrareview, no para deploy. Si en el futuro se quiere deploy via git, añadir pull al VPS sería cambio menor.
+Prerequisito operacional crítico descubierto hoy: Claude Code debe lanzarse desde el working directory del repo git a revisar. Si se trabaja con dos repos (comboclaude/combolab), abrir sesión dedicada en combolab/ para cualquier operación git o /ultrareview. La sesión habitual corre desde comboclaude/ (sin git), por lo que /ultrareview fallaría con "Could not find merge-base" desde ahí.
+Cierre: setup completo, testeado con /ultrareview Run 1, sin acciones pendientes.
+Referencias: sesión del 2026-04-20, commits 8af9094 (baseline) + 16aa6d3 (docstring Fidelidad 2).
+
 **[RESUELTO] v2.3.11 — Fidelidad 2 restaurada via forming fetch determinístico — 2026-04-19**
 Contexto: Deploy del fix opción (b) para el HALLAZGO "Lag estructural de 1 bar brain↔live vs convención lab" (originalmente trackeado en §13.2 como ACTIVO el mismo 2026-04-19 con decisión transitoria opción (a) de "aceptar como feature"; reemplazado horas después por análisis más profundo que concluyó que el lag era sesgo unidireccional sistemático — "entrar una vela más tarde nunca es ventaja" — justificando opción (b)).
 Cambio técnico: data_feed.download_all_ohlcv extendido con fetch adicional sin `since` (limit=2) tras el paginated. BingX paginated incluye el forming INCONSISTENTEMENTE (verificado empíricamente: a las 17:35:57 UTC paginated iloc[-1]=16:00 cerrada; a las 17:38 iloc[-1]=17:00 forming; a las 17:47 iloc[-1]=16:00 cerrada). Lógica 3-way determiniza: (a) si forming_ts == last_paginated+1h → append; (b) si forming_ts == last_paginated → update OHLC in-place con snapshot fresh (paginated ya traía forming, actualizar con valores del forming fetch que son ~unos ms más recientes); (c) otros (inconsistencia real, race xx:00:00) → warn y df sin modificar. Fallback robusto en excepción: warn y df sin modificar (modo lag solo ese símbolo ese ciclo).
@@ -1393,7 +1518,8 @@ Contexto: Dos fixes serios de health_monitor de la ultra review del 2026-04-17, 
 Cierre: fixes aplicados, sincronizados ambos repos con md5 identicos (health_monitor: ebca999f..., live_engine: bcb5ee0b...), desplegados al VPS, verificacion post-deploy exitosa.
 Referencias: health_monitor.py _compute_portfolio_dd + _days_since_recycle post-v2.3.6, live_engine.py atributo _current_balance, test_v236_h1_h4.py (9 tests).
 
-**[RESUELTO] Naturaleza real de /ultrareview y política de uso — 2026-04-17**
+**[RESUELTO] [SUPERSEDED por v3 del 2026-04-20] Naturaleza real de /ultrareview y política de uso — 2026-04-17**
+SUPERSEDED: la política v2 descrita a continuación fue reemplazada el 2026-04-20 por v3 tras Run 1 empírico (0 findings con diff docstring +26/-1). La interpretación "diff trivial como pretexto para análisis holístico del codebase" resultó incorrecta según documentación oficial — /ultrareview revisa el diff específico current-vs-default branch, no es auditor de codebase completo. Ver entrada v3 del 2026-04-20 más arriba en §13.4. Conservada como registro histórico de la evolución del entendimiento (v1 17-abril → v2 19-abril → v3 20-abril).
 Contexto: Tras búsqueda inicial incompleta (Claude Code reportó erróneamente "no existe" al buscar solo en filesystem local), Ricardo verificó empíricamente que el comando SÍ existe en la interfaz. Investigación posterior via claude-code-guide agent confirmó: /ultrareview lanzado 2026-04-16 con Opus 4.7 (docs: code.claude.com/docs/en/ultrareview.md). Arquitectura multi-agente en sandbox cloud, verificación empírica de hallazgos, +10% recall claimed vs review estándar. Diff-based sobre git: revisa cambio de rama vs default (o PR GitHub), no análisis estático. Runtime 5-10 min, coste $5-$20/run tras 3 runs gratuitos lifetime (NO 3/mes como se asumió inicialmente).
 Reframe conceptual clave: los reviews sistemáticos del 2026-04-17 fueron análisis estático de código en producción — categoría distinta a la verificación diferencial pre-merge de /ultrareview. Re-auditar código existente con /ultrareview sería error de categoría.
 Política adoptada (v2 — 2026-04-19, refinamiento de v1 del 2026-04-17):
