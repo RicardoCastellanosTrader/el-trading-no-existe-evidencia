@@ -1,0 +1,61 @@
+Flujo completo desde cero:
+Paso 1: Descargar históricos completos (si no están ya)
+python download_full_history.py
+Genera: data_cache/*.parquet (48 símbolos)
+Paso 2: Entrenar modelos de régimen
+python train_regime_model.py
+Lee: data_cache/*.parquet
+Genera: regime_models/*.joblib + regime_models/regime_report.txt
+Paso 3: Generar presets (lab_lite + lab_historico + extractor)
+python pipeline.py --phase extractor --output-dir output/test_cluster_v2
+Lee: data_cache/*.parquet, regime_models/*.joblib
+Genera: output/test_cluster_v2/SYMBOL/presets_SYMBOL.csv, gemas_SYMBOL.csv, full_*.csv
+Paso 4: Regime walk-forward (lo costoso, ~8h por símbolo)
+python regime_walk_forward.py --presets-dir output/test_cluster_v2 --toxic-tail dynamic
+Lee: data_cache/*.parquet, regime_models/*.joblib, output/test_cluster_v2/*/presets_*.csv
+Genera: regime_wf/SYMBOL_specialist_configs.json, *_specialists_report.txt, *_cluster_K_specialists.csv
+
+Carpetas que NECESITAS:
+combolab/
+├── data_cache/              # Históricos OHLCV (MANTENER)
+├── regime_models/           # Se regenera en paso 2
+├── output/test_cluster_v2/  # Se regenera en paso 3 (BTC ya está, los demás se añaden)
+└── regime_wf/               # Se regenera en paso 4 (BTC ya está con toxic tail dynamic)
+Carpetas que puedes BORRAR:
+combolab/
+├── wf_full/                 # Walk-forward original (referencia histórica, no se usa)
+├── wf_validation/           # Walk-forward validación (referencia histórica, no se usa)
+├── output/test_cluster/     # Run viejo sin cluster eval (si existe)
+├── output/test_scoring/     # Run viejo de scoring test (si existe)
+└── regime_wf/_parts_*/      # Part files temporales (si quedaron)
+Scripts que NECESITAS:
+regime_features.py, train_regime_model.py, download_full_history.py,
+lab_lite_zonas_v5e.py, lab_historico_numba_v8_3.py, lab_cuda.py,
+extractor_gemas.py, pipeline.py, regime_walk_forward.py, data_cache.py
+Scripts de REFERENCIA (no se usan en el flujo, puedes archivar):
+walk_forward_experiment.py, analyze_train_test.py, walk_forward_v1.py,
+lab_lite_zonas_v5d.py, validador_batch_v3.py, validador_v8_2.py,
+verify_*.py, generate_reference_dataset.py, fix_dataset_fwd_indices.py
+Sobre BTC: los resultados de regime_wf/BTCUSDT_* (JSON, CSVs, reportes) son del run con toxic tail dinámico y SQN haircut. Están bien. Pero los presets en output/test_cluster_v2/BTCUSDT/ se generaron con modelos de régimen viejos (50K barras). Al re-entrenar modelos (paso 2) y re-generar presets (paso 3), los presets de BTC cambiarán ligeramente. Eso significa que el regime walk-forward de BTC debería re-correrse también para consistencia. ¿Quieres re-hacer BTC limpio o mantener el actual?entonces vamos a generar todo nuevo, para poder implementarlo en producción cuando llegue el momento20:03Preparó implementación nueva desde cero para producciónPreparó implementación nueva desde cero para producciónPerfecto. Todo limpio:
+cd c:\Users\rixip\combolab
+
+REM Borrar datos generados (mantener solo scripts y data_cache)
+rmdir /S /Q regime_models
+rmdir /S /Q regime_wf
+rmdir /S /Q output\test_cluster_v2
+rmdir /S /Q output\test_cluster
+rmdir /S /Q output\test_scoring
+
+REM Paso 1: Históricos (si ya están actualizados, saltar)
+python download_full_history.py
+
+REM Paso 2: Modelos de régimen (~minutos)
+python train_regime_model.py
+
+REM Paso 3: Presets para los 48 símbolos (lab_lite + lab_historico + extractor)
+python pipeline.py --phase extractor --output-dir output/production
+
+REM Paso 4: Regime walk-forward (~8h × 48 símbolos)
+python regime_walk_forward.py --presets-dir output/production --toxic-tail dynamic
+Los pasos 1-3 son relativamente rápidos. El paso 4 es el largo — puedes lanzarlo e ir a dormir. El resume funciona, así que si se interrumpe puedes relanzar el mismo comando y continúa.
+El output final de todo el proceso será regime_wf/SYMBOL_specialist_configs.json para cada símbolo — el diccionario de especialistas listo para el bot en producción.

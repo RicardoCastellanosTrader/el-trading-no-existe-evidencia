@@ -1,0 +1,1008 @@
+============================================================================================================================================
+RANKING LITE v5e — CLUSTERING DE REGÍMENES — AAVE/USDT
+Score = (PnL_cand/PnL_ema) × (1 - 0.3 × ExcessCrossRate)  [EMA<=0: PnL/10]
+Referencia: EMA(10/55/200) → PnL=-76.82% | 199t | 156 rawX
+============================================================================================================================================
+Velas: 5225 | 2025-08-21 08:00:00 → 2026-03-27 00:00:00
+Warmup: 225 | Velas medidas: 5000 (0.57yr)
+Configs: 61,200 | Válidas (≥10t): 61,180 | Superan EMA: 53,502
+Comisiones: 0.1% | B&H: -66.8%
+Tiempo: 0.1s
+
+================================================================================
+CLUSTERING DE REGÍMENES
+================================================================================
+Método: pretrained_GMM(k=3)
+Features: Hurst, Z_ATR, ER
+Training bars: 47662
+Training range: 2020-10-15 → 2026-03-24
+
+  Cluster 0 (neutral/low-vol/choppy): 2148 bars (51%)
+    Centroides: Hurst=0.524 NATR=-0.6474 VolImb=0.103
+    EMA ref: PnL=-24.69% | 66 trades
+  Cluster 1 (neutral/norm-vol/choppy): 1253 bars (30%)
+    Centroides: Hurst=0.510 NATR=0.0836 VolImb=0.043
+    EMA ref: PnL=-61.23% | 87 trades
+  Cluster 2 (neutral/high-vol): 825 bars (20%)
+    Centroides: Hurst=0.522 NATR=0.6100 VolImb=0.162
+    EMA ref: PnL=-25.26% | 12 trades
+
+============================================================================================================================================
+RANKING GLOBAL (backward compatible con v5d)
+============================================================================================================================================
+
+#   1 | Score=21.5205 | PnL=+230.26% (vs EMA +307.08%) | 190t (333/yr) | RawX=190(1.22x) | XPen=0.22
+      Fast: SMA(24) | Slow: DEMA(30) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+47.3% 68t PF=1.55 | C1(neutral/norm-vol/choppy): PnL=+37.0% 66t PF=1.45 | C2(neutral/high-vol): PnL=+56.2% 30t PF=4.49
+
+#   2 | Score=21.3557 | PnL=+213.56% (vs EMA +290.38%) | 120t (210/yr) | RawX=120(0.77x) | XPen=0.00
+      Fast: SMA(24) | Slow: ZLEMA(49) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-5.0% 43t PF=0.94 | C1(neutral/norm-vol/choppy): PnL=+61.3% 41t PF=1.97 | C2(neutral/high-vol): PnL=+50.6% 14t PF=398.73
+
+#   3 | Score=20.6125 | PnL=+216.10% (vs EMA +292.92%) | 180t (315/yr) | RawX=180(1.15x) | XPen=0.15
+      Fast: SMA(24) | Slow: DEMA(33) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+49.6% 66t PF=1.70 | C1(neutral/norm-vol/choppy): PnL=+63.4% 69t PF=1.90 | C2(neutral/high-vol): PnL=+30.7% 25t PF=2.91
+
+#   4 | Score=20.3829 | PnL=+224.56% (vs EMA +301.38%) | 204t (357/yr) | RawX=204(1.31x) | XPen=0.31
+      Fast: T3(20,v0.7) | Slow: TEMA(57) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+39.0% 79t PF=1.40 | C1(neutral/norm-vol/choppy): PnL=+39.4% 64t PF=1.49 | C2(neutral/high-vol): PnL=+51.5% 33t PF=4.52
+
+#   5 | Score=20.1388 | PnL=+201.39% (vs EMA +278.21%) | 132t (231/yr) | RawX=132(0.85x) | XPen=0.00
+      Fast: VIDYA(14) | Slow: ZLEMA(33) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-7.3% 47t PF=0.92 | C1(neutral/norm-vol/choppy): PnL=+75.5% 46t PF=2.47 | C2(neutral/high-vol): PnL=+37.8% 17t PF=3.81
+
+#   6 | Score=20.1279 | PnL=+216.70% (vs EMA +293.52%) | 193t (338/yr) | RawX=193(1.24x) | XPen=0.24
+      Fast: ALMA(22,0.5,4) | Slow: ZLEMA(39) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+22.9% 73t PF=1.25 | C1(neutral/norm-vol/choppy): PnL=+45.1% 61t PF=1.54 | C2(neutral/high-vol): PnL=+44.9% 28t PF=4.56
+
+#   7 | Score=20.1267 | PnL=+217.59% (vs EMA +294.41%) | 195t (342/yr) | RawX=195(1.25x) | XPen=0.25
+      Fast: ALMA(22,0.5,4) | Slow: ZLEMA(42) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+29.7% 69t PF=1.38 | C1(neutral/norm-vol/choppy): PnL=+21.7% 61t PF=1.21 | C2(neutral/high-vol): PnL=+56.6% 34t PF=11.33
+
+#   8 | Score=20.0177 | PnL=+200.18% (vs EMA +277.00%) | 122t (214/yr) | RawX=122(0.78x) | XPen=0.00
+      Fast: VIDYA(20) | Slow: ZLEMA(30) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+23.5% 51t PF=1.32 | C1(neutral/norm-vol/choppy): PnL=+51.6% 39t PF=1.79 | C2(neutral/high-vol): PnL=+34.3% 14t PF=104.82
+
+#   9 | Score=19.8301 | PnL=+198.30% (vs EMA +275.12%) | 126t (221/yr) | RawX=126(0.81x) | XPen=0.00
+      Fast: VIDYA(14) | Slow: TEMA(42) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+3.9% 49t PF=1.05 | C1(neutral/norm-vol/choppy): PnL=+72.7% 43t PF=2.37 | C2(neutral/high-vol): PnL=+35.0% 16t PF=4.10
+
+#  10 | Score=19.5702 | PnL=+195.70% (vs EMA +272.52%) | 128t (224/yr) | RawX=128(0.82x) | XPen=0.00
+      Fast: VIDYA(14) | Slow: ZLEMA(36) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-5.0% 48t PF=0.94 | C1(neutral/norm-vol/choppy): PnL=+79.2% 44t PF=2.57 | C2(neutral/high-vol): PnL=+26.3% 16t PF=3.10
+
+#  11 | Score=19.4517 | PnL=+222.79% (vs EMA +299.62%) | 222t (389/yr) | RawX=222(1.42x) | XPen=0.42
+      Fast: T3(18,v0.7) | Slow: TEMA(54) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+68.6% 84t PF=1.79 | C1(neutral/norm-vol/choppy): PnL=+19.7% 80t PF=1.20 | C2(neutral/high-vol): PnL=+45.6% 28t PF=4.40
+
+#  12 | Score=19.3714 | PnL=+193.71% (vs EMA +270.54%) | 122t (214/yr) | RawX=122(0.78x) | XPen=0.00
+      Fast: VIDYA(14) | Slow: TEMA(39) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-5.5% 44t PF=0.94 | C1(neutral/norm-vol/choppy): PnL=+84.2% 44t PF=2.66 | C2(neutral/high-vol): PnL=+26.8% 12t PF=3.20
+
+#  13 | Score=19.1859 | PnL=+191.86% (vs EMA +268.68%) | 87t (152/yr) | RawX=87(0.56x) | XPen=0.00
+      Fast: McGinley(16) | Slow: TEMA(75) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+66.9% 35t PF=2.47 | C1(neutral/norm-vol/choppy): PnL=+18.7% 21t PF=1.41 | C2(neutral/high-vol): PnL=+34.3% 11t PF=2.51
+
+#  14 | Score=19.1512 | PnL=+191.51% (vs EMA +268.33%) | 120t (210/yr) | RawX=120(0.77x) | XPen=0.00
+      Fast: VIDYA(16) | Slow: ZLEMA(33) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+14.5% 45t PF=1.21 | C1(neutral/norm-vol/choppy): PnL=+50.0% 45t PF=1.64 | C2(neutral/high-vol): PnL=+38.6% 12t PF=17.98
+
+#  15 | Score=18.8883 | PnL=+226.31% (vs EMA +303.13%) | 242t (424/yr) | RawX=242(1.55x) | XPen=0.55
+      Fast: T3(20,v0.8) | Slow: TEMA(54) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+68.9% 94t PF=1.77 | C1(neutral/norm-vol/choppy): PnL=+23.5% 83t PF=1.20 | C2(neutral/high-vol): PnL=+52.4% 33t PF=2.80
+
+#  16 | Score=18.8813 | PnL=+188.81% (vs EMA +265.64%) | 118t (207/yr) | RawX=118(0.76x) | XPen=0.00
+      Fast: VIDYA(18) | Slow: HMA(39) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+15.4% 49t PF=1.21 | C1(neutral/norm-vol/choppy): PnL=+49.0% 38t PF=1.72 | C2(neutral/high-vol): PnL=+43.3% 13t PF=21.03
+
+#  17 | Score=18.4339 | PnL=+184.34% (vs EMA +261.16%) | 128t (224/yr) | RawX=128(0.82x) | XPen=0.00
+      Fast: VIDYA(14) | Slow: TEMA(33) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+4.4% 45t PF=1.05 | C1(neutral/norm-vol/choppy): PnL=+56.4% 49t PF=1.77 | C2(neutral/high-vol): PnL=+40.6% 14t PF=11.48
+
+#  18 | Score=18.2624 | PnL=+190.31% (vs EMA +267.13%) | 177t (310/yr) | RawX=177(1.13x) | XPen=0.13
+      Fast: ALMA(24,0.5,4) | Slow: ZLEMA(42) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+36.7% 67t PF=1.44 | C1(neutral/norm-vol/choppy): PnL=+34.5% 56t PF=1.39 | C2(neutral/high-vol): PnL=+41.0% 25t PF=5.74
+
+#  19 | Score=18.2359 | PnL=+205.70% (vs EMA +282.52%) | 215t (377/yr) | RawX=215(1.38x) | XPen=0.38
+      Fast: ALMA(24,0.5,6) | Slow: ZLEMA(39) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+35.9% 82t PF=1.41 | C1(neutral/norm-vol/choppy): PnL=+38.0% 66t PF=1.46 | C2(neutral/high-vol): PnL=+42.3% 32t PF=3.32
+
+#  20 | Score=17.8687 | PnL=+178.69% (vs EMA +255.51%) | 120t (210/yr) | RawX=120(0.77x) | XPen=0.00
+      Fast: VIDYA(14) | Slow: TEMA(45) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+16.8% 46t PF=1.24 | C1(neutral/norm-vol/choppy): PnL=+47.7% 40t PF=1.80 | C2(neutral/high-vol): PnL=+35.5% 14t PF=4.85
+
+#  21 | Score=17.8561 | PnL=+186.82% (vs EMA +263.65%) | 179t (314/yr) | RawX=179(1.15x) | XPen=0.15
+      Fast: ALMA(24,0.5,4) | Slow: ZLEMA(45) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+18.2% 60t PF=1.21 | C1(neutral/norm-vol/choppy): PnL=+31.6% 63t PF=1.34 | C2(neutral/high-vol): PnL=+50.8% 27t PF=28.76
+
+#  22 | Score=17.6669 | PnL=+176.67% (vs EMA +253.49%) | 144t (252/yr) | RawX=144(0.92x) | XPen=0.00
+      Fast: VIDYA(12) | Slow: ALMA(30,0.85,6) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-7.5% 55t PF=0.92 | C1(neutral/norm-vol/choppy): PnL=+60.5% 48t PF=2.05 | C2(neutral/high-vol): PnL=+51.4% 21t PF=5.47
+
+#  23 | Score=17.5395 | PnL=+175.40% (vs EMA +252.22%) | 138t (242/yr) | RawX=138(0.88x) | XPen=0.00
+      Fast: VIDYA(18) | Slow: HMA(30) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-6.0% 54t PF=0.94 | C1(neutral/norm-vol/choppy): PnL=+80.4% 49t PF=2.84 | C2(neutral/high-vol): PnL=+35.0% 13t PF=10.93
+
+#  24 | Score=17.4913 | PnL=+174.91% (vs EMA +251.74%) | 120t (210/yr) | RawX=120(0.77x) | XPen=0.00
+      Fast: VIDYA(16) | Slow: HMA(42) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+21.0% 45t PF=1.31 | C1(neutral/norm-vol/choppy): PnL=+69.5% 44t PF=2.11 | C2(neutral/high-vol): PnL=+12.6% 13t PF=1.72
+
+#  25 | Score=17.4637 | PnL=+174.64% (vs EMA +251.46%) | 97t (170/yr) | RawX=97(0.62x) | XPen=0.00
+      Fast: McGinley(16) | Slow: TEMA(72) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+20.8% 38t PF=1.24 | C1(neutral/norm-vol/choppy): PnL=+29.2% 28t PF=1.65 | C2(neutral/high-vol): PnL=+60.6% 11t PF=10.93
+
+#  26 | Score=17.3954 | PnL=+173.95% (vs EMA +250.78%) | 132t (231/yr) | RawX=132(0.85x) | XPen=0.00
+      Fast: VIDYA(14) | Slow: JMA(30) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-24.3% 49t PF=0.77 | C1(neutral/norm-vol/choppy): PnL=+100.2% 46t PF=4.32 | C2(neutral/high-vol): PnL=+25.5% 17t PF=2.25
+
+#  27 | Score=17.2903 | PnL=+187.70% (vs EMA +264.52%) | 197t (345/yr) | RawX=197(1.26x) | XPen=0.26
+      Fast: SMA(20) | Slow: TEMA(36) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+22.4% 76t PF=1.23 | C1(neutral/norm-vol/choppy): PnL=+40.8% 62t PF=1.55 | C2(neutral/high-vol): PnL=+45.2% 28t PF=3.33
+
+#  28 | Score=17.2216 | PnL=+178.39% (vs EMA +255.21%) | 174t (305/yr) | RawX=174(1.12x) | XPen=0.12
+      Fast: SMA(24) | Slow: DEMA(36) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+36.9% 70t PF=1.44 | C1(neutral/norm-vol/choppy): PnL=+58.8% 67t PF=1.97 | C2(neutral/high-vol): PnL=+25.9% 13t PF=4.09
+
+#  29 | Score=17.1825 | PnL=+171.83% (vs EMA +248.65%) | 122t (214/yr) | RawX=122(0.78x) | XPen=0.00
+      Fast: VIDYA(16) | Slow: ALMA(30,0.85,6) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+3.0% 45t PF=1.04 | C1(neutral/norm-vol/choppy): PnL=+57.3% 41t PF=2.11 | C2(neutral/high-vol): PnL=+34.2% 16t PF=9.24
+
+#  30 | Score=17.1254 | PnL=+172.25% (vs EMA +249.07%) | 159t (279/yr) | RawX=159(1.02x) | XPen=0.02
+      Fast: SMA(18) | Slow: ZLEMA(42) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-32.6% 55t PF=0.71 | C1(neutral/norm-vol/choppy): PnL=+87.0% 55t PF=2.80 | C2(neutral/high-vol): PnL=+34.7% 20t PF=8.13
+
+#  31 | Score=17.0762 | PnL=+238.06% (vs EMA +314.88%) | 303t (531/yr) | RawX=303(1.94x) | XPen=0.94
+      Fast: ALMA(20,0.5,6) | Slow: JMA(33) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+69.6% 126t PF=1.64 | C1(neutral/norm-vol/choppy): PnL=+18.9% 95t PF=1.16 | C2(neutral/high-vol): PnL=+37.2% 43t PF=2.25
+
+#  32 | Score=17.0256 | PnL=+170.26% (vs EMA +247.08%) | 128t (224/yr) | RawX=128(0.82x) | XPen=0.00
+      Fast: VIDYA(16) | Slow: ZLEMA(30) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-4.3% 51t PF=0.95 | C1(neutral/norm-vol/choppy): PnL=+83.2% 46t PF=2.91 | C2(neutral/high-vol): PnL=+18.5% 11t PF=2.66
+
+#  33 | Score=16.6823 | PnL=+208.03% (vs EMA +284.85%) | 259t (454/yr) | RawX=259(1.66x) | XPen=0.66
+      Fast: ALMA(22,0.5,6) | Slow: ZLEMA(42) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+13.5% 86t PF=1.14 | C1(neutral/norm-vol/choppy): PnL=+32.0% 99t PF=1.29 | C2(neutral/high-vol): PnL=+53.8% 33t PF=15.92
+
+#  34 | Score=16.6280 | PnL=+166.28% (vs EMA +243.10%) | 151t (265/yr) | RawX=151(0.97x) | XPen=0.00
+      Fast: McGinley(22) | Slow: TEMA(33) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-17.7% 57t PF=0.85 | C1(neutral/norm-vol/choppy): PnL=+56.5% 44t PF=1.98 | C2(neutral/high-vol): PnL=+64.9% 27t PF=5.28
+
+#  35 | Score=16.5570 | PnL=+165.57% (vs EMA +242.39%) | 114t (200/yr) | RawX=114(0.73x) | XPen=0.00
+      Fast: EMA(22) | Slow: DEMA(30) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-8.5% 49t PF=0.92 | C1(neutral/norm-vol/choppy): PnL=+73.3% 34t PF=3.10 | C2(neutral/high-vol): PnL=+23.9% 9t PF=12.37
+
+#  36 | Score=16.5274 | PnL=+165.27% (vs EMA +242.10%) | 116t (203/yr) | RawX=116(0.74x) | XPen=0.00
+      Fast: McGinley(24) | Slow: DEMA(30) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-10.4% 48t PF=0.90 | C1(neutral/norm-vol/choppy): PnL=+83.5% 38t PF=2.78 | C2(neutral/high-vol): PnL=+25.6% 10t PF=7.74
+
+#  37 | Score=16.5088 | PnL=+165.09% (vs EMA +241.91%) | 132t (231/yr) | RawX=132(0.85x) | XPen=0.00
+      Fast: VIDYA(14) | Slow: SSmoother(30) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+19.9% 49t PF=1.34 | C1(neutral/norm-vol/choppy): PnL=+54.1% 46t PF=1.79 | C2(neutral/high-vol): PnL=+19.2% 17t PF=2.12
+
+#  38 | Score=16.4978 | PnL=+164.98% (vs EMA +241.80%) | 81t (142/yr) | RawX=81(0.52x) | XPen=0.00
+      Fast: McGinley(20) | Slow: DEMA(72) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+43.9% 36t PF=1.70 | C1(neutral/norm-vol/choppy): PnL=+11.9% 18t PF=1.34 | C2(neutral/high-vol): PnL=+45.1% 14t PF=2.42
+
+#  39 | Score=16.3431 | PnL=+163.43% (vs EMA +240.25%) | 114t (200/yr) | RawX=114(0.73x) | XPen=0.00
+      Fast: EMA(24) | Slow: DEMA(30) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-16.1% 48t PF=0.85 | C1(neutral/norm-vol/choppy): PnL=+79.6% 35t PF=3.24 | C2(neutral/high-vol): PnL=+24.7% 9t PF=15.99
+
+#  40 | Score=16.3371 | PnL=+173.02% (vs EMA +249.84%) | 185t (324/yr) | RawX=185(1.19x) | XPen=0.19
+      Fast: SMA(20) | Slow: TEMA(39) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-10.8% 75t PF=0.90 | C1(neutral/norm-vol/choppy): PnL=+50.0% 54t PF=1.75 | C2(neutral/high-vol): PnL=+58.2% 25t PF=5.35
+
+#  41 | Score=16.3214 | PnL=+185.31% (vs EMA +262.13%) | 218t (382/yr) | RawX=218(1.40x) | XPen=0.40
+      Fast: T3(18,v0.7) | Slow: TEMA(51) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+57.5% 86t PF=1.61 | C1(neutral/norm-vol/choppy): PnL=+23.0% 77t PF=1.23 | C2(neutral/high-vol): PnL=+41.2% 29t PF=3.42
+
+#  42 | Score=16.1639 | PnL=+161.64% (vs EMA +238.46%) | 116t (203/yr) | RawX=116(0.74x) | XPen=0.00
+      Fast: McGinley(22) | Slow: DEMA(30) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+11.3% 48t PF=1.14 | C1(neutral/norm-vol/choppy): PnL=+60.3% 38t PF=1.97 | C2(neutral/high-vol): PnL=+26.6% 10t PF=16.59
+
+#  43 | Score=16.1482 | PnL=+176.78% (vs EMA +253.60%) | 201t (352/yr) | RawX=201(1.29x) | XPen=0.29
+      Fast: FRAMA(22) | Slow: TEMA(60) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+52.7% 74t PF=1.48 | C1(neutral/norm-vol/choppy): PnL=+6.9% 68t PF=1.07 | C2(neutral/high-vol): PnL=+66.9% 29t PF=4.47
+
+#  44 | Score=16.0292 | PnL=+160.29% (vs EMA +237.11%) | 124t (217/yr) | RawX=124(0.79x) | XPen=0.00
+      Fast: VIDYA(14) | Slow: TEMA(48) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+1.7% 47t PF=1.02 | C1(neutral/norm-vol/choppy): PnL=+61.7% 42t PF=2.13 | C2(neutral/high-vol): PnL=+32.5% 17t PF=4.72
+
+#  45 | Score=16.0271 | PnL=+168.37% (vs EMA +245.19%) | 181t (317/yr) | RawX=181(1.16x) | XPen=0.16
+      Fast: ALMA(24,0.5,4) | Slow: ZLEMA(39) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+12.6% 68t PF=1.12 | C1(neutral/norm-vol/choppy): PnL=+62.3% 59t PF=1.99 | C2(neutral/high-vol): PnL=+37.4% 27t PF=3.19
+
+#  46 | Score=15.9485 | PnL=+159.48% (vs EMA +236.31%) | 143t (251/yr) | RawX=143(0.92x) | XPen=0.00
+      Fast: McGinley(24) | Slow: ZLEMA(33) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-23.5% 52t PF=0.81 | C1(neutral/norm-vol/choppy): PnL=+85.6% 47t PF=3.11 | C2(neutral/high-vol): PnL=+51.3% 25t PF=4.92
+
+#  47 | Score=15.8677 | PnL=+189.25% (vs EMA +266.07%) | 240t (420/yr) | RawX=240(1.54x) | XPen=0.54
+      Fast: T3(20,v0.8) | Slow: TEMA(57) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+66.7% 95t PF=1.70 | C1(neutral/norm-vol/choppy): PnL=+20.3% 84t PF=1.16 | C2(neutral/high-vol): PnL=+42.1% 31t PF=2.49
+
+#  48 | Score=15.7011 | PnL=+157.01% (vs EMA +233.83%) | 130t (228/yr) | RawX=130(0.83x) | XPen=0.00
+      Fast: VIDYA(20) | Slow: HMA(30) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+4.0% 52t PF=1.05 | C1(neutral/norm-vol/choppy): PnL=+72.3% 45t PF=2.38 | C2(neutral/high-vol): PnL=+31.1% 15t PF=10.60
+
+#  49 | Score=15.6987 | PnL=+163.27% (vs EMA +240.09%) | 176t (308/yr) | RawX=176(1.13x) | XPen=0.13
+      Fast: T3(22,v0.7) | Slow: TEMA(69) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+3.8% 66t PF=1.03 | C1(neutral/norm-vol/choppy): PnL=+71.5% 69t PF=2.05 | C2(neutral/high-vol): PnL=+35.6% 15t PF=17.23
+
+#  50 | Score=15.6354 | PnL=+156.35% (vs EMA +233.18%) | 124t (217/yr) | RawX=124(0.79x) | XPen=0.00
+      Fast: VIDYA(18) | Slow: ZLEMA(30) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+17.5% 50t PF=1.24 | C1(neutral/norm-vol/choppy): PnL=+48.1% 40t PF=1.73 | C2(neutral/high-vol): PnL=+29.0% 14t PF=7.71
+
+#  51 | Score=15.5950 | PnL=+155.95% (vs EMA +232.77%) | 124t (217/yr) | RawX=124(0.79x) | XPen=0.00
+      Fast: VIDYA(18) | Slow: ZLEMA(33) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+3.7% 47t PF=1.05 | C1(neutral/norm-vol/choppy): PnL=+49.7% 42t PF=1.71 | C2(neutral/high-vol): PnL=+40.1% 17t PF=8.57
+
+#  52 | Score=15.5935 | PnL=+155.93% (vs EMA +232.76%) | 137t (240/yr) | RawX=137(0.88x) | XPen=0.00
+      Fast: T3(20,v0.7) | Slow: HMA(72) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+21.1% 56t PF=1.20 | C1(neutral/norm-vol/choppy): PnL=+45.1% 37t PF=1.81 | C2(neutral/high-vol): PnL=+28.8% 21t PF=2.82
+
+#  53 | Score=15.5359 | PnL=+155.36% (vs EMA +232.18%) | 126t (221/yr) | RawX=126(0.81x) | XPen=0.00
+      Fast: VIDYA(22) | Slow: HMA(33) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-5.9% 47t PF=0.93 | C1(neutral/norm-vol/choppy): PnL=+71.6% 45t PF=2.37 | C2(neutral/high-vol): PnL=+32.8% 16t PF=12.34
+
+#  54 | Score=15.5292 | PnL=+155.29% (vs EMA +232.11%) | 111t (194/yr) | RawX=111(0.71x) | XPen=0.00
+      Fast: VIDYA(20) | Slow: VWMA(57) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+36.1% 52t PF=1.57 | C1(neutral/norm-vol/choppy): PnL=+61.8% 29t PF=2.41 | C2(neutral/high-vol): PnL=+2.3% 18t PF=1.09
+
+#  55 | Score=15.4870 | PnL=+154.87% (vs EMA +231.69%) | 93t (163/yr) | RawX=93(0.60x) | XPen=0.00
+      Fast: VIDYA(20) | Slow: VWMA(60) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+57.8% 43t PF=1.91 | C1(neutral/norm-vol/choppy): PnL=+45.0% 26t PF=2.02 | C2(neutral/high-vol): PnL=+6.7% 14t PF=1.31
+
+#  56 | Score=15.4503 | PnL=+154.50% (vs EMA +231.32%) | 140t (245/yr) | RawX=140(0.90x) | XPen=0.00
+      Fast: VIDYA(12) | Slow: ALMA(33,0.85,6) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+0.1% 50t PF=1.00 | C1(neutral/norm-vol/choppy): PnL=+68.6% 45t PF=2.23 | C2(neutral/high-vol): PnL=+29.0% 23t PF=2.92
+
+#  57 | Score=15.4231 | PnL=+164.01% (vs EMA +240.83%) | 187t (328/yr) | RawX=187(1.20x) | XPen=0.20
+      Fast: SMA(22) | Slow: TEMA(36) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+24.3% 82t PF=1.22 | C1(neutral/norm-vol/choppy): PnL=+31.6% 48t PF=1.46 | C2(neutral/high-vol): PnL=+51.7% 28t PF=4.01
+
+#  58 | Score=15.3853 | PnL=+153.85% (vs EMA +230.68%) | 132t (231/yr) | RawX=132(0.85x) | XPen=0.00
+      Fast: VIDYA(22) | Slow: HMA(30) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+3.8% 52t PF=1.05 | C1(neutral/norm-vol/choppy): PnL=+66.1% 45t PF=2.32 | C2(neutral/high-vol): PnL=+32.8% 17t PF=30.83
+
+#  59 | Score=15.3817 | PnL=+169.10% (vs EMA +245.92%) | 203t (356/yr) | RawX=203(1.30x) | XPen=0.30
+      Fast: SMA(24) | Slow: TEMA(30) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+48.9% 86t PF=1.43 | C1(neutral/norm-vol/choppy): PnL=+34.0% 61t PF=1.43 | C2(neutral/high-vol): PnL=+32.8% 29t PF=2.13
+
+#  60 | Score=15.3493 | PnL=+172.39% (vs EMA +249.21%) | 213t (373/yr) | RawX=213(1.37x) | XPen=0.37
+      Fast: T3(18,v0.7) | Slow: TEMA(49) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+49.1% 87t PF=1.49 | C1(neutral/norm-vol/choppy): PnL=+24.7% 74t PF=1.24 | C2(neutral/high-vol): PnL=+42.2% 27t PF=3.48
+
+#  61 | Score=15.3017 | PnL=+199.92% (vs EMA +276.74%) | 278t (487/yr) | RawX=278(1.78x) | XPen=0.78
+      Fast: T3(14,v0.7) | Slow: ZLEMA(39) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+49.3% 114t PF=1.45 | C1(neutral/norm-vol/choppy): PnL=+31.4% 81t PF=1.32 | C2(neutral/high-vol): PnL=+46.8% 45t PF=3.10
+
+#  62 | Score=15.2726 | PnL=+152.73% (vs EMA +229.55%) | 116t (203/yr) | RawX=116(0.74x) | XPen=0.00
+      Fast: VIDYA(16) | Slow: ZLEMA(36) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-5.1% 42t PF=0.94 | C1(neutral/norm-vol/choppy): PnL=+49.1% 40t PF=1.84 | C2(neutral/high-vol): PnL=+43.4% 16t PF=10.60
+
+#  63 | Score=15.2529 | PnL=+152.53% (vs EMA +229.35%) | 126t (221/yr) | RawX=126(0.81x) | XPen=0.00
+      Fast: VIDYA(14) | Slow: ALMA(33,0.85,6) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-30.0% 50t PF=0.74 | C1(neutral/norm-vol/choppy): PnL=+93.9% 41t PF=4.44 | C2(neutral/high-vol): PnL=+26.7% 17t PF=2.43
+
+#  64 | Score=15.2510 | PnL=+152.51% (vs EMA +229.33%) | 112t (196/yr) | RawX=112(0.72x) | XPen=0.00
+      Fast: McGinley(24) | Slow: DEMA(33) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+3.1% 45t PF=1.04 | C1(neutral/norm-vol/choppy): PnL=+73.8% 39t PF=2.31 | C2(neutral/high-vol): PnL=+18.5% 8t PF=17.82
+
+#  65 | Score=15.2186 | PnL=+152.19% (vs EMA +229.01%) | 116t (203/yr) | RawX=116(0.74x) | XPen=0.00
+      Fast: McGinley(20) | Slow: DEMA(30) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-6.5% 44t PF=0.93 | C1(neutral/norm-vol/choppy): PnL=+73.2% 42t PF=2.17 | C2(neutral/high-vol): PnL=+28.9% 10t PF=6.95
+
+#  66 | Score=15.2162 | PnL=+152.16% (vs EMA +228.98%) | 144t (252/yr) | RawX=144(0.92x) | XPen=0.00
+      Fast: SMA(22) | Slow: ZLEMA(49) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-4.2% 56t PF=0.95 | C1(neutral/norm-vol/choppy): PnL=+47.1% 46t PF=1.76 | C2(neutral/high-vol): PnL=+47.2% 16t PF=99.00
+
+#  67 | Score=15.1439 | PnL=+151.44% (vs EMA +228.26%) | 128t (224/yr) | RawX=128(0.82x) | XPen=0.00
+      Fast: VIDYA(16) | Slow: TEMA(33) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-8.3% 38t PF=0.90 | C1(neutral/norm-vol/choppy): PnL=+55.4% 50t PF=1.81 | C2(neutral/high-vol): PnL=+41.5% 18t PF=4.34
+
+#  68 | Score=15.0800 | PnL=+150.80% (vs EMA +227.62%) | 134t (235/yr) | RawX=134(0.86x) | XPen=0.00
+      Fast: VIDYA(18) | Slow: HMA(33) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-4.2% 51t PF=0.95 | C1(neutral/norm-vol/choppy): PnL=+77.8% 45t PF=2.91 | C2(neutral/high-vol): PnL=+23.1% 16t PF=2.91
+
+#  69 | Score=15.0762 | PnL=+154.93% (vs EMA +231.76%) | 170t (298/yr) | RawX=170(1.09x) | XPen=0.09
+      Fast: SMA(22) | Slow: TEMA(42) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+9.1% 71t PF=1.09 | C1(neutral/norm-vol/choppy): PnL=+36.4% 45t PF=1.58 | C2(neutral/high-vol): PnL=+59.8% 24t PF=6.09
+
+#  70 | Score=15.0314 | PnL=+171.04% (vs EMA +247.86%) | 219t (384/yr) | RawX=219(1.40x) | XPen=0.40
+      Fast: ALMA(24,0.5,6) | Slow: ZLEMA(42) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+12.4% 79t PF=1.13 | C1(neutral/norm-vol/choppy): PnL=+32.6% 74t PF=1.35 | C2(neutral/high-vol): PnL=+54.0% 31t PF=12.33
+
+#  71 | Score=14.9737 | PnL=+149.74% (vs EMA +226.56%) | 153t (268/yr) | RawX=153(0.98x) | XPen=0.00
+      Fast: McGinley(16) | Slow: TEMA(30) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-21.7% 57t PF=0.81 | C1(neutral/norm-vol/choppy): PnL=+63.7% 43t PF=2.12 | C2(neutral/high-vol): PnL=+60.1% 28t PF=4.06
+
+#  72 | Score=14.9519 | PnL=+153.66% (vs EMA +230.48%) | 170t (298/yr) | RawX=170(1.09x) | XPen=0.09
+      Fast: ALMA(24,0.5,4) | Slow: ZLEMA(48) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+33.0% 65t PF=1.42 | C1(neutral/norm-vol/choppy): PnL=+24.7% 60t PF=1.26 | C2(neutral/high-vol): PnL=+30.0% 15t PF=17.33
+
+#  73 | Score=14.8317 | PnL=+184.51% (vs EMA +261.33%) | 258t (452/yr) | RawX=258(1.65x) | XPen=0.65
+      Fast: T3(18,v0.7) | Slow: DEMA(39) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+79.7% 110t PF=1.73 | C1(neutral/norm-vol/choppy): PnL=+32.3% 81t PF=1.34 | C2(neutral/high-vol): PnL=+20.8% 33t PF=1.54
+
+#  74 | Score=14.8258 | PnL=+148.26% (vs EMA +225.08%) | 146t (256/yr) | RawX=146(0.94x) | XPen=0.00
+      Fast: VIDYA(12) | Slow: JMA(30) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+2.5% 57t PF=1.03 | C1(neutral/norm-vol/choppy): PnL=+59.0% 46t PF=2.00 | C2(neutral/high-vol): PnL=+35.5% 21t PF=3.49
+
+#  75 | Score=14.8174 | PnL=+148.17% (vs EMA +225.00%) | 132t (231/yr) | RawX=132(0.85x) | XPen=0.00
+      Fast: SMA(22) | Slow: ZLEMA(48) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-15.2% 46t PF=0.85 | C1(neutral/norm-vol/choppy): PnL=+57.7% 42t PF=2.05 | C2(neutral/high-vol): PnL=+39.9% 20t PF=15.90
+
+#  76 | Score=14.7786 | PnL=+147.79% (vs EMA +224.61%) | 112t (196/yr) | RawX=112(0.72x) | XPen=0.00
+      Fast: McGinley(22) | Slow: DEMA(33) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-26.2% 45t PF=0.76 | C1(neutral/norm-vol/choppy): PnL=+99.1% 38t PF=4.35 | C2(neutral/high-vol): PnL=+24.7% 11t PF=5.46
+
+#  77 | Score=14.7557 | PnL=+147.56% (vs EMA +224.38%) | 73t (128/yr) | RawX=73(0.47x) | XPen=0.00
+      Fast: McGinley(22) | Slow: DEMA(75) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+66.9% 33t PF=2.09 | C1(neutral/norm-vol/choppy): PnL=+13.6% 15t PF=1.55 | C2(neutral/high-vol): PnL=+18.6% 12t PF=1.60
+
+#  78 | Score=14.7414 | PnL=+147.41% (vs EMA +224.24%) | 145t (254/yr) | RawX=145(0.93x) | XPen=0.00
+      Fast: McGinley(24) | Slow: TEMA(33) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-19.6% 54t PF=0.84 | C1(neutral/norm-vol/choppy): PnL=+53.8% 43t PF=1.94 | C2(neutral/high-vol): PnL=+63.1% 25t PF=5.06
+
+#  79 | Score=14.6911 | PnL=+146.91% (vs EMA +223.73%) | 130t (228/yr) | RawX=130(0.83x) | XPen=0.00
+      Fast: SMA(24) | Slow: ZLEMA(51) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+14.3% 54t PF=1.20 | C1(neutral/norm-vol/choppy): PnL=+33.6% 39t PF=1.45 | C2(neutral/high-vol): PnL=+43.1% 15t PF=12.28
+
+#  80 | Score=14.5830 | PnL=+167.03% (vs EMA +243.85%) | 222t (389/yr) | RawX=222(1.42x) | XPen=0.42
+      Fast: T3(22,v0.8) | Slow: TEMA(63) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+68.3% 86t PF=1.70 | C1(neutral/norm-vol/choppy): PnL=+28.7% 74t PF=1.30 | C2(neutral/high-vol): PnL=+17.6% 26t PF=1.63
+
+#  81 | Score=14.5564 | PnL=+145.56% (vs EMA +222.39%) | 126t (221/yr) | RawX=126(0.81x) | XPen=0.00
+      Fast: VIDYA(14) | Slow: ALMA(30,0.85,6) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-9.6% 52t PF=0.89 | C1(neutral/norm-vol/choppy): PnL=+68.3% 39t PF=2.65 | C2(neutral/high-vol): PnL=+25.5% 15t PF=2.84
+
+#  82 | Score=14.5302 | PnL=+192.26% (vs EMA +269.08%) | 283t (496/yr) | RawX=283(1.81x) | XPen=0.81
+      Fast: FRAMA(22) | Slow: TEMA(39) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+34.0% 105t PF=1.25 | C1(neutral/norm-vol/choppy): PnL=+38.9% 96t PF=1.38 | C2(neutral/high-vol): PnL=+62.5% 45t PF=2.54
+
+#  83 | Score=14.4664 | PnL=+144.66% (vs EMA +221.49%) | 106t (186/yr) | RawX=106(0.68x) | XPen=0.00
+      Fast: McGinley(24) | Slow: DEMA(36) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-7.5% 37t PF=0.91 | C1(neutral/norm-vol/choppy): PnL=+73.1% 40t PF=2.41 | C2(neutral/high-vol): PnL=+22.8% 9t PF=5.10
+
+#  84 | Score=14.4636 | PnL=+161.74% (vs EMA +238.57%) | 211t (370/yr) | RawX=211(1.35x) | XPen=0.35
+      Fast: ALMA(20,0.5,4) | Slow: ZLEMA(39) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+30.1% 81t PF=1.32 | C1(neutral/norm-vol/choppy): PnL=+18.7% 64t PF=1.21 | C2(neutral/high-vol): PnL=+35.5% 31t PF=3.24
+
+#  85 | Score=14.4535 | PnL=+146.22% (vs EMA +223.04%) | 162t (284/yr) | RawX=162(1.04x) | XPen=0.04
+      Fast: SMA(24) | Slow: TEMA(57) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-14.5% 53t PF=0.83 | C1(neutral/norm-vol/choppy): PnL=+61.3% 67t PF=2.09 | C2(neutral/high-vol): PnL=+33.1% 16t PF=5.63
+
+#  86 | Score=14.3713 | PnL=+154.72% (vs EMA +231.54%) | 193t (338/yr) | RawX=193(1.24x) | XPen=0.24
+      Fast: ALMA(24,0.5,4) | Slow: TEMA(39) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+28.2% 74t PF=1.30 | C1(neutral/norm-vol/choppy): PnL=+14.7% 57t PF=1.17 | C2(neutral/high-vol): PnL=+47.0% 29t PF=3.57
+
+#  87 | Score=14.3684 | PnL=+155.33% (vs EMA +232.16%) | 195t (342/yr) | RawX=195(1.25x) | XPen=0.25
+      Fast: T3(20,v0.7) | Slow: TEMA(45) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+31.7% 78t PF=1.26 | C1(neutral/norm-vol/choppy): PnL=+37.0% 62t PF=1.46 | C2(neutral/high-vol): PnL=+45.9% 28t PF=2.83
+
+#  88 | Score=14.3007 | PnL=+143.01% (vs EMA +219.83%) | 151t (265/yr) | RawX=151(0.97x) | XPen=0.00
+      Fast: McGinley(20) | Slow: TEMA(33) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-11.8% 59t PF=0.90 | C1(neutral/norm-vol/choppy): PnL=+53.5% 43t PF=1.94 | C2(neutral/high-vol): PnL=+56.1% 26t PF=4.45
+
+#  89 | Score=14.0872 | PnL=+152.93% (vs EMA +229.75%) | 197t (345/yr) | RawX=197(1.26x) | XPen=0.26
+      Fast: T3(20,v0.7) | Slow: TEMA(48) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+28.3% 82t PF=1.24 | C1(neutral/norm-vol/choppy): PnL=+31.5% 59t PF=1.39 | C2(neutral/high-vol): PnL=+51.8% 29t PF=3.46
+
+#  90 | Score=14.0354 | PnL=+170.13% (vs EMA +246.95%) | 247t (433/yr) | RawX=247(1.58x) | XPen=0.58
+      Fast: ALMA(18,0.5,4) | Slow: ZLEMA(39) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-8.3% 82t PF=0.92 | C1(neutral/norm-vol/choppy): PnL=+71.5% 95t PF=1.92 | C2(neutral/high-vol): PnL=+35.9% 33t PF=3.56
+
+#  91 | Score=13.9896 | PnL=+139.90% (vs EMA +216.72%) | 130t (228/yr) | RawX=130(0.83x) | XPen=0.00
+      Fast: VIDYA(16) | Slow: TEMA(36) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-11.5% 44t PF=0.88 | C1(neutral/norm-vol/choppy): PnL=+54.9% 44t PF=2.03 | C2(neutral/high-vol): PnL=+38.2% 20t PF=4.21
+
+#  92 | Score=13.9840 | PnL=+139.84% (vs EMA +216.66%) | 137t (240/yr) | RawX=137(0.88x) | XPen=0.00
+      Fast: McGinley(24) | Slow: ZLEMA(36) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-27.5% 50t PF=0.76 | C1(neutral/norm-vol/choppy): PnL=+79.4% 47t PF=2.47 | C2(neutral/high-vol): PnL=+44.6% 21t PF=3.52
+
+#  93 | Score=13.9776 | PnL=+139.78% (vs EMA +216.60%) | 122t (214/yr) | RawX=122(0.78x) | XPen=0.00
+      Fast: VIDYA(16) | Slow: JMA(30) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-6.6% 47t PF=0.93 | C1(neutral/norm-vol/choppy): PnL=+57.7% 44t PF=2.09 | C2(neutral/high-vol): PnL=+32.8% 13t PF=10.68
+
+#  94 | Score=13.9683 | PnL=+139.68% (vs EMA +216.51%) | 97t (170/yr) | RawX=97(0.62x) | XPen=0.00
+      Fast: McGinley(16) | Slow: TEMA(69) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+3.8% 33t PF=1.05 | C1(neutral/norm-vol/choppy): PnL=+47.3% 38t PF=1.89 | C2(neutral/high-vol): PnL=+39.8% 10t PF=3.30
+
+#  95 | Score=13.8335 | PnL=+138.33% (vs EMA +215.16%) | 153t (268/yr) | RawX=153(0.98x) | XPen=0.00
+      Fast: SMA(20) | Slow: ZLEMA(45) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-15.8% 54t PF=0.83 | C1(neutral/norm-vol/choppy): PnL=+64.2% 55t PF=2.09 | C2(neutral/high-vol): PnL=+24.9% 15t PF=3.25
+
+#  96 | Score=13.8279 | PnL=+138.28% (vs EMA +215.10%) | 147t (258/yr) | RawX=147(0.94x) | XPen=0.00
+      Fast: ALMA(24,0.5,4) | Slow: HMA(54) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+25.9% 53t PF=1.29 | C1(neutral/norm-vol/choppy): PnL=+35.1% 45t PF=1.49 | C2(neutral/high-vol): PnL=+30.2% 24t PF=2.76
+
+#  97 | Score=13.7951 | PnL=+137.95% (vs EMA +214.77%) | 120t (210/yr) | RawX=120(0.77x) | XPen=0.00
+      Fast: VIDYA(14) | Slow: ZLEMA(39) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+28.1% 40t PF=1.59 | C1(neutral/norm-vol/choppy): PnL=+24.9% 43t PF=1.28 | C2(neutral/high-vol): PnL=+34.4% 17t PF=3.26
+
+#  98 | Score=13.7506 | PnL=+149.90% (vs EMA +226.72%) | 199t (349/yr) | RawX=199(1.28x) | XPen=0.28
+      Fast: ALMA(24,0.5,4) | Slow: TEMA(36) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+39.0% 77t PF=1.39 | C1(neutral/norm-vol/choppy): PnL=+21.7% 67t PF=1.23 | C2(neutral/high-vol): PnL=+41.1% 28t PF=3.24
+
+#  99 | Score=13.7176 | PnL=+145.28% (vs EMA +222.10%) | 185t (324/yr) | RawX=185(1.19x) | XPen=0.19
+      Fast: SMA(16) | Slow: HMA(42) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+1.2% 70t PF=1.01 | C1(neutral/norm-vol/choppy): PnL=+70.8% 61t PF=2.09 | C2(neutral/high-vol): PnL=+31.7% 27t PF=2.45
+
+# 100 | Score=13.7099 | PnL=+141.73% (vs EMA +218.55%) | 173t (303/yr) | RawX=173(1.11x) | XPen=0.11
+      Fast: SMA(22) | Slow: TEMA(39) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-13.2% 73t PF=0.89 | C1(neutral/norm-vol/choppy): PnL=+65.7% 49t PF=2.32 | C2(neutral/high-vol): PnL=+54.7% 26t PF=4.08
+
+# 101 | Score=13.7058 | PnL=+185.60% (vs EMA +262.42%) | 292t (512/yr) | RawX=292(1.87x) | XPen=0.87
+      Fast: T3(14,v0.7) | Slow: ZLEMA(42) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+49.3% 115t PF=1.44 | C1(neutral/norm-vol/choppy): PnL=+14.1% 93t PF=1.13 | C2(neutral/high-vol): PnL=+50.1% 36t PF=5.47
+
+# 102 | Score=13.6616 | PnL=+136.62% (vs EMA +213.44%) | 95t (166/yr) | RawX=95(0.61x) | XPen=0.00
+      Fast: VIDYA(20) | Slow: FRAMA(54) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+49.3% 39t PF=2.39 | C1(neutral/norm-vol/choppy): PnL=-7.6% 29t PF=0.91 | C2(neutral/high-vol): PnL=+38.3% 11t PF=99.00
+
+# 103 | Score=13.6373 | PnL=+194.82% (vs EMA +271.64%) | 542t (950/yr) | RawX=542(3.47x) | XPen=1.00
+      Fast: ALMA(18,0.5,6) | Slow: SSmoother(33) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+49.5% 229t PF=1.25 | C1(neutral/norm-vol/choppy): PnL=+11.0% 140t PF=1.08 | C2(neutral/high-vol): PnL=+43.3% 86t PF=1.77
+
+# 104 | Score=13.5881 | PnL=+135.88% (vs EMA +212.70%) | 124t (217/yr) | RawX=124(0.79x) | XPen=0.00
+      Fast: VIDYA(22) | Slow: TEMA(30) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-11.8% 48t PF=0.87 | C1(neutral/norm-vol/choppy): PnL=+57.8% 41t PF=2.07 | C2(neutral/high-vol): PnL=+46.2% 19t PF=50.03
+
+# 105 | Score=13.5536 | PnL=+146.22% (vs EMA +223.04%) | 194t (340/yr) | RawX=194(1.24x) | XPen=0.24
+      Fast: T3(20,v0.7) | Slow: TEMA(60) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+17.7% 71t PF=1.18 | C1(neutral/norm-vol/choppy): PnL=+47.1% 76t PF=1.57 | C2(neutral/high-vol): PnL=+43.9% 21t PF=5.69
+
+# 106 | Score=13.4903 | PnL=+134.90% (vs EMA +211.72%) | 143t (251/yr) | RawX=143(0.92x) | XPen=0.00
+      Fast: McGinley(18) | Slow: TEMA(33) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-22.6% 58t PF=0.82 | C1(neutral/norm-vol/choppy): PnL=+70.4% 41t PF=2.67 | C2(neutral/high-vol): PnL=+43.7% 21t PF=3.65
+
+# 107 | Score=13.3991 | PnL=+133.99% (vs EMA +210.81%) | 77t (135/yr) | RawX=77(0.49x) | XPen=0.00
+      Fast: VIDYA(18) | Slow: KAMA(54) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+120.8% 40t PF=3.16 | C1(neutral/norm-vol/choppy): PnL=-18.3% 12t PF=0.46 | C2(neutral/high-vol): PnL=+14.9% 10t PF=1.56
+
+# 108 | Score=13.3123 | PnL=+133.12% (vs EMA +209.95%) | 141t (247/yr) | RawX=141(0.90x) | XPen=0.00
+      Fast: McGinley(22) | Slow: ZLEMA(33) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-8.7% 55t PF=0.93 | C1(neutral/norm-vol/choppy): PnL=+75.2% 43t PF=2.82 | C2(neutral/high-vol): PnL=+39.3% 24t PF=3.80
+
+# 109 | Score=13.3106 | PnL=+133.11% (vs EMA +209.93%) | 118t (207/yr) | RawX=118(0.76x) | XPen=0.00
+      Fast: VIDYA(16) | Slow: TEMA(39) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+9.7% 46t PF=1.12 | C1(neutral/norm-vol/choppy): PnL=+61.8% 44t PF=2.12 | C2(neutral/high-vol): PnL=+15.3% 10t PF=2.27
+
+# 110 | Score=13.2997 | PnL=+160.83% (vs EMA +237.66%) | 246t (431/yr) | RawX=246(1.58x) | XPen=0.58
+      Fast: T3(18,v0.7) | Slow: DEMA(33) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+54.3% 104t PF=1.48 | C1(neutral/norm-vol/choppy): PnL=+17.9% 77t PF=1.17 | C2(neutral/high-vol): PnL=+46.4% 31t PF=2.65
+
+# 111 | Score=13.2823 | PnL=+189.75% (vs EMA +266.57%) | 376t (659/yr) | RawX=376(2.41x) | XPen=1.00
+      Fast: T3(14,v0.8) | Slow: ZLEMA(39) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+58.3% 149t PF=1.43 | C1(neutral/norm-vol/choppy): PnL=+10.6% 120t PF=1.09 | C2(neutral/high-vol): PnL=+60.7% 51t PF=3.04
+
+# 112 | Score=13.2524 | PnL=+132.52% (vs EMA +209.35%) | 114t (200/yr) | RawX=114(0.73x) | XPen=0.00
+      Fast: VIDYA(16) | Slow: ALMA(33,0.85,6) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-1.3% 46t PF=0.99 | C1(neutral/norm-vol/choppy): PnL=+65.7% 39t PF=2.61 | C2(neutral/high-vol): PnL=+24.0% 13t PF=5.41
+
+# 113 | Score=13.2294 | PnL=+132.29% (vs EMA +209.12%) | 84t (147/yr) | RawX=84(0.54x) | XPen=0.00
+      Fast: VIDYA(22) | Slow: FRAMA(49) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+59.7% 29t PF=2.98 | C1(neutral/norm-vol/choppy): PnL=-11.6% 31t PF=0.85 | C2(neutral/high-vol): PnL=+25.7% 12t PF=6.68
+
+# 114 | Score=13.2070 | PnL=+132.07% (vs EMA +208.89%) | 82t (144/yr) | RawX=82(0.53x) | XPen=0.00
+      Fast: VIDYA(22) | Slow: FRAMA(51) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+57.8% 30t PF=3.11 | C1(neutral/norm-vol/choppy): PnL=-12.2% 29t PF=0.84 | C2(neutral/high-vol): PnL=+30.5% 11t PF=99.00
+
+# 115 | Score=13.1837 | PnL=+144.94% (vs EMA +221.76%) | 203t (356/yr) | RawX=203(1.30x) | XPen=0.30
+      Fast: ALMA(24,0.5,4) | Slow: TEMA(33) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+54.6% 86t PF=1.54 | C1(neutral/norm-vol/choppy): PnL=+9.3% 60t PF=1.09 | C2(neutral/high-vol): PnL=+41.0% 32t PF=2.55
+
+# 116 | Score=13.1792 | PnL=+131.79% (vs EMA +208.61%) | 132t (231/yr) | RawX=132(0.85x) | XPen=0.00
+      Fast: VIDYA(14) | Slow: ZLEMA(30) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-12.8% 49t PF=0.86 | C1(neutral/norm-vol/choppy): PnL=+76.8% 50t PF=2.56 | C2(neutral/high-vol): PnL=+24.5% 13t PF=2.85
+
+# 117 | Score=13.0907 | PnL=+168.08% (vs EMA +244.90%) | 271t (475/yr) | RawX=271(1.74x) | XPen=0.74
+      Fast: ALMA(16,0.5,4) | Slow: JMA(30) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+50.4% 110t PF=1.47 | C1(neutral/norm-vol/choppy): PnL=+33.2% 89t PF=1.33 | C2(neutral/high-vol): PnL=+14.8% 33t PF=1.41
+
+# 118 | Score=13.0845 | PnL=+145.07% (vs EMA +221.90%) | 207t (363/yr) | RawX=207(1.33x) | XPen=0.33
+      Fast: T3(18,v0.7) | Slow: TEMA(42) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+50.9% 87t PF=1.45 | C1(neutral/norm-vol/choppy): PnL=+22.5% 62t PF=1.25 | C2(neutral/high-vol): PnL=+36.0% 31t PF=2.27
+
+# 119 | Score=13.0179 | PnL=+130.18% (vs EMA +207.00%) | 125t (219/yr) | RawX=125(0.80x) | XPen=0.00
+      Fast: T3(22,v0.7) | Slow: HMA(75) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-36.0% 50t PF=0.72 | C1(neutral/norm-vol/choppy): PnL=+88.7% 34t PF=3.80 | C2(neutral/high-vol): PnL=+31.9% 18t PF=2.73
+
+# 120 | Score=12.9710 | PnL=+129.71% (vs EMA +206.53%) | 126t (221/yr) | RawX=126(0.81x) | XPen=0.00
+      Fast: VIDYA(18) | Slow: TEMA(30) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-12.4% 48t PF=0.87 | C1(neutral/norm-vol/choppy): PnL=+60.3% 45t PF=2.03 | C2(neutral/high-vol): PnL=+38.0% 13t PF=13.06
+
+# 121 | Score=12.9358 | PnL=+133.73% (vs EMA +210.55%) | 173t (303/yr) | RawX=173(1.11x) | XPen=0.11
+      Fast: SMA(24) | Slow: TEMA(36) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+8.7% 76t PF=1.07 | C1(neutral/norm-vol/choppy): PnL=+46.9% 49t PF=1.69 | C2(neutral/high-vol): PnL=+46.3% 25t PF=3.63
+
+# 122 | Score=12.9157 | PnL=+129.16% (vs EMA +205.98%) | 133t (233/yr) | RawX=133(0.85x) | XPen=0.00
+      Fast: ALMA(24,0.5,4) | Slow: HMA(57) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+1.0% 50t PF=1.01 | C1(neutral/norm-vol/choppy): PnL=+67.8% 48t PF=1.97 | C2(neutral/high-vol): PnL=+12.9% 16t PF=2.32
+
+# 123 | Score=12.9103 | PnL=+129.35% (vs EMA +206.17%) | 157t (275/yr) | RawX=157(1.01x) | XPen=0.01
+      Fast: VIDYA(14) | Slow: SSmoother(75) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+20.3% 64t PF=1.18 | C1(neutral/norm-vol/choppy): PnL=+1.3% 40t PF=1.02 | C2(neutral/high-vol): PnL=+52.2% 28t PF=2.75
+
+# 124 | Score=12.8959 | PnL=+136.58% (vs EMA +213.40%) | 185t (324/yr) | RawX=185(1.19x) | XPen=0.19
+      Fast: SMA(22) | Slow: TEMA(33) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+27.7% 78t PF=1.24 | C1(neutral/norm-vol/choppy): PnL=+31.3% 52t PF=1.44 | C2(neutral/high-vol): PnL=+40.9% 30t PF=2.54
+
+# 125 | Score=12.8098 | PnL=+128.10% (vs EMA +204.92%) | 120t (210/yr) | RawX=120(0.77x) | XPen=0.00
+      Fast: VIDYA(14) | Slow: DEMA(30) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+1.1% 48t PF=1.01 | C1(neutral/norm-vol/choppy): PnL=+60.9% 47t PF=2.14 | C2(neutral/high-vol): PnL=+24.1% 9t PF=78.97
+
+# 126 | Score=12.8035 | PnL=+135.05% (vs EMA +211.87%) | 183t (321/yr) | RawX=183(1.17x) | XPen=0.17
+      Fast: ALMA(22,0.5,4) | Slow: ZLEMA(45) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-11.3% 61t PF=0.88 | C1(neutral/norm-vol/choppy): PnL=+62.4% 71t PF=1.82 | C2(neutral/high-vol): PnL=+32.4% 24t PF=27.28
+
+# 127 | Score=12.7701 | PnL=+127.70% (vs EMA +204.52%) | 144t (252/yr) | RawX=144(0.92x) | XPen=0.00
+      Fast: VIDYA(12) | Slow: ALMA(36,0.85,6) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-32.9% 53t PF=0.68 | C1(neutral/norm-vol/choppy): PnL=+74.8% 45t PF=2.67 | C2(neutral/high-vol): PnL=+42.0% 24t PF=3.63
+
+# 128 | Score=12.7222 | PnL=+127.22% (vs EMA +204.04%) | 124t (217/yr) | RawX=124(0.79x) | XPen=0.00
+      Fast: VIDYA(14) | Slow: TEMA(36) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-12.4% 43t PF=0.85 | C1(neutral/norm-vol/choppy): PnL=+56.8% 48t PF=1.75 | C2(neutral/high-vol): PnL=+33.8% 13t PF=20.48
+
+# 129 | Score=12.7202 | PnL=+127.20% (vs EMA +204.02%) | 137t (240/yr) | RawX=137(0.88x) | XPen=0.00
+      Fast: T3(20,v0.7) | Slow: HMA(69) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-23.6% 56t PF=0.82 | C1(neutral/norm-vol/choppy): PnL=+78.1% 33t PF=4.04 | C2(neutral/high-vol): PnL=+31.5% 25t PF=2.68
+
+# 130 | Score=12.6718 | PnL=+156.89% (vs EMA +233.71%) | 256t (449/yr) | RawX=256(1.64x) | XPen=0.64
+      Fast: T3(18,v0.8) | Slow: TEMA(51) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+77.4% 113t PF=1.65 | C1(neutral/norm-vol/choppy): PnL=-2.7% 79t PF=0.98 | C2(neutral/high-vol): PnL=+47.4% 30t PF=2.68
+
+# 131 | Score=12.6641 | PnL=+126.64% (vs EMA +203.46%) | 119t (208/yr) | RawX=119(0.76x) | XPen=0.00
+      Fast: EMA(22) | Slow: TEMA(39) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-30.1% 45t PF=0.74 | C1(neutral/norm-vol/choppy): PnL=+64.7% 39t PF=2.47 | C2(neutral/high-vol): PnL=+43.6% 14t PF=5.01
+
+# 132 | Score=12.6372 | PnL=+161.06% (vs EMA +237.88%) | 268t (470/yr) | RawX=268(1.72x) | XPen=0.72
+      Fast: T3(18,v0.8) | Slow: TEMA(49) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+75.5% 118t PF=1.65 | C1(neutral/norm-vol/choppy): PnL=+2.6% 76t PF=1.02 | C2(neutral/high-vol): PnL=+46.7% 32t PF=2.58
+
+# 133 | Score=12.6161 | PnL=+153.28% (vs EMA +230.10%) | 248t (434/yr) | RawX=248(1.59x) | XPen=0.59
+      Fast: T3(16,v0.7) | Slow: TEMA(45) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+57.3% 99t PF=1.60 | C1(neutral/norm-vol/choppy): PnL=+9.3% 85t PF=1.08 | C2(neutral/high-vol): PnL=+45.4% 34t PF=3.34
+
+# 134 | Score=12.6019 | PnL=+126.02% (vs EMA +202.84%) | 124t (217/yr) | RawX=124(0.79x) | XPen=0.00
+      Fast: VIDYA(20) | Slow: HMA(33) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+3.3% 45t PF=1.05 | C1(neutral/norm-vol/choppy): PnL=+54.8% 47t PF=1.89 | C2(neutral/high-vol): PnL=+30.9% 14t PF=7.18
+
+# 135 | Score=12.5699 | PnL=+125.70% (vs EMA +202.52%) | 153t (268/yr) | RawX=153(0.98x) | XPen=0.00
+      Fast: SMA(24) | Slow: TEMA(42) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-6.2% 63t PF=0.94 | C1(neutral/norm-vol/choppy): PnL=+55.3% 46t PF=2.17 | C2(neutral/high-vol): PnL=+50.4% 25t PF=3.64
+
+# 136 | Score=12.5533 | PnL=+166.95% (vs EMA +243.77%) | 285t (499/yr) | RawX=285(1.83x) | XPen=0.83
+      Fast: ALMA(22,0.5,6) | Slow: JMA(57) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+45.2% 115t PF=1.31 | C1(neutral/norm-vol/choppy): PnL=+2.3% 81t PF=1.02 | C2(neutral/high-vol): PnL=+39.8% 42t PF=1.69
+
+# 137 | Score=12.5433 | PnL=+135.60% (vs EMA +212.43%) | 195t (342/yr) | RawX=195(1.25x) | XPen=0.25
+      Fast: SMA(22) | Slow: TEMA(30) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+38.7% 85t PF=1.33 | C1(neutral/norm-vol/choppy): PnL=+29.6% 57t PF=1.38 | C2(neutral/high-vol): PnL=+32.3% 28t PF=2.13
+
+# 138 | Score=12.5282 | PnL=+134.32% (vs EMA +211.15%) | 191t (335/yr) | RawX=191(1.22x) | XPen=0.22
+      Fast: T3(20,v0.7) | Slow: TEMA(54) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+22.5% 76t PF=1.20 | C1(neutral/norm-vol/choppy): PnL=+45.0% 63t PF=1.57 | C2(neutral/high-vol): PnL=+39.1% 27t PF=3.07
+
+# 139 | Score=12.5013 | PnL=+125.01% (vs EMA +201.83%) | 145t (254/yr) | RawX=145(0.93x) | XPen=0.00
+      Fast: VIDYA(12) | Slow: HMA(39) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-18.6% 59t PF=0.82 | C1(neutral/norm-vol/choppy): PnL=+66.0% 45t PF=2.14 | C2(neutral/high-vol): PnL=+53.9% 20t PF=4.70
+
+# 140 | Score=12.4970 | PnL=+124.97% (vs EMA +201.79%) | 149t (261/yr) | RawX=149(0.96x) | XPen=0.00
+      Fast: EMA(14) | Slow: TEMA(30) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-21.3% 58t PF=0.82 | C1(neutral/norm-vol/choppy): PnL=+44.7% 39t PF=1.79 | C2(neutral/high-vol): PnL=+68.9% 31t PF=5.60
+
+# 141 | Score=12.4952 | PnL=+124.95% (vs EMA +201.77%) | 116t (203/yr) | RawX=116(0.74x) | XPen=0.00
+      Fast: VIDYA(16) | Slow: HMA(45) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+22.4% 43t PF=1.35 | C1(neutral/norm-vol/choppy): PnL=+31.7% 38t PF=1.50 | C2(neutral/high-vol): PnL=+23.9% 17t PF=2.53
+
+# 142 | Score=12.4857 | PnL=+124.86% (vs EMA +201.68%) | 97t (170/yr) | RawX=97(0.62x) | XPen=0.00
+      Fast: VIDYA(18) | Slow: VWMA(60) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+85.9% 43t PF=2.23 | C1(neutral/norm-vol/choppy): PnL=+23.6% 24t PF=1.63 | C2(neutral/high-vol): PnL=-12.6% 18t PF=0.60
+
+# 143 | Score=12.4547 | PnL=+124.55% (vs EMA +201.37%) | 110t (193/yr) | RawX=110(0.71x) | XPen=0.00
+      Fast: VIDYA(20) | Slow: ZLEMA(33) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+3.4% 43t PF=1.05 | C1(neutral/norm-vol/choppy): PnL=+30.6% 36t PF=1.41 | C2(neutral/high-vol): PnL=+46.7% 15t PF=30.95
+
+# 144 | Score=12.3548 | PnL=+123.55% (vs EMA +200.37%) | 112t (196/yr) | RawX=112(0.72x) | XPen=0.00
+      Fast: VIDYA(18) | Slow: TEMA(36) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+22.4% 44t PF=1.34 | C1(neutral/norm-vol/choppy): PnL=+20.7% 37t PF=1.26 | C2(neutral/high-vol): PnL=+39.9% 13t PF=10.01
+
+# 145 | Score=12.3319 | PnL=+176.17% (vs EMA +252.99%) | 323t (566/yr) | RawX=323(2.07x) | XPen=1.00
+      Fast: ALMA(22,0.5,4) | Slow: ALMA(60,0.85,6) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+102.7% 135t PF=1.78 | C1(neutral/norm-vol/choppy): PnL=-48.7% 87t PF=0.65 | C2(neutral/high-vol): PnL=+52.4% 52t PF=2.30
+
+# 146 | Score=12.3127 | PnL=+132.01% (vs EMA +208.83%) | 191t (335/yr) | RawX=191(1.22x) | XPen=0.22
+      Fast: SMA(18) | Slow: TEMA(36) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-6.8% 73t PF=0.94 | C1(neutral/norm-vol/choppy): PnL=+24.4% 58t PF=1.28 | C2(neutral/high-vol): PnL=+56.1% 27t PF=5.58
+
+# 147 | Score=12.2865 | PnL=+123.58% (vs EMA +200.40%) | 159t (279/yr) | RawX=159(1.02x) | XPen=0.02
+      Fast: McGinley(18) | Slow: TEMA(30) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-32.5% 57t PF=0.72 | C1(neutral/norm-vol/choppy): PnL=+61.1% 45t PF=2.00 | C2(neutral/high-vol): PnL=+61.4% 30t PF=3.95
+
+# 148 | Score=12.2510 | PnL=+131.89% (vs EMA +208.72%) | 193t (338/yr) | RawX=193(1.24x) | XPen=0.24
+      Fast: SMA(16) | Slow: ZLEMA(39) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-36.0% 63t PF=0.69 | C1(neutral/norm-vol/choppy): PnL=+88.3% 71t PF=3.05 | C2(neutral/high-vol): PnL=+25.9% 30t PF=2.65
+
+# 149 | Score=12.2284 | PnL=+122.28% (vs EMA +199.11%) | 88t (154/yr) | RawX=88(0.56x) | XPen=0.00
+      Fast: VIDYA(22) | Slow: FRAMA(48) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+56.4% 31t PF=2.45 | C1(neutral/norm-vol/choppy): PnL=-15.5% 31t PF=0.79 | C2(neutral/high-vol): PnL=+31.5% 12t PF=99.00
+
+# 150 | Score=12.1910 | PnL=+139.63% (vs EMA +216.45%) | 222t (389/yr) | RawX=222(1.42x) | XPen=0.42
+      Fast: ALMA(24,0.5,4) | Slow: DEMA(33) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+28.1% 83t PF=1.30 | C1(neutral/norm-vol/choppy): PnL=+24.3% 78t PF=1.25 | C2(neutral/high-vol): PnL=+37.4% 29t PF=4.51
+
+# 151 | Score=12.1812 | PnL=+121.81% (vs EMA +198.63%) | 136t (238/yr) | RawX=136(0.87x) | XPen=0.00
+      Fast: VIDYA(14) | Slow: HMA(36) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-17.5% 57t PF=0.82 | C1(neutral/norm-vol/choppy): PnL=+94.5% 43t PF=3.59 | C2(neutral/high-vol): PnL=+14.2% 16t PF=1.69
+
+# 152 | Score=12.1805 | PnL=+121.80% (vs EMA +198.63%) | 152t (266/yr) | RawX=152(0.97x) | XPen=0.00
+      Fast: SMA(24) | Slow: TEMA(45) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-5.3% 59t PF=0.94 | C1(neutral/norm-vol/choppy): PnL=+51.4% 52t PF=1.87 | C2(neutral/high-vol): PnL=+52.0% 19t PF=5.83
+
+# 153 | Score=12.1309 | PnL=+121.31% (vs EMA +198.13%) | 77t (135/yr) | RawX=77(0.49x) | XPen=0.00
+      Fast: McGinley(22) | Slow: DEMA(69) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+37.3% 36t PF=1.59 | C1(neutral/norm-vol/choppy): PnL=+44.7% 17t PF=3.11 | C2(neutral/high-vol): PnL=-4.0% 12t PF=0.91
+
+# 154 | Score=12.0959 | PnL=+120.96% (vs EMA +197.78%) | 149t (261/yr) | RawX=149(0.96x) | XPen=0.00
+      Fast: VIDYA(12) | Slow: HMA(36) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-25.3% 56t PF=0.77 | C1(neutral/norm-vol/choppy): PnL=+88.6% 49t PF=3.02 | C2(neutral/high-vol): PnL=+33.5% 23t PF=2.14
+
+# 155 | Score=12.0909 | PnL=+120.91% (vs EMA +197.73%) | 130t (228/yr) | RawX=130(0.83x) | XPen=0.00
+      Fast: VIDYA(16) | Slow: HMA(36) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-0.7% 52t PF=0.99 | C1(neutral/norm-vol/choppy): PnL=+66.7% 45t PF=2.11 | C2(neutral/high-vol): PnL=+20.4% 13t PF=2.41
+
+# 156 | Score=12.0431 | PnL=+140.73% (vs EMA +217.55%) | 231t (405/yr) | RawX=231(1.48x) | XPen=0.48
+      Fast: T3(16,v0.7) | Slow: TEMA(36) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+68.2% 95t PF=1.63 | C1(neutral/norm-vol/choppy): PnL=+1.1% 74t PF=1.01 | C2(neutral/high-vol): PnL=+44.3% 35t PF=2.31
+
+# 157 | Score=12.0245 | PnL=+120.24% (vs EMA +197.07%) | 118t (207/yr) | RawX=118(0.76x) | XPen=0.00
+      Fast: VIDYA(18) | Slow: SSmoother(30) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-5.4% 41t PF=0.93 | C1(neutral/norm-vol/choppy): PnL=+47.1% 41t PF=1.79 | C2(neutral/high-vol): PnL=+40.3% 18t PF=40.76
+
+# 158 | Score=12.0215 | PnL=+120.21% (vs EMA +197.04%) | 132t (231/yr) | RawX=132(0.85x) | XPen=0.00
+      Fast: VIDYA(14) | Slow: HMA(39) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+1.2% 55t PF=1.02 | C1(neutral/norm-vol/choppy): PnL=+63.7% 42t PF=1.95 | C2(neutral/high-vol): PnL=+25.1% 15t PF=2.66
+
+# 159 | Score=12.0054 | PnL=+120.05% (vs EMA +196.88%) | 110t (193/yr) | RawX=110(0.71x) | XPen=0.00
+      Fast: VIDYA(18) | Slow: TEMA(39) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-4.9% 41t PF=0.94 | C1(neutral/norm-vol/choppy): PnL=+55.9% 43t PF=1.91 | C2(neutral/high-vol): PnL=+27.8% 10t PF=49.55
+
+# 160 | Score=12.0007 | PnL=+134.20% (vs EMA +211.02%) | 211t (370/yr) | RawX=211(1.35x) | XPen=0.35
+      Fast: T3(18,v0.7) | Slow: TEMA(48) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+45.7% 88t PF=1.44 | C1(neutral/norm-vol/choppy): PnL=+15.0% 71t PF=1.15 | C2(neutral/high-vol): PnL=+40.9% 27t PF=3.14
+
+# 161 | Score=11.9998 | PnL=+120.00% (vs EMA +196.82%) | 126t (221/yr) | RawX=126(0.81x) | XPen=0.00
+      Fast: VIDYA(16) | Slow: HMA(39) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-9.0% 51t PF=0.90 | C1(neutral/norm-vol/choppy): PnL=+73.8% 43t PF=2.45 | C2(neutral/high-vol): PnL=+19.7% 12t PF=2.44
+
+# 162 | Score=11.9988 | PnL=+119.99% (vs EMA +196.81%) | 116t (203/yr) | RawX=116(0.74x) | XPen=0.00
+      Fast: VIDYA(20) | Slow: TEMA(33) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+20.6% 41t PF=1.41 | C1(neutral/norm-vol/choppy): PnL=+22.8% 44t PF=1.24 | C2(neutral/high-vol): PnL=+34.5% 13t PF=17.19
+
+# 163 | Score=11.9946 | PnL=+171.35% (vs EMA +248.17%) | 470t (823/yr) | RawX=470(3.01x) | XPen=1.00
+      Fast: ALMA(18,0.5,6) | Slow: SSmoother(30) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+67.0% 188t PF=1.42 | C1(neutral/norm-vol/choppy): PnL=+16.3% 128t PF=1.13 | C2(neutral/high-vol): PnL=+19.0% 78t PF=1.25
+
+# 164 | Score=11.9944 | PnL=+124.24% (vs EMA +201.07%) | 174t (305/yr) | RawX=174(1.12x) | XPen=0.12
+      Fast: T3(22,v0.7) | Slow: TEMA(66) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-11.6% 64t PF=0.90 | C1(neutral/norm-vol/choppy): PnL=+84.1% 68t PF=2.39 | C2(neutral/high-vol): PnL=+29.5% 18t PF=4.24
+
+# 165 | Score=11.9921 | PnL=+171.32% (vs EMA +248.14%) | 413t (724/yr) | RawX=413(2.65x) | XPen=1.00
+      Fast: ALMA(20,0.5,6) | Slow: SSmoother(33) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+65.6% 168t PF=1.44 | C1(neutral/norm-vol/choppy): PnL=+16.0% 109t PF=1.14 | C2(neutral/high-vol): PnL=+24.1% 67t PF=1.34
+
+# 166 | Score=11.9884 | PnL=+119.88% (vs EMA +196.71%) | 129t (226/yr) | RawX=129(0.83x) | XPen=0.00
+      Fast: SMA(24) | Slow: ZLEMA(48) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+6.5% 46t PF=1.08 | C1(neutral/norm-vol/choppy): PnL=+56.0% 45t PF=1.85 | C2(neutral/high-vol): PnL=+19.0% 15t PF=2.47
+
+# 167 | Score=11.9864 | PnL=+119.86% (vs EMA +196.69%) | 123t (215/yr) | RawX=123(0.79x) | XPen=0.00
+      Fast: VIDYA(10) | Slow: TEMA(39) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-50.9% 47t PF=0.58 | C1(neutral/norm-vol/choppy): PnL=+80.2% 37t PF=4.70 | C2(neutral/high-vol): PnL=+38.1% 18t PF=3.73
+
+# 168 | Score=11.9469 | PnL=+119.47% (vs EMA +196.29%) | 129t (226/yr) | RawX=129(0.83x) | XPen=0.00
+      Fast: EMA(12) | Slow: TEMA(69) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+45.2% 53t PF=1.49 | C1(neutral/norm-vol/choppy): PnL=+4.7% 41t PF=1.06 | C2(neutral/high-vol): PnL=+35.7% 13t PF=2.30
+
+# 169 | Score=11.9301 | PnL=+131.16% (vs EMA +207.98%) | 203t (356/yr) | RawX=203(1.30x) | XPen=0.30
+      Fast: ALMA(22,0.5,4) | Slow: TEMA(39) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+21.8% 80t PF=1.22 | C1(neutral/norm-vol/choppy): PnL=+2.3% 58t PF=1.02 | C2(neutral/high-vol): PnL=+45.4% 28t PF=4.36
+
+# 170 | Score=11.9211 | PnL=+119.21% (vs EMA +196.03%) | 131t (230/yr) | RawX=131(0.84x) | XPen=0.00
+      Fast: McGinley(24) | Slow: TEMA(36) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-36.4% 50t PF=0.69 | C1(neutral/norm-vol/choppy): PnL=+70.8% 41t PF=2.45 | C2(neutral/high-vol): PnL=+52.0% 21t PF=4.90
+
+# 171 | Score=11.9204 | PnL=+119.20% (vs EMA +196.03%) | 127t (223/yr) | RawX=127(0.81x) | XPen=0.00
+      Fast: McGinley(14) | Slow: DEMA(42) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+27.5% 50t PF=1.33 | C1(neutral/norm-vol/choppy): PnL=+14.7% 41t PF=1.21 | C2(neutral/high-vol): PnL=+43.8% 12t PF=3.55
+
+# 172 | Score=11.8848 | PnL=+118.85% (vs EMA +195.67%) | 122t (214/yr) | RawX=122(0.78x) | XPen=0.00
+      Fast: VIDYA(18) | Slow: TEMA(33) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+4.6% 47t PF=1.07 | C1(neutral/norm-vol/choppy): PnL=+46.5% 45t PF=1.58 | C2(neutral/high-vol): PnL=+24.8% 10t PF=9.75
+
+# 173 | Score=11.8585 | PnL=+118.58% (vs EMA +195.41%) | 132t (231/yr) | RawX=132(0.85x) | XPen=0.00
+      Fast: VIDYA(16) | Slow: TEMA(30) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-20.6% 45t PF=0.78 | C1(neutral/norm-vol/choppy): PnL=+77.0% 51t PF=2.53 | C2(neutral/high-vol): PnL=+22.8% 14t PF=2.58
+
+# 174 | Score=11.8451 | PnL=+118.45% (vs EMA +195.27%) | 120t (210/yr) | RawX=120(0.77x) | XPen=0.00
+      Fast: VIDYA(18) | Slow: HMA(36) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+3.8% 49t PF=1.05 | C1(neutral/norm-vol/choppy): PnL=+49.9% 41t PF=1.71 | C2(neutral/high-vol): PnL=+27.6% 12t PF=10.41
+
+# 175 | Score=11.8398 | PnL=+118.40% (vs EMA +195.22%) | 127t (223/yr) | RawX=127(0.81x) | XPen=0.00
+      Fast: EMA(14) | Slow: TEMA(33) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-21.4% 50t PF=0.83 | C1(neutral/norm-vol/choppy): PnL=+55.5% 36t PF=2.17 | C2(neutral/high-vol): PnL=+52.8% 20t PF=4.59
+
+# 176 | Score=11.8317 | PnL=+123.79% (vs EMA +200.61%) | 179t (314/yr) | RawX=179(1.15x) | XPen=0.15
+      Fast: SMA(14) | Slow: TEMA(66) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+28.5% 74t PF=1.27 | C1(neutral/norm-vol/choppy): PnL=+19.7% 64t PF=1.20 | C2(neutral/high-vol): PnL=+38.9% 16t PF=3.02
+
+# 177 | Score=11.8280 | PnL=+148.92% (vs EMA +225.75%) | 263t (461/yr) | RawX=263(1.69x) | XPen=0.69
+      Fast: T3(18,v0.8) | Slow: TEMA(45) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+57.5% 116t PF=1.48 | C1(neutral/norm-vol/choppy): PnL=+13.1% 73t PF=1.13 | C2(neutral/high-vol): PnL=+46.5% 37t PF=2.35
+
+# 178 | Score=11.7893 | PnL=+117.89% (vs EMA +194.72%) | 75t (131/yr) | RawX=75(0.48x) | XPen=0.00
+      Fast: McGinley(22) | Slow: DEMA(72) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+50.5% 28t PF=2.03 | C1(neutral/norm-vol/choppy): PnL=+24.3% 20t PF=1.89 | C2(neutral/high-vol): PnL=+6.2% 13t PF=1.15
+
+# 179 | Score=11.7876 | PnL=+117.88% (vs EMA +194.70%) | 121t (212/yr) | RawX=121(0.78x) | XPen=0.00
+      Fast: McGinley(12) | Slow: TEMA(72) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+20.1% 50t PF=1.20 | C1(neutral/norm-vol/choppy): PnL=+35.5% 36t PF=1.63 | C2(neutral/high-vol): PnL=+31.9% 13t PF=2.29
+
+# 180 | Score=11.7659 | PnL=+146.02% (vs EMA +222.84%) | 257t (450/yr) | RawX=257(1.65x) | XPen=0.65
+      Fast: T3(16,v0.7) | Slow: ZLEMA(48) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+4.4% 101t PF=1.03 | C1(neutral/norm-vol/choppy): PnL=+48.2% 90t PF=1.54 | C2(neutral/high-vol): PnL=+39.2% 23t PF=11.80
+
+# 181 | Score=11.7503 | PnL=+117.50% (vs EMA +194.33%) | 118t (207/yr) | RawX=118(0.76x) | XPen=0.00
+      Fast: VIDYA(22) | Slow: HMA(36) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+7.7% 44t PF=1.11 | C1(neutral/norm-vol/choppy): PnL=+56.2% 43t PF=1.85 | C2(neutral/high-vol): PnL=+24.1% 13t PF=8.04
+
+# 182 | Score=11.7018 | PnL=+117.02% (vs EMA +193.84%) | 125t (219/yr) | RawX=125(0.80x) | XPen=0.00
+      Fast: VIDYA(16) | Slow: FRAMA(72) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-36.3% 53t PF=0.72 | C1(neutral/norm-vol/choppy): PnL=+54.4% 21t PF=3.39 | C2(neutral/high-vol): PnL=+62.6% 23t PF=8.86
+
+# 183 | Score=11.6995 | PnL=+116.99% (vs EMA +193.82%) | 97t (170/yr) | RawX=97(0.62x) | XPen=0.00
+      Fast: VIDYA(18) | Slow: EMA(33) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+62.9% 39t PF=2.71 | C1(neutral/norm-vol/choppy): PnL=+7.8% 32t PF=1.10 | C2(neutral/high-vol): PnL=+15.7% 12t PF=1.91
+
+# 184 | Score=11.6418 | PnL=+116.42% (vs EMA +193.24%) | 101t (177/yr) | RawX=101(0.65x) | XPen=0.00
+      Fast: EMA(18) | Slow: DEMA(54) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+26.3% 51t PF=1.28 | C1(neutral/norm-vol/choppy): PnL=+52.8% 24t PF=2.65 | C2(neutral/high-vol): PnL=-3.3% 11t PF=0.91
+
+# 185 | Score=11.6334 | PnL=+116.33% (vs EMA +193.16%) | 133t (233/yr) | RawX=133(0.85x) | XPen=0.00
+      Fast: McGinley(22) | Slow: TEMA(36) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-36.4% 50t PF=0.70 | C1(neutral/norm-vol/choppy): PnL=+71.2% 43t PF=2.46 | C2(neutral/high-vol): PnL=+50.3% 21t PF=4.78
+
+# 186 | Score=11.6306 | PnL=+121.69% (vs EMA +198.51%) | 179t (314/yr) | RawX=179(1.15x) | XPen=0.15
+      Fast: ALMA(24,0.5,6) | Slow: HMA(51) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-12.4% 71t PF=0.90 | C1(neutral/norm-vol/choppy): PnL=+54.5% 52t PF=1.90 | C2(neutral/high-vol): PnL=+39.4% 25t PF=3.26
+
+# 187 | Score=11.6044 | PnL=+116.04% (vs EMA +192.87%) | 149t (261/yr) | RawX=149(0.96x) | XPen=0.00
+      Fast: ALMA(22,0.5,4) | Slow: HMA(51) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+2.8% 57t PF=1.03 | C1(neutral/norm-vol/choppy): PnL=+43.1% 43t PF=1.55 | C2(neutral/high-vol): PnL=+39.5% 24t PF=5.34
+
+# 188 | Score=11.5971 | PnL=+115.97% (vs EMA +192.79%) | 145t (254/yr) | RawX=145(0.93x) | XPen=0.00
+      Fast: EMA(10) | Slow: TEMA(69) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+18.7% 56t PF=1.18 | C1(neutral/norm-vol/choppy): PnL=+35.9% 48t PF=1.57 | C2(neutral/high-vol): PnL=+32.7% 16t PF=2.16
+
+# 189 | Score=11.5966 | PnL=+115.97% (vs EMA +192.79%) | 79t (138/yr) | RawX=79(0.51x) | XPen=0.00
+      Fast: McGinley(20) | Slow: DEMA(75) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+65.1% 38t PF=1.97 | C1(neutral/norm-vol/choppy): PnL=+17.4% 14t PF=1.66 | C2(neutral/high-vol): PnL=+5.1% 14t PF=1.15
+
+# 190 | Score=11.5919 | PnL=+115.92% (vs EMA +192.74%) | 151t (265/yr) | RawX=151(0.97x) | XPen=0.00
+      Fast: McGinley(22) | Slow: ZLEMA(30) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-17.0% 60t PF=0.86 | C1(neutral/norm-vol/choppy): PnL=+75.6% 43t PF=2.79 | C2(neutral/high-vol): PnL=+53.1% 27t PF=3.95
+
+# 191 | Score=11.5660 | PnL=+115.66% (vs EMA +192.48%) | 108t (189/yr) | RawX=108(0.69x) | XPen=0.00
+      Fast: EMA(20) | Slow: DEMA(30) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+32.2% 50t PF=1.42 | C1(neutral/norm-vol/choppy): PnL=+16.1% 32t PF=1.23 | C2(neutral/high-vol): PnL=+30.7% 8t PF=99.00
+
+# 192 | Score=11.5343 | PnL=+115.34% (vs EMA +192.16%) | 153t (268/yr) | RawX=153(0.98x) | XPen=0.00
+      Fast: ALMA(22,0.5,4) | Slow: HMA(48) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+4.6% 63t PF=1.04 | C1(neutral/norm-vol/choppy): PnL=+46.5% 37t PF=1.87 | C2(neutral/high-vol): PnL=+30.8% 24t PF=2.77
+
+# 193 | Score=11.5036 | PnL=+122.33% (vs EMA +199.15%) | 187t (328/yr) | RawX=187(1.20x) | XPen=0.20
+      Fast: ALMA(22,0.5,6) | Slow: HMA(49) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-8.9% 68t PF=0.93 | C1(neutral/norm-vol/choppy): PnL=+43.9% 62t PF=1.58 | C2(neutral/high-vol): PnL=+43.4% 26t PF=7.10
+
+# 194 | Score=11.4870 | PnL=+114.87% (vs EMA +191.69%) | 90t (158/yr) | RawX=90(0.58x) | XPen=0.00
+      Fast: VIDYA(22) | Slow: FRAMA(54) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+49.1% 38t PF=2.45 | C1(neutral/norm-vol/choppy): PnL=-25.4% 23t PF=0.65 | C2(neutral/high-vol): PnL=+43.9% 13t PF=99.00
+
+# 195 | Score=11.4813 | PnL=+114.81% (vs EMA +191.64%) | 148t (259/yr) | RawX=148(0.95x) | XPen=0.00
+      Fast: VIDYA(16) | Slow: HMA(30) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+33.7% 59t PF=1.43 | C1(neutral/norm-vol/choppy): PnL=+38.6% 44t PF=1.64 | C2(neutral/high-vol): PnL=+27.6% 21t PF=2.22
+
+# 196 | Score=11.4765 | PnL=+133.81% (vs EMA +210.63%) | 230t (403/yr) | RawX=230(1.47x) | XPen=0.47
+      Fast: T3(20,v0.8) | Slow: TEMA(60) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+68.0% 91t PF=1.69 | C1(neutral/norm-vol/choppy): PnL=+16.1% 79t PF=1.14 | C2(neutral/high-vol): PnL=+29.3% 28t PF=1.90
+
+# 197 | Score=11.4673 | PnL=+114.67% (vs EMA +191.49%) | 125t (219/yr) | RawX=125(0.80x) | XPen=0.00
+      Fast: EMA(24) | Slow: TEMA(39) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-48.0% 46t PF=0.63 | C1(neutral/norm-vol/choppy): PnL=+80.4% 42t PF=3.46 | C2(neutral/high-vol): PnL=+44.2% 16t PF=4.88
+
+# 198 | Score=11.4612 | PnL=+114.61% (vs EMA +191.43%) | 112t (196/yr) | RawX=112(0.72x) | XPen=0.00
+      Fast: VIDYA(24) | Slow: HMA(33) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=-18.0% 45t PF=0.79 | C1(neutral/norm-vol/choppy): PnL=+81.0% 39t PF=2.84 | C2(neutral/high-vol): PnL=+28.6% 12t PF=87.51
+
+# 199 | Score=11.4411 | PnL=+114.41% (vs EMA +191.23%) | 116t (203/yr) | RawX=116(0.74x) | XPen=0.00
+      Fast: VIDYA(20) | Slow: HMA(36) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+8.6% 48t PF=1.11 | C1(neutral/norm-vol/choppy): PnL=+57.8% 38t PF=2.06 | C2(neutral/high-vol): PnL=+15.6% 12t PF=3.21
+
+# 200 | Score=11.4259 | PnL=+163.23% (vs EMA +240.05%) | 344t (603/yr) | RawX=344(2.21x) | XPen=1.00
+      Fast: T3(12,v0.7) | Slow: ZLEMA(36) | Trend: NONE
+      Clusters: C0(neutral/low-vol/choppy): PnL=+59.8% 131t PF=1.54 | C1(neutral/norm-vol/choppy): PnL=-0.1% 110t PF=1.00 | C2(neutral/high-vol): PnL=+45.2% 45t PF=2.50
+
+
+============================================================================================================================================
+RANKING POR CLUSTER (especialistas)
+============================================================================================================================================
+
+================================================================================
+Cluster 0 (neutral/low-vol/choppy) — 2148 bars
+================================================================================
+
+  #  1 | PF=5.66 | PnL_C0=+76.00% | 33t | PnL_global=+93.42% | VIDYA(24) / FRAMA(51) / NONE
+  #  2 | PF=4.19 | PnL_C0=+95.55% | 37t | PnL_global=+60.38% | T3(18,v0.7) / KAMA(63) / NONE
+  #  3 | PF=3.76 | PnL_C0=+66.16% | 30t | PnL_global=+53.30% | VIDYA(22) / McGinley(30) / NONE
+  #  4 | PF=3.61 | PnL_C0=+108.42% | 41t | PnL_global=+5.14% | SMA(18) / KAMA(45) / NONE
+  #  5 | PF=3.54 | PnL_C0=+81.33% | 33t | PnL_global=+47.88% | T3(18,v0.8) / KAMA(66) / NONE
+  #  6 | PF=3.45 | PnL_C0=+82.65% | 41t | PnL_global=+77.48% | VIDYA(18) / EMA(36) / NONE
+  #  7 | PF=3.44 | PnL_C0=+90.11% | 34t | PnL_global=-18.11% | FRAMA(22) / KAMA(48) / NONE
+  #  8 | PF=3.41 | PnL_C0=+90.21% | 38t | PnL_global=+0.13% | SMA(16) / KAMA(49) / NONE
+  #  9 | PF=3.35 | PnL_C0=+108.83% | 58t | PnL_global=+43.01% | SMA(22) / KAMA(45) / NONE
+  # 10 | PF=3.31 | PnL_C0=+88.87% | 39t | PnL_global=+4.76% | SMA(16) / KAMA(48) / NONE
+  # 11 | PF=3.30 | PnL_C0=+78.80% | 33t | PnL_global=+48.16% | VWMA(10) / T3(60,v0.8) / NONE
+  # 12 | PF=3.30 | PnL_C0=+103.15% | 45t | PnL_global=-12.24% | McGinley(22) / VWMA(54) / NONE
+  # 13 | PF=3.26 | PnL_C0=+105.98% | 53t | PnL_global=-24.56% | SMA(14) / KAMA(36) / NONE
+  # 14 | PF=3.24 | PnL_C0=+95.96% | 46t | PnL_global=-3.24% | SMA(14) / KAMA(39) / NONE
+  # 15 | PF=3.22 | PnL_C0=+72.68% | 32t | PnL_global=+78.41% | VIDYA(22) / EMA(39) / NONE
+  # 16 | PF=3.18 | PnL_C0=+77.61% | 32t | PnL_global=-21.09% | KAMA(16) / KAMA(51) / NONE
+  # 17 | PF=3.16 | PnL_C0=+120.80% | 40t | PnL_global=+133.99% | VIDYA(18) / KAMA(54) / NONE
+  # 18 | PF=3.11 | PnL_C0=+57.80% | 30t | PnL_global=+132.07% | VIDYA(22) / FRAMA(51) / NONE
+  # 19 | PF=3.08 | PnL_C0=+66.33% | 30t | PnL_global=+0.52% | SMA(24) / McGinley(57) / NONE
+  # 20 | PF=3.00 | PnL_C0=+69.30% | 30t | PnL_global=+38.50% | VIDYA(22) / McGinley(33) / NONE
+  # 21 | PF=2.95 | PnL_C0=+72.82% | 35t | PnL_global=+47.89% | T3(18,v0.7) / KAMA(60) / NONE
+  # 22 | PF=2.94 | PnL_C0=+62.14% | 30t | PnL_global=+72.67% | VIDYA(20) / EMA(39) / NONE
+  # 23 | PF=2.93 | PnL_C0=+69.70% | 34t | PnL_global=+38.04% | T3(18,v0.8) / KAMA(69) / NONE
+  # 24 | PF=2.93 | PnL_C0=+64.49% | 31t | PnL_global=+56.42% | T3(18,v0.8) / KAMA(63) / NONE
+  # 25 | PF=2.92 | PnL_C0=+111.36% | 57t | PnL_global=+29.29% | SMA(22) / KAMA(42) / NONE
+  # 26 | PF=2.86 | PnL_C0=+88.88% | 45t | PnL_global=-19.05% | EMA(20) / VWMA(51) / NONE
+  # 27 | PF=2.83 | PnL_C0=+58.34% | 32t | PnL_global=-36.47% | VIDYA(22) / SMA(39) / NONE
+  # 28 | PF=2.82 | PnL_C0=+76.33% | 37t | PnL_global=+38.33% | T3(18,v0.7) / KAMA(66) / NONE
+  # 29 | PF=2.82 | PnL_C0=+76.56% | 40t | PnL_global=+56.36% | T3(18,v0.8) / KAMA(57) / NONE
+  # 30 | PF=2.82 | PnL_C0=+69.86% | 33t | PnL_global=+3.26% | SMA(16) / KAMA(45) / NONE
+  # 31 | PF=2.80 | PnL_C0=+85.87% | 46t | PnL_global=+36.04% | SMA(22) / KAMA(48) / NONE
+  # 32 | PF=2.78 | PnL_C0=+70.80% | 38t | PnL_global=-7.02% | SMA(22) / McGinley(45) / NONE
+  # 33 | PF=2.78 | PnL_C0=+78.33% | 43t | PnL_global=+10.46% | SMA(22) / KAMA(54) / NONE
+  # 34 | PF=2.77 | PnL_C0=+121.56% | 69t | PnL_global=+23.08% | T3(14,v0.7) / DEMA(69) / NONE
+  # 35 | PF=2.73 | PnL_C0=+101.09% | 42t | PnL_global=+78.45% | KAMA(22) / T3(42,v0.8) / NONE
+  # 36 | PF=2.72 | PnL_C0=+99.74% | 47t | PnL_global=-1.51% | SMA(20) / KAMA(48) / NONE
+  # 37 | PF=2.72 | PnL_C0=+84.31% | 45t | PnL_global=+13.07% | Tenkan(22) / T3(51,v0.7) / NONE
+  # 38 | PF=2.71 | PnL_C0=+62.88% | 39t | PnL_global=+116.99% | VIDYA(18) / EMA(33) / NONE
+  # 39 | PF=2.70 | PnL_C0=+75.78% | 40t | PnL_global=+25.73% | Tenkan(24) / T3(51,v0.7) / NONE
+  # 40 | PF=2.70 | PnL_C0=+87.12% | 39t | PnL_global=-1.47% | T3(16,v0.7) / McGinley(66) / NONE
+  # 41 | PF=2.70 | PnL_C0=+69.67% | 42t | PnL_global=+7.86% | SMA(20) / KAMA(51) / NONE
+  # 42 | PF=2.69 | PnL_C0=+120.24% | 53t | PnL_global=+59.12% | VIDYA(14) / KAMA(39) / NONE
+  # 43 | PF=2.68 | PnL_C0=+58.57% | 31t | PnL_global=+7.54% | SMA(24) / McGinley(60) / NONE
+  # 44 | PF=2.68 | PnL_C0=+47.58% | 30t | PnL_global=+56.65% | VIDYA(22) / EMA(30) / NONE
+  # 45 | PF=2.65 | PnL_C0=+98.63% | 48t | PnL_global=-26.58% | T3(10,v0.7) / KAMA(39) / NONE
+  # 46 | PF=2.63 | PnL_C0=+93.23% | 46t | PnL_global=-16.08% | McGinley(20) / VWMA(54) / NONE
+  # 47 | PF=2.62 | PnL_C0=+57.55% | 34t | PnL_global=-0.22% | SMA(24) / McGinley(48) / NONE
+  # 48 | PF=2.61 | PnL_C0=+94.03% | 42t | PnL_global=-16.13% | T3(12,v0.8) / T3(42,v0.8) / NONE
+  # 49 | PF=2.60 | PnL_C0=+99.62% | 63t | PnL_global=+46.71% | KAMA(20) / KAMA(33) / NONE
+  # 50 | PF=2.59 | PnL_C0=+100.21% | 50t | PnL_global=-40.63% | SSmoother(24) / KAMA(39) / NONE
+
+  Total configs con ≥30t y PF≥1.2: 11968
+
+================================================================================
+Cluster 1 (neutral/norm-vol/choppy) — 1253 bars
+================================================================================
+
+  #  1 | PF=7.14 | PnL_C1=+97.64% | 41t | PnL_global=+110.33% | VIDYA(18) / ALMA(33,0.85,6) / NONE
+  #  2 | PF=5.07 | PnL_C1=+80.55% | 42t | PnL_global=-39.04% | SMA(24) / HMA(66) / NONE
+  #  3 | PF=4.92 | PnL_C1=+77.41% | 31t | PnL_global=+48.98% | T3(24,v0.8) / HMA(75) / NONE
+  #  4 | PF=4.70 | PnL_C1=+80.20% | 37t | PnL_global=+119.86% | VIDYA(10) / TEMA(39) / NONE
+  #  5 | PF=4.45 | PnL_C1=+84.53% | 41t | PnL_global=+86.21% | SMA(24) / HMA(54) / NONE
+  #  6 | PF=4.44 | PnL_C1=+93.87% | 41t | PnL_global=+152.53% | VIDYA(14) / ALMA(33,0.85,6) / NONE
+  #  7 | PF=4.35 | PnL_C1=+99.08% | 38t | PnL_global=+147.79% | McGinley(22) / DEMA(33) / NONE
+  #  8 | PF=4.32 | PnL_C1=+100.16% | 46t | PnL_global=+173.95% | VIDYA(14) / JMA(30) / NONE
+  #  9 | PF=4.23 | PnL_C1=+74.50% | 35t | PnL_global=+96.84% | VIDYA(12) / TEMA(39) / NONE
+  # 10 | PF=4.04 | PnL_C1=+78.12% | 33t | PnL_global=+127.20% | T3(20,v0.7) / HMA(69) / NONE
+  # 11 | PF=4.03 | PnL_C1=+74.95% | 37t | PnL_global=+70.90% | VIDYA(20) / ALMA(30,0.85,6) / NONE
+  # 12 | PF=4.00 | PnL_C1=+87.87% | 43t | PnL_global=+33.75% | KAMA(24) / ZLEMA(45) / NONE
+  # 13 | PF=3.94 | PnL_C1=+81.04% | 38t | PnL_global=+103.47% | EMA(18) / TEMA(36) / NONE
+  # 14 | PF=3.80 | PnL_C1=+88.68% | 34t | PnL_global=+130.18% | T3(22,v0.7) / HMA(75) / NONE
+  # 15 | PF=3.79 | PnL_C1=+88.62% | 36t | PnL_global=+111.65% | McGinley(20) / DEMA(33) / NONE
+  # 16 | PF=3.59 | PnL_C1=+94.52% | 43t | PnL_global=+121.81% | VIDYA(14) / HMA(36) / NONE
+  # 17 | PF=3.58 | PnL_C1=+84.41% | 39t | PnL_global=+71.70% | McGinley(10) / TEMA(30) / NONE
+  # 18 | PF=3.54 | PnL_C1=+78.24% | 35t | PnL_global=+98.46% | T3(22,v0.8) / HMA(75) / NONE
+  # 19 | PF=3.46 | PnL_C1=+75.18% | 41t | PnL_global=+30.37% | T3(24,v0.7) / ZLEMA(66) / NONE
+  # 20 | PF=3.46 | PnL_C1=+80.44% | 42t | PnL_global=+114.67% | EMA(24) / TEMA(39) / NONE
+  # 21 | PF=3.42 | PnL_C1=+77.62% | 35t | PnL_global=+107.56% | EMA(24) / DEMA(36) / NONE
+  # 22 | PF=3.40 | PnL_C1=+70.97% | 38t | PnL_global=+98.00% | VIDYA(18) / ALMA(30,0.85,6) / NONE
+  # 23 | PF=3.34 | PnL_C1=+63.67% | 31t | PnL_global=+93.25% | T3(22,v0.7) / HMA(72) / NONE
+  # 24 | PF=3.31 | PnL_C1=+85.28% | 45t | PnL_global=+93.78% | McGinley(12) / TEMA(30) / NONE
+  # 25 | PF=3.29 | PnL_C1=+69.01% | 36t | PnL_global=+38.83% | EMA(10) / TEMA(30) / NONE
+  # 26 | PF=3.26 | PnL_C1=+61.50% | 30t | PnL_global=-6.95% | McGinley(22) / ZLEMA(45) / NONE
+  # 27 | PF=3.26 | PnL_C1=+77.52% | 40t | PnL_global=+38.31% | VIDYA(10) / TEMA(33) / NONE
+  # 28 | PF=3.25 | PnL_C1=+63.09% | 35t | PnL_global=+80.76% | VIDYA(8) / TEMA(36) / NONE
+  # 29 | PF=3.24 | PnL_C1=+79.57% | 35t | PnL_global=+163.43% | EMA(24) / DEMA(30) / NONE
+  # 30 | PF=3.11 | PnL_C1=+85.58% | 47t | PnL_global=+159.48% | McGinley(24) / ZLEMA(33) / NONE
+  # 31 | PF=3.10 | PnL_C1=+73.30% | 34t | PnL_global=+165.57% | EMA(22) / DEMA(30) / NONE
+  # 32 | PF=3.06 | PnL_C1=+89.76% | 54t | PnL_global=+57.81% | McGinley(24) / JMA(30) / NONE
+  # 33 | PF=3.05 | PnL_C1=+88.34% | 71t | PnL_global=+131.89% | SMA(16) / ZLEMA(39) / NONE
+  # 34 | PF=3.05 | PnL_C1=+85.12% | 46t | PnL_global=+109.24% | VIDYA(12) / TEMA(33) / NONE
+  # 35 | PF=3.02 | PnL_C1=+88.61% | 49t | PnL_global=+120.96% | VIDYA(12) / HMA(36) / NONE
+  # 36 | PF=3.01 | PnL_C1=+55.74% | 40t | PnL_global=-25.42% | ALMA(20,0.5,4) / HMA(57) / NONE
+  # 37 | PF=3.01 | PnL_C1=+77.56% | 43t | PnL_global=+99.14% | SMA(20) / HMA(49) / NONE
+  # 38 | PF=3.00 | PnL_C1=+71.46% | 46t | PnL_global=+56.50% | VIDYA(8) / TEMA(30) / NONE
+  # 39 | PF=2.98 | PnL_C1=+57.42% | 31t | PnL_global=+40.97% | McGinley(18) / TEMA(45) / NONE
+  # 40 | PF=2.98 | PnL_C1=+69.16% | 38t | PnL_global=+44.29% | VIDYA(10) / TEMA(42) / NONE
+  # 41 | PF=2.97 | PnL_C1=+70.47% | 31t | PnL_global=+70.28% | EMA(16) / TEMA(36) / NONE
+  # 42 | PF=2.94 | PnL_C1=+43.35% | 34t | PnL_global=+4.21% | VIDYA(20) / Tenkan(63) / NONE
+  # 43 | PF=2.93 | PnL_C1=+80.00% | 41t | PnL_global=+87.92% | EMA(24) / ZLEMA(30) / NONE
+  # 44 | PF=2.92 | PnL_C1=+82.36% | 45t | PnL_global=+95.70% | EMA(22) / ZLEMA(30) / NONE
+  # 45 | PF=2.92 | PnL_C1=+66.93% | 38t | PnL_global=+74.45% | EMA(18) / TEMA(33) / NONE
+  # 46 | PF=2.91 | PnL_C1=+83.23% | 46t | PnL_global=+170.26% | VIDYA(16) / ZLEMA(30) / NONE
+  # 47 | PF=2.91 | PnL_C1=+61.02% | 39t | PnL_global=+35.11% | T3(18,v0.7) / HMA(69) / NONE
+  # 48 | PF=2.91 | PnL_C1=+77.75% | 45t | PnL_global=+150.80% | VIDYA(18) / HMA(33) / NONE
+  # 49 | PF=2.89 | PnL_C1=+73.20% | 42t | PnL_global=+73.01% | VIDYA(12) / ZLEMA(36) / NONE
+  # 50 | PF=2.87 | PnL_C1=+71.61% | 36t | PnL_global=+52.07% | EMA(20) / DEMA(33) / NONE
+
+  Total configs con ≥30t y PF≥1.2: 5451
+
+================================================================================
+Cluster 2 (neutral/high-vol) — 825 bars
+================================================================================
+
+  #  1 | PF=37.47 | PnL_C2=+58.88% | 40t | PnL_global=+136.44% | ALMA(16,0.5,4) / ZLEMA(33) / NONE
+  #  2 | PF=15.92 | PnL_C2=+53.82% | 33t | PnL_global=+208.03% | ALMA(22,0.5,6) / ZLEMA(42) / NONE
+  #  3 | PF=12.33 | PnL_C2=+53.95% | 31t | PnL_global=+171.04% | ALMA(24,0.5,6) / ZLEMA(42) / NONE
+  #  4 | PF=11.33 | PnL_C2=+56.57% | 34t | PnL_global=+217.59% | ALMA(22,0.5,4) / ZLEMA(42) / NONE
+  #  5 | PF=10.53 | PnL_C2=+55.70% | 45t | PnL_global=+105.86% | ALMA(16,0.5,4) / ZLEMA(36) / NONE
+  #  6 | PF=10.41 | PnL_C2=+50.28% | 34t | PnL_global=+28.78% | SMA(12) / ZLEMA(30) / NONE
+  #  7 | PF=9.77 | PnL_C2=+46.92% | 34t | PnL_global=+83.88% | ALMA(24,0.5,6) / ZLEMA(45) / NONE
+  #  8 | PF=8.41 | PnL_C2=+50.55% | 33t | PnL_global=+56.97% | SMA(14) / ZLEMA(33) / NONE
+  #  9 | PF=7.46 | PnL_C2=+89.29% | 36t | PnL_global=+89.78% | FRAMA(22) / TEMA(45) / NONE
+  # 10 | PF=6.38 | PnL_C2=+53.39% | 36t | PnL_global=+49.52% | ALMA(20,0.5,6) / TEMA(49) / NONE
+  # 11 | PF=6.32 | PnL_C2=+50.19% | 31t | PnL_global=+130.51% | ALMA(18,0.5,4) / JMA(33) / NONE
+  # 12 | PF=6.25 | PnL_C2=+54.29% | 32t | PnL_global=+35.47% | ALMA(22,0.5,6) / TEMA(49) / NONE
+  # 13 | PF=5.93 | PnL_C2=+52.71% | 32t | PnL_global=-1.60% | T3(12,v0.7) / TEMA(39) / NONE
+  # 14 | PF=5.82 | PnL_C2=+82.03% | 31t | PnL_global=+85.63% | FRAMA(24) / TEMA(48) / NONE
+  # 15 | PF=5.81 | PnL_C2=+48.38% | 34t | PnL_global=+65.54% | ALMA(20,0.5,6) / TEMA(51) / NONE
+  # 16 | PF=5.80 | PnL_C2=+51.54% | 30t | PnL_global=+26.63% | ALMA(24,0.5,6) / TEMA(51) / NONE
+  # 17 | PF=5.60 | PnL_C2=+68.94% | 31t | PnL_global=+124.97% | EMA(14) / TEMA(30) / NONE
+  # 18 | PF=5.47 | PnL_C2=+83.51% | 36t | PnL_global=+39.73% | KAMA(14) / ZLEMA(51) / NONE
+  # 19 | PF=5.47 | PnL_C2=+50.05% | 36t | PnL_global=+185.60% | T3(14,v0.7) / ZLEMA(42) / NONE
+  # 20 | PF=5.36 | PnL_C2=+50.47% | 35t | PnL_global=+40.34% | ALMA(20,0.5,4) / DEMA(30) / NONE
+  # 21 | PF=5.34 | PnL_C2=+87.26% | 41t | PnL_global=+124.35% | KAMA(16) / ALMA(30,0.85,6) / NONE
+  # 22 | PF=5.32 | PnL_C2=+54.29% | 31t | PnL_global=+37.20% | ALMA(20,0.5,4) / TEMA(42) / NONE
+  # 23 | PF=5.26 | PnL_C2=+73.32% | 33t | PnL_global=+34.84% | FRAMA(22) / TEMA(51) / NONE
+  # 24 | PF=5.22 | PnL_C2=+39.04% | 30t | PnL_global=+64.56% | ALMA(20,0.5,6) / TEMA(54) / NONE
+  # 25 | PF=5.21 | PnL_C2=+40.82% | 39t | PnL_global=+115.88% | ALMA(18,0.5,6) / ZLEMA(36) / NONE
+  # 26 | PF=5.07 | PnL_C2=+94.98% | 39t | PnL_global=+80.59% | KAMA(18) / ALMA(33,0.85,6) / NONE
+  # 27 | PF=5.03 | PnL_C2=+55.13% | 32t | PnL_global=+112.48% | SMA(22) / DEMA(30) / NONE
+  # 28 | PF=5.02 | PnL_C2=+46.38% | 32t | PnL_global=+20.21% | ALMA(22,0.5,6) / TEMA(51) / NONE
+  # 29 | PF=4.93 | PnL_C2=+71.47% | 31t | PnL_global=+60.10% | FRAMA(24) / TEMA(51) / NONE
+  # 30 | PF=4.80 | PnL_C2=+45.44% | 30t | PnL_global=+43.93% | ALMA(22,0.5,6) / TEMA(45) / NONE
+  # 31 | PF=4.78 | PnL_C2=+72.69% | 31t | PnL_global=+30.95% | KAMA(14) / ZLEMA(48) / NONE
+  # 32 | PF=4.77 | PnL_C2=+78.72% | 32t | PnL_global=+53.44% | FRAMA(16) / TEMA(63) / NONE
+  # 33 | PF=4.70 | PnL_C2=+70.01% | 31t | PnL_global=+86.74% | FRAMA(20) / TEMA(63) / NONE
+  # 34 | PF=4.68 | PnL_C2=+58.03% | 31t | PnL_global=-18.02% | KAMA(10) / TEMA(49) / NONE
+  # 35 | PF=4.60 | PnL_C2=+53.39% | 34t | PnL_global=+63.64% | ALMA(20,0.5,6) / TEMA(48) / NONE
+  # 36 | PF=4.60 | PnL_C2=+51.69% | 31t | PnL_global=+81.32% | ALMA(22,0.5,4) / JMA(39) / NONE
+  # 37 | PF=4.58 | PnL_C2=+46.90% | 32t | PnL_global=+26.68% | ALMA(22,0.5,6) / TEMA(48) / NONE
+  # 38 | PF=4.52 | PnL_C2=+51.52% | 33t | PnL_global=+224.56% | T3(20,v0.7) / TEMA(57) / NONE
+  # 39 | PF=4.51 | PnL_C2=+51.52% | 38t | PnL_global=+86.98% | ALMA(20,0.5,6) / TEMA(42) / NONE
+  # 40 | PF=4.49 | PnL_C2=+56.21% | 30t | PnL_global=+230.26% | SMA(24) / DEMA(30) / NONE
+  # 41 | PF=4.49 | PnL_C2=+63.75% | 30t | PnL_global=+92.15% | KAMA(16) / ALMA(39,0.85,6) / NONE
+  # 42 | PF=4.42 | PnL_C2=+32.26% | 33t | PnL_global=+63.53% | ALMA(22,0.5,6) / ZLEMA(45) / NONE
+  # 43 | PF=4.35 | PnL_C2=+68.25% | 33t | PnL_global=+24.80% | FRAMA(18) / TEMA(63) / NONE
+  # 44 | PF=4.29 | PnL_C2=+84.39% | 42t | PnL_global=+93.71% | KAMA(18) / SSmoother(33) / NONE
+  # 45 | PF=4.28 | PnL_C2=+49.89% | 32t | PnL_global=-28.85% | VWMA(18) / TEMA(45) / NONE
+  # 46 | PF=4.23 | PnL_C2=+68.82% | 30t | PnL_global=+52.20% | FRAMA(22) / TEMA(54) / NONE
+  # 47 | PF=4.17 | PnL_C2=+65.82% | 37t | PnL_global=+77.93% | VWMA(24) / DEMA(33) / NONE
+  # 48 | PF=4.16 | PnL_C2=+39.86% | 36t | PnL_global=+43.37% | ALMA(14,0.5,4) / TEMA(30) / NONE
+  # 49 | PF=4.14 | PnL_C2=+60.93% | 32t | PnL_global=+131.78% | T3(16,v0.8) / TEMA(48) / NONE
+  # 50 | PF=4.13 | PnL_C2=+69.89% | 35t | PnL_global=+68.34% | KAMA(14) / ZLEMA(49) / NONE
+
+  Total configs con ≥30t y PF≥1.2: 3853

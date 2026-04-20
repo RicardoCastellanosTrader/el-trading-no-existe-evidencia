@@ -1,0 +1,119 @@
+====================================================================================================
+REGIME WALK-FORWARD — GRT/USDT
+====================================================================================================
+Bars: 46134 | Clusters: 3
+Date: 2026-04-07 02:07
+
+================================================================================
+EPISODES & SPLIT
+================================================================================
+
+  C0 (neutral/low-vol/choppy): 107 episodes
+    Train: 74 eps, 5767 bars
+    Forward: 33 eps, 3041 bars
+
+  C1 (neutral/low-vol): 75 episodes
+    Train: 52 eps, 4050 bars
+    Forward: 23 eps, 2019 bars
+
+  C2 (neutral/high-vol/choppy): 51 episodes
+    Train: 35 eps, 8700 bars
+    Forward: 16 eps, 3521 bars
+
+================================================================================
+CORRELATIONS: TRAIN → FORWARD (by cluster)
+================================================================================
+
+  Metric                    r(train,fwd)        N     r(global)
+  ------------------------------------------------------------
+
+  C0 (neutral/low-vol/choppy) — 49,999,992 config-rows from part files
+    pf_tr → pf_fwd                  +0.291 49576350        +0.113
+    pf_tr → pnl_fwd                 +0.328 49576350           N/A
+    score_tr → pnl_fwd              +0.459 49576350           N/A
+    pnl_tr → pnl_fwd                +0.465 49576350           N/A
+    trades_tr → pnl_fwd             -0.294 49576350           N/A
+
+    Top 10 by pf_tr (cluster C0):
+    Rank    pf_tr   pf_fwd    pnl_tr   pnl_fwd  tr_tr  tr_fwd
+       1    12.71     1.36     +40.0      +5.0     33     23
+       2    11.54     1.07     +47.1      +1.2     38     23
+       3    10.27     0.99     +35.7      -0.2     32     24
+       4    10.15     1.13     +45.9      +2.1     37     22
+       5    10.10     1.14     +40.6      +2.4     37     23
+       6     9.95     1.26     +46.5      +4.2     38     23
+       7     9.83     1.78     +63.0     +16.0     30     26
+       8     9.82     1.27     +46.0      +4.3     38     23
+       9     9.40     1.19     +56.3      +4.3     32     24
+      10     9.23     1.19     +54.7      +4.3     30     24
+
+    PF forward distribution (C0): min=0.00 p25=0.89 median=1.02 p75=1.19 max=605.82
+
+  C1 (neutral/low-vol) — 49,999,992 config-rows from part files
+    pf_tr → pf_fwd                  +0.418 46298194        +0.314
+    pf_tr → pnl_fwd                 +0.457 46298194           N/A
+    score_tr → pnl_fwd              +0.768 46298194           N/A
+    pnl_tr → pnl_fwd                +0.767 46298194           N/A
+    trades_tr → pnl_fwd             -0.463 46298194           N/A
+
+    Top 10 by pf_tr (cluster C1):
+    Rank    pf_tr   pf_fwd    pnl_tr   pnl_fwd  tr_tr  tr_fwd
+       1     7.39     2.27     +58.5     +13.6     30     21
+       2     6.32     1.55     +49.8      +6.1     30     18
+       3     6.13     1.75     +53.7      +7.4     30     16
+       4     6.00     1.09     +50.4      +1.8     30     24
+       5     5.95     0.62     +55.6      -8.7     30     24
+       6     5.84     0.82     +57.9      -3.6     30     21
+       7     5.84     0.82     +57.9      -3.6     30     21
+       8     5.84     1.51     +61.7     +13.4     31     27
+       9     5.74     1.54     +51.8     +10.6     30     23
+      10     5.73     0.31     +44.5     -14.7     32     17
+
+    PF forward distribution (C1): min=0.00 p25=0.66 median=0.82 p75=1.07 max=488.45
+
+  C2 (neutral/high-vol/choppy) — 49,999,992 config-rows from part files
+    pf_tr → pf_fwd                  +0.219 49862645        +0.319
+    pf_tr → pnl_fwd                 +0.032 49862645           N/A
+    score_tr → pnl_fwd              +0.623 49862645           N/A
+    pnl_tr → pnl_fwd                +0.620 49862645           N/A
+    trades_tr → pnl_fwd             -0.630 49862645           N/A
+
+    Top 10 by pf_tr (cluster C2):
+    Rank    pf_tr   pf_fwd    pnl_tr   pnl_fwd  tr_tr  tr_fwd
+       1     5.14     1.78    +224.0     +13.5     31     11
+       2     5.14     1.77    +224.0     +13.4     31     11
+       3     4.85     1.66    +220.8     +11.5     33     11
+       4     4.79     2.16    +223.5     +15.3     35      9
+       5     4.73     1.78    +216.6     +13.5     31     11
+       6     4.73     1.92    +222.7     +14.8     35     11
+       7     4.63     2.77    +217.9     +20.0     34     10
+       8     4.61     2.19    +217.7     +17.0     34     11
+       9     4.51     0.11     +70.3     -16.8     37     16
+      10     4.51     0.11     +70.3     -16.8     37     16
+
+    PF forward distribution (C2): min=0.00 p25=0.69 median=0.79 p75=0.88 max=115.00
+
+================================================================================
+SUMMARY: CLUSTER vs GLOBAL PREDICTABILITY
+================================================================================
+
+  Global (all clusters mixed, sampled 17 part files):
+    r(pf_tr, pf_fwd)  = +0.357  (N=346992885)
+    r(pnl_tr, pnl_fwd) = +0.712
+
+  C0 (neutral/low-vol/choppy):
+    r(pf_tr, pf_fwd)  = +0.291  (N=49576350)
+    r(pnl_tr, pnl_fwd) = +0.465
+    Δ vs global: -0.066 ↓ WORSE
+
+  C1 (neutral/low-vol):
+    r(pf_tr, pf_fwd)  = +0.418  (N=46298194)
+    r(pnl_tr, pnl_fwd) = +0.767
+    Δ vs global: +0.061 ↑ BETTER
+
+  C2 (neutral/high-vol/choppy):
+    r(pf_tr, pf_fwd)  = +0.219  (N=49862645)
+    r(pnl_tr, pnl_fwd) = +0.620
+    Δ vs global: -0.138 ↓ WORSE
+
+====================================================================================================

@@ -1,0 +1,1243 @@
+//@version=6
+// ============================================
+// 🔹 Indicador v44.0 SmartDiv v11.0 - MULTI-MA ZONES + HYSTERESIS
+// 🔹 BASE: v43.0 (v10.0)
+// 🔹 CAMBIOS v11.0:
+//    - 6 presets actualizados por Lab LITE v5c (48 symbols, 13.5M configs)
+//    - Familias adaptativas dominantes: McGinley, VIDYA, KAMA
+//    - Trend=NONE en todos los presets (zonas puras sin filtro tendencia)
+//    - Todo lo demás IDÉNTICO a v10.0
+// ============================================
+indicator("Indicador v44.0 SmartDiv v11.0", shorttitle="Ind v11.0", overlay=true, max_labels_count=500, max_bars_back=500)
+
+// ============================================
+// 🔹 ZONA 0: INPUTS — MULTI-MA ZONES + HYSTERESIS
+// ============================================
+
+// --- PRESETS (Lab LITE v5c — 48 symbols, 13.5M configs, PnL relativo a EMAs) ---
+// Combo 1: McGinley/KAMA/NONE  — 11 syms top1 (ADA,ATOM,BONK,ETH,HBAR,INJ,SEI,SHIB,THETA,TRX,VET)
+// Combo 2: VIDYA/KAMA/NONE     — 5 syms top1  (DOT,ETC,GRT,ICP,XLM)
+// Combo 3: VIDYA/VWMA/NONE     — 4 syms top1  (AAVE,ALGO,RENDER,STX)
+// Combo 4: KAMA/HMA/NONE       — 2 syms top1  (SOL,UNI)
+// Combo 5: KAMA/TEMA/NONE      — 2 syms top1  (DOGE,IMX)
+// Combo 6: McGinley/ALMA/NONE  — 2 syms top1  (ARB,LINK)
+// Restantes (periodos específicos): APT,AVAX,BCH,BNB,BTC,ENA,FET,FIL,LTC,MANA,NEAR,ONDO,OP,PEPE,POL,QNT,SAND,SOL,SUI,TAO,TON,WLD,XRP → Custom
+
+g_zonas = "Zonas (MAs v11.0)"
+i_zone_preset = input.string(defval="Custom", title="🎯 Preset de Zonas", options=[
+     "1: McGinley/KAMA", "2: VIDYA/KAMA", "3: VIDYA/VWMA", 
+     "4: KAMA/HMA", "5: KAMA/TEMA", "6: McGinley/ALMA", "Custom"], 
+     tooltip="Presets optimizados por Lab LITE v5c.\nTodos sin Trend (NONE).\nCustom: usa los parámetros manuales de abajo.", group=g_zonas)
+
+// --- MA Types ---
+string MA_EMA = "EMA"
+string MA_SMA = "SMA"
+string MA_HMA = "HMA"
+string MA_ALMA = "ALMA"
+string MA_KAMA = "KAMA"
+string MA_ZLEMA = "ZLEMA"
+string MA_DEMA = "DEMA"
+string MA_TEMA = "TEMA"
+string MA_JMA = "JMA"
+string MA_MCGINLEY = "McGinley"
+string MA_VIDYA = "VIDYA"
+string MA_FRAMA = "FRAMA"
+string MA_T3 = "T3"
+string MA_SSMOOTHER = "SuperSmoother"
+string MA_VWMA = "VWMA"
+string MA_TENKAN = "Tenkan"
+string MA_NONE = "NONE"
+
+string[] ma_options = array.from(MA_EMA, MA_SMA, MA_HMA, MA_ALMA, MA_KAMA, MA_ZLEMA, MA_DEMA, MA_TEMA, MA_JMA, MA_MCGINLEY, MA_VIDYA, MA_FRAMA, MA_T3, MA_SSMOOTHER, MA_VWMA, MA_TENKAN)
+string[] ma_options_trend = array.from(MA_NONE, MA_EMA, MA_SMA, MA_HMA, MA_ALMA, MA_KAMA, MA_ZLEMA, MA_DEMA, MA_TEMA, MA_JMA, MA_MCGINLEY, MA_VIDYA, MA_FRAMA, MA_T3, MA_SSMOOTHER, MA_VWMA, MA_TENKAN)
+
+// --- Custom MA parameters (used when preset = "Custom") ---
+i_fast_type = input.string(defval=MA_VIDYA, title="Fast MA Tipo", options=["EMA","SMA","HMA","ALMA","KAMA","ZLEMA","DEMA","TEMA","JMA","McGinley","VIDYA","FRAMA","T3","SuperSmoother","VWMA","Tenkan"], group=g_zonas)
+i_fast_len = input.int(defval=14, title="Fast MA Período", minval=2, maxval=50, group=g_zonas)
+i_fast_p1 = input.float(defval=0.7, title="Fast MA Param1 (ALMA:offset / T3:vfactor)", minval=0.0, maxval=2.0, step=0.05, group=g_zonas)
+i_fast_p2 = input.float(defval=4.0, title="Fast MA Param2 (ALMA:sigma)", minval=0.1, maxval=20.0, step=0.5, group=g_zonas)
+
+i_slow_type = input.string(defval=MA_VIDYA, title="Slow MA Tipo", options=["EMA","SMA","HMA","ALMA","KAMA","ZLEMA","DEMA","TEMA","JMA","McGinley","VIDYA","FRAMA","T3","SuperSmoother","VWMA","Tenkan"], group=g_zonas)
+i_slow_len = input.int(defval=61, title="Slow MA Período", minval=5, maxval=100, group=g_zonas)
+i_slow_p1 = input.float(defval=0.85, title="Slow MA Param1 (ALMA:offset / T3:vfactor)", minval=0.0, maxval=2.0, step=0.05, group=g_zonas)
+i_slow_p2 = input.float(defval=4.0, title="Slow MA Param2 (ALMA:sigma)", minval=0.1, maxval=20.0, step=0.5, group=g_zonas)
+
+i_trend_type = input.string(defval=MA_NONE, title="Trend MA Tipo", options=["NONE","EMA","SMA","HMA","ALMA","KAMA","ZLEMA","DEMA","TEMA","JMA","McGinley","VIDYA","FRAMA","T3","SuperSmoother","VWMA","Tenkan"], group=g_zonas)
+i_trend_len = input.int(defval=200, title="Trend MA Período", minval=50, maxval=500, group=g_zonas)
+i_trend_p1 = input.float(defval=0.5, title="Trend MA Param1", minval=0.0, maxval=2.0, step=0.05, group=g_zonas)
+i_trend_p2 = input.float(defval=6.0, title="Trend MA Param2", minval=0.1, maxval=20.0, step=0.5, group=g_zonas)
+
+// --- Histéresis ATR ---
+g_hyst = "Histéresis ATR (Zonas)"
+i_hyst_mult = input.float(defval=0.50, title="Histéresis ATR Mult (0=OFF)", minval=0.0, maxval=1.0, step=0.05, 
+     tooltip="Banda muerta en cruces Fast/Slow.\n0 = sin histéresis (v9.0 behavior).\n0.50 = óptimo Lab LITE v3 (65% de top 10).\nEvita whipsaw cuando Fast ≈ Slow.", group=g_hyst)
+i_hyst_atr_len = input.int(defval=14, title="ATR Período (Histéresis)", minval=5, maxval=50, group=g_hyst)
+
+g_entrada = "Gatillo ENTRADA MTF"
+i3_use_tf1 = input.bool(defval = true, title = "Usar TF1 Entrada", group = g_entrada)
+i3_use_tf2 = input.bool(defval = true, title = "Usar TF2 Entrada", group = g_entrada)
+i3_use_tf3 = input.bool(defval = true, title = "Usar TF3 Entrada", group = g_entrada)
+i3_tf1 = input.timeframe(defval = "60", title = "TF1 Entrada", group = g_entrada)
+i3_tf2 = input.timeframe(defval = "240", title = "TF2 Entrada", group = g_entrada)
+i3_tf3 = input.timeframe(defval = "D", title = "TF3 Entrada", group = g_entrada)
+
+i3_use_tf4 = input.bool(defval = true, title = "Usar TF4 Entrada (Close vs Slow MA)", group = g_entrada)
+i3_use_tf5 = input.bool(defval = false, title = "Usar TF5 Entrada (Close vs Trend MA)", group = g_entrada)
+i3_show_tf5_line = input.bool(defval = false, title = "📈 Mostrar Línea Trend MA en Gráfico", group = g_entrada)
+
+g_salida = "Gatillo SALIDA MTF"
+i4_use_tf1 = input.bool(defval = true, title = "Usar TF1 Salida", group = g_salida)
+i4_use_tf2 = input.bool(defval = true, title = "Usar TF2 Salida", group = g_salida)
+i4_use_tf3 = input.bool(defval = true, title = "Usar TF3 Salida", group = g_salida)
+i4_use_tf4 = input.bool(defval = false, title = "Usar TF4 Salida (Close vs Slow MA)", group = g_salida)
+
+i4_tf1 = input.timeframe(defval = "60", title = "TF1 Salida", group = g_salida)
+i4_tf2 = input.timeframe(defval = "240", title = "TF2 Salida", group = g_salida)
+i4_tf3 = input.timeframe(defval = "D", title = "TF3 Salida", group = g_salida)
+
+g_gestion = "Gestión de Salidas (Estándar)"
+i_cooldown_bars = input.int(defval = 1, title = "⏳ Velas de Espera (Div/SL)", minval = 1, maxval = 50, tooltip="Número de velas de espera tras salir por DIVERGENCIA o STOP LOSS/CANCEL. No afecta a salidas por cambio de zona o tendencia.", group = g_gestion)
+i_use_cancel = input.bool(defval = true, title = "🛡️ Cancelar si TF de Entrada Repinta (Anti-Repintado)", tooltip="Verifica que los filtros TF de entrada (TF2/TF3 HA trend) sigan existiendo. Solo aplica a TFs HTF que pueden repintar.", group = g_gestion)
+i_debug_mode = input.bool(defval=false, title="🐞 Mostrar Motivo Cancelación (Debug)", group=g_gestion)
+
+i_sl_percent = input.float(defval = 3.0, title = "SL Estándar / Trailing (%)", minval = 0.0, step = 0.1, group = g_gestion)
+i_use_trailing_stop = input.bool(defval = true, title = "Usar Trailing Stop (Rastrillo)", group=g_gestion)
+i_ts_percent = input.float(defval = 0.5, title = "Porcentaje Trailing Stop (%)", minval=0.0, step=0.1, group=g_gestion)
+i_show_status = input.bool(defval = true, title = "Mostrar Estado (Etiqueta Vela)", group = g_gestion)
+
+g_emergencia = "🛑 Stop Loss EMERGENCIA (Al toque)"
+i_use_emergency = input.bool(defval=true, title="Activar SL Emergencia Intrabar", group=g_emergencia)
+i_sl_emergency_percent = input.float(defval=5.0, title="% Caída Máxima (Desde entrada)", minval=0.5, step=0.1, group=g_emergencia)
+i_show_emergency_line = input.bool(defval=true, title="Mostrar Línea Emergencia", group=g_emergencia)
+
+g_panel = "Panel Informativo"
+i_show_panel = input.bool(defval=true, title="Mostrar Panel de Estado", group=g_panel)
+i_panel_pos = input.string(defval="Top Right", title="Posición", options=["Top Right", "Bottom Right", "Bottom Left", "Bottom Center"], group=g_panel)
+i_panel_size = input.string(defval="Normal", title="Tamaño", options=["Tiny", "Small", "Normal", "Large"], group=g_panel)
+
+g_div = "Gatillo Divergencias (Entrada/Salida)"
+i_div_entry_mode = input.string(defval = "OFF", title = "Modo Entrada Divergencia", options = ["OFF", "Contextual (AND)", "Directa (OR)"], tooltip="OFF: Solo usa Filtros TF.\nContextual: Filtros + Memoria Div (Seguro).\nDirecta: Filtros O Div inmediata (Agresivo).", group = g_div)
+i_use_div_exit   = input.bool(defval = false, title = "Modo Salida: Por Divergencia", group = g_div)
+
+i_div_searchtype = input.string(defval = "Regular", title = "Tipo de Divergencia", options = ["Regular", "Hidden", "Regular/Hidden"], group = g_div)
+i_div_reg_mode = input.string(defval = "Tradicional", title = "Regular: Interpretación", options = ["Tradicional", "Invertida"], tooltip="Tradicional: Regular Bullish en mínimos, Bearish en máximos.\nInvertida: Señales intercambiadas.", group = g_div)
+i_div_hid_mode = input.string(defval = "Tradicional", title = "Hidden: Interpretación", options = ["Tradicional", "Invertida"], tooltip="Tradicional: Hidden Bullish = continuación alcista.\nInvertida: Señales intercambiadas.", group = g_div)
+i_div_show_all = input.bool(defval = true, title = "Mostrar TODAS las Divergencias (no solo cierres)", group = g_div)
+i_div_use_rsi = input.bool(defval = true, title = "Usar RSI (14)", group = g_div)
+i_div_use_macd_hist = input.bool(defval = false, title = "Usar MACD Hist (12,26,9)", group = g_div)
+i_div_use_macd_line = input.bool(defval = false, title = "Usar MACD Line (12,26,9)", group = g_div) 
+i_div_use_stoch = input.bool(defval = false, title = "Usar Stochastic (14,3,3)", group = g_div)
+i_div_use_vwmacd = input.bool(defval = false, title = "Usar VWmacd (12,26)", group = g_div)
+i_div_use_cmf = input.bool(defval = false, title = "Usar Chaikin Money Flow (21)", group = g_div)
+i_div_use_cci = input.bool(defval = false, title = "Usar CCI (10)", group = g_div)
+i_div_use_mom = input.bool(defval = false, title = "Usar Momentum (10)", group = g_div)
+i_div_showlimit = input.int(defval = 1, title = "Consenso Mínimo de Divergencia", minval = 1, maxval = 8, group = g_div) 
+i_div_prd = input.int(defval = 5, title = "Periodo Pivotes", minval = 1, maxval = 50, group = g_div)
+i_div_source = input.string(defval = "Close", title = "Fuente para Pivotes de Precio", options = ["Close", "High/Low"], group = g_div)
+i_div_maxpp = input.int(defval = 10, title = "Max Pivotes a Comprobar", minval = 1, maxval = 20, group = g_div)
+i_div_maxbars = input.int(defval = 100, title = "Max Velas a Comprobar", minval = 30, maxval = 200, group = g_div)
+i_div_dontconfirm = input.bool(defval = false, title = "No Esperar Confirmación de Pivote", group = g_div)
+
+g_wt = "Mensajes WunderTrading (Signal Bot)"
+msg_L_open = input.text_area(defval="", title="Long: Abrir (Enter)", group=g_wt)
+msg_S_open = input.text_area(defval="", title="Short: Abrir (Enter)", group=g_wt)
+msg_Close_All = input.text_area(defval="", title="EXIT: Cerrar Todo (Exit / Cancel / SL)", group=g_wt)
+
+// ============================================
+// 🔥 SISTEMA DE HISTORIAL (ARRAY LIMITADO) — Solo TFs que repintan
+// ============================================
+int MAX_HISTORY = 500
+
+var array<bool> tf1_history = array.new_bool(0)
+var array<bool> tf2_history = array.new_bool(0)
+var array<bool> tf3_history = array.new_bool(0)
+var array<int> bar_index_history = array.new_int(0)
+
+var string last_symbol = syminfo.tickerid
+if syminfo.tickerid != last_symbol
+    array.clear(tf1_history)
+    array.clear(tf2_history)
+    array.clear(tf3_history)
+    array.clear(bar_index_history)
+    last_symbol := syminfo.tickerid
+
+// ============================================
+// 🔹 FUNCIONES BASE
+// ============================================
+i_ha_trend() => (open + high + low + close) / 4 > (open + close[1]) / 2
+
+// ============================================
+// 🔹 FUNCIONES MA — 16 FAMILIAS
+// ============================================
+
+// KAMA (Kaufman Adaptive Moving Average)
+f_kama(float src, int len, int fast_sc = 2, int slow_sc = 30) =>
+    float fast_k = 2.0 / (fast_sc + 1)
+    float slow_k = 2.0 / (slow_sc + 1)
+    float direction = math.abs(src - src[len])
+    float volatility = math.sum(math.abs(src - src[1]), len)
+    float er = volatility != 0 ? direction / volatility : 0.0
+    float sc = math.pow(er * (fast_k - slow_k) + slow_k, 2)
+    var float kama_val = na
+    if na(kama_val)
+        kama_val := src
+    else
+        kama_val := kama_val + sc * (src - kama_val)
+    kama_val
+
+// ZLEMA (Zero-Lag EMA)
+f_zlema(float src, int len) =>
+    int lag = (len - 1) / 2
+    float adjusted = 2 * src - src[lag]
+    ta.ema(adjusted, len)
+
+// DEMA (Double EMA)
+f_dema(float src, int len) =>
+    float e1 = ta.ema(src, len)
+    float e2 = ta.ema(e1, len)
+    2 * e1 - e2
+
+// TEMA (Triple EMA)
+f_tema(float src, int len) =>
+    float e1 = ta.ema(src, len)
+    float e2 = ta.ema(e1, len)
+    float e3 = ta.ema(e2, len)
+    3 * e1 - 3 * e2 + e3
+
+// JMA (Jurik Moving Average — approximation)
+f_jma(float src, int len, float phase = 0.0, float power = 2.0) =>
+    float phase_ratio = phase < -100 ? 0.5 : phase > 100 ? 2.5 : phase / 100.0 + 1.5
+    float beta = 0.45 * (len - 1) / (0.45 * (len - 1) + 2)
+    float alpha = math.pow(beta, power)
+    var float e0 = na
+    var float e1 = 0.0
+    var float e2 = 0.0
+    var float jma_val = na
+    if na(e0)
+        e0 := src
+        jma_val := src
+    else
+        e0 := (1 - alpha) * src + alpha * e0
+        e1 := (src - e0) * (1 - beta) + beta * e1
+        e2 := (e0 + phase_ratio * e1 - jma_val) * math.pow(1 - alpha, 2) + math.pow(alpha, 2) * e2
+        jma_val := jma_val + e2
+    jma_val
+
+// McGinley Dynamic
+f_mcginley(float src, int len) =>
+    float k = 0.6
+    var float md = na
+    if na(md)
+        md := src
+    else
+        float ratio = src / md
+        float denom = k * len * math.pow(ratio, 4)
+        md := denom != 0 ? md + (src - md) / denom : md
+    md
+
+// VIDYA (Variable Index Dynamic Average — uses CMO)
+f_vidya(float src, int len) =>
+    float sc = 2.0 / (len + 1)
+    float gains = math.sum(math.max(src - src[1], 0), len)
+    float losses = math.sum(math.max(src[1] - src, 0), len)
+    float total = gains + losses
+    float cmo = total != 0 ? math.abs((gains - losses) / total) : 0.0
+    var float vidya_val = na
+    if na(vidya_val)
+        vidya_val := src
+    else
+        vidya_val := src * sc * cmo + vidya_val * (1 - sc * cmo)
+    vidya_val
+
+// FRAMA (Fractal Adaptive Moving Average)
+f_frama(float src, int len) =>
+    int half = len / 2
+    float n1 = (ta.highest(high, half) - ta.lowest(low, half)) / half
+    float n2 = (ta.highest(high[half], half) - ta.lowest(low[half], half)) / half
+    float n3 = (ta.highest(high, len) - ta.lowest(low, len)) / len
+    float d = (n1 + n2) > 0 and n3 > 0 ? (math.log(n1 + n2) - math.log(n3)) / math.log(2) : 1.0
+    float alpha_f = math.exp(-4.6 * (d - 1))
+    float alpha_c = math.max(0.01, math.min(alpha_f, 1.0))
+    var float frama_val = na
+    if na(frama_val)
+        frama_val := src
+    else
+        frama_val := alpha_c * src + (1 - alpha_c) * frama_val
+    frama_val
+
+// T3 (Tillson T3)
+f_t3(float src, int len, float v = 0.7) =>
+    float c1 = -math.pow(v, 3)
+    float c2 = 3 * math.pow(v, 2) + 3 * math.pow(v, 3)
+    float c3 = -6 * math.pow(v, 2) - 3 * v - 3 * math.pow(v, 3)
+    float c4 = 1 + 3 * v + math.pow(v, 3) + 3 * math.pow(v, 2)
+    float e1 = ta.ema(src, len)
+    float e2 = ta.ema(e1, len)
+    float e3 = ta.ema(e2, len)
+    float e4 = ta.ema(e3, len)
+    float e5 = ta.ema(e4, len)
+    float e6 = ta.ema(e5, len)
+    c1 * e6 + c2 * e5 + c3 * e4 + c4 * e3
+
+// SuperSmoother (Ehlers 2-pole Butterworth)
+f_ssmoother(float src, int len) =>
+    float a = math.exp(-math.sqrt(2) * math.pi / len)
+    float b = 2 * a * math.cos(math.sqrt(2) * math.pi / len)
+    float c2 = b
+    float c3 = -a * a
+    float c1 = 1 - c2 - c3
+    var float ss1 = na
+    var float ss2 = na
+    var float ss_val = na
+    if na(ss1)
+        ss1 := src
+        ss2 := src
+        ss_val := src
+    else
+        ss_val := c1 * (src + nz(src[1])) / 2 + c2 * ss1 + c3 * ss2
+        ss2 := ss1
+        ss1 := ss_val
+    ss_val
+
+// HMA (Hull Moving Average)
+f_hma(float src, int len) =>
+    int half_len = math.max(len / 2, 1)
+    int sqrt_len = math.max(math.round(math.sqrt(len)), 1)
+    ta.wma(2 * ta.wma(src, half_len) - ta.wma(src, len), sqrt_len)
+
+// Tenkan (Ichimoku midpoint)
+f_tenkan(int len) =>
+    (ta.highest(high, len) + ta.lowest(low, len)) / 2
+
+// ============================================
+// 🔹 MA DISPATCHER — Calcula cualquier MA por tipo
+// ============================================
+f_calc_ma(string ma_type, float src, int len, float p1, float p2) =>
+    ma_type == MA_EMA ? ta.ema(src, len) :
+     ma_type == MA_SMA ? ta.sma(src, len) :
+     ma_type == MA_HMA ? f_hma(src, len) :
+     ma_type == MA_ALMA ? ta.alma(src, len, p1, p2) :
+     ma_type == MA_KAMA ? f_kama(src, len) :
+     ma_type == MA_ZLEMA ? f_zlema(src, len) :
+     ma_type == MA_DEMA ? f_dema(src, len) :
+     ma_type == MA_TEMA ? f_tema(src, len) :
+     ma_type == MA_JMA ? f_jma(src, len, p1, p2) :
+     ma_type == MA_MCGINLEY ? f_mcginley(src, len) :
+     ma_type == MA_VIDYA ? f_vidya(src, len) :
+     ma_type == MA_FRAMA ? f_frama(src, len) :
+     ma_type == MA_T3 ? f_t3(src, len, p1) :
+     ma_type == MA_SSMOOTHER ? f_ssmoother(src, len) :
+     ma_type == MA_VWMA ? ta.vwma(src, len) :
+     ma_type == MA_TENKAN ? f_tenkan(len) :
+     ta.ema(src, len)  // fallback
+
+// ============================================
+// 🔹 PRESET RESOLVER — Resolve effective MA parameters
+// ============================================
+// Pine v6: use direct ternary for compile-time safety
+
+string eff_fast_type = i_zone_preset == "1: McGinley/KAMA" ? MA_MCGINLEY :
+     i_zone_preset == "2: VIDYA/KAMA" ? MA_VIDYA :
+     i_zone_preset == "3: VIDYA/VWMA" ? MA_VIDYA :
+     i_zone_preset == "4: KAMA/HMA" ? MA_KAMA :
+     i_zone_preset == "5: KAMA/TEMA" ? MA_KAMA :
+     i_zone_preset == "6: McGinley/ALMA" ? MA_MCGINLEY :
+     i_fast_type
+
+int eff_fast_len = i_zone_preset == "1: McGinley/KAMA" ? 22 :
+     i_zone_preset == "2: VIDYA/KAMA" ? 18 :
+     i_zone_preset == "3: VIDYA/VWMA" ? 18 :
+     i_zone_preset == "4: KAMA/HMA" ? 16 :
+     i_zone_preset == "5: KAMA/TEMA" ? 16 :
+     i_zone_preset == "6: McGinley/ALMA" ? 22 :
+     i_fast_len
+
+float eff_fast_p1 = i_zone_preset == "Custom" ? i_fast_p1 : 0.0
+
+float eff_fast_p2 = i_zone_preset == "Custom" ? i_fast_p2 : 0.0
+
+string eff_slow_type = i_zone_preset == "1: McGinley/KAMA" ? MA_KAMA :
+     i_zone_preset == "2: VIDYA/KAMA" ? MA_KAMA :
+     i_zone_preset == "3: VIDYA/VWMA" ? MA_VWMA :
+     i_zone_preset == "4: KAMA/HMA" ? MA_HMA :
+     i_zone_preset == "5: KAMA/TEMA" ? MA_TEMA :
+     i_zone_preset == "6: McGinley/ALMA" ? MA_ALMA :
+     i_slow_type
+
+int eff_slow_len = i_zone_preset == "1: McGinley/KAMA" ? 45 :
+     i_zone_preset == "2: VIDYA/KAMA" ? 45 :
+     i_zone_preset == "3: VIDYA/VWMA" ? 57 :
+     i_zone_preset == "4: KAMA/HMA" ? 62 :
+     i_zone_preset == "5: KAMA/TEMA" ? 64 :
+     i_zone_preset == "6: McGinley/ALMA" ? 33 :
+     i_slow_len
+
+float eff_slow_p1 = i_zone_preset == "6: McGinley/ALMA" ? 0.85 :
+     i_zone_preset == "Custom" ? i_slow_p1 : 0.0
+
+float eff_slow_p2 = i_zone_preset == "6: McGinley/ALMA" ? 4.0 :
+     i_zone_preset == "Custom" ? i_slow_p2 : 0.0
+
+string eff_trend_type = i_zone_preset == "Custom" ? i_trend_type : MA_NONE
+
+int eff_trend_len = i_zone_preset == "Custom" ? i_trend_len : 200
+
+float eff_trend_p1 = i_zone_preset == "Custom" ? i_trend_p1 : 0.0
+
+float eff_trend_p2 = i_zone_preset == "Custom" ? i_trend_p2 : 0.0
+
+// ============================================
+// 🔹 DATOS — MAs y MTF
+// ============================================
+
+// --- Calculate all possible MAs (Pine requires compile-time branching) ---
+float ma_fast = f_calc_ma(eff_fast_type, close, eff_fast_len, eff_fast_p1, eff_fast_p2)
+float ma_slow = f_calc_ma(eff_slow_type, close, eff_slow_len, eff_slow_p1, eff_slow_p2)
+float ma_trend = eff_trend_type == MA_NONE ? na : f_calc_ma(eff_trend_type, close, eff_trend_len, eff_trend_p1, eff_trend_p2)
+
+// --- HISTÉRESIS ATR en cruces Fast/Slow ---
+float hyst_atr = ta.atr(i_hyst_atr_len)
+float hyst_band = i_hyst_mult * hyst_atr
+
+var int hyst_zone = 0  // -1=bear, 0=undefined, 1=bull
+
+if i_hyst_mult == 0.0
+    // Sin histéresis (comportamiento v9.0)
+    hyst_zone := ma_fast > ma_slow ? 1 : ma_fast < ma_slow ? -1 : hyst_zone
+else
+    // Con histéresis: necesita cruce decisivo para cambiar zona
+    if hyst_zone <= 0 and ma_fast > ma_slow + hyst_band
+        hyst_zone := 1
+    if hyst_zone >= 0 and ma_fast < ma_slow - hyst_band
+        hyst_zone := -1
+    // Refuerzo: si ya estamos en una zona y sigue la dirección
+    if hyst_zone == 0
+        hyst_zone := ma_fast > ma_slow + hyst_band ? 1 : ma_fast < ma_slow - hyst_band ? -1 : 0
+
+bool zonaAlcista_viz = hyst_zone == 1
+bool zonaBajista_viz = hyst_zone == -1
+
+// --- TF4: close vs Slow MA (chart TF) ---
+bool i3_o4_bull = close > ma_slow
+bool i3_o4_bear = close < ma_slow
+
+// --- TF5: Trend MA (chart TF) ---
+bool i3_o5_bull = i3_use_tf5 ? (not na(ma_trend) and close > ma_trend) : true
+bool i3_o5_bear = i3_use_tf5 ? (not na(ma_trend) and close < ma_trend) : true
+
+// --- TF1/TF2/TF3: HA Trend (sin cambios) ---
+bool ha_trend_tf1_e = request.security(ticker.standard(syminfo.tickerid), i3_tf1, i_ha_trend(), gaps=barmerge.gaps_off, lookahead=barmerge.lookahead_on)
+bool ha_trend_tf2_e = request.security(ticker.standard(syminfo.tickerid), i3_tf2, i_ha_trend(), gaps=barmerge.gaps_off, lookahead=barmerge.lookahead_on)
+bool ha_trend_tf3_e = request.security(ticker.standard(syminfo.tickerid), i3_tf3, i_ha_trend(), gaps=barmerge.gaps_off, lookahead=barmerge.lookahead_on)
+bool ha_trend_tf1_x = request.security(ticker.standard(syminfo.tickerid), i4_tf1, i_ha_trend(), gaps=barmerge.gaps_off, lookahead=barmerge.lookahead_on)
+bool ha_trend_tf2_x = request.security(ticker.standard(syminfo.tickerid), i4_tf2, i_ha_trend(), gaps=barmerge.gaps_off, lookahead=barmerge.lookahead_on)
+bool ha_trend_tf3_x = request.security(ticker.standard(syminfo.tickerid), i4_tf3, i_ha_trend(), gaps=barmerge.gaps_off, lookahead=barmerge.lookahead_on)
+
+// 🔥 GUARDAR HISTORIAL AL CIERRE DE CADA VELA (solo TFs que repintan)
+if barstate.isconfirmed
+    array.unshift(tf1_history, ha_trend_tf1_e)
+    array.unshift(tf2_history, ha_trend_tf2_e)
+    array.unshift(tf3_history, ha_trend_tf3_e)
+    array.unshift(bar_index_history, bar_index)
+    
+    if array.size(tf1_history) > MAX_HISTORY
+        array.pop(tf1_history)
+        array.pop(tf2_history)
+        array.pop(tf3_history)
+        array.pop(bar_index_history)
+
+// ============================================
+// 🔹 DEFINICIÓN DE CONDICIONES BOOLEANAS (GLOBAL)
+// ============================================
+// --- Condiciones Entrada (Global) ---
+bool i3_o1_bull = i3_use_tf1 ? ha_trend_tf1_e : true
+bool i3_o2_bull = i3_use_tf2 ? ha_trend_tf2_e : true
+bool i3_o3_bull = i3_use_tf3 ? ha_trend_tf3_e : true
+
+int i3_countActive = (i3_use_tf1 ? 1 : 0) + (i3_use_tf2 ? 1 : 0) + (i3_use_tf3 ? 1 : 0) + (i3_use_tf4 ? 1 : 0) + (i3_use_tf5 ? 1 : 0)
+int i3_countBull = (i3_use_tf1 and i3_o1_bull ? 1 : 0) + (i3_use_tf2 and i3_o2_bull ? 1 : 0) + (i3_use_tf3 and i3_o3_bull ? 1 : 0) + (i3_use_tf4 and i3_o4_bull ? 1 : 0) + (i3_use_tf5 and i3_o5_bull ? 1 : 0)
+int i3_countBear = (i3_use_tf1 and not i3_o1_bull ? 1 : 0) + (i3_use_tf2 and not i3_o2_bull ? 1 : 0) + (i3_use_tf3 and not i3_o3_bull ? 1 : 0) + (i3_use_tf4 and i3_o4_bear ? 1 : 0) + (i3_use_tf5 and i3_o5_bear ? 1 : 0)
+
+bool GATILLO_ENTRADA_ALCISTA = i3_countActive == 0 or (i3_countBull == i3_countActive)
+bool GATILLO_ENTRADA_BAJISTA = i3_countActive == 0 or (i3_countBear == i3_countActive)
+
+// --- Condiciones Salida (Global) ---
+bool i4_o1_bull = i4_use_tf1 ? ha_trend_tf1_x : false
+bool i4_o2_bull = i4_use_tf2 ? ha_trend_tf2_x : false
+bool i4_o3_bull = i4_use_tf3 ? ha_trend_tf3_x : false
+bool i4_o4_bull = i4_use_tf4 ? (close > ma_slow) : false
+
+int i4_countActive = (i4_use_tf1 ? 1 : 0) + (i4_use_tf2 ? 1 : 0) + (i4_use_tf3 ? 1 : 0) + (i4_use_tf4 ? 1 : 0)
+int i4_countBull = (i4_use_tf1 and i4_o1_bull ? 1 : 0) + (i4_use_tf2 and i4_o2_bull ? 1 : 0) + (i4_use_tf3 and i4_o3_bull ? 1 : 0) + (i4_use_tf4 and i4_o4_bull ? 1 : 0)
+
+bool GATILLO_SALIDA_ALCISTA = i4_countActive > 0 and i4_countBull == i4_countActive
+bool GATILLO_SALIDA_BAJISTA = i4_countActive > 0 and i4_countBull == 0
+
+// ============================================
+// 🔹 INDICADORES DIVERGENCIA
+// ============================================
+var bool div_alcista_raw = false
+var bool div_bajista_raw = false
+
+var bool div_context_L = false
+var bool div_context_S = false
+
+bool mode_context = i_div_entry_mode == "Contextual (AND)"
+bool mode_or      = i_div_entry_mode == "Directa (OR)"
+
+bool div_active = i_use_div_exit or i_div_show_all or mode_context or mode_or
+float rsi = div_active and i_div_use_rsi ? ta.rsi(close, 14) : na
+[macd_line_raw, _, hist_macd_raw] = ta.macd(close, 12, 26, 9)
+float macd_line = div_active and i_div_use_macd_line ? macd_line_raw : na
+float hist_macd = div_active and i_div_use_macd_hist ? hist_macd_raw : na
+
+float stk = na
+if div_active and i_div_use_stoch
+    float stoch_range = ta.highest(high, 14) - ta.lowest(low, 14)
+    float stoch_raw = stoch_range > 0 ? 100 * (close - ta.lowest(low, 14)) / stoch_range : 0.0
+    stk := ta.sma(stoch_raw, 3)
+
+float vwmacd = div_active and i_div_use_vwmacd ? ta.vwma(close, 12) - ta.vwma(close, 26) : na
+
+float cmf = na
+if div_active and i_div_use_cmf
+    float h_l = high - low
+    float ad = h_l > 0 ? ((close - low) - (high - close)) / h_l * volume : 0.0
+    float sma_vol = ta.sma(volume, 21)
+    cmf := sma_vol > 0 ? ta.sma(ad, 21) / sma_vol : 0.0
+
+float cci = div_active and i_div_use_cci ? ta.cci(close, 10) : na
+float mom = div_active and i_div_use_mom ? ta.mom(close, 10) : na
+
+float ph_price = i_div_source == "Close" ? close : high
+float pl_price = i_div_source == "Close" ? close : low
+float ph_logic = div_active ? ta.pivothigh(ph_price, i_div_prd, i_div_prd) : na
+float pl_logic = div_active ? ta.pivotlow(pl_price, i_div_prd, i_div_prd) : na
+
+var ph_positions = array.new_int(20, 0)
+var pl_positions = array.new_int(20, 0)
+var ph_vals = array.new_float(20, 0.)
+var pl_vals = array.new_float(20, 0.)
+
+if div_active
+    if not na(ph_logic)
+        array.unshift(ph_positions, bar_index)
+        array.unshift(ph_vals, ph_logic)
+        if array.size(ph_positions) > 20
+            array.pop(ph_positions)
+            array.pop(ph_vals)
+    if not na(pl_logic)
+        array.unshift(pl_positions, bar_index)
+        array.unshift(pl_vals, pl_logic)
+        if array.size(pl_positions) > 20
+            array.pop(pl_positions)
+            array.pop(pl_vals)
+
+// ============================================
+// 🔹 FUNCIONES DIVERGENCIA (sin cambios)
+// ============================================
+f_div_pos_reg_neg_hid(float src, int cond, array<int> pl_positions_arr, array<float> pl_vals_arr) =>
+    int divlen = 0
+    float prsc = i_div_source == "Close" ? close : low
+    int size = array.size(pl_positions_arr)
+    int loop_limit = math.min(i_div_maxpp, size) - 1
+    
+    if (i_div_dontconfirm or src > src[1] or close > close[1]) and size > 0 and loop_limit >= 0
+        int startpoint = i_div_dontconfirm ? 0 : 1
+        for x = 0 to loop_limit
+            int pos = array.get(pl_positions_arr, x)
+            if pos == 0
+                break
+            int len = bar_index - pos + i_div_prd
+            if len > i_div_maxbars
+                break
+            if len > 5
+                float src_start = src[startpoint]
+                float src_end = src[len]
+                float price_start = prsc[startpoint]
+                float price_end = nz(array.get(pl_vals_arr, x))
+                
+                bool condition_met = false
+                if cond == 1
+                    condition_met := src_start > src_end and price_start < price_end
+                else if cond == 2
+                    condition_met := src_start < src_end and price_start > price_end
+                
+                if condition_met
+                    float slope1 = (src_start - src_end) / (len - startpoint)
+                    float virtual_line1 = src_start - slope1
+                    float slope2 = (price_start - price_end) / (len - startpoint)
+                    float virtual_line2 = price_start - slope2
+                    bool arrived = true
+                    
+                    for y = 1 + startpoint to len - 1
+                        if src[y] < virtual_line1 or nz(close[y]) < virtual_line2
+                            arrived := false
+                            break
+                        virtual_line1 := virtual_line1 - slope1
+                        virtual_line2 := virtual_line2 - slope2
+                    
+                    if arrived
+                        divlen := len
+                        break
+    divlen
+
+f_div_neg_reg_pos_hid(float src, int cond, array<int> ph_positions_arr, array<float> ph_vals_arr) =>
+    int divlen = 0
+    float prsc = i_div_source == "Close" ? close : high
+    int size = array.size(ph_positions_arr)
+    int loop_limit = math.min(i_div_maxpp, size) - 1
+    
+    if (i_div_dontconfirm or src < src[1] or close < close[1]) and size > 0 and loop_limit >= 0
+        int startpoint = i_div_dontconfirm ? 0 : 1
+        for x = 0 to loop_limit
+            int pos = array.get(ph_positions_arr, x)
+            if pos == 0
+                break
+            int len = bar_index - pos + i_div_prd
+            if len > i_div_maxbars
+                break
+            if len > 5
+                float src_start = src[startpoint]
+                float src_end = src[len]
+                float price_start = prsc[startpoint]
+                float price_end = nz(array.get(ph_vals_arr, x))
+                
+                bool condition_met = false
+                if cond == 1
+                    condition_met := src_start < src_end and price_start > price_end
+                else if cond == 2
+                    condition_met := src_start > src_end and price_start < price_end
+                
+                if condition_met
+                    float slope1 = (src_start - src_end) / (len - startpoint)
+                    float virtual_line1 = src_start - slope1
+                    float slope2 = (price_start - price_end) / (len - startpoint)
+                    float virtual_line2 = price_start - slope2
+                    bool arrived = true
+                    
+                    for y = 1 + startpoint to len - 1
+                        if src[y] > virtual_line1 or nz(close[y]) > virtual_line2
+                            arrived := false
+                            break
+                        virtual_line1 := virtual_line1 - slope1
+                        virtual_line2 := virtual_line2 - slope2
+                    
+                    if arrived
+                        divlen := len
+                        break
+    divlen
+
+// ============================================
+// 🔹 f_check_div UNIFICADA con selectores Regular/Hidden
+// ============================================
+bool reg_inverted = i_div_reg_mode == "Invertida"
+bool hid_inverted = i_div_hid_mode == "Invertida"
+
+f_check_div(float src) =>
+    bool bull_div = false
+    bool bear_div = false
+    
+    if not na(src)
+        bool use_reg = i_div_searchtype == "Regular" or i_div_searchtype == "Regular/Hidden"
+        bool use_hid = i_div_searchtype == "Hidden" or i_div_searchtype == "Regular/Hidden"
+        
+        int pos_reg = use_reg ? f_div_pos_reg_neg_hid(src, 1, pl_positions, pl_vals) : 0
+        int neg_reg = use_reg ? f_div_neg_reg_pos_hid(src, 1, ph_positions, ph_vals) : 0
+        int pos_hid = use_hid ? f_div_neg_reg_pos_hid(src, 2, ph_positions, ph_vals) : 0
+        int neg_hid = use_hid ? f_div_pos_reg_neg_hid(src, 2, pl_positions, pl_vals) : 0
+        
+        bool reg_bull = reg_inverted ? (neg_reg > 0) : (pos_reg > 0)
+        bool reg_bear = reg_inverted ? (pos_reg > 0) : (neg_reg > 0)
+        
+        bool hid_bull = hid_inverted ? (pos_hid > 0) : (neg_hid > 0)
+        bool hid_bear = hid_inverted ? (neg_hid > 0) : (pos_hid > 0)
+        
+        bull_div := reg_bull or hid_bull
+        bear_div := reg_bear or hid_bear
+    
+    [bull_div, bear_div]
+
+// ============================================
+// 🔹 VARIABLES DE ESTADO
+// ============================================
+varip bool is_in_long_trade = false
+varip bool is_in_short_trade = false
+varip int trade_entry_bar = na
+varip int position_logic = 0 
+varip float stopLossLevel_logic = na
+varip float trade_entry_price = na
+
+varip int last_cancel_bar = 0
+
+varip bool alert_OpenLong = false
+varip bool alert_OpenShort = false
+varip bool alert_CloseLongNormal = false
+varip bool alert_CloseShortNormal = false
+varip bool alert_CloseLongSL_OnClose = false
+varip bool alert_CloseShortSL_OnClose = false
+varip bool alert_CancelLong = false
+varip bool alert_CancelShort = false
+varip bool alert_CloseLongDiv = false
+varip bool alert_CloseShortDiv = false
+varip bool alert_EmergencyExit_L = false
+varip bool alert_EmergencyExit_S = false
+
+varip bool longSLhit_logic_plot = false
+varip bool shortSLhit_logic_plot = false
+varip bool cancelLongTrigger_logic_plot = false
+varip bool cancelShortTrigger_logic_plot = false
+varip bool divCloseLong_plot = false
+varip bool divCloseShort_plot = false
+varip bool div_alcista_plot = false
+varip bool div_bajista_plot = false
+varip bool emergency_trigger_L = false
+varip bool emergency_trigger_S = false
+
+var int current_bull_wave_id = 0
+var int current_bear_wave_id = 0
+var int last_traded_bull_wave = -1
+var int last_traded_bear_wave = -1
+bool is_reentry_L = false
+bool is_reentry_S = false
+
+// ============================================
+// 🔹 ZONAS Y GATILLOS
+// ============================================
+bool zone_changed_bull = zonaAlcista_viz and not zonaAlcista_viz[1]
+bool zone_changed_bear = zonaBajista_viz and not zonaBajista_viz[1]
+
+if zone_changed_bull
+    current_bull_wave_id += 1
+if zone_changed_bear
+    current_bear_wave_id += 1
+
+// 🔥 LÓGICA SMART CONTEXT (Memoria de Divergencia)
+if zone_changed_bear
+    div_context_L := false 
+if zone_changed_bull
+    div_context_S := false
+
+if div_alcista_raw
+    div_context_L := true
+    div_context_S := false
+if div_bajista_raw
+    div_context_S := true
+    div_context_L := false
+
+// LÓGICA DE GATILLOS
+bool filters_exist = i3_countActive > 0
+bool match_filters_L = filters_exist and (i3_countBull == i3_countActive)
+bool match_filters_S = filters_exist and (i3_countBear == i3_countActive)
+
+bool final_trigger_L = false
+bool final_trigger_S = false
+
+bool effective_context_L = div_context_L or div_alcista_raw
+bool effective_context_S = div_context_S or div_bajista_raw
+
+bool explicit_entry_filters = i3_countActive > 0
+bool implicit_exit_filters  = i4_countActive > 0
+
+if mode_context
+    if explicit_entry_filters
+        final_trigger_L := match_filters_L and effective_context_L
+        final_trigger_S := match_filters_S and effective_context_S
+    else if implicit_exit_filters
+        final_trigger_L := effective_context_L
+        final_trigger_S := effective_context_S
+    else
+        final_trigger_L := div_alcista_raw
+        final_trigger_S := div_bajista_raw
+
+else if mode_or
+    if explicit_entry_filters
+        final_trigger_L := match_filters_L or div_alcista_raw
+        final_trigger_S := match_filters_S or div_bajista_raw
+    else
+        final_trigger_L := true
+        final_trigger_S := true
+
+else
+    if filters_exist
+        final_trigger_L := match_filters_L
+        final_trigger_S := match_filters_S
+    else
+        final_trigger_L := true 
+        final_trigger_S := true
+
+// ============================================
+// 🔹 GATILLOS Y LOGICA DE COMERCIO (GLOBAL)
+// ============================================
+bool condicionCompra = zonaAlcista_viz and final_trigger_L
+bool condicionVenta = zonaBajista_viz and final_trigger_S
+
+bool longCloseTrigger = is_in_long_trade and (GATILLO_SALIDA_BAJISTA or zonaBajista_viz)
+bool shortCloseTrigger = is_in_short_trade and (GATILLO_SALIDA_ALCISTA or zonaAlcista_viz)
+bool isClosing = longCloseTrigger or shortCloseTrigger
+bool canEnter = (not is_in_long_trade and not is_in_short_trade) or isClosing
+
+bool netLongEntry = condicionCompra and canEnter and not (GATILLO_SALIDA_BAJISTA or zonaBajista_viz)
+bool netShortEntry = condicionVenta and canEnter and not (GATILLO_SALIDA_ALCISTA or zonaAlcista_viz)
+
+// ============================================
+// 🔥 SL EMERGENCIA - INTRABAR
+// ============================================
+if i_use_emergency and not na(trade_entry_price)
+    if is_in_long_trade
+        float emerg_price_L = trade_entry_price * (1 - i_sl_emergency_percent / 100.0)
+        if low <= emerg_price_L
+            last_cancel_bar := bar_index
+            is_in_long_trade := false
+            trade_entry_bar := na
+            stopLossLevel_logic := na
+            trade_entry_price := na
+            alert_EmergencyExit_L := true
+            emergency_trigger_L := true
+            div_context_L := false
+            
+    else if is_in_short_trade
+        float emerg_price_S = trade_entry_price * (1 + i_sl_emergency_percent / 100.0)
+        if high >= emerg_price_S
+            is_in_short_trade := false
+            last_cancel_bar := bar_index
+            trade_entry_bar := na
+            stopLossLevel_logic := na
+            trade_entry_price := na
+            alert_EmergencyExit_S := true
+            emergency_trigger_S := true
+            div_context_S := false
+
+// ============================================
+// 🔹 LÓGICA PRINCIPAL - AL CIERRE DE VELA
+// ============================================
+if barstate.isconfirmed
+    alert_OpenLong := false
+    alert_OpenShort := false
+    alert_CloseLongNormal := false
+    alert_CloseShortNormal := false
+    alert_CloseLongSL_OnClose := false
+    alert_CloseShortSL_OnClose := false
+    alert_CancelLong := false
+    alert_CancelShort := false
+    alert_CloseLongDiv := false
+    alert_CloseShortDiv := false
+    longSLhit_logic_plot := false
+    shortSLhit_logic_plot := false
+    cancelLongTrigger_logic_plot := false
+    cancelShortTrigger_logic_plot := false
+    divCloseLong_plot := false
+    divCloseShort_plot := false
+    
+    if not alert_EmergencyExit_L
+        emergency_trigger_L := false
+    if not alert_EmergencyExit_S
+        emergency_trigger_S := false
+    alert_EmergencyExit_L := false
+    alert_EmergencyExit_S := false
+
+    // 1. CÁLCULO DIVERGENCIAS
+    int net_div_score = 0
+    if div_active
+        if i_div_use_rsi and not na(rsi)
+            [bull_rsi, bear_rsi] = f_check_div(rsi)
+            net_div_score += bull_rsi ? 1 : 0
+            net_div_score -= bear_rsi ? 1 : 0
+        if i_div_use_macd_hist and not na(hist_macd)
+            [bull_m, bear_m] = f_check_div(hist_macd)
+            net_div_score += bull_m ? 1 : 0
+            net_div_score -= bear_m ? 1 : 0
+        if i_div_use_macd_line and not na(macd_line)
+            [bull_ml, bear_ml] = f_check_div(macd_line)
+            net_div_score += bull_ml ? 1 : 0
+            net_div_score -= bear_ml ? 1 : 0
+        if i_div_use_stoch and not na(stk)
+            [bull_s, bear_s] = f_check_div(stk)
+            net_div_score += bull_s ? 1 : 0
+            net_div_score -= bear_s ? 1 : 0
+        if i_div_use_vwmacd and not na(vwmacd)
+            [bull_v, bear_v] = f_check_div(vwmacd)
+            net_div_score += bull_v ? 1 : 0
+            net_div_score -= bear_v ? 1 : 0
+        if i_div_use_cmf and not na(cmf)
+            [bull_c, bear_c] = f_check_div(cmf)
+            net_div_score += bull_c ? 1 : 0
+            net_div_score -= bear_c ? 1 : 0
+        if i_div_use_cci and not na(cci)
+            [bull_ci, bear_ci] = f_check_div(cci)
+            net_div_score += bull_ci ? 1 : 0
+            net_div_score -= bear_ci ? 1 : 0
+        if i_div_use_mom and not na(mom)
+            [bull_mo, bear_mo] = f_check_div(mom)
+            net_div_score += bull_mo ? 1 : 0
+            net_div_score -= bear_mo ? 1 : 0
+
+    div_alcista_raw := net_div_score >= i_div_showlimit
+    div_bajista_raw := net_div_score <= -i_div_showlimit
+    
+    if i_div_show_all
+        div_alcista_plot := div_alcista_raw
+        div_bajista_plot := div_bajista_raw
+
+    if div_alcista_raw
+        div_context_L := true
+    if div_bajista_raw
+        div_context_S := true
+    
+    if zonaBajista_viz
+        div_context_L := false
+    if zonaAlcista_viz
+        div_context_S := false
+
+    // 2. LOGICA CIERRE DIV
+    bool divCloseLong_logic = i_use_div_exit and is_in_long_trade and div_bajista_raw
+    bool divCloseShort_logic = i_use_div_exit and is_in_short_trade and div_alcista_raw
+
+    // 3. TRAILING STOP
+    if not na(trade_entry_bar) and i_use_trailing_stop
+        if is_in_long_trade
+            float potential_stop = low[1] * (1 - i_ts_percent / 100.0)
+            stopLossLevel_logic := na(stopLossLevel_logic) ? potential_stop : math.max(stopLossLevel_logic, potential_stop)
+        if is_in_short_trade
+            float potential_stop = high[1] * (1 + i_ts_percent / 100.0)
+            stopLossLevel_logic := na(stopLossLevel_logic) ? potential_stop : math.min(stopLossLevel_logic, potential_stop)
+
+    bool longSLhit = is_in_long_trade and not na(stopLossLevel_logic) and close < stopLossLevel_logic
+    bool shortSLhit = is_in_short_trade and not na(stopLossLevel_logic) and close > stopLossLevel_logic
+
+    // 4. AUDITORÍA ANTI-REPINTADO (Solo TF2/TF3 HA trend)
+    bool mismatch_detected = false
+    int barsSinceEntry = na(trade_entry_bar) ? na : bar_index - trade_entry_bar
+
+    if i_use_cancel and not na(barsSinceEntry) and barsSinceEntry > 0 and barstate.isrealtime
+        int entry_position = -1
+        if array.size(bar_index_history) > 0
+            for i = 0 to math.min(array.size(bar_index_history) - 1, MAX_HISTORY - 1)
+                if array.get(bar_index_history, i) == trade_entry_bar
+                    entry_position := i
+                    break
+        
+        if entry_position >= 0
+            if is_in_long_trade
+                if i3_use_tf1 and array.get(tf1_history, entry_position) != ha_trend_tf1_e[barsSinceEntry]
+                    mismatch_detected := true
+                else if i3_use_tf2 and array.get(tf2_history, entry_position) != ha_trend_tf2_e[barsSinceEntry]
+                    mismatch_detected := true
+                else if i3_use_tf3 and array.get(tf3_history, entry_position) != ha_trend_tf3_e[barsSinceEntry]
+                    mismatch_detected := true
+            if is_in_short_trade
+                if i3_use_tf1 and array.get(tf1_history, entry_position) != ha_trend_tf1_e[barsSinceEntry]
+                    mismatch_detected := true
+                else if i3_use_tf2 and array.get(tf2_history, entry_position) != ha_trend_tf2_e[barsSinceEntry]
+                    mismatch_detected := true
+                else if i3_use_tf3 and array.get(tf3_history, entry_position) != ha_trend_tf3_e[barsSinceEntry]
+                    mismatch_detected := true
+
+    bool potentialCancelLong = mismatch_detected and is_in_long_trade
+    bool potentialCancelShort = mismatch_detected and is_in_short_trade
+
+    // 5. MÁQUINA DE ESTADOS EXCLUSIVA
+    bool closing_L_now = false
+    bool closing_S_now = false
+    
+    // PRIORIDAD 1: SL / TS
+    if longSLhit or shortSLhit
+        is_in_long_trade := false
+        is_in_short_trade := false
+        trade_entry_bar := na
+        stopLossLevel_logic := na
+        trade_entry_price := na
+        alert_CloseLongSL_OnClose := longSLhit
+        alert_CloseShortSL_OnClose := shortSLhit
+        longSLhit_logic_plot := longSLhit
+        shortSLhit_logic_plot := shortSLhit
+        closing_L_now := longSLhit
+        closing_S_now := shortSLhit
+        if longSLhit 
+            div_context_L := false
+        if shortSLhit
+            div_context_S := false
+        last_cancel_bar := bar_index + i_cooldown_bars - 1
+
+    // PRIORIDAD 2: SALIDA NORMAL O POR DIVERGENCIA
+    else if isClosing or divCloseLong_logic or divCloseShort_logic
+        bool normalCloseL = is_in_long_trade and longCloseTrigger
+        bool normalCloseS = is_in_short_trade and shortCloseTrigger
+        
+        if normalCloseL or normalCloseS or divCloseLong_logic or divCloseShort_logic
+            is_in_long_trade := false
+            is_in_short_trade := false
+            trade_entry_bar := na
+            stopLossLevel_logic := na
+            trade_entry_price := na
+            
+            bool isDivExit = false
+
+            if normalCloseL
+                alert_CloseLongNormal := true
+                closing_L_now := true
+                div_context_L := false
+            else if divCloseLong_logic
+                alert_CloseLongDiv := true
+                divCloseLong_plot := true
+                closing_L_now := true
+                div_context_L := false
+                isDivExit := true
+            if normalCloseS
+                alert_CloseShortNormal := true
+                closing_S_now := true
+                div_context_S := false
+            else if divCloseShort_logic
+                alert_CloseShortDiv := true
+                divCloseShort_plot := true
+                closing_S_now := true
+                div_context_S := false
+                isDivExit := true
+
+            if isDivExit
+                last_cancel_bar := bar_index + i_cooldown_bars - 1
+
+    // PRIORIDAD 3: CANCELACIÓN ANTI-REPINTADO
+    else if potentialCancelLong or potentialCancelShort
+        last_cancel_bar := bar_index
+        is_in_long_trade := false
+        is_in_short_trade := false
+        trade_entry_bar := na
+        stopLossLevel_logic := na
+        trade_entry_price := na
+        alert_CancelLong := potentialCancelLong
+        alert_CancelShort := potentialCancelShort
+        cancelLongTrigger_logic_plot := potentialCancelLong
+        cancelShortTrigger_logic_plot := potentialCancelShort
+        closing_L_now := potentialCancelLong
+        closing_S_now := potentialCancelShort
+        if potentialCancelLong
+            div_context_L := false
+        if potentialCancelShort
+            div_context_S := false
+
+    bool is_flat = not is_in_long_trade and not is_in_short_trade
+    bool any_emergency = emergency_trigger_L or emergency_trigger_S
+    bool just_killed = longSLhit_logic_plot or shortSLhit_logic_plot or cancelLongTrigger_logic_plot or cancelShortTrigger_logic_plot or any_emergency
+    bool cooldown_active = bar_index <= last_cancel_bar
+
+    bool entry_L_now = netLongEntry and not closing_L_now and not cooldown_active
+    bool entry_S_now = netShortEntry and not closing_S_now and not cooldown_active
+    bool allow_reverse_L = any_emergency and entry_L_now
+    bool allow_reverse_S = any_emergency and entry_S_now
+
+    if entry_L_now and (not just_killed or allow_reverse_L)
+        is_in_long_trade := true
+        is_in_short_trade := false
+        trade_entry_bar := bar_index
+        trade_entry_price := close
+        if current_bull_wave_id != last_traded_bull_wave
+            is_reentry_L := false
+            last_traded_bull_wave := current_bull_wave_id
+        else
+            is_reentry_L := true
+        if na(stopLossLevel_logic)
+            stopLossLevel_logic := low * (1 - i_sl_percent / 100.0)
+        alert_OpenLong := true
+        
+    else if entry_S_now and (not just_killed or allow_reverse_S)
+        is_in_short_trade := true
+        is_in_long_trade := false
+        trade_entry_bar := bar_index
+        trade_entry_price := close
+        if current_bear_wave_id != last_traded_bear_wave
+            is_reentry_S := false
+            last_traded_bear_wave := current_bear_wave_id
+        else
+            is_reentry_S := true
+        if na(stopLossLevel_logic)
+            stopLossLevel_logic := high * (1 + i_sl_percent / 100.0)
+        alert_OpenShort := true
+
+    position_logic := is_in_long_trade ? 1 : is_in_short_trade ? -1 : 0
+
+// ============================================
+// 🔹 PLOTS
+// ============================================
+bool filters_exist_PL = i3_countActive > 0
+bool match_filters_L_PL = filters_exist_PL and (i3_countBull == i3_countActive)
+bool match_filters_S_PL = filters_exist_PL and (i3_countBear == i3_countActive)
+bool final_trigger_L_PL = false
+bool final_trigger_S_PL = false
+
+bool effective_context_L_PL = div_context_L or div_alcista_raw
+bool effective_context_S_PL = div_context_S or div_bajista_raw
+
+bool explicit_entry_PL = i3_countActive > 0
+bool implicit_exit_PL  = i4_countActive > 0
+
+if mode_context
+    if explicit_entry_PL
+        final_trigger_L_PL := match_filters_L_PL and effective_context_L_PL
+        final_trigger_S_PL := match_filters_S_PL and effective_context_S_PL
+    else if implicit_exit_PL
+        final_trigger_L_PL := effective_context_L_PL
+        final_trigger_S_PL := effective_context_S_PL
+    else
+        final_trigger_L_PL := div_alcista_raw
+        final_trigger_S_PL := div_bajista_raw
+else if mode_or
+    if explicit_entry_PL
+        final_trigger_L_PL := match_filters_L_PL or div_alcista_raw
+        final_trigger_S_PL := match_filters_S_PL or div_bajista_raw
+    else
+        final_trigger_L_PL := true
+        final_trigger_S_PL := true
+else
+    if explicit_entry_PL
+        final_trigger_L_PL := match_filters_L_PL
+        final_trigger_S_PL := match_filters_S_PL
+    else
+        final_trigger_L_PL := true
+        final_trigger_S_PL := true
+
+bool netLongEntry_PL = (zonaAlcista_viz and final_trigger_L_PL) and canEnter
+bool netShortEntry_PL = (zonaBajista_viz and final_trigger_S_PL) and canEnter
+
+bool new_L = is_in_long_trade and not is_in_long_trade[1]
+bool new_S = is_in_short_trade and not is_in_short_trade[1]
+bool plot_L_initial = new_L and not is_reentry_L
+bool plot_L_reentry = new_L and is_reentry_L
+bool plot_S_initial = new_S and not is_reentry_S
+bool plot_S_reentry = new_S and is_reentry_S
+bool plot_L_close = not is_in_long_trade and is_in_long_trade[1]
+bool plot_S_close = not is_in_short_trade and is_in_short_trade[1]
+bool realtime_L = not barstate.isconfirmed and netLongEntry_PL and not is_in_long_trade
+bool realtime_S = not barstate.isconfirmed and netShortEntry_PL and not is_in_short_trade
+
+// --- Líneas MA ---
+plot(ma_slow, title="Slow MA", color=color.black, linewidth=3)
+color plot_ma_fast_color = ma_fast > nz(ma_fast[1]) ? color.green : color.red
+plot(ma_fast, title="Fast MA", color=plot_ma_fast_color, linewidth=3)
+plot(i3_show_tf5_line ? ma_trend : na, title="Trend MA (TF5)", color=color.new(color.blue, 30), linewidth=2)
+plot(stopLossLevel_logic, title="SL / TS", color=color.orange, linewidth=2, style=plot.style_linebr)
+bgcolor(zonaAlcista_viz ? color.new(color.green, 90) : zonaBajista_viz ? color.new(color.red, 90) : na)
+
+float plot_emerg_level = na
+if i_show_emergency_line and not na(trade_entry_price)
+    plot_emerg_level := is_in_long_trade ? trade_entry_price * (1 - i_sl_emergency_percent / 100.0) : is_in_short_trade ? trade_entry_price * (1 + i_sl_emergency_percent / 100.0) : na
+plot(plot_emerg_level, title="Nivel Emergencia", color=color.new(color.red, 50), linewidth=1, style=plot.style_circles)
+
+plotshape(plot_L_initial, title="COMPRA INICIAL", style=shape.triangleup, location=location.belowbar, color=color.green, size=size.large, text="BUY")
+plotshape(plot_S_initial, title="VENTA INICIAL", style=shape.triangledown, location=location.abovebar, color=color.red, size=size.large, text="SELL")
+plotshape(plot_L_reentry or realtime_L, title="RE-ENTRADA L", style=shape.arrowup, location=location.belowbar, color=color.lime, size=size.normal, text="RE")
+plotshape(plot_S_reentry or realtime_S, title="RE-ENTRADA S", style=shape.arrowdown, location=location.abovebar, color=color.maroon, size=size.normal, text="RE")
+plotshape(plot_L_close and not alert_CancelLong and not alert_CloseLongSL_OnClose and not emergency_trigger_L, title="Cierre L", style=shape.xcross, location=location.abovebar, color=color.maroon, size=size.small)
+plotshape(plot_S_close and not alert_CancelShort and not alert_CloseShortSL_OnClose and not emergency_trigger_S, title="Cierre S", style=shape.xcross, location=location.belowbar, color=color.navy, size=size.small)
+plotshape(emergency_trigger_L, title="CRASH L", style=shape.labeldown, location=location.abovebar, color=color.red, size=size.small, text="CRASH", textcolor=color.white)
+plotshape(emergency_trigger_S, title="CRASH S", style=shape.labelup, location=location.belowbar, color=color.red, size=size.small, text="CRASH", textcolor=color.white)
+plotshape(alert_CancelLong, title="CANCEL L", style=shape.labeldown, location=location.abovebar, color=color.orange, size=size.small, text="CANCEL L", textcolor=color.white)
+plotshape(alert_CancelShort, title="CANCEL S", style=shape.labelup, location=location.belowbar, color=color.orange, size=size.small, text="CANCEL S", textcolor=color.white)
+plotshape(alert_CloseLongSL_OnClose, title="SL L", style=shape.xcross, location=location.abovebar, color=color.red, size=size.normal, text="SL")
+plotshape(alert_CloseShortSL_OnClose, title="SL S", style=shape.xcross, location=location.belowbar, color=color.red, size=size.normal, text="SL")
+plotshape(div_bajista_plot and barstate.isconfirmed, title="Div Bajista", style=shape.labeldown, location=location.abovebar, color=color.purple, size=size.small, text="DIV ▼", textcolor=color.white)
+plotshape(div_alcista_plot and barstate.isconfirmed, title="Div Alcista", style=shape.labelup, location=location.belowbar, color=color.purple, size=size.small, text="DIV ▲", textcolor=color.white)
+
+// ============================================
+// 🔹 ALERTAS
+// ============================================
+string msg_to_send = na
+
+if alert_EmergencyExit_L or alert_EmergencyExit_S
+    msg_to_send := msg_Close_All
+else if alert_OpenLong
+    msg_to_send := msg_L_open
+else if alert_OpenShort
+    msg_to_send := msg_S_open
+else if alert_CloseLongNormal or alert_CloseLongSL_OnClose or alert_CancelLong or alert_CloseLongDiv
+    msg_to_send := msg_Close_All
+else if alert_CloseShortNormal or alert_CloseShortSL_OnClose or alert_CancelShort or alert_CloseShortDiv
+    msg_to_send := msg_Close_All
+
+if not na(msg_to_send) and msg_to_send != ""
+    if alert_EmergencyExit_L or alert_EmergencyExit_S
+        alert(msg_to_send, alert.freq_once_per_bar)
+    else
+        alert(msg_to_send, alert.freq_once_per_bar_close)
+
+// ============================================
+// 🔹 ETIQUETA DE ESTADO
+// ============================================
+var label statusLabel = label.new(na, na, "", color=color.gray, textcolor=color.white, style=label.style_label_left, yloc=yloc.price, size=size.small)
+if i_show_status and barstate.islast
+    label.set_xy(statusLabel, bar_index + 1, close)
+    string statusText = is_in_long_trade ? "LONG" : is_in_short_trade ? "SHORT" : "NEUTRAL"
+    color statusColor = is_in_long_trade ? color.green : is_in_short_trade ? color.red : color.gray
+    label.set_text(statusLabel, statusText)
+    label.set_color(statusLabel, statusColor)
+else if not i_show_status
+    label.set_text(statusLabel, na)
+
+// ============================================
+// 🔹 PANEL DE ESTADO
+// ============================================
+var table statusTable = table.new(position.top_right, 2, 20)
+if i_show_panel and barstate.islast
+    string t_pos = i_panel_pos == "Top Right" ? position.top_right : i_panel_pos == "Bottom Right" ? position.bottom_right : i_panel_pos == "Bottom Left" ? position.bottom_left : position.bottom_center
+    string t_size = i_panel_size == "Tiny" ? size.tiny : i_panel_size == "Small" ? size.small : i_panel_size == "Normal" ? size.normal : size.large
+    table.set_position(statusTable, t_pos)
+    table.clear(statusTable, 0, 0, 1, 19)
+    
+    color c_bull = color.new(color.green, 20)
+    color c_bear = color.new(color.red, 20)
+    color c_text = color.white
+    int r = 0
+
+    table.cell(statusTable, 0, r, "FILTRO", bgcolor=color.gray, text_color=c_text, text_size=t_size)
+    table.cell(statusTable, 1, r, "ESTADO", bgcolor=color.gray, text_color=c_text, text_size=t_size)
+    r += 1
+
+    table.cell(statusTable, 0, r, "ZONA", bgcolor=color.black, text_color=c_text, text_size=t_size)
+    table.cell(statusTable, 1, r, zonaAlcista_viz ? "BULL" : "BEAR", bgcolor=zonaAlcista_viz ? c_bull : c_bear, text_color=c_text, text_size=t_size)
+    r += 1
+
+    if i3_use_tf1
+        table.cell(statusTable, 0, r, "IN TF1 (" + i3_tf1 + ")", bgcolor=color.black, text_color=c_text, text_size=t_size)
+        table.cell(statusTable, 1, r, i3_o1_bull ? "BULL" : "BEAR", bgcolor=i3_o1_bull ? c_bull : c_bear, text_color=c_text, text_size=t_size)
+        r += 1
+    if i3_use_tf2
+        table.cell(statusTable, 0, r, "IN TF2 (" + i3_tf2 + ")", bgcolor=color.black, text_color=c_text, text_size=t_size)
+        table.cell(statusTable, 1, r, i3_o2_bull ? "BULL" : "BEAR", bgcolor=i3_o2_bull ? c_bull : c_bear, text_color=c_text, text_size=t_size)
+        r += 1
+    if i3_use_tf3
+        table.cell(statusTable, 0, r, "IN TF3 (" + i3_tf3 + ")", bgcolor=color.black, text_color=c_text, text_size=t_size)
+        table.cell(statusTable, 1, r, i3_o3_bull ? "BULL" : "BEAR", bgcolor=i3_o3_bull ? c_bull : c_bear, text_color=c_text, text_size=t_size)
+        r += 1
+    if i3_use_tf4
+        table.cell(statusTable, 0, r, "IN TF4 (C>SlowMA)", bgcolor=color.black, text_color=c_text, text_size=t_size)
+        table.cell(statusTable, 1, r, i3_o4_bull ? "BULL" : "BEAR", bgcolor=i3_o4_bull ? c_bull : c_bear, text_color=c_text, text_size=t_size)
+        r += 1
+    if i3_use_tf5
+        table.cell(statusTable, 0, r, "IN TF5 (C>TrendMA)", bgcolor=color.black, text_color=c_text, text_size=t_size)
+        table.cell(statusTable, 1, r, i3_o5_bull ? "BULL" : "BEAR", bgcolor=i3_o5_bull ? c_bull : c_bear, text_color=c_text, text_size=t_size)
+        r += 1
+    if i4_use_tf1
+        table.cell(statusTable, 0, r, "OUT TF1 (" + i4_tf1 + ")", bgcolor=color.black, text_color=c_text, text_size=t_size)
+        table.cell(statusTable, 1, r, i4_o1_bull ? "BULL" : "BEAR", bgcolor=i4_o1_bull ? c_bull : c_bear, text_color=c_text, text_size=t_size)
+        r += 1
+    if i4_use_tf2
+        table.cell(statusTable, 0, r, "OUT TF2 (" + i4_tf2 + ")", bgcolor=color.black, text_color=c_text, text_size=t_size)
+        table.cell(statusTable, 1, r, i4_o2_bull ? "BULL" : "BEAR", bgcolor=i4_o2_bull ? c_bull : c_bear, text_color=c_text, text_size=t_size)
+        r += 1
+    if i4_use_tf3
+        table.cell(statusTable, 0, r, "OUT TF3 (" + i4_tf3 + ")", bgcolor=color.black, text_color=c_text, text_size=t_size)
+        table.cell(statusTable, 1, r, i4_o3_bull ? "BULL" : "BEAR", bgcolor=i4_o3_bull ? c_bull : c_bear, text_color=c_text, text_size=t_size)
+        r += 1
+    if i4_use_tf4
+        table.cell(statusTable, 0, r, "OUT TF4 (C>SlowMA)", bgcolor=color.black, text_color=c_text, text_size=t_size)
+        table.cell(statusTable, 1, r, i4_o4_bull ? "HOLD" : "EXIT", bgcolor=i4_o4_bull ? c_bull : c_bear, text_color=c_text, text_size=t_size)
+        r += 1
+
+    // Mostrar modo divergencia activo
+    string div_mode_str = i_div_entry_mode
+    string reg_str = i_div_reg_mode == "Invertida" ? "INV" : "TRAD"
+    string hid_str = i_div_hid_mode == "Invertida" ? "INV" : "TRAD"
+    if div_active
+        table.cell(statusTable, 0, r, "DIV", bgcolor=color.black, text_color=c_text, text_size=t_size)
+        table.cell(statusTable, 1, r, "R:" + reg_str + " H:" + hid_str, bgcolor=color.new(color.purple, 30), text_color=c_text, text_size=t_size)
+        r += 1

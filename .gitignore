@@ -1,0 +1,48 @@
+# Secrets y configuración sensible
+.env
+.env.*
+*.secret
+credentials*
+
+# Logs y estados dinámicos (no son código fuente)
+*.log
+logs/
+engine_state.json
+engine_state.json.*
+trade_history.csv
+last_recycle.txt
+
+# Cache y compilados Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Backups automáticos genéricos
+*.bak*
+*.backup
+*.old
+
+# Excepciones: backups semánticos documentados (cláusulas de rollback)
+!regime_wf/*.bak-TF-*
+!regime_wf/*.bak-MR-*
+
+# IDE y OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Archivos temporales
+*.tmp
+*.swp
+*~
+
+# Entornos virtuales
+venv/
+env/
+.venv/
