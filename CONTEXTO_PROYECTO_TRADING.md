@@ -180,6 +180,7 @@ xx:00:00 UTC (diario) Health monitor + resumen
 | v2.3.9 | 19 Abr | Solo B1 aplicado (B2/B3 pospuestos a reciclaje con test diferencial completo — ver notas en §13.3). B1 _reset_state_on_exit helper top-level standalone (mr:bool flag para mr_zone_history) invocado desde los 2 exits TF/MR — resetea 8 campos completos (position, entry_price, sl_level, bars_since_entry, entry_bar_timestamp, entry_filters_forming, stop_order_id, entry_timestamp_ms). Non-regression verificada con _run_verify_test (4 senales, 2 trades, PnL +1.2940%, bars 511/523/610/617 identicos pre/post). Validacion empirica de v2.3.8-B7 en cycle 134 (APT partial fill 8.5/8.59) |
 | v2.3.10 | 19 Abr | D4 Telegram alerts fire-and-forget (reduce latencia cycle 1-3s): asyncio.create_task reemplaza await secuencial en los 2 loops de _post_cycle (OPEN alerts + CLOSE alerts). Alertas son observabilidad, _send_alert tiene try/except interno, event loop retiene tasks hasta completion. Test latencia: sequential 5010ms → fire-and-forget 0ms (100% reduccion). _run_verify_test idéntico al baseline (sanity check brain). Single alerts (ERROR, DD, daily_summary) se mantienen como await — no son el bottleneck |
 | v2.3.11 | 19 Abr | Fidelidad 2 restaurada (opción b del HALLAZGO §13.2 lag estructural 1 bar). download_all_ohlcv apendiza/actualiza bar forming determinísticamente: fetch adicional sin `since` (limit=2) tras paginated. 3 ramas: (a) paginated sin forming → append; (b) paginated ya trae forming → update OHLC in-place con snapshot fresh; (c) ts inconsistente → warn y df sin modificar. iloc[-1] siempre pasa a ser bar t en curso. close_forming ≈ close_real a ~6s del cierre (reducción del lag 60 min → 6 s). brain_engine sin cambios (state.entry_bar_timestamp ahora es hora t, alineado con kernel lab). _run_verify_test invariante (histórico sin forming). Latency +1s (0.88s → ~1.8s, tolerable). Tests 5/5 PASS (3 ramas + 2 fallbacks) |
+| v2.4.0 | 20 Abr | Fidelidad 2 TS restaurada: update_trailing_stop no-op (execution_manager.py). cp1252 fix en lab_historico_numba_v8_3.py (sys.stdout reconfigure UTF-8). Deploy 14:08 UTC, 20s downtime. Primer cycle post-deploy 6 TS_NOOP_V240 + 2 cierres on-close (ONDO, RENDER). 3 commits rama v2.4.0-fidelity2-ts. Ver §13.4 entrada v2.4.0 deploy. |
 | analyzer v2.4.1 | 17 Abr | Ultra review fixes: C1 entry_candle inferido, C2 consistency check por precios, C3 COMBOLAB_DIR via env/CLI, C4 rollover con ENGINE_STATE.t, S1/S2/S5/S7/M9 + S3/S4/S6/M3 |
 | audit v5.1 | 17 Abr | Ultra review fixes: C1 entry/exit semantics correctas, C2 kernel parity checksum (opcion C: lab solo tiene Numba), C3 flag recon organic, C4 MR cluster_hint via SIGNALS_RAW/GMM, C5 rollover con ENGINE_STATE.t, C6 path env/CLI, C7 CSV 12col, C8 tolerancia +-1, S4/S5/S8/S10/M4/M6 |
 
@@ -221,7 +222,7 @@ xx:00:00 UTC (diario) Health monitor + resumen
 7. v2.3.8 B5: OHLCV pagination primera fetch vacia caia al else con ohlcv=[] sin reintento — simbolo quedaba con DataFrame vacio y brain saltaba evaluacion. Fix: `raise ValueError(...)` activa outer retry del for attempt. Preserva `since` parameter (critico para Fase 1 opcion-a decision de lag estructural).
 8. v2.3.11 Fidelidad 2: BingX paginated con `since` incluye el forming INCONSISTENTEMENTE (a veces iloc[-1] es forming, a veces es last closed; verificado empíricamente 2026-04-19). Fix determiniza via fetch adicional sin `since` (limit=2) tras el paginated y rama 3-way: (a) `forming_ts == last_paginated + 1h` → append forming; (b) `forming_ts == last_paginated` → update OHLC in-place con snapshot fresh del forming fetch; (c) otro → warn y df sin modificar (inconsistencia real tipo race xx:00:00). Fallback robusto en excepción: warn y df sin modificar (modo lag solo ese símbolo ese ciclo). iloc[-1] pasa a ser siempre el bar t en curso (Fidelidad 2 restaurada vs kernel lab que decide-y-entra con close[t]). Latencia +~1s (0.88s paginated → ~1.8s total con forming serial por símbolo).
 
-**execution_manager.py (9):**
+**execution_manager.py (10):**
 1. DRY_RUN entry_price=0 → fetch_ticker
 2. size_usdt no se pasaba a log_trade
 3. setLeverage: params={'side': 'BOTH'}
@@ -231,6 +232,7 @@ xx:00:00 UTC (diario) Health monitor + resumen
 7. sl_trigger_hit: BingX cierra por stop entre ciclos → estima PnL, registra en CSV
 8. v2.3.7 E5: fill_price=0 no se detectaba explícitamente en open_position → stop_price_bingx=0, BingX rechazaba con mensaje oscuro. Fix: guard `if fill_price <= 0: return {"action": "open_failed", "error": ...}` antes de calcular stop_price.
 9. v2.3.8 B7: stop y emergency_close usaban `size` (requested) no `entry_order.filled` (real). Partial fills dejaban stop sobredimensionado rechazado por reduceOnly. Fix: `filled_size = float(entry_order.get("filled", 0) or 0)` con warning log y fallback a `size` si ccxt no expone filled. size del dict de return tambien usa filled_size.
+10. v2.4.0 update_trailing_stop convertido en no-op (log_info TS_NOOP_V240 + return stop_noop_v240 action). Brain TS vive on-close en state.sl_level; BingX mantiene stop_market al 5% emergency fijo desde entry. Cierre por TS ejecutado on-close vía close_position MARKET cuando brain detecta close < sl_level en cycle. Cuerpo de 153 líneas reemplazado por 45 líneas (no-op + docstring). Restaura Fidelidad 2 con Pine y kernel lab (ambos evalúan TS on-close). Ver §13.4 RESUELTO v2.4.0 deploy.
 
 **portfolio_manager.py (5):**
 1. Emojis Unicode → texto plano
@@ -656,6 +658,26 @@ Referencias: sección 9.2.1, brain_engine.py bifurcación TF/MR, live_engine.py 
 
 ### 13.2 ACTIVO
 
+**[HALLAZGO] [ACTIVO] BRAIN_RECONCILE no registra cierres legacy en trade_history.csv — 2026-04-20**
+Contexto: descubierto durante investigación de anomalía UNI/USDT en Smoke-B post-v2.4.0 (2026-04-20 cycle 161). Cuando brain detecta posición en su state pero BingX no tiene la posición (cerrada entre cycles por stop tensado intrabar o apertura fantasma que no persistió), emite BRAIN_RECONCILE reset. Este path NO dispara log_trade — el cierre no queda en trade_history.csv.
+Diferencia con ORPHAN_CLOSE existente:
+- ORPHAN_CLOSE (§13.4 RESUELTO 2026-04-20 OP/USDT verificado 3 casos) se dispara cuando el path de close_position() intenta cancelar un stop_order_id y BingX responde "no existe" o "position not found" → reconstrucción y log_trade.
+- BRAIN_RECONCILE (este ítem) se dispara antes, al inicio del cycle cuando fetch_positions() no retorna la posición esperada. No intenta cancelar stop, solo resetea state. Sin log_trade.
+Impacto operacional:
+1. Ventana migración Opción B v2.4.0 (próximas horas a 1 semana): 6 posiciones legacy con stops tensados heredados pueden dispararse intrabar. Si eso ocurre entre cycles sin que close_position se invoque, el trade NO se registra. Pérdida silenciosa del dato.
+2. Aperturas fantasma (patrón B-UNI-1 observado en UNI/USDT desde cycle 154 del 2026-04-20): signal emitido, apertura no persiste (likely min_order_precision con balance bajo, mismo patrón ETH), brain state marca abierto, cycle siguiente detecta gap y BRAIN_RECONCILE resetea. En este caso NO hay trade real, el no-registro es correcto. Pero el patrón recurrente satura logs (1× por cycle, 7+ cycles confirmados para UNI).
+3. Audit v5.1 futuro: trades legacy cerrados durante ventana migración no estarán en CSV → gap en comparación fidelidad vs kernel. Requerirá exclusión explícita de la ventana 2026-04-20 14:08 UTC → cierre de última posición legacy.
+Decisión provisional 2026-04-20: Opción A — aceptar pérdida de registro durante migración. Documentar. Cuando llegue audit v5.1 post-N≥50 segmentar explícitamente el período.
+Fix futuro (candidato v2.4.1): modificar BRAIN_RECONCILE para que intente obtener fill_price via fetch_my_trades(symbol, since) para el período entre last_known_state y current_cycle, y si encuentra un trade consistente (SELL si era LONG, BUY si era SHORT) con approximate timing, invocar log_trade con dato reconstruido. Similar a ORPHAN_CLOSE pero sin depender del stop_order_id.
+Disparo:
+- Inmediato (para decisión): contar cuántos trades legacy se pierden durante ventana migración.
+- v2.4.1 candidate: tras estabilidad v2.4.0 confirmada en 48h, considerar implementación de reconstrucción.
+Cierre: implementado v2.4.1 o aceptado como pérdida permanente con documentación rigurosa.
+Referencias:
+- Smoke-B cycle 161 2026-04-20 15:00:09 UTC: BRAIN_RECONCILE UNI/USDT reset sin trade en CSV.
+- Patrón observado desde 08:00 UTC (cycle 154) pre-deploy, no introducido por v2.4.0.
+- ORPHAN_CLOSE mecanismo fiel vinculado en §13.4 entrada 2026-04-20.
+
 **[HALLAZGO] [ACTIVO] Divergencia de Fidelidad 2 en TS — 2026-04-20**
 Contexto: auditoría del 2026-04-20 confirmó con citas literales que Fidelidad 1 (Pine ↔ kernel lab) está intacta en los 4 mecanismos de stop, pero Fidelidad 2 (kernel ↔ bot live) está rota en el TS.
 Especificación de la divergencia:
@@ -684,6 +706,8 @@ Referencias:
 - Kernel: lab_historico_numba_v8_3.py líneas 1476-1509 (TS update + emergency intrabar + TS/SL close check).
 - Live: execution_manager.py update_trailing_stop líneas 574-740 (función a convertir en no-op en v2.4.0).
 - Audit completo: §13.4 entrada "[RESUELTO-CORRECCIÓN] Audit fidelidad 4x3 — 2026-04-20".
+
+[RESUELTO 2026-04-20 v2.4.0 deploy] — ver §13.4 entrada v2.4.0 deploy.
 
 **[DECISION] [ACTIVO] Sesión 2026-04-19 — 15 fixes aplicados, 5 despliegues — 2026-04-19**
 Contexto: Segunda sesión grande del proyecto tras auditorias del 2026-04-17. Foco: atacar masivamente los serios pendientes de §13.3 antes del primer reporte audit v5.1 con N>=50.
@@ -1042,6 +1066,14 @@ Referencias: analyze_performance_attribution.py bloque attribute_trade(), test d
 
 ### 13.3 EN_ESPERA
 
+**[MEJORA] [EN_ESPERA] UNI/USDT reapertura fantasma recurrente — 2026-04-20**
+Contexto: observado durante investigación post-v2.4.0 Smoke-B. Desde cycle 154 (2026-04-20 08:00 UTC) hasta cycle 161 (15:00 UTC), BRAIN_RECONCILE resetea UNI/USDT SHORT cada hora. Brain emite signal SHORT UNI, open_position probablemente falla por min_order_precision (balance bajo 297 USDT, mismo patrón ETH §13.3 documentado), BingX no confirma, cycle siguiente gap detectado, reset. Loop 7+ cycles.
+Relación con §13.4 "BRAIN_RECONCILE frecuencia alta con balance bajo — 2026-04-16": correlación probable — signals optimistas + balance bajo + filtros portfolio que descartan genera falsas entradas.
+Impacto: ruido log (1× BRAIN_RECONCILE por cycle), cero impacto operacional (no se pierden trades reales porque nunca se abrieron).
+Disparador: balance crece >500 USDT (suaviza edge case precision), o activación P1 leverage (§13.3 diferido), o fix explícito de portfolio_manager para descartar signals pre-execution cuando sizing < min_precision.
+Cierre: fix en portfolio_manager (skip silencioso pre-open) o resolución orgánica por balance.
+Referencias: §13.3 ETH below min precision bug similar, patrón observado cycles 154-161 del 2026-04-20.
+
 **[MEJORA] [EN_ESPERA] ETH "below min precision" CRITICALs en logs — 2026-04-20**
 Contexto: Balance 297 USDT + precio ETH ~$3000 produce sizing por debajo de mínimo BingX (0.01 ETH = ~$30, pero sizing vw-ajustado entrega ~7 USDT = 0.00233 ETH). 6 ocurrencias observadas en verificación empírica 2026-04-20 (5 consecutivas 2026-04-17 21:00 → 2026-04-18 01:00 + 1 hoy 10:00 UTC). Cada ocurrencia genera `CRITICAL [EXEC] OPEN LONG ETH/USDT FALLIDO: Invalid order: bingx amount of ETH/USDT:USDT must be greater than minimum amount precision of 0.01` + BRAIN_RECONCILE reset de ETH. Funcionalmente manejado (position no se abre, state se limpia), pero el CRITICAL en logs es ruido — no es error operacional real, es edge case de balance bajo.
 Disparo: post-v2.4.0 estable (no interferir con deploy mayor), o crecimiento orgánico de balance > 500 USDT (reduce frecuencia), o activación P1 leverage con cap de safety (leverage 5-10x para ETH multiplica sizing por 5-10 y resuelve colateralmente).
@@ -1302,6 +1334,26 @@ Referencias: analyze_performance_attribution.py verificación al final de attrib
 ---
 
 ### 13.4 RESUELTO
+
+**[RESUELTO] v2.4.0 deploy + validación — Fidelidad 2 TS restaurada — 2026-04-20**
+Contexto: tras auditoría de fidelidad 4×3 del 2026-04-20 (§13.4 RESUELTO) + verificación literal del kernel (§13.2 HALLAZGO confirmado) + lectura Pine por Ricardo, se implementó v2.4.0 con dos cambios: cp1252 fix + update_trailing_stop no-op. Rama git v2.4.0-fidelity2-ts, base commit baseline 8af9094, 3 commits (6b5743c docs + 607199a cp1252 + bc42352 no-op).
+Deploy VPS 2026-04-20 14:08:22 UTC:
+- Backup v2.3.11: execution_manager.py.bak-v2311-20260420-140719, lab_historico_numba_v8_3.py.bak-v2311-20260420-140719.
+- MD5 3-way sincronizado (comboclaude + combolab + VPS).
+- Downtime: 20s.
+- Boot limpio: 45 GMM + 45 specialists + 45 sectores + 9 posiciones sincronizadas + balance 297 USDT.
+- Cycle 161 post-v2.4.0 (15:00:07-15:00:09): 6 TS_NOOP_V240 (BNB, ALGO, IMX, MANA, GRT, THETA) + 2 cierres on-close vía close_position MARKET (ONDO div_exit PnL=0.00, RENDER zone_exit PnL=+0.25), 0 UPDATE_TS cancel+place-new.
+Comportamiento validado:
+- Brain TS vive on-close en state.sl_level (Pine/kernel fiel).
+- BingX conserva stop_market al 5% emergency (colocado en open_position).
+- close_position MARKET ejecuta cierres on-close normales (div_exit, zone_exit, sl_hit).
+- Ventana migración Opción B: 8 posiciones legacy mantienen stop tensado hasta cerrarse. Ver ítem B-UNI-2 en §13.2 sobre implicación para trade_history.csv.
+Cycle duration: cycle 161 = 16311ms. No medición pura porque incluyó 2 closes. Smoke-C pendiente para validar reducción esperada en cycle "puro TS" (-1.5 a -2s vs cycles v2.3.11 que promediaban 16s).
+Referencias:
+- §13.2 HALLAZGO Divergencia Fidelidad 2 TS — marcado RESUELTO.
+- commit bc42352 (no-op) y 607199a (cp1252).
+- MD5 post-deploy: e498e486...5ebf (execution_manager), 464137d7...4f32 (lab_historico_numba).
+Cierre: Fidelidad 2 restaurada para TS. Los siguientes cierres por TS ratcheteado ejecutarán on-close via close_position MARKET, no por stop_market intrabar. Futuros audit v5.1 podrán comparar directamente kernel ↔ bot live sin la deuda arquitectural previa.
 
 **[RESUELTO-CORRECCIÓN] Audit fidelidad 4x3 — revisión tras lectura Pine por Ricardo — 2026-04-20**
 Contexto: auditoría inicial del 2026-04-20 concluyó "sistema materialmente FIEL al Pine" incluyendo TS. Ricardo leyó el Pine directamente (indicador_v44_0_smartdiv_v11_0.pine) y detectó divergencia no capturada: Pine evalúa TS on-close (`barstate.isconfirmed` + `close < stopLossLevel_logic` línea 905), bot live delega a BingX stop_market que ejecuta intrabar.
