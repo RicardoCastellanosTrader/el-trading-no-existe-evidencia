@@ -620,6 +620,22 @@ async def _place_emergency_stop(
 
     side = position.get("side", "")
     size = position.get("size", 0.0)
+
+    # Fail-loud guard: size <= 0 indica dict position malformado o race
+    # condition raro. create_order fallaría con mensaje oscuro de BingX;
+    # preferimos detectar aquí y etiquetar el failure explícitamente.
+    if size <= 0:
+        logger.critical(
+            f"[EMERGENCY_STOP_INVALID_SIZE_V241] {symbol}: "
+            f"size={size} from position dict (side={side}). "
+            f"Position remains UNPROTECTED."
+        )
+        return {
+            "symbol": symbol,
+            "action": "emergency_stop_failed",
+            "error": f"invalid_size_{size}",
+        }
+
     stop_side = "sell" if side == "long" else "buy"
     bingx_sym = to_bingx_symbol(symbol)
 
