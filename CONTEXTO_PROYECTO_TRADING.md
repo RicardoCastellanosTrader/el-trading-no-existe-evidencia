@@ -330,14 +330,16 @@ Sistema original de Ricardo: HA diaria repintable + Tenkan-sen cruce invertido. 
 
 ### 3.3 Resultados: 6 clusters rescatados
 
-| Símbolo | Cluster | MR PF | MR Score | Trades |
-|---------|---------|-------|----------|--------|
-| SEI | 2 | 2.38 | 2.58 | 94 |
-| STX | 2 | 1.55 | 1.05 | 86 |
-| UNI | 0 | 1.39 | 1.14 | 209 |
-| LTC | 2 | 1.45 | 0.81 | 103 |
-| DOT | 1 | 1.47 | 0.57 | 58 |
-| BCH | 0 | 1.27 | 0.34 | 35 |
+| Símbolo | Cluster | MR PF | MR Score | Trades (tr+fwd) | Config ID |
+|---------|---------|-------|----------|-----------------|-----------|
+| SEI     | 2       | 2.38  | 2.58     | 70+24           | 45686     |
+| STX     | 2       | 1.55  | 1.05     | 57+29           | 60003     |
+| UNI     | 0       | 1.39  | 1.14     | 143+66          | 121360    |
+| LTC     | 2       | 1.45  | 0.81     | 76+27           | 109139    |
+| DOT     | 1       | 1.47  | 0.57     | 31+27           | 55824     |
+| BCH     | 0       | 1.27  | 0.34     | 22+13           | 27136     |
+
+> Nota: los config_ids permiten decodificar bits específicos del specialist activo en producción (ver §0.5 para mapeo de bits 0-16 del kernel MR). Para auditoría Fidelidad 2 MR formal (§13.3), UNI C0 (config_id=121360) es el candidato óptimo del _run_verify_test por tener el N OOS más alto de los 6 rescates (N=66 forward, 3-5× mayor que los demás).
 
 **3 clusters donde MR supera TF (anotados, no reemplazados):** GRT C2 (+1.57), LINK C0 (+0.20), XRP C2 (+0.15)
 
@@ -1200,6 +1202,7 @@ Referencias: regime_walk_forward.py líneas 487-505.
 
 **[MEJORA] [EN_ESPERA] regime_walk_forward W3: falta CI/bootstrap en pf_fwd — 2026-04-17**
 Contexto: Ultra review W3. specialist_score y pf_fwd son point estimates. Sin intervalo de confianza ni bootstrap, configs con N=15-20 y 1-2 outliers inflan pf_fwd artificialmente. Ya existía hallazgo específico sobre GRT C2 MR (pf_fwd=14.975 N=13) — W3 formaliza el riesgo estructural para TF también.
+Nota 2026-04-20: el caveat N pequeño aplica también a otros rescates MR, no solo a GRT C2. BCH C0 tiene N fwd=13 (idéntico a GRT C2), DOT C1 tiene N fwd=27. Ambos heredan el riesgo de pf_fwd inflado por 1-2 ganadores atípicos. Al evaluar resultados empíricos de estos clusters cuando lleguen a N≥15 real, usar pf_train como expectativa base, no pf_fwd (mismo criterio que GRT). Los 3 rescates restantes (SEI C2 N=24, STX C2 N=29, LTC C2 N=27, UNI C0 N=66) tienen N más robusto — UNI C0 particularmente sólido.
 Disparo: pre-reciclaje.
 Cierre: añadir bootstrap de pf_fwd (N=1000 resamples) y exponer pf_fwd_ci_low en JSON output. Configs con pf_fwd_ci_low < 1.0 flaggear como sospechosas de outliers.
 Referencias: regime_walk_forward.py _compute_specialist_metrics, analyzer v2.4.1 hallazgo GRT C2 MR.
