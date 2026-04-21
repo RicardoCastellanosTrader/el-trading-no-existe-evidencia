@@ -145,6 +145,9 @@ class LiveEngine:
         self.brain: BrainState | None = None
         self.portfolio_config: PortfolioConfig | None = None
         self.exchange: ccxt_async.bingx | None = None
+        # v2.4.3: cacheado desde exchange.load_markets() en start().
+        # Alimenta pre-check symbol-aware en portfolio_manager.
+        self.markets_info: dict = {}
 
         self.running: bool = False
         self.cycle_count: int = 0
@@ -182,6 +185,24 @@ class LiveEngine:
             bal = await get_balance(exchange=self.exchange)
             logger.info(f"[ENGINE] Conexion BingX OK. Balance: {bal['total']:.2f} USDT")
             self._balance_24h_ago = bal["total"]
+            # v2.4.3: cargar markets para pre-check symbol-aware de min_order
+            # en portfolio. load_markets es idempotente; ccxt cachea tras la
+            # primera llamada. markets_info alimenta compute_min_order_usdt_for
+            # que reemplaza la constante 5 USDT por thresholds reales por
+            # simbolo (limits.cost.min, amount.min x price, precision x price).
+            try:
+                await self.exchange.load_markets()
+                self.markets_info = self.exchange.markets or {}
+                logger.info(
+                    f"[ENGINE] Markets BingX cargados: "
+                    f"{len(self.markets_info)} simbolos."
+                )
+            except Exception as me:
+                logger.warning(
+                    f"[ENGINE] load_markets fallo: {me}. "
+                    f"Portfolio usara fallback 5 USDT generico."
+                )
+                self.markets_info = {}
         except Exception as e:
             logger.critical(f"[ENGINE] Fallo de conexion a BingX: {e}")
             raise
@@ -529,6 +550,7 @@ class LiveEngine:
                 signals, balance, positions, regimes,
                 market_data, self.portfolio_config,
                 dd_multiplier=dd_mult,
+                markets_info=self.markets_info,  # v2.4.3 pre-check symbol-aware
             )
             entry_allocs = {
                 s: a["action"]
