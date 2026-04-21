@@ -1377,8 +1377,26 @@ def _check_cancel_tf(
     t: int,
 ) -> bool:
     """
-    Verifica si los filtros HTF (TF2/TF3) que estaban activos al entrar
-    han cambiado. Fiel al kernel Numba.
+    Helper compartido entre ramas TF y MR del brain_engine.
+    Verifica si los filtros HTF (TF2/TF3) que estaban activos al
+    entrar han cambiado.
+
+    Semántica:
+    - Mismo bloque HTF que entry: compara
+      state.entry_filters_forming (snapshot-at-entry) vs
+      f_forming[t] (forming actual del bar).
+    - Bloque HTF cruzado: compara state.entry_filters_forming
+      vs f_resolved[t] (resolved del último bloque HTF cerrado
+      observable desde t).
+
+    Fiel al kernel Numba (lab_historico_numba_v8_3.py l.1550-1580
+    para TF, mean_reversion_kernel.py l.315-345 para MR) que
+    implementa el mismo patrón snapshot-vs-current.
+
+    Ver §0.6 CONTEXTO_PROYECTO_TRADING.md sobre Kernel como verdad
+    operacional: el "Fix fidelidad" del kernel TF l.1560-1562
+    (resolved[t] vs resolved[entry_bar]) está replicado fielmente
+    en este helper.
     """
     cancel = False
 

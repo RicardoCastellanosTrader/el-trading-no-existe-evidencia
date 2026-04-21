@@ -73,7 +73,7 @@ La estrategia Mean Reversion (MR) mantiene su propio canon de verdad en paralelo
 - Walk-forward: `mean_reversion_walk_forward.py`
 - Brain_engine rama MR
 - Versión Pine congelada con faltas conocidas (ver notas abajo)
-- Fidelidad 1 MR implementada en kernel; Fidelidad 2 MR pendiente de auditoría formal (ver §13.3)
+- Fidelidad 1 MR implementada en kernel; Fidelidad 2 MR auditada y confirmada 2026-04-21 (ver §13.3 RESUELTO).
 
 IMPORTANTE: no confundir los dos Pines. Regla mnemotécnica:
 - TF: rápida domina (`fast > slow` = bull)
@@ -90,6 +90,45 @@ IMPORTANTE: no confundir los dos Pines. Regla mnemotécnica:
 Cada config MR es probada por el walk-forward con cada combinación de los 3 bits; el selector escoge la combinación óptima por cluster.
 
 Los 4 mecanismos de stop (SL inicial desde mecha, TS on-close, SL emergency intrabar, trigger `close < sl_level`) son idénticos entre TF y MR en Pine y en kernel. El fix arquitectural v2.4.0+v2.4.1 en `execution_manager` aplica universalmente a ambas estrategias (brain `state.sl_level` ratchetea on-close igual en TF y MR).
+
+### 0.6 Kernel como verdad operacional, Pine como referencia histórica — 2026-04-21
+
+Descubrimiento articulado durante auditorías de Fidelidad 2 TF+MR del 2026-04-20 y 2026-04-21. Refina el marco general establecido en §0.
+
+**Jerarquía clarificada:**
+
+Pine canónico (TF v44, MR v7.25) es **referencia histórica del diseño original**. Es la intención semántica del sistema de trading en su formulación inicial. **No es juez operacional.**
+
+Kernel del lab (`lab_historico_numba_v8_3.py` para TF, `mean_reversion_kernel.py` para MR) es la **verdad operacional**. Es lo que `master.py` ejecuta, lo que el walk-forward optimiza, y cuyos specialist_configs alimentan al bot en producción. La rentabilidad simulada que valida el sistema se construye sobre el comportamiento del kernel, no sobre el Pine.
+
+Brain live debe replicar al kernel. Auditorías Fidelidad 2 se miden contra el kernel, no contra el Pine.
+
+**Divergencias kernel ≠ Pine:**
+
+Pueden existir y algunas están documentadas en código. Ejemplo: `lab_historico_numba_v8_3.py` líneas 1560-1562 contiene comentario literal:
+
+```
+Fix fidelidad: usar resolved[t] (barra HTF actual finalizada)
+en vez de resolved[entry_bar] (barra HTF anterior a la entrada)
+```
+
+Esta divergencia consciente modifica cancel_tf de Pine canónico (reindex-al-pasado `ha_trend_tfN_e[barsSinceEntry]`) a patrón resolved[t] (último bloque HTF cerrado observable desde el bar actual). Es **decisión de diseño madurada**, no bug.
+
+**Principio operacional:**
+
+Toda divergencia kernel ≠ Pine documentada en código (con comentario explícito o mediante tests que confirmen la decisión) es **parte del diseño vigente**. No requiere fix. Solo requiere inventario.
+
+Toda divergencia kernel ≠ Pine no documentada ni justificada es **candidata a revisión pre-reciclaje julio**. Puede ser bug, puede ser decisión olvidada. Auditoría Fidelidad 1 formal (ver §13.3) hará el inventario completo.
+
+**Implicación para auditorías futuras:**
+
+Cuando Claude (o Claude Code, o Ricardo en persona) conduzca auditoría, el eje de verdad es:
+
+1. **Fidelidad 2 (brain ↔ kernel): CRÍTICA para operación real.** Divergencia aquí = bot opera distinto de lo simulado = specialist_configs no predicen comportamiento real.
+
+2. **Fidelidad 1 (kernel ↔ Pine): OPCIONAL, histórica.** Divergencia aquí = kernel hace algo distinto del diseño original. Puede ser madurez, puede ser bug olvidado. Inventariar sin alarma.
+
+No confundir prioridades: bot que replica fielmente un kernel con "Fix fidelidad" intencional es estado sano. Bot que no replica al kernel pero coincide con Pine canónico es estado roto.
 
 ---
 
@@ -1108,22 +1147,36 @@ Referencias: analyze_performance_attribution.py bloque attribute_trade(), test d
 
 ### 13.3 EN_ESPERA
 
-**[AUDITORIA] [EN_ESPERA] Fidelidad 2 MR formal — 2026-04-20**
-Contexto: la estrategia MR tiene Pine canónico (`indicador_v7_25_smartdiv_v40_28_MR.pine`), kernel dedicado (`mean_reversion_kernel.py` + `features.py` + `walk_forward.py`), pero no se ha auditado formalmente Fidelidad 2 (brain live ↔ kernel MR) como sí se hizo para TF el 2026-04-20.
-Método propuesto (análogo al audit 4×3 TF de 2026-04-20):
-1. Citas literales de los 4 mecanismos de stop en 3 capas: Pine v7.25 MR → `mean_reversion_kernel.py` → `brain_engine.py` (ruta MR).
-2. Citas literales de los 3 mecanismos de cancelación: Pine v7.25 MR → `mean_reversion_kernel.py` → `brain_engine.py` (ruta MR). Especialmente relevante porque las cancelaciones son diferenciales de MR y no existen en TF.
-3. Verificar que brain live aplica el fix v2.4.0 (no-op `update_trailing_stop`) y v2.4.1 (`_place_emergency_stop`) también a posiciones MR. Hipótesis optimista: sí, porque fix es universal en `execution_manager`.
-4. Empírico: `_run_verify_test` con símbolo MR. Comparar [1/2] brain vs [2/2] kernel MR. Esperado: FIDELIDAD CONFIRMADA.
+**[AUDITORIA] [EN_ESPERA] Auditoría Fidelidad 1 formal (kernel ↔ Pine) — 2026-04-21**
+Contexto: durante auditoría Fidelidad 2 TF cancel_tf de 2026-04-21 emergió comentario literal en kernel TF (lab_historico_numba_v8_3.py l.1560-1562) documentando divergencia consciente con Pine v44 canónico. Esto abre pregunta sistemática: ¿cuántas otras divergencias kernel ≠ Pine existen, cuáles están documentadas como decisión consciente, cuáles son bugs olvidados?
+Scope: auditoría exhaustiva de divergencias en ambas direcciones:
+- Kernel TF ≠ Pine v44 TF.
+- Kernel MR ≠ Pine v7.25 MR.
+Método propuesto:
+1. Citas lado a lado de mecanismos clave: entry logic, exit logic, 4 mecanismos de stop, cancelaciones (cancel_tf en TF; cancel_zona/cancel_tf/cancel_ghost en MR), divergencias, filtros HTF.
+2. Clasificar cada divergencia encontrada en:
+   - DOCUMENTADA (comentario en código o referencia en CONTEXTO): parte del diseño vigente, inventariar sin alarma.
+   - NO DOCUMENTADA PERO INTENCIONAL (evidencia indirecta: tests que validan el comportamiento kernel): parte del diseño, añadir documentación.
+   - NO DOCUMENTADA Y POTENCIALMENTE INVOLUNTARIA: candidata a revisión arquitectural.
+3. Para divergencias del tercer tipo, cuantificar impacto empírico: ¿cuántos trades simulados cambiarían veredicto si se alineara al Pine canónico? Si impacto <X% (threshold a definir, probablemente <2% PnL o <5% trade count) → documentar y aceptar. Si impacto ≥X% → plantear corrección en próximo reciclaje.
 Disparadores:
-- Inmediato: próxima sesión dedicada de auditoría (estimado 1-2h).
-- Orgánico: primer dato divergente empírico simulado vs real en posiciones MR observado durante operación normal.
-- Pre-P1: obligatorio antes de activar leverage variable.
+- Pre-reciclaje julio: obligatorio como parte del health check del sistema antes de re-entrenar.
+- Orgánico: si aparece divergencia empírica entre bot real y master.py simulado que no se explique por lag/latencia/slippage, puede ser divergencia kernel↔Pine no inventariada.
 Referencias:
-- Pine v7.25 MR: `indicador_v7_25_smartdiv_v40_28_MR.pine` (en ambas carpetas desde 2026-04-20).
-- Kernel MR: `mean_reversion_kernel.py`.
-- §0.5 Filosofía ampliada 2026-04-20.
-Cierre: al completar la auditoría formal. Marcar como RESUELTO con referencia al reporte producido.
+- §0.6 Kernel como verdad operacional (marco conceptual).
+- Comentario literal kernel TF l.1560-1562 ("Fix fidelidad").
+- Auditoría Fidelidad 2 MR (2026-04-21): ya identificó referencias cruzadas Pine↔kernel MR pero no inventarió formalmente divergencias.
+Cierre: al completar inventario con clasificación de cada divergencia + documentación de las DOCUMENTADAS que aún no lo estén + decisión sobre las NO DOCUMENTADAS POTENCIALMENTE INVOLUNTARIAS.
+
+**[MEJORA] [EN_ESPERA] Deuda documental/refactor menores de auditoría Fidelidad 2 — 2026-04-21**
+Contexto: agregado de MENORES emergidos durante auditorías Fidelidad 2 TF y MR del 2026-04-20 y 2026-04-21. Todos sin impacto operacional actual. Candidatos a consolidación en refactor pre-reciclaje julio.
+Items agrupados:
+- **MENOR 1 (MR audit 2026-04-21)**: `_check_cancel_tf` (brain_engine.py l.1371) es helper compartido entre ramas TF y MR. Ventaja: cualquier fix futuro afecta TF y MR simultáneamente (coherencia automática). Deuda documental: docstring no menciona dual-use. **APLICADO EN ESTE COMMIT**: docstring actualizado con semántica explícita y referencia a §0.6. Resto del item cerrado.
+- **MENOR 2 (MR audit 2026-04-21)**: brain MR (_check_cancel_zona_mr, _check_cancel_ghost_mr) recomputa zonas on-the-fly (`ft < sf`) usando `fast_line` y `slow_*` que sí están guardados como arrays. Kernel MR usa arrays precomputados `zone_bull_forming/resolved` construidos por `mean_reversion_features.calc_zones`. Semánticamente idénticos (misma fórmula). Riesgo teórico: drift silencioso si `mean_reversion_features.calc_zones` cambia sin actualizar brain. Acción sugerida pre-reciclaje julio: extraer fórmula a función compartida `_zone_bull_mr(fast, slow) -> bool` importada por ambos. Alineado con item §13.3 LL1 (MA implementations duplicadas en 4 archivos).
+- **MENOR 3 (verificación snapshot 2026-04-21)**: `mr_entry_filters_forming` (SymbolState l.143) y `mr_entry_slow_line` (l.144) son dead fields: asignados en entry path (l.2097/2098/2117/2118), nunca leídos en el resto del código. Residuos de iteración previa de diseño que contemplaba cancel_zona snapshot-based (abandonada al replicar kernel). Impacto operacional: nulo (unos bytes por posición en state JSON). Acción sugerida pre-reciclaje julio: opción A eliminar campos + asignaciones, opción B preservar con docstring "reserved, deprecated since migration to kernel-parity cancel_zona".
+- **MENOR docstring (MR audit 2026-04-21)**: docstring de `_check_cancel_zona_mr` (l.1702) dice "forming zone at entry repainted and entry zone no longer valid". Descripción conceptual correcta pero implementación no compara "forming at entry" directamente — compara "zona actual" (same-day) o "resolved en entry_bar" (day-closed). Acción sugerida: docstring más preciso "detects zone invalidity against current bar (same day) or against resolved data in entry bar (day closed)".
+Disparador: pre-reciclaje julio, consolidar con LL1 (MA duplicates) en refactor único que extraiga fórmulas compartidas con tests de parity.
+Cierre: tras commit del refactor pre-reciclaje.
 
 **[MEJORA] [EN_ESPERA] UNI/USDT reapertura fantasma recurrente — 2026-04-20**
 Contexto: observado durante investigación post-v2.4.0 Smoke-B. Desde cycle 154 (2026-04-20 08:00 UTC) hasta cycle 161 (15:00 UTC), BRAIN_RECONCILE resetea UNI/USDT SHORT cada hora. Brain emite signal SHORT UNI, open_position probablemente falla por min_order_precision (balance bajo 297 USDT, mismo patrón ETH §13.3 documentado), BingX no confirma, cycle siguiente gap detectado, reset. Loop 7+ cycles.
@@ -1133,11 +1186,12 @@ Disparador: balance crece >500 USDT (suaviza edge case precision), o activación
 Cierre: fix en portfolio_manager (skip silencioso pre-open) o resolución orgánica por balance.
 Referencias: §13.3 ETH below min precision bug similar, patrón observado cycles 154-161 del 2026-04-20.
 
-**[MEJORA] [EN_ESPERA] ETH "below min precision" CRITICALs en logs — 2026-04-20**
-Contexto: Balance 297 USDT + precio ETH ~$3000 produce sizing por debajo de mínimo BingX (0.01 ETH = ~$30, pero sizing vw-ajustado entrega ~7 USDT = 0.00233 ETH). 6 ocurrencias observadas en verificación empírica 2026-04-20 (5 consecutivas 2026-04-17 21:00 → 2026-04-18 01:00 + 1 hoy 10:00 UTC). Cada ocurrencia genera `CRITICAL [EXEC] OPEN LONG ETH/USDT FALLIDO: Invalid order: bingx amount of ETH/USDT:USDT must be greater than minimum amount precision of 0.01` + BRAIN_RECONCILE reset de ETH. Funcionalmente manejado (position no se abre, state se limpia), pero el CRITICAL en logs es ruido — no es error operacional real, es edge case de balance bajo.
-Disparo: post-v2.4.0 estable (no interferir con deploy mayor), o crecimiento orgánico de balance > 500 USDT (reduce frecuencia), o activación P1 leverage con cap de safety (leverage 5-10x para ETH multiplica sizing por 5-10 y resuelve colateralmente).
-Cierre: Opción B probable — detectar sizing-below-min en portfolio_manager o execution_manager antes de enviar orden, skip silencioso con log WARNING (no CRITICAL) + flag en SIGNALS_DISCARDED como `"d":"below_min_exchange_precision"`. Preserva observabilidad sin contaminar logs con CRITICALs espurios.
-Referencias: engine.log 2026-04-17 21:00/22:00/23:00 + 2026-04-18 00:00/01:00 + 2026-04-20 10:00:10 (6 ocurrencias), execution_manager.py open_position paso 1 catch de `ccxt.InvalidOrder`, verificación SSH 2026-04-20 10:05 UTC.
+**[MEJORA] [EN_ESPERA] ETH "below min precision" en logs — 2026-04-20 (actualizado 2026-04-21)**
+Contexto: Balance 297 USDT + precio ETH ~$3000 produce sizing por debajo de mínimo BingX (0.01 ETH = ~$30, pero sizing vw-ajustado entrega ~7 USDT = 0.00233 ETH). Ocurrencias observadas en múltiples verificaciones (5 consecutivas 2026-04-17 21:00 → 2026-04-18 01:00 + 2026-04-20 10:00 UTC + 3 más en ventana 2026-04-20 20:00 → 2026-04-21 08:14 UTC). Cada ocurrencia genera `[EXEC] OPEN LONG ETH/USDT FALLIDO: Invalid order: bingx amount of ETH/USDT:USDT must be greater than minimum amount precision of 0.01` + BRAIN_RECONCILE reset de ETH. Funcionalmente manejado (position no se abre, state se limpia); actualmente no genera urgencia de alert.
+Actualización 2026-04-21: verificación empírica del monitoreo pasivo 2026-04-21 (ventana 13h, cycles 166-178) confirma que los mensajes "below minimum" aparecen como `[EXEC]` info, **NO como CRITICAL**. §13.3 anteriormente documentaba el fenómeno como CRITICAL (texto obsoleto). Algún fix v2.4.0 o v2.4.1 reclasificó el log level silenciosamente (fecha exacta por determinar en auditoría específica de logging si fuese necesario). Sigue siendo indicador de patrón símbolos baratos + balance bajo + min precision; agrupado con B-UNI-1 (UNI) y ALGO (3/11 BRAIN_RECONCILE en 13h 2026-04-21).
+Disparo: post-v2.4.0 estable (ya desplegada), o crecimiento orgánico de balance > 500 USDT (reduce frecuencia), o activación P1 leverage con cap de safety (leverage 5-10x para ETH multiplica sizing por 5-10 y resuelve colateralmente).
+Cierre: Opción B probable — detectar sizing-below-min en portfolio_manager o execution_manager antes de enviar orden, skip silencioso con log WARNING/INFO + flag en SIGNALS_DISCARDED como `"d":"below_min_exchange_precision"`. Preserva observabilidad sin requerir filtrado post-hoc.
+Referencias: engine.log 2026-04-17 21:00/22:00/23:00 + 2026-04-18 00:00/01:00 + 2026-04-20 10:00:10 + 2026-04-21 01:00/07:00/08:00, execution_manager.py open_position paso 1 catch de `ccxt.InvalidOrder`, verificación SSH 2026-04-20 10:05 UTC + monitoreo pasivo 2026-04-21 09:00 UTC.
 
 **[MEJORA] [EN_ESPERA] v2.3.11 Opción B2 — forming fetch tardío para residual 6s→2s — 2026-04-19**
 Contexto: v2.3.11 aplicó Opción B1 (forming fetch en paralelo al inicio del cycle, ~6s antes del cierre). Opción B2 (forming fetch tardío tras sleep, ~2s antes del cierre) captura 4 segundos adicionales de proximidad con complejidad arquitectónica no justificada por el beneficio marginal dada la proporción ya capturada por B1 (99.8% del sesgo original eliminado). B2 requiere refactor de _run_cycle_inner con split download + sleep + coordinación temporal frágil.
@@ -1394,6 +1448,40 @@ Referencias: analyze_performance_attribution.py verificación al final de attrib
 ---
 
 ### 13.4 RESUELTO
+
+**[RESUELTO] Auditoría Fidelidad 2 MR formal — 2026-04-21**
+Contexto: auditoría formal análoga al audit 4×3 TF de 2026-04-20, extendida con matriz 3×3 cancelaciones (diferencial MR), verificaciones laterales v2.4.0+v2.4.1 aplicando a path MR, y empírico `_run_verify_test` sobre SEI/USDT C2 config 45686.
+Método ejecutado:
+- Matriz 4×3 stops (SL inicial, TS on-close, SL emergency, trigger close<sl_level) × 3 capas (Pine v7.25 MR / kernel MR / brain MR): A=B=C en las 4 filas.
+- Matriz 3×3 cancelaciones (cancel_zona, cancel_tf, cancel_ghost) × 3 capas: A≈B=C en las 3 filas (B y C isomorfos, A más amplio semánticamente).
+- Verificación lateral: execution_manager.py 100% agnóstico a strategy_type (0 matches grep universal). Fixes v2.4.0 + v2.4.1 aplican universalmente a posiciones MR.
+- Empírico SEI/USDT C2 config 45686 sobre 1500 barras (warmup brain=500, warmup kernel=100): PnL 1.0180%=1.0180%, Trades 17=17, Wins 5=5, Cancels 2=2, MaxDD 3.9316%=3.9316%, GrossProfit 9.6434=9.6434, GrossLoss 8.6254=8.6254. Diff 0.0000 en 7 métricas.
+Verificación adicional 2026-04-21 sobre duda de Ricardo (snapshot vs recompute): `_check_cancel_zona_mr` y `_check_cancel_ghost_mr` revisados línea por línea. Brain MR usa reindex-al-pasado (patrón `fast_line[entry_idx] < slow_resolved[entry_idx]` en day-closed branch, `fast_line[t] < slow_forming[t]` en same-day branch). Coincide exactamente con kernel MR líneas 293-313 y 347-372. `state.mr_entry_zone_bull` (SymbolState l.142) guardado en entry (l.2096/2116), leído en cancel_ghost (l.1746) como entry_was_bull. `state.mr_entry_filters_forming` y `state.mr_entry_slow_line` son dead fields (asignados, nunca leídos) — no afectan fidelidad, residuos de iteración previa de diseño.
+Veredicto: FIDELIDAD 2 MR CONFIRMADA. 0 CRÍTICOS, 0 MEDIOS, 3 MENORES (documentados como MEJORA EN_ESPERA pre-reciclaje julio, ver §13.3 "Deuda documental/refactor menores").
+Símbolo seleccionado SEI C2 por: PF 2.38 (más alto de 6 rescates), N fwd 24 (robusto ≥20), cluster C2 canónico MR (4 de 6 rescates son C2), evita contaminación B-UNI-1.
+Artefactos generados (no commiteados al repo operacional, en carpeta de archivo): `audit_mr_fidelity_sei.py` (harness reutilizable), `data_cache/SEIUSDT_mean_reversion.npz` (precalc MR SEI, subproducto).
+Referencias:
+- Reporte completo auditoría: conversación 2026-04-21 mañana.
+- Verificación snapshot vs recompute: conversación 2026-04-21 mediodía.
+- §0.5 MR (ampliada 2026-04-21 con confirmación).
+- §0.6 Kernel como verdad operacional (nueva 2026-04-21).
+Cierre: auditoría formal completa. No requiere continuación. Futuras auditorías MR (ej. post-N≥15 empírico MR real) son re-validaciones, no primeras auditorías.
+
+**[RESUELTO] Auditoría Fidelidad 2 TF cancel_tf — verificación específica 2026-04-21**
+Contexto: extensión de la auditoría Fidelidad 2 TF formal del 2026-04-20 (matriz 4×3 stops). Ricardo expandió duda filosófica ("anti-repintado requiere snapshot del valor en el momento de cierre, no recomputación desde el presente") a TF tras verificación MR. Verificación específica de cancel_tf en brain TF comparado con kernel TF (lab_historico_numba_v8_3.py) y Pine v44 TF canónico.
+Método ejecutado:
+- Citas literales de `_check_cancel_tf` (brain_engine.py l.1371-1425, helper compartido TF/MR).
+- Citas literales de cancel_tf en kernel TF (lab_historico_numba_v8_3.py l.1550-1580).
+- Verificación snapshot-at-entry: `state.entry_filters_forming` (SymbolState l.123, asignado en entry l.1023/1039 path TF) usado como referencia de ENTRY en las 4 ramas (TF2/TF3 × same-block/cross-block).
+- Tabla 4 ramas × 3 capas (Pine v44 / kernel TF / brain TF): Brain = Kernel ✓ en las 4 ramas.
+Veredicto: FIDELIDAD 2 TF CONFIRMADA (doble evidencia: matriz 4×3 original 2026-04-20 + verificación específica cancel_tf 2026-04-21).
+Hallazgo colateral Fidelidad 1: kernel TF contiene comentario literal (l.1560-1562) documentando divergencia consciente con Pine v44. Kernel usa resolved[t] (último bloque HTF cerrado observable desde t) en vez de resolved[entry_bar] (reindex Pine-canónico). Documentado en §0.6 como principio operativo: divergencias kernel≠Pine con intención explícita son parte del diseño vigente, no bugs.
+Implicación operacional: brain TF replica al kernel TF (incluido el "Fix fidelidad"), así que bot opera según kernel (no según Pine estricto). Si alguna vez se desea restaurar Pine-strict, requiere guardar `state.entry_filters_resolved` (actualmente no existe) y switch el helper para usar ese snapshot. No urgente.
+Referencias:
+- Reporte específico cancel_tf: conversación 2026-04-21 tarde.
+- Matriz 4×3 original: §13.3 RESUELTO 2026-04-20.
+- §0.6 Kernel como verdad operacional (nueva 2026-04-21).
+Cierre: auditoría Fidelidad 2 TF completa (2 iteraciones independientes, misma conclusión). No requiere continuación.
 
 **[RESUELTO] v2.4.1 Emergency stop path protegido — Smoke-B PASS 2026-04-20**
 Contexto: finding Run 2 /ultrareview sobre rama v2.4.0-fidelity2-ts detectó que `update_trailing_stop` no-op introducido en v2.4.0 atrapaba también caller `atype="emergency_stop"` de `reconcile_state` (líneas 652-676 → `execute_cycle` 802). Red de seguridad desactivada en escenario de posición abierta sin stop. Medición histórica confirmó agujero teórico (0 disparos en 11 días × ~264 cycles/día = ~2900 evaluaciones reconcile); fix correcto independiente de frecuencia.
