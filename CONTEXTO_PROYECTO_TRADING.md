@@ -1,7 +1,7 @@
 # Sistema de Trading Algorítmico — Contexto Completo del Proyecto
 
-**Última actualización:** 22 Abril 2026 (v2.4.4 size_usdt fix + A01 audit v5.2 + A02 signal_price_lookup)  
-**Versión actual:** v2.4.4  
+**Última actualización:** 23 Abril 2026 (Bloque 1 roadmap COMPLETADO: A36 log rotation + A35 tz-naive + A38 edge guard + A34 timing_borderline; §0.7 convención sync; §12 L27+L28)  
+**Versión actual:** v2.4.4 (sin bump — sesión 100% herramientas offline, sin deploy operacional)  
 **Autor del sistema:** Ricardo  
 **Plataforma:** Binance (datos) + BingX (ejecución), velas 1h  
 **Stack:** Python, Numba, CUDA (RTX 5070 Laptop), ccxt (async)  
@@ -129,6 +129,28 @@ Cuando Claude (o Claude Code, o Ricardo en persona) conduzca auditoría, el eje 
 2. **Fidelidad 1 (kernel ↔ Pine): OPCIONAL, histórica.** Divergencia aquí = kernel hace algo distinto del diseño original. Puede ser madurez, puede ser bug olvidado. Inventariar sin alarma.
 
 No confundir prioridades: bot que replica fielmente un kernel con "Fix fidelidad" intencional es estado sano. Bot que no replica al kernel pero coincide con Pine canónico es estado roto.
+
+### 0.7 Convención de sincronización combolab ↔ comboclaude — 2026-04-23
+
+`combolab/` es directorio de ejecución: bot productivo (live/), scripts de análisis ejecutados localmente, kernel lab, repositorio git versionado. `comboclaude/` es directorio de fuente Claude Code donde Claude Code lee/modifica código en sesiones de desarrollo.
+
+**Regla**: TODOS los archivos de código Python, JSON de configuración, y tests deben mantenerse sincronizados 2-way con MD5 idéntico entre ambos directorios.
+
+**Excepciones** (NO sincronizar):
+- Artefactos generados por ejecución: `audits/`, `logs/`, `trade_history.csv`, `engine_state.json`, `portfolio_state.json`.
+- Datos pesados: parquets de `data_cache/`, modelos pickle de `regime_models/`, JSONs de `regime_wf/*_specialist_configs.json`.
+- Caches: `__pycache__/`, `.pytest_cache/`, `.git/`.
+- Documentos de diario local: `roadmap_*.md`, reportes ad-hoc del día.
+
+**Protocolo al cierre de cualquier tarea que modifica código:**
+1. Identificar TODOS los archivos modificados.
+2. Para cada archivo: comparar `md5sum combolab/<path>` vs `md5sum comboclaude/<path>`.
+3. Si hashes difieren → sync inmediato (copia combolab → comboclaude, combolab es fuente de verdad).
+4. Si archivo existe solo en combolab → verificar si debe sincronizarse (regla por defecto: SÍ, a menos que sea excepción listada arriba).
+
+**Anti-patrón a evitar**: "El archivo no estaba antes en comboclaude, consistente dejarlo así". Esta asunción es INCORRECTA por defecto. La ausencia previa puede ser oversight acumulado, no convención intencional. VERIFICAR contra la regla general antes de asumir.
+
+Ver §12 Lección 28 (sync implícito incorrecto) para caso de estudio y mitigación documental.
 
 ---
 
@@ -708,6 +730,8 @@ c:\Users\rixip\combolab\
 24. **Tests con mocks que replican asunciones del código propio dejan bugs de contrato externo invisibles** — 21 Abr 2026. El bug v2.4.3 original pasó los 8 tests unit porque el mock de `markets_info` usaba formato master (`"ETH/USDT"`) en la key, replicando la misma asunción del código bajo test. El bug emergió en producción (Smoke-B cycle 181) cuando la función operó contra ccxt real, que usa formato perpetuo (`"ETH/USDT:USDT"`). **Patrón problemático**: test que confirma "el código funciona consigo mismo" vs test que confirma "el código cumple el contrato de la dependencia externa". **Mitigación para tests que tocan interfaz de exchange**: (a) usar fixtures con formato ccxt real, no inventado; (b) documentar explícitamente qué contrato externo se asume en cada mock con comentario inline; (c) test de integración ligero contra ccxt real (`load_markets()` + lookup de un símbolo conocido) como smoke test al arranque del módulo. **Escalabilidad**: aplica a cualquier dependencia externa con formato específico (BingX endpoints, ccxt parameters, market info schemas, Telegram API shapes). No limitado a portfolio_manager. Ver §13.4 entrada v2.4.3-hotfix Smoke-B cycle 182 y §2.6 portfolio fix #7.
 25. **Métricas agregadas sobre ventanas con hitos arquitecturales heterogéneos ocultan información crítica — 2026-04-21**. El primer audit v5.1 global con N=70 dio match rate 26.7% disparando alert de "regresión grave". Investigación posterior reveló que la ventana mezclaba período pre-v2.3.11 (lag estructural 1 bar, ~3.4% match inevitable) con post-v2.3.11 (~84.6% entry-filter, dentro de CI95 del baseline 91%). El número agregado fue promedio no-comparable. **Patrón problemático**: aplicar audits/analyzers sobre ventanas que cruzan deploys de fixes arquitecturales sin segmentar produce veredictos engañosos. **Mitigación**: antes de interpretar métricas agregadas, identificar deploys de fixes que afecten señales/entries/exits en la ventana. Segmentar por deploy boundary. Comparar solo ventanas homogéneas con baseline. Casos concretos: fix de lag (v2.3.11), fix Fidelidad 2 TS (v2.4.0), fix reconcile fantasma (v2.4.2). **Escalabilidad**: aplica a cualquier métrica temporal del sistema (match rate, alpha residual, slippage, portfolio saturación). Ver §13.4 entrada "Primer audit empírico 2026-04-21" como caso de estudio completo.
 26. **Ecuaciones que cierran no garantizan atribución correcta por componente — 2026-04-22**. El analyzer v2.4.1 de 2026-04-21 reportó PnL real +0.77 USDT y ecuación cerraba con tolerancia <0.01 USDT/trade: `alpha_nominal + factor_portfolio + slippage + funding + residual = pnl_real`. Sin embargo, el componente `slippage` reportaba +0.00 espuriamente debido a bug histórico en `data_feed.get_open_positions` (size_usdt=0 sistemático en trade_history.csv). El slippage real (~-0.23 USDT) quedaba absorbido silenciosamente en `alpha_residual`, generando la impresión de "fenómeno no modelado" mayor al real. **Patrón problemático**: sistema de atribución con cierre matemático global pero componentes individuales con bugs silenciosos. El chequeo "ecuación cierra" no detecta el bug porque el error se propaga al residual con signo opuesto. **Mitigación**: validar independientemente cada componente contra expectativa teórica. Slippage con orden MARKET debería ser no-cero sistemáticamente; si reporta 0 en N trades, flag. Funding con posiciones >1h debería ser no-cero; idem. **Escalabilidad**: aplica a cualquier sistema de atribución con múltiples componentes y residual absorbente (analytics financieros, instrumentación de logs, audits). La ecuación global NO sustituye validación per-componente. **Caso origen**: bug size_usdt=0 descubierto durante A02 demo 2026-04-22, root cause en `data_feed.get_open_positions` sin field `size_usdt`, fix v2.4.4 deployado mismo día. Ver §13.4 entradas 2026-04-22 (size_usdt fix + matización primer audit 2026-04-21).
+27. **Items §13.3 EN_ESPERA pueden estar obsoletos por reviews previos no documentados en §13.4 — 2026-04-23**. Dos casos detectados en 2 días consecutivos: (a) 2026-04-22 A40 parser rollover — fix ya aplicado en ultra review C5 (2026-04-17) pero item seguía en §13.3 EN_ESPERA; (b) 2026-04-23 A34 timing_borderline — `ENTRY_CANDLE_TOLERANCE=1` ya aplicado en ultra review C8 (2026-04-17) pero item seguía en §13.3 EN_ESPERA describiendo fix para problema ya resuelto. **Causa raíz**: ultra reviews agrupan varios fixes bajo etiquetas Cn (C1..Cn). Al aplicarse, §13.3 no se limpia sistemáticamente de items que ya resolvieron. Gap documental entre "fix aplicado" y "item backlog actualizado". **Consecuencia**: sesiones futuras que consultan §13.3 leen items obsoletos como tareas pendientes. Si se implementan literalmente: duplicación de funcionalidad o refactor innecesario. **Mitigación protocolaria**: al arrancar cualquier item de §13.3, Fase 0 obligatoria = verificar si el fix ya existe en código actual. Patrón diagnóstico: (1) grep del componente afectado; (2) citar literal función/constante en código actual; (3) comparar contra descripción del item; (4a) si ya implementado → reclasificar a §13.4 RESUELTO con referencia al review que lo resolvió; (4b) si parcialmente implementado → reinterpretar scope (como A34 adoptó "extender más allá del tol actual" en vez de "añadir tol=1"); (4c) si NO implementado → proceder. **Caso positivo**: A34 reinterpretación terminó siendo conceptualmente mejor que scope original (captura genuinamente caso útil ±2 beyond tol=1). La obsolescencia del item reveló oportunidad de mejora, no duplicación. **Aplicabilidad**: cualquier sistema con backlog documental + reviews que agrupan cambios. Cuando ritmo de review > ritmo de limpieza backlog, el backlog queda desfasado sistemáticamente. Ver §13.4 entrada A34 2026-04-23 para caso de estudio.
+28. **Sincronización implícita incorrecta entre directorios paralelos — 2026-04-23**. Durante sesión 2026-04-22 y 2026-04-23 se detectaron 3+ instancias del mismo patrón: archivos creados/modificados en combolab no se propagaron automáticamente a comboclaude. Claude Code, al detectar asimetría posteriormente, "justificó" la ausencia como intencional en vez de verificar contra convención. **Caso concreto**: al cierre 2026-04-22 se commitaron `audit_fidelity_v5_2.py`, `deploy_boundaries.json`, `signal_price_lookup.py` en combolab; comboclaude no recibió copia. En sesión 2026-04-23, Claude Code reportó 3 veces "archivo X no existe en comboclaude, consistente dejarlo así" antes de detectarse como oversight acumulado. Sync retroactivo reveló **13 archivos desincronizados al inicio de 2026-04-23** (3 código + 10 tests que no existían en comboclaude). **Causa raíz**: ausencia de convención explícita documentada sobre sync 2-way. Claude Code infiere convención en cada sesión, y la inferencia por defecto es "preservar estado actual" (asume asimetría = intencional). **Mitigación adoptada 2026-04-23**: convención explícita en §0.7 ("Convención de sincronización combolab ↔ comboclaude"). Protocolo al cierre de tarea: MD5 2-way verification de TODOS los archivos modificados. Anti-patrón explicitado: "El archivo no estaba antes en comboclaude, consistente dejarlo así" es asunción INCORRECTA por defecto. **Aplicabilidad**: cualquier proyecto con múltiples checkouts o directorios paralelos del mismo código. La regla general es SYNC-BY-DEFAULT con excepciones listadas explícitamente, no PRESERVE-BY-DEFAULT con sync como excepción. Ver §0.7 para regla operativa + §13.4 entrada A34 2026-04-23 para cierre que aplicó protocolo retroactivo.
 
 ---
 
@@ -1449,35 +1473,11 @@ Disparo: antes del primer reciclaje o si alguna regresión de fidelidad aparece 
 Cierre: ejecutar _run_verify_test sobre BTC/ETH (representativos) con N>=10000 barras, documentar % diff trades y PnL vs kernel. Si diff >0.1%, investigar.
 Referencias: brain_engine.py _run_verify_test líneas 2219-2432.
 
-**[MEJORA] [EN_ESPERA] Hipotesis timing_borderline en audit v5.1 — 2026-04-17**
-Contexto: Ultra review audit v5 S6. Spec original contemplaba 5 hipotesis en clasificacion de casos sin match; implementacion solo tiene 4. Falta "timing_borderline" para casos con match symbol+side pero entry_candle difiere en 1 vela (actualmente caen en no_match_kernel).
-Disparo: si primer reporte v5.1 muestra muchos "no_match_kernel" que al revisar resultan ser casos de timing +-1 vela borderline.
-Cierre: hipotesis anadida y diferenciada de no_match_kernel en el reporte.
-Referencias: audit_fidelity_v5.py funcion hypothesis_for_no_match.
-
-**[MEJORA] [EN_ESPERA] Timestamp tz-naive defensivo en cross_exchange_diff_pct — 2026-04-17**
-Contexto: Ultra review audit v5 S9. La funcion cross_exchange_diff_pct llama tz_convert('UTC') asumiendo tz-aware. Si algun callsite pasa naive, levanta TypeError. Actualmente todos los callsites usan tz-aware pero es fragil.
-Disparo: si algun reporte falla con TypeError en cross_exchange_diff_pct.
-Cierre: anadir deteccion de naive y tz_localize('UTC') como fallback.
-Referencias: audit_fidelity_v5.py funcion cross_exchange_diff_pct.
-
-**[MEJORA] [EN_ESPERA] Log rotation en analyzer v2.4 — 2026-04-17**
-Contexto: Ultra review S8. analyzer v2.4 solo acepta un --logs unico. Si los logs del VPS rotan (engine.log.1, engine.log.2.gz), parte de la ventana analizada quedaria sin parsear, produciendo trades sin match con [SIGNALS_RAW] (todos caerian en partial/no). Actualmente no es bloqueante porque logs no han rotado aun en produccion.
-Disparo: cuando la primera rotacion de log ocurra en el VPS (tipicamente por logrotate al exceder tamano o dias), o si el primer reporte v2.4 muestra >10% de trades sin match por gap de log.
-Cierre: analyzer acepta glob (engine.log*) o lista de archivos, los concatena ordenadamente por timestamp inferido.
-Referencias: analyze_performance_attribution.py CLI arg --logs.
-
 **[MEJORA] [EN_ESPERA] Multiples eventos mismo-simbolo mismo-ciclo — 2026-04-17**
 Contexto: Ultra review S9. En dict de eventos por (cycle_ts, sym), si un simbolo aparece con CLOSE_LONG y luego LONG en el mismo ciclo (raro pero posible en close+reopen), el segundo sobrescribe el primero. Perdida silenciosa de informacion.
 Disparo: si se observa un trade con pattern close+reopen mismo ciclo en logs de produccion, o si el analyzer comienza a reportar trades con slippage_entry nulo inesperadamente.
 Cierre: cambiar dict a list de eventos por clave, consumidores manejan multiples.
 Referencias: analyze_performance_attribution.py lineas 221, 229, 238, 249, 260.
-
-**[MEJORA] [EN_ESPERA] Edge erosion con exp_pool negativo — 2026-04-17**
-Contexto: Ultra review S10. Si un cluster tiene exp_pool<0 por paso incorrecto de filtros, el ratio exp_oos/exp_pool cambia signo y el flag edge_erosion deja de significar lo mismo. Improbable en practica pero sin guard.
-Disparo: si algun reporte muestra un cluster con exp_pool negativo.
-Cierre: guard if exp_pool > 0 antes de evaluar ratio; casos negativos se flaggean aparte como "cluster_estructuralmente_perdedor".
-Referencias: analyze_performance_attribution.py lineas 1041-1045, 1298-1306.
 
 **[MEJORA] [EN_ESPERA] active_config_id en SIGNALS_RAW (v2.3.4) — 2026-04-17**
 Contexto: Ultra review S6. El analyzer actualmente usa heuristico para elegir config (primer cross_cluster_survival=True en top_configs). Puede diferir del config_id real de produccion. Para mapearlo correctamente, anadir campo `cfg` en [SIGNALS_RAW] por simbolo con el active_config_id. analyzer matcheara contra top_configs[*].config_id.
@@ -1512,6 +1512,150 @@ Referencias: analyze_performance_attribution.py verificación al final de attrib
 ---
 
 ### 13.4 RESUELTO
+
+**[RESUELTO] A34: Hipótesis timing_borderline en audit v5.1 + v5.2 — 2026-04-23**
+
+Contexto: §13.3 EN_ESPERA "Hipotesis timing_borderline en audit v5.1 — 2026-04-17". Item original describe añadir tolerancia ±1 vela para reclasificar falsos NONE por desajuste temporal mínimo.
+
+**Hallazgo crítico en Fase 0**: el scope original del item estaba OBSOLETO. La función de matching del audit v5.1 ya tiene `ENTRY_CANDLE_TOLERANCE = 1` y `EXIT_CANDLE_TOLERANCE = 1` desde el ultra review del 2026-04-17 (C8 fix, aplicado pero no documentado explícitamente como item aislado en §13.4). Matches ±1 vela ya cuentan como exitosos pre-A34. Implementar literalmente el item original hubiera duplicado funcionalidad existente.
+
+**Reinterpretación adoptada**: `--timing-tolerance N` extiende MÁS ALLÁ del `entry_tol` actual (delta extra). Default 1 → matches en ventana `(entry_tol, entry_tol + timing_tolerance]` = ±2h se reclasifican como `timing_borderline` en vez de `no_match_kernel`/`no_match_bot`. Conceptualmente mejor que scope original: captura genuinamente "kernel match existe pero distancia > tol baseline, no es fidelity failure".
+
+Implementación:
+- `audit_fidelity_v5.py`: constante `DEFAULT_TIMING_TOLERANCE = 1`, función nueva `detect_timing_borderline_pairs`, kwarg `is_timing_borderline` en `hypothesis_for_no_match`, callsite extendido con post-match pasada, CLI flag `--timing-tolerance N`.
+- `audit_fidelity_v5_2.py`: mismo patrón replicado (duplicación aceptable, cleanup cross-módulo separable si emerge necesidad).
+
+Orden de precedencia hipótesis: `diff_reason > micro_precio_BingX_vs_Binance > timing_borderline > no_match_kernel/no_match_bot`. Simetría en dirección `kernel_no_vps` (kernel sin VPS también se reclasifica). Greedy no-double-counting: cada kernel se asigna a 1 VPS (closest entry_diff).
+
+Tests 15/15 PASS en `tests/test_a34_timing_borderline.py`:
+- Guards window (inferior: `diff=0` y `diff=1=entry_tol` no reclasifica; superior: `diff=4 > 3` fuera de ventana).
+- Happy paths ±2 con tolerance=1, ±3 con tolerance=2.
+- Simetría diff negativo (`diff=-2` con abs).
+- Symbol/side mismatch rechaza.
+- Greedy 2 VPS vs 1 kernel → solo 1 match.
+- Flag propagation en `hypothesis_for_no_match` (vps_no_kernel + kernel_no_vps).
+- `diff_reason` inmune al flag (gana por precedencia).
+- `--timing-tolerance 0` desactiva feature (comportamiento pre-A34 idéntico).
+- v5.2 consistency (mismos helpers, misma semántica).
+
+Cross-suite regression 129/129 PASS (A36, A35, A38 tests previos + A02, A01 precedentes).
+
+Evidencia empírica dataset 2026-04-21: 9 `no_match_kernel` + 61 `no_match_bot` actuales. Sin correr audit completo (requiere OHLCV BingX+Binance), implementación preventiva. Con audit N≥50 (~2026-04-26), `timing_borderline` default ±2 podría reclasificar 0-3 casos; escalará con data doble/triple.
+
+Commits: 
+- `f74e31e` feat(audit) A34.
+- `b97d1c7` test(audit) A34.
+- `0f3d230` merge rama feature/a34-timing-borderline.
+
+Referencias: `audit_fidelity_v5.py` L1451-1578 (matching pre-A34 con entry_tol=1 baseline), C8 ultra review 2026-04-17, §12 Lección 27 (items §13.3 obsoletos), §0.7 (convención sync que habilitó detección de desincronizaciones).
+
+Cierre: feature disponible para audit N≥50. Default 1 activo por ser bajo riesgo + alto beneficio informacional (separa falsos NONE por timing borderline de NONE genuinos).
+
+---
+
+**[RESUELTO] A38: Guard edge erosion con scope ampliado (exp_pool≤0, exp_oos<0, ratio negativo) — 2026-04-23**
+
+Contexto: §13.3 EN_ESPERA "Edge erosion con exp_pool negativo — 2026-04-17". Item original describe guard defensivo trivial para cluster con `exp_pool<0`.
+
+**Hallazgo en Fase 0**: el bug real es triple, no solo `exp_pool<0`:
+1. `exp_pool<0`: el caso del item original.
+2. `exp_oos<0` con `exp_pool>0`: produce ratio negativo en `exp_oos/exp_pool`.
+3. Ratio negativo cruza threshold `EDGE_EROSION_RATIO_ALERT=0.5` trivialmente (ej. `-0.25 < 0.5`) → flag `edge_erosion` ESPURIO, cuando el cluster en realidad es estructuralmente perdedor, no erosionándose.
+
+Scope ampliado para resolver los 3 casos con refactor arquitectónico: helper `_classify_cluster_edge(exp_pool, exp_oos, n, min_n, ratio_alert)` con clasificación 3-way:
+- `None` si inputs insuficientes o `n<min_n`.
+- `'cluster_estructuralmente_perdedor'` si `exp_pool<=0 or exp_oos<0`.
+- `'edge_erosion'` si cluster sano con `ratio < ratio_alert`.
+- `None` si ratio sano (>= ratio_alert).
+
+Implementación en `analyze_performance_attribution.py`:
+- Helper añadido antes de `detect_edge_erosion` (L1729).
+- Callsites refactorizados: tabla símbolo × cluster (L1296-1298) + alerts (L1559-1574 ahora separa `erosion_clusters` de `losing_clusters`).
+- Emoji normalizado a escape literal `⚠️` (4/4 consistencia con resto del archivo, 0 unicode literals mezclados).
+
+Tests 9/9 PASS en `tests/test_a38_cluster_edge.py`:
+- edge_erosion happy path.
+- cluster sano ratio>=0.5.
+- 3 casos de exp negativos (exp_pool≤0, exp_oos<0, ambos).
+- None inputs / n<min_n.
+- custom thresholds (min_n, ratio_alert).
+- ratio boundary strict-less.
+
+**Implicación conceptual importante**: separar `cluster_estructuralmente_perdedor` de `edge_erosion`. Son fenómenos distintos:
+- Edge erosion: cluster rentable (exp_pool>0) que se degrada progresivamente (exp_oos baja).
+- Cluster estructuralmente perdedor: cluster que nunca debió operar (rentabilidad nominal negativa desde entry).
+
+Próximo audit N≥50 puede revelar clusters en nueva categoría que antes se absorbían espuriamente como edge_erosion. Signal importante para decisiones de reciclaje.
+
+**Patrón metodológico**: scope ampliado es instancia de §12 Lección 26 (ecuaciones que cierran ≠ atribución correcta). El ratio `exp_oos/exp_pool` mezclaba signos sin chequear componentes individuales, produciendo clasificación errónea que parecía matemáticamente válida. Validación per-componente independiente resuelve.
+
+Commits: en merge `72cd6c0` (rama `feature/a35-a38-defensivos`, commit específico A38 `f107d6d`).
+
+Referencias: `analyze_performance_attribution.py` L1296-1574, §12 Lección 26 (precedente metodológico).
+
+Cierre: fix aplicado. Próximo reporte analyzer tendrá sección nueva `losing_clusters` distinta de `erosion_clusters`.
+
+---
+
+**[RESUELTO] A35: tz-naive defensivo en cross_exchange_diff_pct — 2026-04-23**
+
+Contexto: §13.3 EN_ESPERA "Timestamp tz-naive defensivo en cross_exchange_diff_pct — 2026-04-17". Guard defensivo para evitar TypeError si timestamp llega sin zona horaria.
+
+**Confirmación empírica Fase 0**: el bug ES real, no teórico. `audit_fidelity_v5.py:491` y `v5_2.py:488` usan `pd.Timestamp(target_ts).tz_convert('UTC')` sin guard → `TypeError: Cannot convert tz-naive Timestamp, use tz_localize to localize` reproducible con `pd.Timestamp('2026-04-21 12:00').tz_convert('UTC')`.
+
+Fix idiomático (patrón idéntico en ambos audits):
+```python
+target_ts = pd.Timestamp(target_ts)
+if target_ts.tzinfo is None:
+    target_ts = target_ts.tz_localize('UTC')
+else:
+    target_ts = target_ts.tz_convert('UTC')
+```
+
+Tests 12/12 sub-checks PASS en `tests/test_a35_tz_naive_defensive.py` (6 sub-checks × 2 módulos):
+- tz-aware identical → diff=0.0.
+- tz-aware diff=0.5% correcto.
+- tz-naive → tz_localize('UTC') fallback → sin TypeError.
+- None inputs → None (backward compat).
+- bx_close<=0 → None.
+- ts missing → None.
+
+Callsites actuales pasan tz-aware (no había regresión operacional), pero guard previene regresión silenciosa futura cuando alguna ruta nueva o refactor introduzca timestamp sin tz explícito.
+
+Commit: en merge `72cd6c0` (rama `feature/a35-a38-defensivos`, commit específico A35 `d65592c`).
+
+Referencias: `audit_fidelity_v5.py` L487-501, `audit_fidelity_v5_2.py` L484-498.
+
+Cierre: guard aplicado. Robusto contra cualquier timestamp input sin especificación explícita de tz.
+
+---
+
+**[RESUELTO] A36: Log rotation tolerance (analyzer + audit v5.1 + audit v5.2) — 2026-04-23**
+
+Contexto: §13.3 EN_ESPERA "Log rotation en analyzer v2.4 — 2026-04-17". Justificación roadmap 2026-04-22 Bloque 1 orden 5: logs VPS cerca de rotar orgánicamente. Sin fix, análisis post-rotación pierde primera parte de ventana.
+
+Decisión 2026-04-23: aplicar a los 3 consumidores de `engine.log` (analyzer v2.4.1 + audit v5.1 + audit v5.2) en el mismo item para no fragmentar el fix.
+
+Implementación:
+- `combolab/log_file_resolver.py` (140 líneas, nuevo): helper compartido con `resolve_engine_log_paths(spec)` + `read_log_files(paths)` (lazy iterator, soporta gzip transparente).
+- spec acepta 3 formatos: archivo único (backward compat), glob pattern (ej. `'logs/engine.log*'`), lista CSV (ej. `'logs/engine.log.1,logs/engine.log'`).
+- Ordenamiento cronológico: detecta logrotate numeric (N mayor = más antiguo, convención estándar), timestamps `-YYYYMMDD` en nombre, fallback por mtime.
+- Convención VPS detectada empíricamente en `audit_run_20260421/`: `engine.log.current` + `engine.log.{1..4}.gz`.
+- 3 consumers modificados con patrón idéntico (+25/-4 líneas cada uno): import con sys.path guard, `parse_engine_log` usa `resolve_engine_log_paths` en lugar de `open(log_path)`, `read_log_files(paths)` lazy iterator, argparse help extendido documentando los 3 formatos.
+
+Tests 19/19 PASS:
+- 13 unit (`tests/test_log_file_resolver.py`): single file backward compat, glob ordering plain/gzip, CSV spec, missing path/spec raises, gzip transparente, rotation_age classifier, integration fixture.
+- 6 integration (`tests/test_a36_integration.py`): los 3 consumidores × glob-vs-concat + backward compat archivo único + CSV spec + invalid spec retorna empty.
+
+**Equivalencia verificada empíricamente**: `engine.log.concat` (4177 líneas, baseline pre-A36) vs glob de 4 `.gz` + 1 `.current` procesados via helper produce output IDÉNTICO (engine_states=108, signals_raw=340, signals_executed=100, brain_reconciles=197, orphan_closes=3). Todas las keys coinciden bit-a-bit.
+
+Commits: 4 commits en rama `feature/a36-log-rotation` (`e8cf596` helper+tests, `77d0b6f` analyzer, `3c5072a` audit v5.1, `1ed4269` audit v5.2 + integration tests), merge `4868b98`.
+
+Referencias: `log_file_resolver.py` (nuevo helper), `tests/test_log_file_resolver.py` + `tests/test_a36_integration.py`, §0.7 (convención sync que asegura presencia en ambos repos).
+
+Cierre: feature disponible. Cuando logs roten orgánicamente en VPS, los 3 scripts manejarán rotation transparentemente sin intervención manual (sin concatenar `.gz` a mano como se hacía para el primer audit empírico 2026-04-21).
+
+---
 
 **[RESUELTO] Bug histórico size_usdt=0 en trade_history.csv — 2026-04-22 (v2.4.4)**
 
