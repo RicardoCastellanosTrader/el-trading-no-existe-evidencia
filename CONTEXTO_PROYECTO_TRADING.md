@@ -261,6 +261,7 @@ xx:00:00 UTC (diario) Health monitor + resumen
 | v2.4.1 | 20 Abr | Emergency stop path protegido ante no-op TS (finding Run 2 /ultrareview). `_place_emergency_stop` helper extraído con firma minimalista (symbol, position, sl_price, exchange), invocado desde `reconcile_state` (líneas 652-676) cuando se detecta posición abierta sin stop. `update_trailing_stop` renombra action `stop_noop_v240` → `noop_v240` (defensa in-depth vs `startswith("stop")` en callers). Fail-loud size guard: `size<=0` loggea CRITICAL `EMERGENCY_STOP_INVALID_SIZE_V241` y retorna `emergency_stop_failed` en vez de enviar orden inválida. Semantic identifiers en docstring. Tests T7-T10 todos PASS (5 subtests). Smoke-A boot 19:07:59 UTC limpio + Smoke-B cycle 166 (20:00 UTC) PASS: 7 TS_NOOP_V240, 0 EMERGENCY_STOP_*_V241, 0 UPDATE_TS, cycle 17347ms (+3s atribuible a open+close, dentro de rango 14-22s). Red de seguridad armada sin haber disparado (consistente con frecuencia histórica 0/11 días). Fidelidad 2 TS preservada (brain on-close → close_position MARKET sigue camino canónico). 3 commits rama v2.4.1-emergency-stop-fix → merge main. Ver §13.4 entrada v2.4.1 Smoke-B PASS. |
 | v2.4.2 | 21 Abr | Silent reconcile: `_reconcile_brain_after_execution` diferencia rollback ESPERADO (symbol en alloc FLAT o en exec_report.orders_failed) → DEBUG level `[BRAIN_ROLLBACK_EXPECTED]` vs desinc REAL (BingX cerró entre ciclos, orphan fill) → INFO level `[BRAIN_RECONCILE]` preservado. Reset de 6 campos idéntico a v2.4.1. Resuelve ruido §13.3 B-UNI-1 (26 BRAIN_RECONCILE/13h observados 2026-04-21 por UNI low_confidence + ALGO below_min_order + ETH BingX reject). Cambio acotado a una función en live_engine.py (sin tocar brain/execution/portfolio). Fidelidad 2 preservada por construcción: brain internals intactos. Tests 4/4 silent_reconcile PASS + TF `_run_verify_test` BTC/USDT diff 0.0000 + MR `audit_mr_fidelity_sei.py` SEI C2 diff 0.0000 en 7 métricas. |
 | v2.4.3 | 21 Abr | Pre-check symbol-aware min_order en portfolio: `compute_min_order_usdt_for(symbol, price, markets_info)` reemplaza constante `MIN_ORDER_USDT=5.0`. Evalúa constraints reales de BingX por símbolo — `max(limits.cost.min, limits.amount.min × price, precision.amount × price)` con floor 5.0 USDT. Elimina CRITICAL `[EXEC] OPEN FALLIDO ETH` (7-11/día) causados por size < 0.01 ETH precision con balance bajo. Ejemplos: ETH @ 2310 → min 23.1 USDT; UNI @ 3.25 → 5.0 USDT (floor); ALGO @ 0.10 → 5.0 USDT (floor). Reason label enriquecido `below_min_order_X.Xusdt`. Wiring: `live_engine.start()` invoca `exchange.load_markets()` post-conexión y cachea `self.markets_info` (2879 símbolos BingX confirmados). Se pasa como kwarg opcional a `allocate_positions`. Fallback 5 USDT genérico si markets_info vacío o price inválido. Tests 8/8 min_order_precheck PASS. Fidelidad 2 preservada (cambio solo en threshold de descarte, no toca brain/execution). 1 commit rama v2.4.2-silent-reconcile+precheck → merge main. Ver §13.4 entrada v2.4.2+v2.4.3 Smoke-A PASS. |
+| v2.4.3-hotfix | 21 Abr | Fix resolución ccxt symbol format en `compute_min_order_usdt_for`. Bug detectado en Smoke-B cycle 181 (11:00 UTC): markets_info ccxt usa formato perpetuo `"ETH/USDT:USDT"` pero bot pasa símbolos en formato master `"ETH/USDT"`, causando `symbol not in markets_info` → fallback `DEFAULT_MIN=5.0` en vez del threshold real (ETH 23.1 USDT). ETH `sz=11.67` alcanzaba execution y fallaba con `precision 0.01` reject. Fix: condicional que primero intenta `symbol` directo (backward compat para llamadas con formato ccxt), si no está intenta con sufijo `":USDT"` añadido (traducción master→ccxt), si tampoco está fallback a `DEFAULT_MIN`. Test adicional `test_master_format_resolves_to_ccxt` añadido. Tests 13/13 PASS (9 min_order + 4 silent_reconcile). Deploy VPS 11:09:56 UTC, MD5 `c4d5e7496…074`. Validación Smoke-B cycle 182 (11:59-12:00 UTC) confirmó code path v2.4.3 operando (ALGO discarded con label enriquecido `below_min_order_5.0usdt`) + v2.4.2 silent reconcile activo (0 INFO BRAIN_RECONCILE para ALGO fantasma). Validación directa ETH con threshold 23.1 pendiente de signal orgánico (evidencia indirecta robusta: test unit + code path confirmado + lógica inspeccionada). Commit 8b61e94 en main. |
 | analyzer v2.4.1 | 17 Abr | Ultra review fixes: C1 entry_candle inferido, C2 consistency check por precios, C3 COMBOLAB_DIR via env/CLI, C4 rollover con ENGINE_STATE.t, S1/S2/S5/S7/M9 + S3/S4/S6/M3 |
 | audit v5.1 | 17 Abr | Ultra review fixes: C1 entry/exit semantics correctas, C2 kernel parity checksum (opcion C: lab solo tiene Numba), C3 flag recon organic, C4 MR cluster_hint via SIGNALS_RAW/GMM, C5 rollover con ENGINE_STATE.t, C6 path env/CLI, C7 CSV 12col, C8 tolerancia +-1, S4/S5/S8/S10/M4/M6 |
 
@@ -315,13 +316,14 @@ xx:00:00 UTC (diario) Health monitor + resumen
 10. v2.4.0 update_trailing_stop convertido en no-op (log_info TS_NOOP_V240 + return stop_noop_v240 action). Brain TS vive on-close en state.sl_level; BingX mantiene stop_market al 5% emergency fijo desde entry. Cierre por TS ejecutado on-close vía close_position MARKET cuando brain detecta close < sl_level en cycle. Cuerpo de 153 líneas reemplazado por 45 líneas (no-op + docstring). Restaura Fidelidad 2 con Pine y kernel lab (ambos evalúan TS on-close). Ver §13.4 RESUELTO v2.4.0 deploy.
 11. v2.4.1 emergency_stop path protegido. Finding Run 2 /ultrareview detectó que el no-op de v2.4.0 atrapaba también el caller `atype="emergency_stop"` de `reconcile_state` (líneas 652-676 → `execute_cycle` línea 802), desactivando silenciosamente la red de seguridad que repone stop_market cuando detecta posición sin stop en BingX. Fix: helper `_place_emergency_stop` extraído con DRY_RUN guard preservado (consistencia con `set_leverage`/`cancel_order`/`close_position`/`open_position`), `triggerType=MARK_PRICE`, `logger.critical` en fail path. Dict interno usa `"size"` (canon `get_open_positions` línea 335 `data_feed.py`), no `"contracts"` — descubrimiento crítico pre-edit (spec original con `abs(position["contracts"])` habría dado KeyError). Rename `stop_noop_v240` → `noop_v240` defensivo (evita misroute en callers `startswith("stop")`). Size guard fail-loud: `size<=0` retorna `emergency_stop_failed` con `EMERGENCY_STOP_INVALID_SIZE_V241` CRITICAL en vez de enviar orden inválida. Ver §13.4 RESUELTO v2.4.1 Smoke-B PASS.
 
-**portfolio_manager.py (6):**
+**portfolio_manager.py (7):**
 1. Emojis Unicode → texto plano
 2. HOLD descartaba sl_price
 3. CRV/USDT sobrante en sector_map eliminado
 4. v2.3.7 S2: identify_correlated_blocks usaba `abs(corr)` agrupando anticorrelacionados (r=-0.9) como "correlated block" — conceptualmente diversificación, no concentración. Fix: `corr_matrix.iloc[i,j] > threshold` (solo positiva).
 5. v2.3.7 S5: 46 leverage entries vs 45 símbolos activos. TONUSDT_specialist_configs.json stale (TON eliminado pero JSON preservado). Fix: movido a regime_wf/archived/TONUSDT_specialist_configs.json.legacy-2026-04-19. Portfolio log post-deploy confirma 45 leverage entries.
 6. v2.4.3 pre-check symbol-aware min_order: constante `MIN_ORDER_USDT = 5.0` genérica producía CRITICAL `[EXEC] OPEN FALLIDO ETH` (7-11/día) porque ETH @ 2310 requiere mínimo 0.01 ETH = 23.1 USDT por precision.amount, pero portfolio permitía sizes 5-11 USDT. Fix: nueva función `compute_min_order_usdt_for(symbol, price, markets_info)` que evalúa `max(limits.cost.min, limits.amount.min × price, precision.amount × price)` con floor 5.0 USDT. Nuevo kwarg `markets_info` a `allocate_positions` (opcional, fallback 5 USDT genérico). ETH threshold 23.1 USDT a precio 2310, UNI/ALGO quedan en floor 5.0 USDT. Reason label enriquecido: `below_min_order_X.Xusdt`. Tests 8/8 PASS.
+7. v2.4.3-hotfix ccxt symbol format resolution en `compute_min_order_usdt_for`. Bug detectado en Smoke-B cycle 181 (2026-04-21 11:00 UTC): `markets_info` cargado vía `exchange.load_markets()` usa key formato perpetuo ccxt BingX swap (`"ETH/USDT:USDT"`); el bot pasa símbolos en formato master (`"ETH/USDT"`). La condición `symbol not in markets_info` se cumplía siempre → fallback `DEFAULT_MIN=5.0` → ETH `sz=11.67 USDT > 5.0` pasaba el portfolio, alcanzaba execution y BingX rechazaba con precision 0.01. Fix: resolver ambos formatos con condicional ordenada: (a) intentar `symbol` directamente (backward compat para llamadas con formato ccxt), (b) si no está intentar `f"{symbol}:USDT"` (traducción master→ccxt), (c) si tampoco está fallback `DEFAULT_MIN`. Añadido test `test_master_format_resolves_to_ccxt` que valida específicamente la traducción ETH/USDT → ETH/USDT:USDT → threshold 23.1 USDT. Tests 13/13 PASS (9 min_order + 4 silent_reconcile). Commit 8b61e94.
 
 **live_engine.py (17):**
 1. Unclosed session -> try/finally
@@ -701,6 +703,7 @@ c:\Users\rixip\combolab\
 21. **Health monitor proactivo.** Reciclar por degradación medible.
 22. **IAM mínimo privilegio.** AdministratorAccess → TradingVPSManager.
 23. **Versiones incrementales** (v2.1→v2.2→v2.3) mejor que un gran cambio.
+24. **Tests con mocks que replican asunciones del código propio dejan bugs de contrato externo invisibles** — 21 Abr 2026. El bug v2.4.3 original pasó los 8 tests unit porque el mock de `markets_info` usaba formato master (`"ETH/USDT"`) en la key, replicando la misma asunción del código bajo test. El bug emergió en producción (Smoke-B cycle 181) cuando la función operó contra ccxt real, que usa formato perpetuo (`"ETH/USDT:USDT"`). **Patrón problemático**: test que confirma "el código funciona consigo mismo" vs test que confirma "el código cumple el contrato de la dependencia externa". **Mitigación para tests que tocan interfaz de exchange**: (a) usar fixtures con formato ccxt real, no inventado; (b) documentar explícitamente qué contrato externo se asume en cada mock con comentario inline; (c) test de integración ligero contra ccxt real (`load_markets()` + lookup de un símbolo conocido) como smoke test al arranque del módulo. **Escalabilidad**: aplica a cualquier dependencia externa con formato específico (BingX endpoints, ccxt parameters, market info schemas, Telegram API shapes). No limitado a portfolio_manager. Ver §13.4 entrada v2.4.3-hotfix Smoke-B cycle 182 y §2.6 portfolio fix #7.
 
 ---
 
@@ -1199,12 +1202,20 @@ Items agrupados:
 Disparador: pre-reciclaje julio, consolidar con LL1 (MA duplicates) en refactor único que extraiga fórmulas compartidas con tests de parity.
 Cierre: tras commit del refactor pre-reciclaje.
 
-**[INFORMACIONAL] UNI/USDT reapertura fantasma recurrente — 2026-04-20 (reclasificado 2026-04-21 v2.4.2)**
-Contexto original: observado durante investigación post-v2.4.0 Smoke-B. Desde cycle 154 (2026-04-20 08:00 UTC) hasta cycle 161 (15:00 UTC), BRAIN_RECONCILE resetea UNI/USDT SHORT cada hora. Brain emite signal SHORT UNI, portfolio descarta por `low_confidence` (confidence GMM 0.031-0.049), brain state fantasma, cycle siguiente BRAIN_RECONCILE reset.
-Reclasificación 2026-04-21 via v2.4.2: el patrón sigue existiendo estructuralmente (brain marca state.position al emitir signal antes de que portfolio/execution decidan — diseño intencional v2.3.2) pero el RESET ya no aparece en INFO logs. `_reconcile_brain_after_execution` ahora diferencia: si symbol está en `allocations FLAT` o en `exec_report.orders_failed`, el reset va a DEBUG level `[BRAIN_ROLLBACK_EXPECTED]`. El mecanismo UNI acaba silenciado en DEBUG como consecuencia esperada del diseño, no como ruido. Reset funcional idéntico (6 campos). Para observabilidad en análisis futuro: activar logging DEBUG temporalmente o filtrar trace del patrón.
-Impacto: eliminado del flujo INFO. Sin impacto operacional (no se pierden trades reales).
-Disparador para re-apertura: si se decide refactor state-after-confirmation v2.5.0 (archivado en §13.3 REFERENCIA), reabrir como documentación histórica. O si balance crece >500 USDT y el patrón cesa orgánicamente.
-Referencias: §13.3 ETH below-min (RESUELTO §13.4 via v2.4.3), patrón observado cycles 154-161 del 2026-04-20 + cycles 166-178 del 2026-04-21, v2.4.2 en §2.4.
+**[INFORMACIONAL] Reapertura fantasma UNI (y patrón similar en ETH/ALGO) — reclasificado 2026-04-21 post v2.4.2+v2.4.3**
+Contexto original: descubierto durante investigación post-v2.4.0 Smoke-B. Patrón recurrente donde brain emite signal, portfolio descarta (low_confidence, below_min_order) o execution falla (BingX reject), brain state queda fantasma, reconcile cycle siguiente resetea. Observado en UNI/USDT SHORT cycles 154-161 del 2026-04-20 (11 ocurrencias por low_confidence), ETH/USDT LONG 2026-04-20/21 (11 ocurrencias por BingX precision reject), ALGO/USDT SHORT 2026-04-21 (4 ocurrencias por below_min_order).
+Reclasificación 2026-04-21 tras doble deploy:
+- **Post-v2.4.2 silent reconcile**: el rollback esperado se loggea en DEBUG level `[BRAIN_ROLLBACK_EXPECTED]` (no INFO). Patrón persiste operacionalmente (parte del diseño dual brain↔kernel intencional v2.3.2) pero sin ruido observable en logs operacionales. Reset funcional idéntico (6 campos).
+- **Post-v2.4.3 pre-check symbol-aware (+ hotfix ccxt format)**: el caso específico ETH que generaba CRITICAL `[EXEC] OPEN FALLIDO` queda eliminado por pre-check en portfolio (threshold 23.1 USDT reemplaza 5.0 genérico). Smoke-B cycle 182 confirmó label enriquecido `below_min_order_X.Xusdt` operando; ALGO descartado con `below_min_order_5.0usdt`. ETH directo pendiente validación orgánica.
+Resolución efectiva del síntoma observable. Raíz (diseño dual optimista) preservada como propiedad intencional, ver entrada REFERENCIA ARCHIVADA v2.5.0 refactor para contexto arquitectural. Para observabilidad en análisis futuro: activar logging DEBUG temporalmente o filtrar trace del patrón.
+Impacto: eliminado del flujo INFO + eliminado el CRITICAL ETH. Sin impacto operacional (no se pierden trades reales).
+Disparador para re-apertura: si emerge efecto operacional adicional no anticipado (ej. observer externo que lea brain.state en ventana provisional y actúe incorrectamente), reconsiderar v2.5.0. O si balance crece >500 USDT y el patrón cesa orgánicamente (reduciendo también la relevancia).
+Referencias:
+- v2.4.2 silent reconcile (§13.4 RESUELTO 2026-04-21).
+- v2.4.3 + hotfix (§13.4 RESUELTO 2026-04-21, combinado).
+- v2.5.0 refactor archivado (§13.3 REFERENCIA ARCHIVADA 2026-04-21).
+- §12 Lección 24 (mocks que replican asunciones del código propio, caso origen ccxt format).
+- Patrón observado cycles 154-161 del 2026-04-20 + cycles 166-178 del 2026-04-21 + cycle 182 (validación).
 
 **[MEJORA] [EN_ESPERA] v2.3.11 Opción B2 — forming fetch tardío para residual 6s→2s — 2026-04-19**
 Contexto: v2.3.11 aplicó Opción B1 (forming fetch en paralelo al inicio del cycle, ~6s antes del cierre). Opción B2 (forming fetch tardío tras sleep, ~2s antes del cierre) captura 4 segundos adicionales de proximidad con complejidad arquitectónica no justificada por el beneficio marginal dada la proporción ya capturada por B1 (99.8% del sesgo original eliminado). B2 requiere refactor de _run_cycle_inner con split download + sleep + coordinación temporal frágil.
@@ -1462,28 +1473,49 @@ Referencias: analyze_performance_attribution.py verificación al final de attrib
 
 ### 13.4 RESUELTO
 
-**[RESUELTO] v2.4.2 + v2.4.3 — Silent reconcile + symbol-aware min_order — Smoke-A PASS 2026-04-21**
-Contexto: consolidación en una rama + merge único de dos fixes complementarios tras el diagnóstico forense del patrón BRAIN_RECONCILE (UNI/ETH/ALGO) y el documento de diseño Fase II-A que descartó el refactor arquitectural v2.5.0 (archivado en §13.3 REFERENCIA) a favor de esta alternativa minimalista.
-Cambios desplegados:
-- **v2.4.2 silent reconcile** (`live_engine.py` `_reconcile_brain_after_execution`): calcular `flat_syms` (allocations action==FLAT) + `failed_syms` (exec_report.orders_failed) al inicio del reset loop. Si symbol está en la unión → log DEBUG `[BRAIN_ROLLBACK_EXPECTED]`. Else → INFO `[BRAIN_RECONCILE]` preservado. Reset de los 6 campos (position, entry_price, sl_level, stop_order_id, entry_filters_forming, entry_timestamp_ms) idéntico a v2.4.1.
-- **v2.4.3 symbol-aware min_order** (`portfolio_manager.py` + `live_engine.py`): nueva `compute_min_order_usdt_for(symbol, price, markets_info)` que evalúa `max(limits.cost.min, limits.amount.min × price, precision.amount × price)` con floor 5.0 USDT. Reemplaza constante `MIN_ORDER_USDT=5.0`. `live_engine.start()` llama `exchange.load_markets()` y cachea `self.markets_info` (2879 símbolos confirmados). `allocate_positions` acepta kwarg opcional `markets_info`. Reason label `below_min_order_X.Xusdt`.
-Tests (12/12 PASS):
+**[RESUELTO] v2.4.2 + v2.4.3 + v2.4.3-hotfix — Smoke-B cycle 182 validación completa — 2026-04-21**
+Contexto: consolidación en rama única + merge de tres fixes complementarios tras diagnóstico forense del patrón BRAIN_RECONCILE (UNI/ETH/ALGO) y documento de diseño Fase II-A que descartó refactor arquitectural v2.5.0 (archivado en §13.3 REFERENCIA) a favor de esta alternativa minimalista. La secuencia v2.4.2 → v2.4.3 → v2.4.3-hotfix se desplegó en 3 ventanas durante la sesión 2026-04-21 (deploy inicial 10:14 UTC, Smoke-B cycle 181 reveló bug, hotfix 11:09 UTC, Smoke-B cycle 182 validó).
+
+**Cambios desplegados:**
+- **v2.4.2 silent reconcile** (`live_engine.py::_reconcile_brain_after_execution`): diferencia rollback ESPERADO (symbol en `allocations FLAT` o en `exec_report.orders_failed`) → log DEBUG `[BRAIN_ROLLBACK_EXPECTED]`, vs desinc REAL (BingX cerró entre ciclos, orphan fill) → INFO `[BRAIN_RECONCILE]` preservado. Reset de 6 campos idéntico a v2.4.1.
+- **v2.4.3 pre-check symbol-aware** (`portfolio_manager.py` + `live_engine.py`): nueva `compute_min_order_usdt_for(symbol, price, markets_info)` = `max(limits.cost.min, limits.amount.min × price, precision.amount × price)` con floor 5.0 USDT. Reemplaza constante `MIN_ORDER_USDT=5.0`. `live_engine.start()` carga `exchange.load_markets()` → `self.markets_info` (2879 símbolos). `allocate_positions` acepta kwarg opcional `markets_info`.
+- **v2.4.3-hotfix ccxt format resolution**: bug Smoke-B cycle 181 — markets_info usa key formato perpetuo ccxt (`"ETH/USDT:USDT"`) pero bot pasa formato master (`"ETH/USDT"`) → fallback `DEFAULT_MIN=5.0` → ETH `sz=11.67` pasaba portfolio y fallaba en BingX. Fix: condicional que prueba `symbol` directo, luego con sufijo `":USDT"`, luego fallback. Commit 8b61e94.
+
+**Tests 13/13 PASS:**
 - `tests/test_silent_reconcile.py` (4): rollback_esperado_portfolio_flat (DEBUG), rollback_esperado_execution_failed (DEBUG), desync_real_log_info (INFO), reset_fields_identical_v241.
-- `tests/test_min_order_precheck.py` (8): eth_high_price → 23.1 USDT, uni_normal → 5.0 floor, algo → 5.0 floor, fallbacks (no_markets, invalid_price, missing_symbol), eth_price_3000 → 30.0, btc_high_precision → 5.0 floor.
-Fidelidad 2 invariante (0.0000 diff):
-- TF: `python -m live.brain_engine --verify --symbol BTC/USDT` → Trades/Wins/PnL/Gross iguales baseline. RESULTADO: FIDELIDAD CONFIRMADA.
+- `tests/test_min_order_precheck.py` (9): eth_high_price → 23.1, uni_normal → 5.0 floor, algo → 5.0 floor, fallbacks (no_markets, invalid_price, missing_symbol), eth_price_3000 → 30.0, btc_high_precision → 5.0 floor, **master_format_resolves_to_ccxt → 23.1** (validación específica del hotfix).
+
+**Fidelidad 2 invariante (0.0000 diff vs baseline v2.4.1):**
+- TF: `python -m live.brain_engine --verify --symbol BTC/USDT` → Trades/Wins/PnL/Gross iguales. RESULTADO: FIDELIDAD CONFIRMADA.
 - MR: `python audit_mr_fidelity_sei.py` SEI/USDT C2 config 45686 → PnL 1.0180=1.0180, Trades 17=17, Wins 5=5, Cancels 2=2, MaxDD 3.9316=3.9316, GrossProfit 9.6434=9.6434, GrossLoss 8.6254=8.6254.
-Deploy VPS 2026-04-21 10:14-10:15 UTC:
-- Stop 10:14:46 → backups `*.bak-v241-20260421-121457` → scp → start 10:15:25. Downtime ~39s.
-- MD5 3-way confirmado: live_engine `bc30d85…`, portfolio_manager `b3d501b…`.
-- Boot log: `Markets BingX cargados: 2879 simbolos`, 45 GMM + 45 specialists + 45 leverage + 45 sectores, 7 posiciones sincronizadas, balance 297 USDT, 0 errores Python, 0 ImportError. Arranque 3.8s.
-Smoke-A **PASS**. Smoke-B esperado cycle 181 @ 10:59:50 UTC (primer cycle horario post-deploy). Validar ahí: 0 INFO BRAIN_RECONCILE para UNI/ETH/ALGO en patrón típico, 0 CRITICAL [EXEC] OPEN FALLIDO ETH, presencia de `below_min_order_X.Xusdt` en SIGNALS_DISCARDED para símbolos afectados.
-Commits (rama `v2.4.2-silent-reconcile+precheck` preservada):
-- bf1cb85 feat(v2.4.2): silent reconcile.
-- cdbd9ea feat(v2.4.3): symbol-aware min_order pre-check.
-- e308189 test(v2.4.2+v2.4.3): unit tests + fidelity invariance confirmed.
-- 25a2c5a Merge → main.
-Referencias: §13.3 REFERENCIA v2.5.0 (refactor archivado), §2.4 v2.4.2+v2.4.3 filas, §2.6 portfolio fix #6 + live_engine fix #16+#17, §13.3 B-UNI-1 reclasificado a INFORMACIONAL, §13.3 ETH below-min movido a §13.4 (esta entrada + siguiente).
+
+**Deploys VPS:**
+- Deploy inicial v2.4.2+v2.4.3 2026-04-21 10:14-10:15 UTC. Backups `*.bak-v241-20260421-121457`. Downtime ~39s. MD5 live_engine `bc30d85…`, portfolio `b3d501b…`. Smoke-A PASS (2879 markets, 45 GMM + specialists, 7 posiciones, boot 3.8s, 0 errores).
+- Smoke-B cycle 181 11:00:09 UTC detectó bug v2.4.3: `[EXEC] OPEN FALLIDO ETH` apareció porque ETH signal sz=11.67 pasó portfolio por símbolo no encontrado en markets_info. v2.4.2 SÍ funcionó (0 INFO BRAIN_RECONCILE).
+- Deploy hotfix 11:09:56 UTC. Backup `portfolio_manager.py.bak-v243hotfix-20260421-130940`. MD5 portfolio `c4d5e749…074`. Downtime ~35s. Smoke-A post-hotfix PASS.
+
+**Validación final Smoke-B cycle 182 (11:59:53-12:00:09 UTC):**
+- Code path v2.4.3 confirmado operando: `[SIGNALS_DISCARDED] {"ALGO/USDT":{"a":"SHORT","d":"below_min_order_5.0usdt"}}` — label enriquecido confirma nueva función activa.
+- v2.4.2 silent reconcile confirmado: 0 INFO BRAIN_RECONCILE para ALGO fantasma (brain marcó position=-1, portfolio descartó, reconcile silenciosamente reseteó en DEBUG). `engine_state.json` post-cycle no tiene ALGO en symbols (state limpio).
+- 0 CRITICAL `[EXEC] OPEN FALLIDO` en cycle 182.
+- Operación normal: cycle duration 15797ms, 6 posiciones sincronizadas (MANA, OP, RENDER, TAO, THETA, XLM), balance 296.77 USDT, 0 errores Python.
+
+**Validación directa ETH** con threshold 23.1 USDT **pendiente de signal orgánico** próximo (evidencia indirecta robusta: test unit `test_master_format_resolves_to_ccxt` PASS + code path confirmado en producción con ALGO + lógica del hotfix verificada por inspección literal). Cierre 100% esperado en próximos cycles con ETH signal (estimado: 1-3h según frecuencia histórica ETH).
+
+**Disparador de verificación final**: próxima sesión, `grep below_min_order_23.1usdt` en engine.log VPS. Si aparece → cierre 100%. Si no aparece pero ETH emitió signal → investigar.
+
+**Commits consolidados:**
+- bf1cb85: v2.4.2 silent reconcile.
+- cdbd9ea: v2.4.3 pre-check original.
+- e308189: tests 13/13 PASS + Fidelidad 2 invariante confirmada.
+- 25a2c5a: merge rama `v2.4.2-silent-reconcile+precheck` → main.
+- f63c3dd: CONTEXTO docs inicial.
+- 8b61e94: v2.4.3-hotfix ccxt format resolution.
+- [este commit]: CONTEXTO docs cierre completo + lección metodológica §12.
+
+Cierre: validación directa ETH pendiente orgánica (no bloqueante). Sistema operacional estable post v2.4.2+v2.4.3+hotfix.
+
+Referencias: §2.4 filas v2.4.2, v2.4.3, v2.4.3-hotfix; §2.6 portfolio fix #6, #7 + live_engine fix #16, #17; §12 nueva lección metodológica (tests con mocks propios); §13.3 REFERENCIA ARCHIVADA v2.5.0; §13.3 B-UNI-1 INFORMACIONAL.
 
 **[RESUELTO] ETH "below min precision" en logs — resuelto via v2.4.3 — 2026-04-21**
 Contexto: Balance 297 USDT + precio ETH ~$2310 producía sizing por debajo de mínimo BingX (0.01 ETH = 23.1 USDT, pero sizing vw-ajustado entregaba 5-11 USDT = 0.002-0.005 ETH). Cada ocurrencia generaba `[EXEC] OPEN LONG ETH/USDT FALLIDO: Invalid order: bingx amount of ETH/USDT:USDT must be greater than minimum amount precision of 0.01` + BRAIN_RECONCILE reset. Originalmente documentado como CRITICAL, verificación empírica 2026-04-21 confirmó reclasificación a `[EXEC]` info tras v2.4.0. Frecuencia observada: 7-11 ocurrencias/día.
