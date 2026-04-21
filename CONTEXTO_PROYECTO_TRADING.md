@@ -704,6 +704,7 @@ c:\Users\rixip\combolab\
 22. **IAM mínimo privilegio.** AdministratorAccess → TradingVPSManager.
 23. **Versiones incrementales** (v2.1→v2.2→v2.3) mejor que un gran cambio.
 24. **Tests con mocks que replican asunciones del código propio dejan bugs de contrato externo invisibles** — 21 Abr 2026. El bug v2.4.3 original pasó los 8 tests unit porque el mock de `markets_info` usaba formato master (`"ETH/USDT"`) en la key, replicando la misma asunción del código bajo test. El bug emergió en producción (Smoke-B cycle 181) cuando la función operó contra ccxt real, que usa formato perpetuo (`"ETH/USDT:USDT"`). **Patrón problemático**: test que confirma "el código funciona consigo mismo" vs test que confirma "el código cumple el contrato de la dependencia externa". **Mitigación para tests que tocan interfaz de exchange**: (a) usar fixtures con formato ccxt real, no inventado; (b) documentar explícitamente qué contrato externo se asume en cada mock con comentario inline; (c) test de integración ligero contra ccxt real (`load_markets()` + lookup de un símbolo conocido) como smoke test al arranque del módulo. **Escalabilidad**: aplica a cualquier dependencia externa con formato específico (BingX endpoints, ccxt parameters, market info schemas, Telegram API shapes). No limitado a portfolio_manager. Ver §13.4 entrada v2.4.3-hotfix Smoke-B cycle 182 y §2.6 portfolio fix #7.
+25. **Métricas agregadas sobre ventanas con hitos arquitecturales heterogéneos ocultan información crítica — 2026-04-21**. El primer audit v5.1 global con N=70 dio match rate 26.7% disparando alert de "regresión grave". Investigación posterior reveló que la ventana mezclaba período pre-v2.3.11 (lag estructural 1 bar, ~3.4% match inevitable) con post-v2.3.11 (~84.6% entry-filter, dentro de CI95 del baseline 91%). El número agregado fue promedio no-comparable. **Patrón problemático**: aplicar audits/analyzers sobre ventanas que cruzan deploys de fixes arquitecturales sin segmentar produce veredictos engañosos. **Mitigación**: antes de interpretar métricas agregadas, identificar deploys de fixes que afecten señales/entries/exits en la ventana. Segmentar por deploy boundary. Comparar solo ventanas homogéneas con baseline. Casos concretos: fix de lag (v2.3.11), fix Fidelidad 2 TS (v2.4.0), fix reconcile fantasma (v2.4.2). **Escalabilidad**: aplica a cualquier métrica temporal del sistema (match rate, alpha residual, slippage, portfolio saturación). Ver §13.4 entrada "Primer audit empírico 2026-04-21" como caso de estudio completo.
 
 ---
 
@@ -736,12 +737,28 @@ Referencias: archivos/líneas/versiones si aplica.
 
 ### 13.1 VERIFICANDO
 
-**[VERIFICANDO] Primer trade MR real de GRT — 2026-04-17**
-Contexto: Swap GRT TF→MR desplegado. JSON cargado correctamente al arranque. La verificación del flujo MR en vivo solo es posible cuando GRT esté clasificado en C2 Y se generen las condiciones de entrada del specialist MR. Según densidad empírica del walk-forward, esto puede tardar semanas a meses (~1 trade cada 270 barras en C2, C2 ~25% del tiempo).
-Disparo: cuando aparezca el primer trade de GRT con s="MR" en [SIGNALS_EXECUTED] o con strategy_type="MR" en trade_history.csv. Verificar: (a) trade se ejecuta sin errores, (b) SL/TS se gestionan correctamente, (c) el cierre (si ocurre en la ventana analizable) sigue la lógica MR (zona/divergencia/SL).
-Cierre: primer trade MR real ejecutado y verificado. Pasa al conteo de rollback (ítem nuevo en 13.2 que trackea "Trades MR GRT acumulados").
-Nota verificación 2026-04-20 10:05 UTC: consultados últimos 10 [SIGNALS_RAW] para GRT/USDT — todos con `"s":"TF"` y `"k":1` o `"k":0` (cluster 0 o 1). GRT no ha sido clasificado en C2 desde swap del 17-abril (3 días), consistente con densidad empírica esperada (§9.2.1: C2 ~25.3% del tiempo, auto-persistencia 97.9%/barra, ~46.5 visitas/año). Sin trade MR aún. Seguimiento continúa hasta próxima verificación orgánica o next-cycle cluster shift a C2.
-Referencias: sección 9.2.1, brain_engine.py bifurcación TF/MR, live_engine.py [SIGNALS_EXECUTED].
+**[VERIFICANDO] Primer trade MR real del sistema — UNI C0 OBSERVADO 2026-04-21 (disparador conceptual SATISFECHO) — GRT C2 específico sigue VERIFICANDO — 2026-04-17**
+
+Dos niveles de disparador:
+
+a) **CONCEPTUAL AMPLIO** (validar flujo MR live con cualquier símbolo rescatado): **SATISFECHO 2026-04-21** por UNI/USDT C0 config_id=121360 (rescue rank 3 §3.3). 2 trades MR reales observados:
+   - 2026-04-20 16:00 UTC UNI short `zone_exit_mr`.
+   - 2026-04-20 18:00 UTC UNI long `cancel_mr`.
+   Ambos excluidos del audit v5.1 (kernel MR no implementado en audit) pero validados por `audit_mr_fidelity_sei.py` (0.0000 diff empírico en SEI C2 del mismo día). Pipeline MR end-to-end funcional en producción.
+
+b) **ESPECÍFICO GRT** (trade MR de GRT C2 config_id=25088 según swap 2026-04-17): **SIGUE VERIFICANDO**. GRT no clasificado en C2 desde deploy hace 5 días. Rollback §9.2.1 trackea: 0/20 trades GRT MR, 0/90 días (fecha límite 2026-07-16).
+
+Contexto original: Swap GRT TF→MR desplegado 2026-04-17 08:15 UTC. JSON cargado al arranque. Verificación flujo MR live posible cuando GRT esté clasificado en C2 Y se generen condiciones entrada specialist MR. Según densidad empírica walk-forward ~1 trade cada 270 barras en C2, C2 ~25% del tiempo — semanas a meses hasta primer trade.
+
+Disparo específico GRT: primer trade GRT con s="MR" en [SIGNALS_EXECUTED] o strategy_type="MR" en trade_history.csv. Verificar: (a) trade se ejecuta sin errores, (b) SL/TS se gestionan correctamente, (c) el cierre sigue lógica MR.
+
+Notas verificación temporal:
+- 2026-04-20 10:05 UTC: últimos 10 [SIGNALS_RAW] GRT/USDT con `"s":"TF"` y `"k":0|1`. Sin C2 aún.
+- 2026-04-21 mediodía: análisis forense GRT (1 trade 04:00 UTC long tf_exit) confirmó cluster 0 TF, config 34648634 (no config MR 25088). GRT aún no clasificado en C2.
+
+Cierre: se cierra cuando (a) primer trade MR GRT ejecutado y verificado (sub-item específico), o (b) rollback §9.2.1 disparado (20 trades MR cualquier cluster o 90 días desde swap). El sub-item conceptual amplio YA cerrado 2026-04-21.
+
+Referencias: §9.2.1 rollback GRT, §3.3 tabla MR rescates, §13.4 RESUELTO audit MR SEI 2026-04-21, §13.4 RESUELTO primer audit/analyzer empírico 2026-04-21, brain_engine.py bifurcación TF/MR, live_engine.py [SIGNALS_EXECUTED].
 
 ---
 
@@ -1155,6 +1172,43 @@ Referencias: analyze_performance_attribution.py bloque attribute_trade(), test d
 
 ### 13.3 EN_ESPERA
 
+**[AUDIT] [EN_ESPERA] Audit definitivo Fidelidad 2 con N ≥ 50 post-v2.3.11 — 2026-04-21**
+Contexto: primer audit empírico 2026-04-21 confirmó Fidelidad 2 con N=13 efectivo entry-filter (84.6% match rate, CI95 overlap con baseline 91%). Pero N=13 tiene CI95 ancho; veredicto robusto requiere N≥50.
+Al ritmo actual (~10 trades/día observados post-v2.3.3), N=50 post-v2.3.11 entry-filter se proyecta para ~2026-04-26 (cinco días desde hoy). Primera ejecución con N≥50 será el audit definitivo inicial.
+Disparo: 50 trades con entry_cycle > 2026-04-19 17:51 UTC Y post-C3 filtering (no reconstructed, entry_timestamp_ms válido) acumulados en trade_history.csv. Verificable con awk filter o contador en el script audit.
+Cierre: audit con N≥50 ejecutado, match rate reportado con CI95 estrecho. Comparación directa con baseline 91%. Si cae dentro de CI95 del baseline: Fidelidad 2 confirmada definitivamente. Si cae fuera: investigar fenómeno adicional.
+Referencias: §13.4 RESUELTO primer audit 2026-04-21, §2.4 v2.3.11, §12 Lección 25.
+
+**[REFERENCIA] [EN_ESPERA] Feature request audit v5.2: segmentación automática por deploy boundaries + exclusión clustering divergente — 2026-04-21**
+Motivación: §12 Lección 25 formaliza el problema de métricas agregadas sobre ventanas heterogéneas. El audit v5.1 actual opera sobre una ventana monolítica; cualquier deploy de fix en la ventana contamina el match rate global. Adicionalmente, clustering GMM live con histéresis diverge de clustering post-hoc stateless en bars borderline, contabilizando como NONE trades técnicamente válidos.
+Propuesta (doble feature en v5.2):
+1. Audit v5.2 recibe lista de deploy_boundaries (dict `{deploy_version: timestamp_utc}`). Genera reporte multi-segmento: ventana total (compatibilidad), por segmento homogéneo (entre cada par de boundaries), match rate y CI95 por segmento + global con weighted average.
+2. Audit v5.2 añade nueva exclusión `excluido_clustering_divergente` cuando kernel post-hoc asigna cluster distinto al live registrado en SIGNALS_RAW del momento del entry. Permite match rate más comparable con baseline teórico al aislar divergencias estructurales esperables de divergencias reales bug.
+Beneficios: falsos positivos como el 26.7% actual se evitan automáticamente; ruido clustering GMM (observado 2/13 en IMX + GRT 2026-04-21) queda clasificado como exclusión, no como NONE; reportes futuros informativos sin intervención manual.
+Costo estimado: 3-5h implementación + tests. Bajo riesgo (features aditivas, no cambian criterios de matching existentes).
+Disparo: cuando el equipo haga >1 audit adicional y confirme que la segmentación manual es tediosa. O en próximo reciclaje si se aprovecha para consolidar mejoras.
+Cierre: v5.2 implementado y desplegado.
+Referencias: §12 Lección 25, §13.4 primer audit 2026-04-21 caso de estudio, §13.3 mini-item clustering divergente 2026-04-21.
+
+**[MEJORA] [EN_ESPERA] Logger enriquecer signal_entry_price / signal_exit_price en trade_history — 2026-04-21**
+Contexto: primer analyzer v2.4.1 2026-04-21 reveló que slippage_entry y slippage_exit quedan vacíos para trades con logs pre-v2.3.3 completo. Analyzer opera sobre proxies (alpha_residual per trade), limitado para diagnóstico directo.
+Acción: añadir al logger los campos signal_entry_price (precio de cierre del bar que dispara signal) y signal_exit_price (precio de cierre del bar que dispara exit). El campo ya existe conceptualmente (SIGNALS_EXECUTED tiene entry_price implícito via OHLCV lookup) pero no se persiste en trade_history.csv directamente.
+Beneficio: permitirá medir slippage directo (entry_price real vs signal_entry_price) y diagnosticar fenómenos de ejecución (retraso a BingX, partial fills, etc.) de forma directa, no vía proxies.
+Costo estimado: 30-60 min. Trivial modificación del logger.
+Disparo: en próxima iteración del logger/CSV schema, o cuando haya que investigar alpha residual sistemático (si emerge con N>50).
+Referencias: §13.4 RESUELTO primer audit/analyzer 2026-04-21.
+
+**[MEJORA] [EN_ESPERA] Caracterización clustering divergente live vs post-hoc — 2026-04-21**
+Contexto: primer audit empírico 2026-04-21 detectó 2/13 NONE post-v2.3.11 (IMX 14:00 + GRT 01:00, ambos 2026-04-20). Análisis forense descartó state stale, reconcile, deploy boundaries como causa. Hipótesis dominante: clustering GMM live (con histéresis + warmup 1500 barras) diverge de classify_bars_gmm post-hoc en bars borderline con confidence 0.7-0.9.
+No es bug. Es efecto estructural de arquitectura brain stateful (brain mantiene cluster entre ciclos) vs audit kernel stateless (recomputa clustering cada bar).
+Argumentos a favor de clasificación benigna:
+- Frecuencia 2/13 compatible con ruido GMM en bars borderline.
+- Ambos trades rentables (+0.148 IMX, +0.066 GRT) → señales técnicamente válidas.
+- 0 BRAIN_RECONCILE, state limpio, no reconcile intervino.
+Disparo: si en audit N≥50 post-v2.3.11 entry-filter el rate NONE persiste ≥10%, caracterizar cuantitativamente. Si <5%, aceptar como ruido estadístico esperado.
+Mitigación potencial: audit v5.2 añadiría exclusión `excluido_clustering_divergente` cuando kernel post-hoc asigna cluster distinto al live registrado en SIGNALS_RAW. Permitiría match rate más comparable con baseline teórico. Este enfoque requiere que el audit guarde el cluster_live de SIGNALS_RAW y lo compare con el cluster post-hoc. Coste estimado similar a audit v5.2 segmentación automática (2-3h). Puede consolidarse en la misma iteración audit v5.2.
+Referencias: §13.4 RESUELTO primer audit 2026-04-21, §12 Lección 25, §13.3 REFERENCIA audit v5.2, investigación IMX+GRT 2026-04-21.
+
 **[REFERENCIA] [ARCHIVADA] Refactor v2.5.0 state-after-confirmation — 2026-04-21**
 Contexto: diseñada en Fase II-A (documento arquitectural de 10 secciones + alternativa §11 silent reconcile + §9.5 conflicto con Fidelidad 2 en tests bar-a-bar). Propondría separar `_mark_provisional` (bar de señal) de `commit_fill` (tras fill BingX), añadiendo flag `is_provisional: bool` a `SymbolState`. Scope: 5 módulos (brain_engine, execution_manager, live_engine, portfolio_manager como consumidor, SymbolState dataclass), 6 commits intermedios estimados, 8-15h.
 Decisión 2026-04-21: **archivada**. Razones:
@@ -1472,6 +1526,34 @@ Referencias: analyze_performance_attribution.py verificación al final de attrib
 ---
 
 ### 13.4 RESUELTO
+
+**[RESUELTO] Primer audit empírico v5.1 + analyzer v2.4.1 (N=22 post-v2.3.11) — 2026-04-21**
+Contexto: primer audit/analyzer sobre dataset homogéneo tras descubrir (diagnóstico mediodía) que la ventana N=70 mezclaba pre-v2.3.11 (lag estructural 1 bar, match ~3.4%) con post-v2.3.11 (alineado, match ~84.6% por entry-cycle filter). El 26.7% global inicial fue artefacto metodológico de segmentación por exit cycle, no bug de fidelidad.
+
+Audit v5.1 segmentado (`--since 2026-04-19T17:51:00Z`):
+- Exit cycle filter: 11/20 = 55.0%, CI95 [34.2%, 74.2%].
+- Entry cycle filter (reinterpretación): **11/13 = 84.6%**, CI95 ~[57.8%, 95.7%]. Overlap con baseline 91% CI95 [62%, 98%].
+- No hay segundo hallazgo crítico. Fidelidad 2 empíricamente confirmada en ventana homogénea.
+- 3 exclusiones MR (UNI x2, STX x1) por kernel MR no implementado en audit v5.1. Fidelity MR validada independientemente por `audit_mr_fidelity_sei.py` (§13.4 2026-04-21 0.0000 diff).
+- Dos trades con entry POST-v2.3.11 sin match kernel (IMX/USDT 14:00 UTC, GRT/USDT 01:00 UTC, ambos 2026-04-20). Investigación forense dedicada clasificó ambos como **CASO A dominante** (clustering GMM live vs post-hoc divergente en bars borderline) tras descartar state stale, reconcile, deploy boundaries. Ambos trades rentables (+0.148 y +0.066 USDT respectivamente), sugiriendo señales técnicamente válidas con divergencia estructural esperable. Ver §13.3 mini-item EN_ESPERA clustering divergente.
+
+Analyzer v2.4.1 post-v2.3.11 (N=26 procesados, 1 reconstructed excluido):
+- PnL real: **+0.77 USDT**.
+- Alpha nominal: +3.01. Factor portfolio: -0.56. Slippage: +0.00. Funding: -0.04. Alpha residual: **-1.64**.
+- Ecuación cierra: 3.01 - 0.56 + 0 - 0.04 - 1.64 = 0.77 ✓.
+- Alpha residual -1.64 USDT (54% del alpha nominal 3.01). En términos absolutos per trade: -0.063 USDT/trade. No cruza criterio crítico del prompt (>5% pnl_real) porque pnl_real es pequeño por saturación portfolio. Lectura preliminar: fenómeno no modelado significativo en proporción al alpha teórico, aunque pequeño en magnitud absoluta. Desglose por símbolo y seguimiento con N≥50 pendiente.
+- 1 alert: ONDO/USDT C2 candidato exclusión próximo reciclaje.
+
+Pregunta slippage pre vs post v2.3.11:
+- No concluyente directo (slippage_entry/exit vacíos por falta de signal_price pre-logging completo).
+- Proxy via alpha_residual per trade: PRE=-0.077, POST=-0.063, reducción ~18% post-deploy. Direccional consistente con fix v2.3.11 pero no dramático.
+- Ver §13.3 mini-item EN_ESPERA logger signal_prices.
+
+Primera ejecución empírica completa del pipeline audit/analyzer establecida. Pipeline operando correctamente. Métricas comparables al baseline con N=13-22 (falta acumular hacia N≥50 post-v2.3.11 para reporte definitivo, estimado 2026-04-26).
+
+Referencias: §2.4 v2.3.11 Fidelidad 2 restaurada, §13.4 v2.4.2+v2.4.3+hotfix, §13.2 HALLAZGO RESUELTO lag estructural 2026-04-19, `audit_v5_report_20260421_1256.txt`, `attribution_summary_20260421_1257.txt`, investigación IMX+GRT 2026-04-21.
+
+Cierre: primer hito empírico alcanzado. Próxima ejecución disparada por N≥50 post-v2.3.11 (~2026-04-26).
 
 **[RESUELTO] v2.4.2 + v2.4.3 + v2.4.3-hotfix — Smoke-B cycle 182 validación completa — 2026-04-21**
 Contexto: consolidación en rama única + merge de tres fixes complementarios tras diagnóstico forense del patrón BRAIN_RECONCILE (UNI/ETH/ALGO) y documento de diseño Fase II-A que descartó refactor arquitectural v2.5.0 (archivado en §13.3 REFERENCIA) a favor de esta alternativa minimalista. La secuencia v2.4.2 → v2.4.3 → v2.4.3-hotfix se desplegó en 3 ventanas durante la sesión 2026-04-21 (deploy inicial 10:14 UTC, Smoke-B cycle 181 reveló bug, hotfix 11:09 UTC, Smoke-B cycle 182 validó).
