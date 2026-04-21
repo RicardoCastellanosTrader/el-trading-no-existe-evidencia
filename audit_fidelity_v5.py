@@ -485,10 +485,19 @@ def download_binance(symbol, exchange):
 
 
 def cross_exchange_diff_pct(df_bingx, df_binance, target_ts):
-    """Calcula |close_BingX - close_Binance| / close_BingX * 100 en barra target_ts."""
+    """Calcula |close_BingX - close_Binance| / close_BingX * 100 en barra target_ts.
+
+    A35 defensive: si target_ts llega tz-naive, tz_convert lanza TypeError.
+    Detectar y usar tz_localize('UTC') como fallback. Callsites actuales
+    pasan tz-aware pero el guard previene regresion silenciosa.
+    """
     if df_bingx is None or df_binance is None:
         return None
-    target_ts = pd.Timestamp(target_ts).tz_convert('UTC')
+    target_ts = pd.Timestamp(target_ts)
+    if target_ts.tzinfo is None:
+        target_ts = target_ts.tz_localize('UTC')
+    else:
+        target_ts = target_ts.tz_convert('UTC')
 
     bx_mask = df_bingx['timestamp'] == target_ts
     bn_mask = df_binance['timestamp'] == target_ts
