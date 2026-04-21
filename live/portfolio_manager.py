@@ -285,11 +285,19 @@ def compute_min_order_usdt_for(
       ALGO/USDT:USDT amount.min=17.4        price=0.10 -> min=5.0  USDT (floor).
     """
     DEFAULT_MIN = 5.0
-    if not markets_info or symbol not in markets_info:
+    if not markets_info:
         return DEFAULT_MIN
     if not isinstance(price, (int, float)) or price <= 0:
         return DEFAULT_MIN
-    m = markets_info[symbol]
+    # v2.4.3-hotfix: resolver formato symbol master ("ETH/USDT") vs
+    # formato ccxt BingX swap ("ETH/USDT:USDT"). markets_info usa el
+    # formato ccxt. Probar ambos.
+    if symbol in markets_info:
+        m = markets_info[symbol]
+    elif ":USDT" not in symbol and f"{symbol}:USDT" in markets_info:
+        m = markets_info[f"{symbol}:USDT"]
+    else:
+        return DEFAULT_MIN
     limits = m.get("limits", {}) if isinstance(m, dict) else {}
     cost_min = (limits.get("cost") or {}).get("min") or 2.0
     amount_min = (limits.get("amount") or {}).get("min") or 0.0

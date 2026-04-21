@@ -90,6 +90,17 @@ def test_btc_high_precision():
     print(f"  [OK] btc_high_precision: {r:.2f} USDT")
 
 
+def test_master_format_resolves_to_ccxt():
+    """v2.4.3-hotfix: symbol 'ETH/USDT' (master format) debe resolver a
+    markets_info['ETH/USDT:USDT'] (ccxt BingX swap format). Sin este fix,
+    compute devolvia 5.0 floor por no encontrar la key y ETH llegaba a
+    execution para ser rechazado por BingX (Smoke-B cycle 181 reveal)."""
+    m = {"ETH/USDT:USDT": _mk_market(precision_amount=0.01, amount_min=0.01, cost_min=2.0)}
+    r = compute_min_order_usdt_for("ETH/USDT", 2310.0, m)
+    assert abs(r - 23.1) < 0.01, f"expected 23.1 from master format, got {r}"
+    print(f"  [OK] master_format_resolves_to_ccxt: {r:.2f} USDT")
+
+
 if __name__ == "__main__":
     print("=== Tests v2.4.3 compute_min_order_usdt_for ===")
     test_compute_min_order_eth_high_price()
@@ -100,4 +111,5 @@ if __name__ == "__main__":
     test_compute_min_order_missing_symbol()
     test_eth_hypothetical_with_bigger_balance()
     test_btc_high_precision()
-    print("=== 8/8 PASS ===")
+    test_master_format_resolves_to_ccxt()
+    print("=== 9/9 PASS ===")
