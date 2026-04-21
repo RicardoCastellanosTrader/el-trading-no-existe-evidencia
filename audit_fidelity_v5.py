@@ -68,6 +68,12 @@ COMBOLAB_DIR = os.environ.get('COMBOLAB_DIR', _DEFAULT_COMBOLAB)
 if COMBOLAB_DIR not in sys.path:
     sys.path.insert(0, COMBOLAB_DIR)
 
+# A36: log rotation tolerance — spec acepta archivo, glob, CSV.
+_SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+if _SCRIPT_DIR not in sys.path:
+    sys.path.insert(0, _SCRIPT_DIR)
+from log_file_resolver import resolve_engine_log_paths, read_log_files
+
 # lab_historico_numba_v8_3 y regime_features se importan lazy despues de
 # resolver COMBOLAB_DIR (ver _lazy_import_combolab_modules() en run_audit).
 lab = None
@@ -249,6 +255,10 @@ def parse_engine_log(log_path, log_start_date):
     Si hay gaps (bot caido multi-hora), la siguiente [ENGINE_STATE] re-sincroniza.
     Fallback rollover 23->00 solo para lineas sin anchor disponible.
 
+    A36: log_path acepta archivo unico, glob pattern o CSV (ver
+    log_file_resolver.resolve_engine_log_paths). Archivos se procesan en orden
+    cronologico ascendente (mas antiguo primero). Soporte transparente .gz.
+
     Returns dict con:
       engine_states: {cycle_ts_utc: {bal, peak, dd_pct, dd_mult, cb_active, n_open, t}}
       brain_reconciles: {(cycle_ts_utc, symbol): True}
@@ -268,14 +278,21 @@ def parse_engine_log(log_path, log_start_date):
         'log_date_gap_warnings': 0,
     }
 
-    if not log_path or not os.path.exists(log_path):
+    if not log_path:
+        return result
+    try:
+        paths = resolve_engine_log_paths(log_path)
+    except (FileNotFoundError, ValueError):
         return result
 
     current_date = log_start_date
     last_hour = None
 
-    with open(log_path, 'r', encoding='utf-8', errors='replace') as f:
-        for line in f:
+    # A36: bloque antes envuelto en `with open(log_path) as f`. Sustituido por
+    # read_log_files sobre paths resueltos. Indentacion preservada via sentinela
+    # para minimizar diff y facilitar auditoria literal antes/despues.
+    if True:  # A36 sentinela: preserva nivel de indentacion del `with` original
+        for line in read_log_files(paths):
             m = LOG_TS_RE.match(line)
             if not m:
                 continue
@@ -2211,7 +2228,11 @@ def main():
                         help="Fecha del primer timestamp del engine.log (YYYY-MM-DD). "
                              "Default: fecha de --since")
     parser.add_argument('--engine-log', type=str, default=None,
-                        help="Path a engine.log (default: engine.log o vps_engine_latest.log)")
+                        help="Path a engine.log (default: engine.log o vps_engine_latest.log). "
+                             "A36: acepta archivo unico, glob "
+                             "(ej. 'logs/engine.log*') o CSV "
+                             "('logs/engine.log.1,logs/engine.log'). "
+                             "Rotados .gz transparentes. Orden cronologico ASC automatico.")
     parser.add_argument('--trade-csv', type=str, default=None,
                         help="Path a trade_history.csv (default: ./trade_history.csv)")
     parser.add_argument('--dry-run', action='store_true',
