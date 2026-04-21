@@ -638,6 +638,14 @@ Funding rates extremos (+0.1% / 8h) = crowding signal. Bloquear entradas cuando 
 **Experimento Z_ATR de BTC en GMM altcoins:**
 Riesgo multicolinealidad, BIC como juez. Si rechaza → probabilidad condicional bayesiana.
 
+**Cobertura conceptual ampliada (2026-04-23):** Z_ATR como feature del GMM de altcoins subsume naturalmente la idea de "cortafuegos BTC" — cuando BTC entra en régimen de caída fuerte (Z_ATR extremo), el GMM entrenado de cada altcoin aprende durante training la correlación BTC-altcoin-régimen-específico, y en producción asigna al símbolo el cluster que corresponde a esa condición BTC + condiciones locales. Ventajas vs override runtime manual:
+- No requiere umbrales arbitrarios ("¿qué es caída fuerte?" lo aprende el GMM).
+- No requiere mapeo manual ("¿qué cluster equivalente?" lo decide el GMM por símbolo).
+- No rompe Fidelidad 2 (el cluster sale del mismo GMM que el lab usa post-hoc).
+- Maneja matices (BTC cayendo despacio vs fuerte, lateral bear vs bull).
+
+Por tanto NO se implementa cortafuegos runtime como item separado pre-reciclaje — se espera a v3.0 con Z_ATR. Si criterio de degradación de clusters (roadmap 2026-04-22 FASE 2) dispara antes de v3.0 por eventos BTC, reciclaje se adelanta orgánicamente.
+
 **Evolución BTC Override:**
 | Versión | Mecanismo |
 |---------|-----------|
@@ -1508,6 +1516,52 @@ Contexto: Analyzer v2.4 incluye verificación interna de que pnl_real ≈ suma d
 Disparo: primer reporte v2.4 con WARNINGs de ecuación no cerrando en >5% de trades.
 Cierre: causa raíz identificada y corregida, o ratio de WARNING <5% aceptado como ruido de floating point.
 Referencias: analyze_performance_attribution.py verificación al final de attribute_trade()
+
+**[MEJORA] [EN_ESPERA] Observabilidad funding extremo per-trade en analyzer — 2026-04-23**
+Contexto: durante discusión arquitectónica 2026-04-23, Ricardo propuso filtro funding contrarian direccional (bloquear entrada si signal coincide con dirección del crowd — funding positivo extremo + signal LONG → bloquear; funding negativo extremo + signal SHORT → bloquear). Decisión de implementación del filtro requiere evidencia empírica: ¿cuántos trades históricos se habrían bloqueado? ¿Esos trades habrían correlacionado con pérdidas?
+Antes de implementar el filtro, añadir observabilidad en analyzer v2.4.1 para generar esa evidencia:
+- Nueva columna `funding_rate_at_entry` per-trade (funding rate vigente en el momento del entry, fetcheado retrospectivamente desde BingX API).
+- Nueva columna `funding_crowd_direction` (long/short según signo del rate).
+- Nueva columna `signal_vs_crowd` con valores 'aligned'/'contrarian'/'neutral'.
+- Sección nueva en reporte: distribución trades aligned vs contrarian con PnL medio/mediana de cada grupo.
+Disparo: próximo audit N≥50 (~2026-04-26) o cuando Ricardo decida priorizarlo en Bloque 3 como infra preparatoria.
+Cierre: analyzer reporta estadísticas funding crowd-direction sobre N≥50 trades; data disponible para decidir item "filtro funding contrarian runtime".
+Estimación: 2-3h (incluye fetch histórico BingX + integración analyzer + sección reporte + tests).
+Prerequisito: item §13.3 "estimated funding fallback ignora side" (E1 execution_manager) debería resolverse antes si el fetch retrospectivo usa la misma ruta fallback. Si usa BingX API directa en lugar de ccxt fetch_funding_history, independiente.
+Referencias: discusión arquitectónica 2026-04-23 sobre funding contrarian direccional; §13.3 E1 (funding sign); §9.3 v2.6 Funding Rate como Filtro (roadmap futuro donde este filtro se materializaría).
+
+**[MEJORA] [EN_ESPERA] Filtro funding contrarian runtime (direccional) — 2026-04-23**
+Contexto: propuesta Ricardo 2026-04-23: funding rate extremo indica posicionamiento de crowd mayoritario en una dirección; el mecanismo de liquidación tiende a barrer esa mayoría cuando el precio se mueve en contra. Protección contrarian: bloquear entradas que coincidan con dirección del crowd.
+Matiz importante (vs descripción genérica v2.6 §9.3): filtro DIRECCIONAL. No bloquea todas las entradas en funding extremo — solo las que van en dirección del crowd. Si la signal es contrarian al crowd, NO bloquear (podría ser oportunidad).
+Implementación propuesta:
+- Filtro en portfolio_manager antes de allocate_positions, o en brain_engine al emitir signal.
+- Fetch funding rate actual desde BingX para cada símbolo con signal activo.
+- Umbral empírico (a definir con data de observabilidad — ver item previo).
+- Bloquear signal si: funding > umbral+ AND signal=LONG, o funding < umbral- AND signal=SHORT.
+- Signals contrarian al crowd (funding > umbral+ AND signal=SHORT, o funding < umbral- AND signal=LONG) NO se bloquean (pasan a portfolio normalmente).
+
+**Consideración crítica Fidelidad 2**: el lab no simula filtro funding. Activar en producción sin contrapartida en lab rompe Fidelidad 2 sistemáticamente en todos los trades bloqueados (bot no opera pero kernel post-hoc sí generaría signal). Tres opciones de manejo:
+1. Filtro runtime + añadir mismo filtro al lab: preserva Fidelidad 2. Trabajo kernel ~2-3 sesiones adicionales.
+2. Filtro runtime sin lab: Fidelidad 2 rota conscientemente. Aceptable si trades bloqueados son fracción pequeña + bien documentado.
+3. No implementar: mantener status quo.
+
+La decisión 1 vs 2 vs 3 requiere evidencia empírica del item previo (observabilidad). Si correlación material entre funding crowd-direction y pérdidas → opción 1 o 2 justificadas. Si no correlación material → opción 3 (archivar).
+Disparo: evidencia empírica del item previo (observabilidad funding per-trade) muestra correlación material entre funding crowd-direction y PnL. Decisión Ricardo sobre opción 1 vs 2 vs 3 tras ver data.
+Cierre: filtro implementado (opción 1 o 2) y desplegado, O item archivado (opción 3 tras ver data).
+Estimación: 3-5h runtime implementación + 2-3 sesiones kernel si opción 1.
+Referencias: §13.3 item observabilidad funding per-trade 2026-04-23; §9.3 v2.6 Funding Rate como Filtro; §0 marco Fidelidad 1 y 2 (impacto de features runtime no-simuladas en lab).
+
+**[DECISION] [EN_ESPERA] Funding rate NO es feature del GMM — rechazo explícito 2026-04-23**
+Contexto: durante discusión 2026-04-23 sobre cómo integrar funding rate al sistema, se evaluaron dos opciones arquitectónicas:
+
+**Opción descartada**: funding como feature del GMM. El GMM de cada símbolo recibiría funding rate como input adicional junto con las features técnicas actuales. Clusters capturarían "régimen técnico + estado de funding" como variable compuesta del régimen.
+
+**Razonamiento del rechazo**: funding rate es exógeno al régimen técnico del precio. El precio tiene estructura de régimen (trending/lateral/volátil). El funding refleja desequilibrio de posiciones, que puede estar descorrelacionado con el régimen técnico actual. Un mercado lateral puede tener funding extremo si hay crowd posicionado. Un mercado fuertemente trending puede tener funding neutro si hay equilibrio long/short. Meter funding al GMM contaminaría la clasificación técnica con información de posicionamiento de mercado, produciendo clusters que son mezcla conceptual (ej. "volatilidad alta + crowd long" vs "volatilidad alta + crowd short" que no son dos regímenes técnicos distintos, es uno con posicionamiento variable).
+
+**Opción adoptada**: funding como filtro runtime separado del GMM (ver item [MEJORA] "Filtro funding contrarian runtime (direccional)" 2026-04-23). El GMM clasifica régimen técnico limpio. El filtro opera sobre la decisión de ejecutar signal, no sobre la clasificación. Son conceptualmente separables, lógicamente modulares.
+Disparo: solo reabrir esta decisión si evidencia empírica futura indica que funding como feature del GMM mejora significativamente alpha (improbable dado el razonamiento).
+Cierre: decisión estable. No se implementa funding como feature del GMM en ningún reciclaje (v3.0 o posteriores) salvo que este item explícitamente se reabra.
+Referencias: §13.3 items funding runtime + observabilidad 2026-04-23; §9.3 v2.6 funding rate como filtro (roadmap donde filtro runtime se materializa); §9.4 v3.0 Z_ATR (feature del GMM que SÍ se acepta para BTC, por naturaleza técnica de Z_ATR vs posicional de funding).
 
 ---
 
