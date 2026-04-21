@@ -1293,11 +1293,10 @@ def write_report(report_path, ctx, alerts):
             r = row['alpha_residual'] / row['alpha_nominal']
             if r < -0.20:
                 flag = "candidato_exclusion"
-        if (row['exp_pool'] and row['exp_oos'] is not None
-                and row['n'] >= DEFAULT_MIN_N_EDGE_EROSION):
-            ratio_oos = row['exp_oos'] / row['exp_pool'] if row['exp_pool'] else None
-            if ratio_oos is not None and ratio_oos < EDGE_EROSION_RATIO_ALERT:
-                flag = (flag + ", " if flag else "") + "edge_erosion"
+        # A38: guard exp_pool<=0 o exp_oos<0 via helper (evita flag espurio)
+        edge_label = _classify_cluster_edge(row['exp_pool'], row['exp_oos'], row['n'])
+        if edge_label:
+            flag = (flag + ", " if flag else "") + edge_label
         out(f"{row['symbol']:<12} {row['cluster'] if row['cluster'] is not None else '-':>3} "
             f"{row['n']:>4} "
             f"{_fmt(row['pnl'], '{:+.2f}'):>10} "
@@ -1557,17 +1556,23 @@ def build_alerts(ctx):
             "vs los 20 previos. Considerar reciclaje anticipado.",
             "\u26a0\ufe0f  EDGE EROSIONANDOSE. Alpha residual cae > 10% en los ultimos 20 trades.")
 
-    # 8. Edge erosion por cluster
+    # 8. Edge erosion por cluster (A38: separa erosion real de cluster perdedor)
     erosion_clusters = []
+    losing_clusters = []
     for row in ctx['per_cluster']:
-        if (row['exp_pool'] and row['exp_oos'] is not None
-                and row['n'] >= DEFAULT_MIN_N_EDGE_EROSION):
-            ratio_oos = row['exp_oos'] / row['exp_pool'] if row['exp_pool'] else None
-            if ratio_oos is not None and ratio_oos < EDGE_EROSION_RATIO_ALERT:
-                erosion_clusters.append(f"{row['symbol']} C{row['cluster']}")
+        edge_label = _classify_cluster_edge(row['exp_pool'], row['exp_oos'], row['n'])
+        if edge_label == 'edge_erosion':
+            erosion_clusters.append(f"{row['symbol']} C{row['cluster']}")
+        elif edge_label == 'cluster_estructuralmente_perdedor':
+            losing_clusters.append(f"{row['symbol']} C{row['cluster']}")
     if erosion_clusters:
         add(f"[WARN] EDGE EROSION en clusters: {', '.join(erosion_clusters)}",
             f"\u26a0\ufe0f  EDGE EROSION en clusters: {', '.join(erosion_clusters)}")
+
+    if losing_clusters:
+        add(f"[WARN] CLUSTERS ESTRUCTURALMENTE PERDEDORES (exp_pool<=0 o exp_oos<0): "
+            f"{', '.join(losing_clusters)}",
+            f"\u26a0\ufe0f  CLUSTERS PERDEDORES: {', '.join(losing_clusters)}")
 
     # 9. Proxy no estimable
     total_cls = (sat['cycles_sat_with_empirical_mult']
@@ -1725,6 +1730,45 @@ def aggregate_trades(per_trade):
 # ============================================================================
 # 11. EDGE EROSION TEMPORAL
 # ============================================================================
+
+def _classify_cluster_edge(exp_pool, exp_oos, n,
+                           min_n=None,
+                           ratio_alert=None):
+    """A38: clasifica cluster por edge en 3 estados mutuamente excluyentes.
+
+    Args:
+      exp_pool: expectancy pooled (train+forward). None si no computable.
+      exp_oos: expectancy out-of-sample (forward). None si no computable.
+      n: n_trades observados.
+      min_n: threshold minimo de N. Default DEFAULT_MIN_N_EDGE_EROSION.
+      ratio_alert: threshold ratio para flag. Default EDGE_EROSION_RATIO_ALERT.
+
+    Returns:
+      None: datos insuficientes (None o n<min_n) o cluster sano.
+      'edge_erosion': ratio oos/pool < ratio_alert (interpretable cuando
+        ambos > 0: cluster pierde edge OOS respecto al pool).
+      'cluster_estructuralmente_perdedor': exp_pool <= 0 o exp_oos < 0
+        (cluster con PnL esperado no positivo; el ratio seria espurio como
+        indicador de erosion — ej. -0.4 < 0.5 dispararia edge_erosion falso).
+
+    A38 guard: el codigo previo usaba `if row['exp_pool']` (truthy check)
+    que no filtraba negativos. ratio_oos con numerador o denominador negativo
+    cruzaba threshold positivo espuriamente.
+    """
+    if min_n is None:
+        min_n = DEFAULT_MIN_N_EDGE_EROSION
+    if ratio_alert is None:
+        ratio_alert = EDGE_EROSION_RATIO_ALERT
+    if exp_pool is None or exp_oos is None or n < min_n:
+        return None
+    # A38: cualquiera negativo -> cluster perdedor, ratio no es indicador de erosion
+    if exp_pool <= 0 or exp_oos < 0:
+        return 'cluster_estructuralmente_perdedor'
+    ratio_oos = exp_oos / exp_pool
+    if ratio_oos < ratio_alert:
+        return 'edge_erosion'
+    return None
+
 
 def detect_edge_erosion(per_trade, last_n=EDGE_EROSION_LAST_N, drop=EDGE_EROSION_DROP):
     """Devuelve True si alpha_residual promedio de ultimos N cae > drop vs N previos."""
