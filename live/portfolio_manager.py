@@ -266,6 +266,43 @@ def compute_soft_blending(
 # 4. allocate_positions  (función principal)
 # ---------------------------------------------------------------------------
 
+def compute_min_order_usdt_for(
+    symbol: str, price: float, markets_info: dict | None
+) -> float:
+    """
+    v2.4.3: pre-check symbol-aware. Devuelve min_usdt requerido para que la
+    orden cumpla todas las constraints BingX:
+      - limits.cost.min: notional minimo USDT.
+      - limits.amount.min * price: amount minimo traducido a USDT.
+      - precision.amount * price: precision minima traducida a USDT.
+
+    Floor 5.0 USDT por seguridad (preserva comportamiento historico
+    conservador). Fallback 5.0 si markets_info faltante o price invalido.
+
+    Ejemplos reales observados (BingX futures, 2026-04-21):
+      ETH/USDT:USDT  precision.amount=0.01  price=2310 -> min=23.1 USDT.
+      UNI/USDT:USDT  precision.amount=1.0   price=3.25 -> min=5.0  USDT (floor).
+      ALGO/USDT:USDT amount.min=17.4        price=0.10 -> min=5.0  USDT (floor).
+    """
+    DEFAULT_MIN = 5.0
+    if not markets_info or symbol not in markets_info:
+        return DEFAULT_MIN
+    if not isinstance(price, (int, float)) or price <= 0:
+        return DEFAULT_MIN
+    m = markets_info[symbol]
+    limits = m.get("limits", {}) if isinstance(m, dict) else {}
+    cost_min = (limits.get("cost") or {}).get("min") or 2.0
+    amount_min = (limits.get("amount") or {}).get("min") or 0.0
+    precision = m.get("precision", {}) if isinstance(m, dict) else {}
+    precision_amount = precision.get("amount") or 0.0
+    effective_min = max(
+        float(cost_min),
+        float(amount_min) * float(price),
+        float(precision_amount) * float(price),
+    )
+    return max(effective_min, DEFAULT_MIN)
+
+
 def allocate_positions(
     signals: dict,
     balance: dict,
@@ -274,6 +311,7 @@ def allocate_positions(
     market_data: dict,
     config: PortfolioConfig,
     dd_multiplier: float = 1.0,
+    markets_info: dict | None = None,
 ) -> dict:
     """
     Recibe señales puras y decide sizing para cada símbolo.
@@ -532,17 +570,25 @@ def allocate_positions(
             sizing[s]["position_value"] = sizing[s]["base_usdt"] * sizing[s]["leverage"]
 
     # ------------------------------------------------------------------
-    # Paso 7: Redondeo y mínimos del exchange
+    # Paso 7: Redondeo y mínimos del exchange (v2.4.3 symbol-aware)
     # ------------------------------------------------------------------
-    # Mínimos típicos de BingX (en USDT notional)
-    MIN_ORDER_USDT = 5.0  # mínimo práctico para la mayoría de pares
+    # El threshold por simbolo lo calcula compute_min_order_usdt_for a partir
+    # de markets_info (limits.cost.min, limits.amount.min x price,
+    # precision.amount x price). Floor 5 USDT preserva historial.
+    # Si markets_info es None/{}, fallback 5 USDT generico para todos.
 
     alloc_log_parts = []
     for sym, info in sizing.items():
         size_usdt = info["base_usdt"]
+        min_order_usdt = compute_min_order_usdt_for(
+            sym, info.get("entry_price", 0.0), markets_info
+        )
 
-        if size_usdt < MIN_ORDER_USDT:
-            allocations[sym] = {"action": "FLAT", "reason": "below_min_order"}
+        if size_usdt < min_order_usdt:
+            allocations[sym] = {
+                "action": "FLAT",
+                "reason": f"below_min_order_{min_order_usdt:.1f}usdt",
+            }
             continue
 
         # Calcular tamaño en contratos

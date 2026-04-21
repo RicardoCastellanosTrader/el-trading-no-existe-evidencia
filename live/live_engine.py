@@ -145,6 +145,9 @@ class LiveEngine:
         self.brain: BrainState | None = None
         self.portfolio_config: PortfolioConfig | None = None
         self.exchange: ccxt_async.bingx | None = None
+        # v2.4.3: cacheado desde exchange.load_markets() en start().
+        # Alimenta pre-check symbol-aware en portfolio_manager.
+        self.markets_info: dict = {}
 
         self.running: bool = False
         self.cycle_count: int = 0
@@ -182,6 +185,24 @@ class LiveEngine:
             bal = await get_balance(exchange=self.exchange)
             logger.info(f"[ENGINE] Conexion BingX OK. Balance: {bal['total']:.2f} USDT")
             self._balance_24h_ago = bal["total"]
+            # v2.4.3: cargar markets para pre-check symbol-aware de min_order
+            # en portfolio. load_markets es idempotente; ccxt cachea tras la
+            # primera llamada. markets_info alimenta compute_min_order_usdt_for
+            # que reemplaza la constante 5 USDT por thresholds reales por
+            # simbolo (limits.cost.min, amount.min x price, precision x price).
+            try:
+                await self.exchange.load_markets()
+                self.markets_info = self.exchange.markets or {}
+                logger.info(
+                    f"[ENGINE] Markets BingX cargados: "
+                    f"{len(self.markets_info)} simbolos."
+                )
+            except Exception as me:
+                logger.warning(
+                    f"[ENGINE] load_markets fallo: {me}. "
+                    f"Portfolio usara fallback 5 USDT generico."
+                )
+                self.markets_info = {}
         except Exception as e:
             logger.critical(f"[ENGINE] Fallo de conexion a BingX: {e}")
             raise
@@ -529,6 +550,7 @@ class LiveEngine:
                 signals, balance, positions, regimes,
                 market_data, self.portfolio_config,
                 dd_multiplier=dd_mult,
+                markets_info=self.markets_info,  # v2.4.3 pre-check symbol-aware
             )
             entry_allocs = {
                 s: a["action"]
@@ -936,7 +958,20 @@ class LiveEngine:
                 "entry_timestamp_ms": pre.get("entry_timestamp_ms", 0),
             })
 
-        # --- Bug #1: Limpiar fantasmas ---
+        # --- Bug #1: Limpiar fantasmas (v2.4.2 silent reconcile) ---
+        # Diferencia rollback esperado (portfolio FLAT o execution fallo)
+        # vs desinc real (BingX cerro entre ciclos, orphan fill). El reset
+        # de los 6 campos es identico en ambos casos; solo cambia log level.
+        flat_syms = {
+            s for s, a in allocations.items()
+            if a.get("action") == "FLAT"
+        }
+        failed_syms = {
+            f.get("symbol") for f in exec_report.orders_failed
+            if f.get("symbol")
+        }
+        expected_reset_syms = flat_syms | failed_syms
+
         for sym, ss in self.brain.symbol_state.items():
             if ss.position == 0:
                 continue
@@ -957,12 +992,27 @@ class LiveEngine:
             ss.entry_filters_forming = 0
             ss.entry_timestamp_ms = 0
 
-            logger.info(
-                f"[BRAIN_RECONCILE] {sym} reset: "
-                f"{'LONG' if prev_pos == 1 else 'SHORT'} "
-                f"entry={prev_entry} -> position=0 "
-                f"(no real BingX position)"
-            )
+            if sym in expected_reset_syms:
+                # Rollback esperado: portfolio descarto (low_confidence,
+                # below_min_order) o execution fallo (BingX reject). Es
+                # consecuencia mecanica del diseno optimista intencional
+                # (v2.3.2). DEBUG level para no contaminar INFO logs.
+                logger.debug(
+                    f"[BRAIN_ROLLBACK_EXPECTED] {sym}: "
+                    f"{'LONG' if prev_pos == 1 else 'SHORT'} "
+                    f"entry={prev_entry} -> position=0 "
+                    f"(alloc_flat or exec_failed)"
+                )
+            else:
+                # Desinc real: BingX cerro por SL entre ciclos, orphan
+                # fill, crash post-fill pre-persist, etc. INFO level
+                # preservado para observabilidad de eventos legitimos.
+                logger.info(
+                    f"[BRAIN_RECONCILE] {sym} reset: "
+                    f"{'LONG' if prev_pos == 1 else 'SHORT'} "
+                    f"entry={prev_entry} -> position=0 "
+                    f"(no real BingX position)"
+                )
 
     # ------------------------------------------------------------------
     # 7. _send_alert
