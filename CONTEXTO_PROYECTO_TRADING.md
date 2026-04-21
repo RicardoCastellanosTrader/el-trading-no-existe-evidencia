@@ -1,7 +1,7 @@
 # Sistema de Trading Algorítmico — Contexto Completo del Proyecto
 
-**Última actualización:** 19 Abril 2026 (v2.3.11 Fidelidad 2 restaurada)  
-**Versión actual:** v2.3.11  
+**Última actualización:** 22 Abril 2026 (v2.4.4 size_usdt fix + A01 audit v5.2 + A02 signal_price_lookup)  
+**Versión actual:** v2.4.4  
 **Autor del sistema:** Ricardo  
 **Plataforma:** Binance (datos) + BingX (ejecución), velas 1h  
 **Stack:** Python, Numba, CUDA (RTX 5070 Laptop), ccxt (async)  
@@ -262,6 +262,7 @@ xx:00:00 UTC (diario) Health monitor + resumen
 | v2.4.2 | 21 Abr | Silent reconcile: `_reconcile_brain_after_execution` diferencia rollback ESPERADO (symbol en alloc FLAT o en exec_report.orders_failed) → DEBUG level `[BRAIN_ROLLBACK_EXPECTED]` vs desinc REAL (BingX cerró entre ciclos, orphan fill) → INFO level `[BRAIN_RECONCILE]` preservado. Reset de 6 campos idéntico a v2.4.1. Resuelve ruido §13.3 B-UNI-1 (26 BRAIN_RECONCILE/13h observados 2026-04-21 por UNI low_confidence + ALGO below_min_order + ETH BingX reject). Cambio acotado a una función en live_engine.py (sin tocar brain/execution/portfolio). Fidelidad 2 preservada por construcción: brain internals intactos. Tests 4/4 silent_reconcile PASS + TF `_run_verify_test` BTC/USDT diff 0.0000 + MR `audit_mr_fidelity_sei.py` SEI C2 diff 0.0000 en 7 métricas. |
 | v2.4.3 | 21 Abr | Pre-check symbol-aware min_order en portfolio: `compute_min_order_usdt_for(symbol, price, markets_info)` reemplaza constante `MIN_ORDER_USDT=5.0`. Evalúa constraints reales de BingX por símbolo — `max(limits.cost.min, limits.amount.min × price, precision.amount × price)` con floor 5.0 USDT. Elimina CRITICAL `[EXEC] OPEN FALLIDO ETH` (7-11/día) causados por size < 0.01 ETH precision con balance bajo. Ejemplos: ETH @ 2310 → min 23.1 USDT; UNI @ 3.25 → 5.0 USDT (floor); ALGO @ 0.10 → 5.0 USDT (floor). Reason label enriquecido `below_min_order_X.Xusdt`. Wiring: `live_engine.start()` invoca `exchange.load_markets()` post-conexión y cachea `self.markets_info` (2879 símbolos BingX confirmados). Se pasa como kwarg opcional a `allocate_positions`. Fallback 5 USDT genérico si markets_info vacío o price inválido. Tests 8/8 min_order_precheck PASS. Fidelidad 2 preservada (cambio solo en threshold de descarte, no toca brain/execution). 1 commit rama v2.4.2-silent-reconcile+precheck → merge main. Ver §13.4 entrada v2.4.2+v2.4.3 Smoke-A PASS. |
 | v2.4.3-hotfix | 21 Abr | Fix resolución ccxt symbol format en `compute_min_order_usdt_for`. Bug detectado en Smoke-B cycle 181 (11:00 UTC): markets_info ccxt usa formato perpetuo `"ETH/USDT:USDT"` pero bot pasa símbolos en formato master `"ETH/USDT"`, causando `symbol not in markets_info` → fallback `DEFAULT_MIN=5.0` en vez del threshold real (ETH 23.1 USDT). ETH `sz=11.67` alcanzaba execution y fallaba con `precision 0.01` reject. Fix: condicional que primero intenta `symbol` directo (backward compat para llamadas con formato ccxt), si no está intenta con sufijo `":USDT"` añadido (traducción master→ccxt), si tampoco está fallback a `DEFAULT_MIN`. Test adicional `test_master_format_resolves_to_ccxt` añadido. Tests 13/13 PASS (9 min_order + 4 silent_reconcile). Deploy VPS 11:09:56 UTC, MD5 `c4d5e7496…074`. Validación Smoke-B cycle 182 (11:59-12:00 UTC) confirmó code path v2.4.3 operando (ALGO discarded con label enriquecido `below_min_order_5.0usdt`) + v2.4.2 silent reconcile activo (0 INFO BRAIN_RECONCILE para ALGO fantasma). Validación directa ETH con threshold 23.1 pendiente de signal orgánico (evidencia indirecta robusta: test unit + code path confirmado + lógica inspeccionada). Commit 8b61e94 en main. |
+| v2.4.4 | 22 Abr | Fix bug histórico `size_usdt=0` en trade_history.csv (134/135 trades afectados desde origen del dataset 2026-04-13). Root cause: `data_feed.get_open_positions` construía pos dict sin campo `size_usdt`; log_trade fallback `pos.get("size_usdt", 0.0)` persistía 0 sistemáticamente. Fix: 1 línea en `data_feed.py` (líneas 326-340) que añade `size_usdt = notional if notional > 0 else size × entry_price` con warning sentinel para edge case `entry_price=0 && size>0`. Impacto retroactivo: trades históricos permanecen con `size_usdt=0` (documentado, no migrable). Impacto forward: analyzer ahora computa slippage USDT correctamente (previo era espurio +0.00). Bug aislado, no afectaba pnl_usdt/pnl_pct/funding_paid (sanos por cómputo independiente). Tests 8/8 PASS (notional present/absent, entry_price=0 warning, multiple positions). Fidelidad 2 invariante: `_run_verify_test` TF diff 0.0000 + `audit_mr_fidelity_sei.py` MR diff 0.0000 en 7 métricas. Deploy VPS 18:22:02 UTC, MD5 3-way `d69afccf1be685c1c910a9d1c1a84f28`, downtime ~20s, Smoke-A PASS (6 posiciones sincronizadas sin WARNINGs). Validación directa orgánica pendiente de próximo close post-deploy. |
 | analyzer v2.4.1 | 17 Abr | Ultra review fixes: C1 entry_candle inferido, C2 consistency check por precios, C3 COMBOLAB_DIR via env/CLI, C4 rollover con ENGINE_STATE.t, S1/S2/S5/S7/M9 + S3/S4/S6/M3 |
 | audit v5.1 | 17 Abr | Ultra review fixes: C1 entry/exit semantics correctas, C2 kernel parity checksum (opcion C: lab solo tiene Numba), C3 flag recon organic, C4 MR cluster_hint via SIGNALS_RAW/GMM, C5 rollover con ENGINE_STATE.t, C6 path env/CLI, C7 CSV 12col, C8 tolerancia +-1, S4/S5/S8/S10/M4/M6 |
 
@@ -279,7 +280,7 @@ xx:00:00 UTC (diario) Health monitor + resumen
 
 **Conclusión:** Fidelidad del kernel demostrada. Discrepancias residuales: micro-diferencias de precio BingX/Binance que afectan prioridad de señales simultáneas (no afectan rentabilidad), y 1 caso de señal borderline por estado acumulado. Se repetirá con 50+ trades.
 
-### 2.6 Bugs corregidos (total: 57)
+### 2.6 Bugs corregidos (total: 58)
 
 **brain_engine.py (10):**
 1. p1/p2 ALMA offset/sigma
@@ -293,7 +294,7 @@ xx:00:00 UTC (diario) Health monitor + resumen
 9. v2.3.7 S5: select_active_configs dejaba stale state.active_config_id/active_preset en paths no-operables (no cfg, no cluster, no selected). Fix: reset a -1/'' en los 3 paths.
 10. v2.3.9 B1: SymbolState parcialmente reseteado al exit — reseteaba solo position/entry_price/sl_level/bars_since_entry, dejando stale entry_bar_timestamp, entry_filters_forming, stop_order_id, entry_timestamp_ms. Consumers (log [SIGNALS_RAW], audit, analyzer) podrian leer valores post-exit invalidos. Fix: helper `_reset_state_on_exit(state, mr=False)` top-level standalone que resetea 8 campos y opcionalmente mr_zone_history. Llamado desde los 2 puntos de exit (TF linea 877, MR linea 1977). Non-regression verificada con _run_verify_test (output IDENTICO al baseline pre-cambio).
 
-**data_feed.py (8):**
+**data_feed.py (9):**
 1. Binance Futures geo-bloqueado → Spot
 2. BingX defaultType 'swap'
 3. DNS ThreadedResolver
@@ -302,6 +303,7 @@ xx:00:00 UTC (diario) Health monitor + resumen
 6. v2.3.8 B4: retry inconsistente entre funciones — download_all_ohlcv tenia retry inline; get_balance/get_open_positions/get_open_orders no. Fix: helper `_retry_async(coro_factory, name, max_retries=3, base_delay=0.5)` con backoff exponencial (0.5s→1.0s→2.0s) y AuthenticationError sin retry. Aplicado a las 3 funciones faltantes.
 7. v2.3.8 B5: OHLCV pagination primera fetch vacia caia al else con ohlcv=[] sin reintento — simbolo quedaba con DataFrame vacio y brain saltaba evaluacion. Fix: `raise ValueError(...)` activa outer retry del for attempt. Preserva `since` parameter (critico para Fase 1 opcion-a decision de lag estructural).
 8. v2.3.11 Fidelidad 2: BingX paginated con `since` incluye el forming INCONSISTENTEMENTE (a veces iloc[-1] es forming, a veces es last closed; verificado empíricamente 2026-04-19). Fix determiniza via fetch adicional sin `since` (limit=2) tras el paginated y rama 3-way: (a) `forming_ts == last_paginated + 1h` → append forming; (b) `forming_ts == last_paginated` → update OHLC in-place con snapshot fresh del forming fetch; (c) otro → warn y df sin modificar (inconsistencia real tipo race xx:00:00). Fallback robusto en excepción: warn y df sin modificar (modo lag solo ese símbolo ese ciclo). iloc[-1] pasa a ser siempre el bar t en curso (Fidelidad 2 restaurada vs kernel lab que decide-y-entra con close[t]). Latencia +~1s (0.88s paginated → ~1.8s total con forming serial por símbolo).
+9. v2.4.4 (22 Abr): populate `size_usdt` en `get_open_positions`. Bug histórico: dict retornado por esta función no incluía `size_usdt`, pos propagaba sin campo hasta log_trade que hacía `.get("size_usdt", 0.0)` → CSV persistía `size_usdt=0` sistemáticamente desde origen del dataset (134 de 135 trades). Cascada visible en analyzer v2.4.1: `slippage_usdt` espurio `+0.00` porque `contracts = size_usdt/entry_price = 0` → slippage per trade = NaN → sum = 0. Fix: `size_usdt = notional if notional > 0 else size × entry_price`. BingX ccxt a veces provee `notional` directo; fallback a cálculo exacto. Warning sentinel si `entry_price=0 and size>0` (posición huérfana rara). No toca state schema, no migración, zero riesgo regresión (confirmado por Fidelidad 2 TF+MR invariante). Ver §13.4 entrada 2026-04-22.
 
 **execution_manager.py (10):**
 1. DRY_RUN entry_price=0 → fetch_ticker
@@ -705,6 +707,7 @@ c:\Users\rixip\combolab\
 23. **Versiones incrementales** (v2.1→v2.2→v2.3) mejor que un gran cambio.
 24. **Tests con mocks que replican asunciones del código propio dejan bugs de contrato externo invisibles** — 21 Abr 2026. El bug v2.4.3 original pasó los 8 tests unit porque el mock de `markets_info` usaba formato master (`"ETH/USDT"`) en la key, replicando la misma asunción del código bajo test. El bug emergió en producción (Smoke-B cycle 181) cuando la función operó contra ccxt real, que usa formato perpetuo (`"ETH/USDT:USDT"`). **Patrón problemático**: test que confirma "el código funciona consigo mismo" vs test que confirma "el código cumple el contrato de la dependencia externa". **Mitigación para tests que tocan interfaz de exchange**: (a) usar fixtures con formato ccxt real, no inventado; (b) documentar explícitamente qué contrato externo se asume en cada mock con comentario inline; (c) test de integración ligero contra ccxt real (`load_markets()` + lookup de un símbolo conocido) como smoke test al arranque del módulo. **Escalabilidad**: aplica a cualquier dependencia externa con formato específico (BingX endpoints, ccxt parameters, market info schemas, Telegram API shapes). No limitado a portfolio_manager. Ver §13.4 entrada v2.4.3-hotfix Smoke-B cycle 182 y §2.6 portfolio fix #7.
 25. **Métricas agregadas sobre ventanas con hitos arquitecturales heterogéneos ocultan información crítica — 2026-04-21**. El primer audit v5.1 global con N=70 dio match rate 26.7% disparando alert de "regresión grave". Investigación posterior reveló que la ventana mezclaba período pre-v2.3.11 (lag estructural 1 bar, ~3.4% match inevitable) con post-v2.3.11 (~84.6% entry-filter, dentro de CI95 del baseline 91%). El número agregado fue promedio no-comparable. **Patrón problemático**: aplicar audits/analyzers sobre ventanas que cruzan deploys de fixes arquitecturales sin segmentar produce veredictos engañosos. **Mitigación**: antes de interpretar métricas agregadas, identificar deploys de fixes que afecten señales/entries/exits en la ventana. Segmentar por deploy boundary. Comparar solo ventanas homogéneas con baseline. Casos concretos: fix de lag (v2.3.11), fix Fidelidad 2 TS (v2.4.0), fix reconcile fantasma (v2.4.2). **Escalabilidad**: aplica a cualquier métrica temporal del sistema (match rate, alpha residual, slippage, portfolio saturación). Ver §13.4 entrada "Primer audit empírico 2026-04-21" como caso de estudio completo.
+26. **Ecuaciones que cierran no garantizan atribución correcta por componente — 2026-04-22**. El analyzer v2.4.1 de 2026-04-21 reportó PnL real +0.77 USDT y ecuación cerraba con tolerancia <0.01 USDT/trade: `alpha_nominal + factor_portfolio + slippage + funding + residual = pnl_real`. Sin embargo, el componente `slippage` reportaba +0.00 espuriamente debido a bug histórico en `data_feed.get_open_positions` (size_usdt=0 sistemático en trade_history.csv). El slippage real (~-0.23 USDT) quedaba absorbido silenciosamente en `alpha_residual`, generando la impresión de "fenómeno no modelado" mayor al real. **Patrón problemático**: sistema de atribución con cierre matemático global pero componentes individuales con bugs silenciosos. El chequeo "ecuación cierra" no detecta el bug porque el error se propaga al residual con signo opuesto. **Mitigación**: validar independientemente cada componente contra expectativa teórica. Slippage con orden MARKET debería ser no-cero sistemáticamente; si reporta 0 en N trades, flag. Funding con posiciones >1h debería ser no-cero; idem. **Escalabilidad**: aplica a cualquier sistema de atribución con múltiples componentes y residual absorbente (analytics financieros, instrumentación de logs, audits). La ecuación global NO sustituye validación per-componente. **Caso origen**: bug size_usdt=0 descubierto durante A02 demo 2026-04-22, root cause en `data_feed.get_open_positions` sin field `size_usdt`, fix v2.4.4 deployado mismo día. Ver §13.4 entradas 2026-04-22 (size_usdt fix + matización primer audit 2026-04-21).
 
 ---
 
@@ -1179,25 +1182,6 @@ Disparo: 50 trades con entry_cycle > 2026-04-19 17:51 UTC Y post-C3 filtering (n
 Cierre: audit con N≥50 ejecutado, match rate reportado con CI95 estrecho. Comparación directa con baseline 91%. Si cae dentro de CI95 del baseline: Fidelidad 2 confirmada definitivamente. Si cae fuera: investigar fenómeno adicional.
 Referencias: §13.4 RESUELTO primer audit 2026-04-21, §2.4 v2.3.11, §12 Lección 25.
 
-**[REFERENCIA] [EN_ESPERA] Feature request audit v5.2: segmentación automática por deploy boundaries + exclusión clustering divergente — 2026-04-21**
-Motivación: §12 Lección 25 formaliza el problema de métricas agregadas sobre ventanas heterogéneas. El audit v5.1 actual opera sobre una ventana monolítica; cualquier deploy de fix en la ventana contamina el match rate global. Adicionalmente, clustering GMM live con histéresis diverge de clustering post-hoc stateless en bars borderline, contabilizando como NONE trades técnicamente válidos.
-Propuesta (doble feature en v5.2):
-1. Audit v5.2 recibe lista de deploy_boundaries (dict `{deploy_version: timestamp_utc}`). Genera reporte multi-segmento: ventana total (compatibilidad), por segmento homogéneo (entre cada par de boundaries), match rate y CI95 por segmento + global con weighted average.
-2. Audit v5.2 añade nueva exclusión `excluido_clustering_divergente` cuando kernel post-hoc asigna cluster distinto al live registrado en SIGNALS_RAW del momento del entry. Permite match rate más comparable con baseline teórico al aislar divergencias estructurales esperables de divergencias reales bug.
-Beneficios: falsos positivos como el 26.7% actual se evitan automáticamente; ruido clustering GMM (observado 2/13 en IMX + GRT 2026-04-21) queda clasificado como exclusión, no como NONE; reportes futuros informativos sin intervención manual.
-Costo estimado: 3-5h implementación + tests. Bajo riesgo (features aditivas, no cambian criterios de matching existentes).
-Disparo: cuando el equipo haga >1 audit adicional y confirme que la segmentación manual es tediosa. O en próximo reciclaje si se aprovecha para consolidar mejoras.
-Cierre: v5.2 implementado y desplegado.
-Referencias: §12 Lección 25, §13.4 primer audit 2026-04-21 caso de estudio, §13.3 mini-item clustering divergente 2026-04-21.
-
-**[MEJORA] [EN_ESPERA] Logger enriquecer signal_entry_price / signal_exit_price en trade_history — 2026-04-21**
-Contexto: primer analyzer v2.4.1 2026-04-21 reveló que slippage_entry y slippage_exit quedan vacíos para trades con logs pre-v2.3.3 completo. Analyzer opera sobre proxies (alpha_residual per trade), limitado para diagnóstico directo.
-Acción: añadir al logger los campos signal_entry_price (precio de cierre del bar que dispara signal) y signal_exit_price (precio de cierre del bar que dispara exit). El campo ya existe conceptualmente (SIGNALS_EXECUTED tiene entry_price implícito via OHLCV lookup) pero no se persiste en trade_history.csv directamente.
-Beneficio: permitirá medir slippage directo (entry_price real vs signal_entry_price) y diagnosticar fenómenos de ejecución (retraso a BingX, partial fills, etc.) de forma directa, no vía proxies.
-Costo estimado: 30-60 min. Trivial modificación del logger.
-Disparo: en próxima iteración del logger/CSV schema, o cuando haya que investigar alpha residual sistemático (si emerge con N>50).
-Referencias: §13.4 RESUELTO primer audit/analyzer 2026-04-21.
-
 **[MEJORA] [EN_ESPERA] Caracterización clustering divergente live vs post-hoc — 2026-04-21**
 Contexto: primer audit empírico 2026-04-21 detectó 2/13 NONE post-v2.3.11 (IMX 14:00 + GRT 01:00, ambos 2026-04-20). Análisis forense descartó state stale, reconcile, deploy boundaries como causa. Hipótesis dominante: clustering GMM live (con histéresis + warmup 1500 barras) diverge de classify_bars_gmm post-hoc en bars borderline con confidence 0.7-0.9.
 No es bug. Es efecto estructural de arquitectura brain stateful (brain mantiene cluster entre ciclos) vs audit kernel stateless (recomputa clustering cada bar).
@@ -1418,12 +1402,20 @@ Disparo: al reciclaje julio con test diferencial completo pre/post, o si aparece
 Cierre: refactor aplicado con test diferencial verde, o decision documentada de mantener asimetria.
 Referencias: brain_engine.py compute_divergences linea 1171-1266, _evaluate_bar TF locals lineas 689-930 y 1031-1032, _evaluate_bar_mr MR directo lineas 1803-1823 y 1984-1992, Fase I v2.3.9 del 2026-04-19.
 
-**[MEJORA] [EN_ESPERA] lab_historico: crash cp1252 por emoji en _run_verify_test — 2026-04-19**
-Contexto: Descubierto durante Fase I v2.3.9 al ejecutar _run_verify_test (brain_engine.py --verify). El test corre [1/2] brain bar-by-bar OK, pero crashea en [2/2] kernel Numba compare step con UnicodeEncodeError: "character maps to <undefined>" en cp1252 Windows. Causa: `lab_historico_numba_v8_3.py` linea 990 imprime `⚙️` (emoji gear + variation selector) en `print(f"⚙️ Pre-calculando indicadores para {n} velas...")`. Bug de encoding cp1252 que rompe el flujo diferencial brain↔kernel. Mismo patron de fixes previos (feedback cp1252 en memoria Ricardo: solo ASCII en logging).
-Impacto: impide validacion completa brain vs kernel. Para B1 de v2.3.9 solo necesitabamos comparar [1/2] brain bar-by-bar y fue suficiente. Pero para validar R1 (cooldown emergency/cancel) o B3 (TF locals vs MR state) o cualquier otra investigacion de fidelidad, el [2/2] es necesario.
-Disparo: al necesitar test diferencial brain vs kernel Numba para R1 o futuros refactors de brain_engine, o al primer reporte audit v5.1 con N>=50 si requiere el test.
-Cierre: reemplazar `⚙️` por texto ASCII (ej. `[CALC]` o `*`) en lab_historico_numba_v8_3.py:990, o decode UTF-8 explicito via reconfigure stdout. Test completo [1/2] + [2/2] ejecutable en Windows.
-Referencias: lab_historico_numba_v8_3.py linea 990, Fase I v2.3.9 del 2026-04-19, feedback cp1252 permanente (memoria Ricardo).
+**[MEJORA] [EN_ESPERA] Batch fix emojis cp1252 restantes en lab_historico_numba_v8_3.py — 2026-04-22**
+Contexto: durante aplicación de A27 (fix línea 996, sesión 2026-04-22) se detectaron 14 ocurrencias adicionales de emojis no-ASCII en `lab_historico_numba_v8_3.py` en paths que `_run_verify_test` NO ejecuta (pipeline master.py de procesamiento por símbolo + walk-forward).
+Líneas afectadas:
+- Error markers ❌: 482, 488, 1946, 1987, 2656, 2666.
+- Warning markers ⚠️: 484, 1891, 1897, 1933, 1951, 2073, 2269, 2296, 2302.
+- Completion markers ✅: 498, 1041, 1087, 1130, 2053, 2118, 2143, 2665, 2674.
+- Header markers 📊: 1002, 1118, 1941, 2275, 2292, 2293, 2299, 2663.
+- Calc markers ⚙️ restantes: 1042, 1089.
+- Fase start markers 🚀: 2045, 2108, 2135.
+- Comparison ✓/✗: 2515, 2527, 2538, 2623.
+Impacto operacional: cero (no afecta bot en producción ni `_run_verify_test`). Impacto latente: si se ejecuta master.py --recycle en Windows cp1252 sin redirección UTF-8, crash en alguna de estas líneas. Ricardo opera en Windows local.
+Disparo: cuando se ejecute un reciclaje desde Windows local, o si se añade CI Windows, o batch consolidación pre-reciclaje.
+Cierre: reemplazo ASCII (`[X]`, `[WARN]`, `[OK]`, `[CHART]`, `[CALC]`, `[START]`, `V`/`X`) en todas las líneas. Diff localizado, sin cambio funcional.
+Referencias: §13.4 entrada A27 2026-04-22.
 
 **[MEJORA] [EN_ESPERA] brain_engine: hidden divergence asimetría TF vs MR — 2026-04-17**
 Contexto: Ultra review S8. TF relee hid_inv del config_id para decidir interpretación (confía en WF haber seleccionado hid_inv=1 para compensar bug histórico). MR aplica pre-swap de bits 1↔3 antes de evaluar. Ambos producen resultado correcto SI los configs TF tienen hid_inv=1. VERIFICADO 2026-04-19 (C3 de Fase 1): 67 de 138 configs activos (48.5%) usan interpretación invertida (hid_inv=0 con div_type∈{2,3}): 9 configs pure HIDDEN only (BCH C2, IMX C2, LTC C2, TRX C0+C1, UNI C0, VET C1, XLM C2, XRP C2) + 58 configs BOTH mode. Símbolos con 3/3 clusters afectados: SOL, NEAR, AAVE, SUI. Escáner verificado: `div_type = (config_id >> 12) & 0x3`, `hid_inv = (config_id >> 25) & 0x1`.
@@ -1493,12 +1485,6 @@ Disparo: si reporte muestra >20% de trades con active_config_source=heuristic y 
 Cierre: v2.3.4 anade cfg en SIGNALS_RAW; analyzer lo lee.
 Referencias: live_engine.py [SIGNALS_RAW] logging, analyze_performance_attribution.py attribute_trade seccion 2.
 
-**[MEJORA] [EN_ESPERA] Parser de engine.log en audit_fidelity_v5.py usa rollover de fecha — 2026-04-16**
-Contexto: Parser actual infiere fechas por rollover 23→00 desde --log-start-date. Los logs v2.3.1+ ya contienen timestamps unix seconds en [ENGINE_STATE] (campo 't'). Si la primera ejecución real de v5 muestra anomalías por timestamps inferidos incorrectamente (especialmente si el bot se reinicia cerca de medianoche UTC), migrar el parser a usar el campo 't' como fuente de verdad.
-Disparo: primera ejecución real de audit_fidelity_v5.py con N≥50 trades, si se detectan anomalías en timestamps o discrepancias inesperadas.
-Cierre: migración a parseo por timestamp unix de [ENGINE_STATE] completada y verificada.
-Referencias: audit_fidelity_v5.py función de parseo de logs
-
 **[MEJORA] [EN_ESPERA] Ejecución parcial de órdenes no manejada en reconcile — 2026-04-16**
 Contexto: Fix de Bug #1 asume que si BingX tiene contracts>0 la posición es real. No maneja explícitamente el caso raro de ejecución fraccional (BingX abre, digamos, 60% del size pedido por insufficient margin o slippage extremo). Raro con balance 297 USDT, más probable al escalar capital.
 Disparo: al escalar capital (>1000 USDT) o si aparece algún trade con size real significativamente distinto del size pedido en los logs.
@@ -1527,6 +1513,158 @@ Referencias: analyze_performance_attribution.py verificación al final de attrib
 
 ### 13.4 RESUELTO
 
+**[RESUELTO] Bug histórico size_usdt=0 en trade_history.csv — 2026-04-22 (v2.4.4)**
+
+Contexto: hallazgo colateral durante demo A02 (signal_price_lookup + slippage directo). Demo reportó slippage USDT = +0.00 para 20/20 trades con size_usdt=0 en CSV. Investigación forense dedicada reveló bug sistemático desde origen del dataset.
+
+Alcance histórico confirmado: 134/135 trades afectados (99.3%). Único trade con size>0 fue reconstrucción manual de Ricardo del 2026-04-16 GRT (ingreso manual 10.0 USDT). Bug desde primer trade automático 2026-04-13 22:00 ADA.
+
+Root cause identificado con precisión quirúrgica:
+- `data_feed.get_open_positions` (líneas 326-340): dict retornado con campos side/size/entry_price/unrealized_pnl/leverage/stop_order_id, SIN `size_usdt`.
+- `execute_cycle` CLOSE branch usa `action["position"]` (dict reconstruido desde get_open_positions) → pos sin size_usdt.
+- `log_trade` línea 948: `pos.get("size_usdt", 0.0)` → fallback 0.0 → CSV persiste 0 sistemáticamente.
+
+Bug AISLADO a size_usdt. Otros campos sanos:
+- pnl_usdt: 132/135 OK (computed independently from entry/exit ratio × size).
+- pnl_pct: 134/135 OK (computed on-the-fly in log_trade).
+- funding_paid: 127/135 OK (cómputo con fallback `notional or size × entry_price`).
+
+Impacto en análisis previo (matización §13.4 primer audit empírico 2026-04-21):
+- PnL real +0.77 USDT: CORRECTO (de pnl_usdt, no afectado).
+- Alpha nominal +3.01: CORRECTO (balance × 5%, no usa size_usdt).
+- Factor portfolio -0.56: CORRECTO (derivado de alpha).
+- Funding -0.04: CORRECTO.
+- Slippage +0.00: ESPURIO (contracts=None → NaN → 0). Valor real estimado ~-0.23 USDT basado en A02 demo (-0.18% por trade × tamaño promedio).
+- Alpha residual -1.64: desagregable a ~-1.41 residual neto + ~-0.23 slippage absorbido.
+- Ecuación sigue cerrando (pnl_real correcto), pero atribución por componente sesgada: "fenómeno no modelado" era ~86% residual / ~14% slippage oculto.
+- Conclusiones cualitativas del audit (Fidelidad 2 empírica 84.6% match post-v2.3.11, CI95 overlap baseline 91%) NO afectadas (son matching brain↔kernel, no PnL attribution).
+
+Fix: +15 líneas netas en `data_feed.py`.
+```python
+entry_px = float(pos.get("entryPrice", 0) or 0)
+notional = float(pos.get("notional", 0) or 0)
+size_usdt = notional if notional > 0 else (size * entry_px)
+if size_usdt == 0 and size > 0:
+    logger.warning(f"[get_open_positions] {master_sym} "
+                   f"size_usdt=0 with size={size}, "
+                   f"entry_price={entry_px}")
+```
+Campo `size_usdt` añadido al dict resultado.
+
+Tests 8/8 PASS en `tests/test_get_open_positions_size_usdt.py`: size_usdt from notional, fallback contracts × entry_price, notional=0/None fallback, warning con entry_price=0, empty positions list, contracts=0 skip, multi-position.
+
+Fidelidad 2 invariante verificada (protocolo proyecto aunque fix no toca brain/execution):
+- TF `_run_verify_test --symbol BTC/USDT`: diff 0.0000 (Trades, Wins, PnL, Gross).
+- MR `audit_mr_fidelity_sei.py` SEI C2 config 45686: diff 0.0000 en 7 métricas.
+
+Deploy VPS 2026-04-21 18:22:02 UTC (fecha reloj del servidor). MD5 3-way sync confirmado: `d69afccf1be685c1c910a9d1c1a84f28` (combolab, comboclaude, VPS). Downtime ~20s. Smoke-A boot limpio: 45 GMM + specialists, 6 posiciones sincronizadas desde exchange SIN WARNINGs `[get_open_positions] size_usdt=0` en log de arranque.
+
+Trades históricos permanecen con `size_usdt=0` en trade_history.csv (no migrable — data perdida en origen). Trades post-deploy tendrán size_usdt correcto.
+
+Validación directa orgánica pendiente: próximo close post-deploy. Log del close tendrá size_usdt>0 en CSV; analyzer v2.4.1 reportará slippage directo correcto.
+
+Commits: `fc796bb` (fix 1 línea data_feed.py), `5bb4f95` (tests 8 unitarios), merge main con `--no-ff` (rama `fix-size-usdt-data-feed` preservada).
+
+Referencias: investigación forense 2026-04-22 (5 preguntas respondidas), demo A02 2026-04-22 como detector del síntoma, data_feed.py l.326-340 (origen), execution_manager.py l.944-954 (cascada), log_trade l.948 (fallback), §12 Lección 26 (nueva).
+
+Cierre: fix deployado + validado (indirecto). Validación directa orgánica no bloqueante.
+
+---
+
+**[RESUELTO] A02: signal_price_lookup helper + slippage directo post-hoc — 2026-04-22**
+
+Contexto: §13.3 EN_ESPERA "Logger enriquecer signal_entry_price / signal_exit_price" con scope original de modificar logger CSV. Investigación previa reveló que SIGNALS_RAW en engine.log ya loguea `p` (signal price) per-signal desde v2.3.1 (instrumentación pasiva). Derivación post-hoc es zero-touch al bot y 100% retroactiva.
+
+Decisión: Opción 2 (post-hoc derivation) sobre Opción 1 (CSV schema extensión). Beneficio equivalente, riesgo cero operacional, scope 1/3 del trabajo.
+
+Implementación:
+- `combolab/signal_price_lookup.py` (145 líneas, nuevo). Helper compartido con funciones puras:
+  * `get_signal_price(signals_raw, cycle_ts, symbol, action_hint=None)` — lookup desde dict indexado por (cycle_ts, symbol).
+  * `compute_slippage_usdt(fill_price, signal_price, side, size_contracts)` — slippage signed, positivo=favorable.
+  * `compute_slippage_pct(...)` — idem en porcentaje.
+  * `attribute_slippage_per_trade(...)` — integration helper.
+- `audit_fidelity_v5_2.py`: CLI flag `--verbose-slippage` + sección 2.5 nueva en reporte con slippage entry/exit per trade.
+- Analyzer NO modificado: inspección reveló que `analyze_performance_attribution.py` líneas 910-947 YA tenía lookup inline de SIGNALS_RAW.p para slippage. El beneficio del helper es DRY futuro, no funcional inmediato.
+
+Tests 24/24 PASS en `tests/test_signal_price_lookup.py`: 10 lookup edge cases (happy path, missing p/cycle/symbol, p=0, p no numérico, coerce str, action_hint mismatch/match), 6 slippage_usdt (LONG/SHORT favorable/adverso, zero, invalid side), 3 slippage_pct (LONG, SHORT, zero guard), 5 attribute_per_trade (LONG full, SHORT full, missing entry, missing both, LONG adverso).
+
+Demo empírico sobre dataset 2026-04-21 (20 trades N_effective post-v2.3.11):
+- Slippage entry: 20/20 computable, mean -0.061%, max |.| 0.586% (ONDO 13:00 long).
+- Slippage exit: 19/20 computable, mean -0.121%, max |.| 0.368% (SEI short).
+- Coste ejecución neto per trade ~-0.18%. Magnitud realista BingX MARKET orders.
+
+Slippage USDT por trade NO computable en este demo porque dataset tiene size_usdt=0 (bug descubierto durante A02, ver entrada size_usdt fix v2.4.4 arriba). Tras v2.4.4 + primer close post-deploy, slippage USDT directo estará disponible.
+
+Referencias: investigación previa T1+T2+T3 2026-04-22 (schema + consumers + flujo), decisión Opción 2 pura sobre Opción 3 híbrida, §13.4 entrada size_usdt fix 2026-04-22 (descubrimiento colateral), `signal_price_lookup.py`, `tests/test_signal_price_lookup.py`.
+
+Cierre: infraestructura disponible y probada. Primer uso productivo en próximo audit + analyzer con N≥50 post-v2.3.11.
+
+---
+
+**[RESUELTO] A01: Audit v5.2 segmentación + exclusión clustering divergente — 2026-04-22**
+
+Contexto: §13.3 REFERENCIA EN_ESPERA "Feature request audit v5.2". Motivación: primer audit empírico 2026-04-21 reveló que métricas agregadas sobre ventanas heterogéneas (pre-v2.3.11 con lag 1 bar vs post-v2.3.11 alineado) dan veredictos engañosos (26.7% global vs 84.6% post-filter). §12 Lección 25 formaliza el problema.
+
+Implementación:
+- `combolab/audit_fidelity_v5_2.py` (~2470 líneas, +240 sobre v5.1). Script independiente (no sobreescribe v5.1).
+- `combolab/deploy_boundaries.json` (boundaries actuales: v2.3.11, v2.4.0, v2.4.1, v2.4.2, v2.4.3, v2.4.3-hotfix).
+- `combolab/tests/test_audit_v5_2_parity.py` (380 líneas).
+
+Features:
+
+1. **Segmentación automática** (`--deploy-boundaries path.json`): genera reporte multi-segmento por períodos homogéneos entre boundaries. Tabla segmento × {N_eff, OK, NONE, EXCL, rate, CI95}. Weighted average match rate + flag de discontinuidad >20pp entre segmentos consecutivos.
+
+2. **Exclusión clustering_divergente** (`--clustering-check`): nueva categoría en orden canónico (posición 6). Cuando `cluster_live (SIGNALS_RAW.k) != cluster_post_hoc (classify_bars_gmm stateless)`, trade se clasifica como excluido en vez de NONE. Reclasifica los 2 NONE IMX+GRT del 2026-04-21 (primer audit empírico) como excluidos.
+
+Tests 29/29 PASS: orden EXCL_LABELS preservado v5.1 → v5.2 (backward compat), `load_deploy_boundaries` + 3 edge cases, `build_segments` + 1 edge, `assign_trade_to_segment` + 1 edge, `compute_segment_metrics` + 1 edge, `discontinuity_warnings` + 2 edge, `get_cluster_live` × 4, `get_cluster_post_hoc` × 3, `check_clustering_divergent` × 4, smoke tests (imports, help string, weighted_avg=total sanity).
+
+Demo dry-run sobre dataset 2026-04-21 confirma: backward compat N=27, excluded=7, N_effective=20 idénticos a v5.1. Segmentación funcional: 5 segmentos con N_eff por boundary. Exclusiones ampliadas con fila #6 `excluido_clustering_divergente`.
+
+Validación end-to-end IMX+GRT → excluido_clustering_divergente: lógica PASS por unit test con fixture; validación empírica completa pendiente de run con BingX kernel execution real (no bloqueante — arquitectura validada).
+
+Observación menor: 4 trades transición (entry pre-v2.3.11, exit post-v2.3.11) excluidos automáticamente de segmentos. Comportamiento correcto (evita contaminación). Mejora incremental futura: pseudo-segmento "pre-window" para transparencia contable. Baja prioridad.
+
+Referencias: diseño Fase II-A 2026-04-22 (roadmap post-sesión 2026-04-21), §12 Lección 25 (métricas heterogéneas) caso de estudio, §13.4 primer audit empírico 2026-04-21 (motivación), investigación IMX+GRT 2026-04-21 (CASO A clustering divergente).
+
+Cierre: infraestructura disponible para audit definitivo N≥50 post-v2.3.11 (estimado 2026-04-26). Primera ejecución productiva con N≥50 validará end-to-end clustering_divergente.
+
+---
+
+**[RESUELTO] A40: Parser engine.log rollover — ya resuelto empíricamente en audit v5.1 — 2026-04-22 (verificación)**
+
+Contexto: §13.3 EN_ESPERA "Parser de engine.log en audit_fidelity_v5.py usa rollover de fecha" con hipótesis de que la migración a `ENGINE_STATE.t` como ancla de fecha estaba pendiente. Verificación directa del código audit v5.1 reveló que el fix fue implementado en el ultra review 2026-04-17 como C5 ("Rollover con ENGINE_STATE.t").
+
+Verificación literal `audit_fidelity_v5.py` líneas 245-315:
+- Docstring: "C5 fix: usa [ENGINE_STATE].t (unix seconds, v2.3.1+) como ancla de fecha. Si hay gaps (bot caido multi-hora), la siguiente [ENGINE_STATE] re-sincroniza. Fallback rollover 23->00 solo para lineas sin anchor disponible."
+- Implementación líneas 286-315: ENGINE_STATE.t dominante (re-sincroniza current_date desde campo t unix cada cycle). Rollover puro 23→00 solo dispararía en ventana sub-hora sin anchor, raro y defensivo.
+- Contadores `log_date_sync_anchors` y `log_date_gap_warnings` trackean salud del parseo.
+
+Veredicto: RESUELTO. El item estaba mal clasificado en §13.3 EN_ESPERA cuando en realidad ya estaba en §13.4 RESUELTO "Log date rollover robusto con ENGINE_STATE.t — 2026-04-17".
+
+Cierre documental: item removido de §13.3 EN_ESPERA. Referenciado desde §13.4 entrada existente 2026-04-17.
+
+Referencias: audit_fidelity_v5.py líneas 245-315 (implementación), §13.4 entrada "Log date rollover robusto con ENGINE_STATE.t — 2026-04-17" (fix documentado).
+
+---
+
+**[RESUELTO] A27: cp1252 emoji fix en lab_historico línea 996 — 2026-04-22**
+
+Contexto: §13.3 EN_ESPERA "lab_historico: crash cp1252 por emoji en _run_verify_test". Bloqueaba [2/2] kernel compare step en Windows cp1252 por UnicodeEncodeError. Prerequisito de A10 (test diferencial brain vs kernel 10k barras).
+
+Fix aplicado: `lab_historico_numba_v8_3.py` línea 996 (nota: item §13.3 decía "línea 990", drift de numeración detectado):
+- Antes: `print(f"   ⚙️ Pre-calculando indicadores para {n} velas...")`
+- Después: `print(f"   [CALC] Pre-calculando indicadores para {n} velas...")`
+
+Syntax check PASS.
+
+Descubrimiento colateral: otras 14 ocurrencias no-ASCII en lab_historico_numba_v8_3.py en paths que `_run_verify_test` NO ejecuta (master.py pipeline de procesamiento + walk-forward). Riesgo residual: si se ejecuta master.py --recycle en Windows cp1252 sin redirección UTF-8, crasheará en alguna de esas líneas. Candidato a fix batch pre-reciclaje (nuevo item §13.3 "Batch fix emojis cp1252 restantes").
+
+Cierre: fix aplicado. A10 (test diferencial) desbloqueado para ejecución cuando llegue disparador post-audit N≥50.
+
+Referencias: lab_historico_numba_v8_3.py l.996 (aplicado), l.1042/1089 (⚙️ restantes) + resto de ocurrencias listadas en §13.3 batch cp1252 (nuevo item agrupación).
+
+---
+
 **[RESUELTO] Primer audit empírico v5.1 + analyzer v2.4.1 (N=22 post-v2.3.11) — 2026-04-21**
 Contexto: primer audit/analyzer sobre dataset homogéneo tras descubrir (diagnóstico mediodía) que la ventana N=70 mezclaba pre-v2.3.11 (lag estructural 1 bar, match ~3.4%) con post-v2.3.11 (alineado, match ~84.6% por entry-cycle filter). El 26.7% global inicial fue artefacto metodológico de segmentación por exit cycle, no bug de fidelidad.
 
@@ -1552,6 +1690,26 @@ Pregunta slippage pre vs post v2.3.11:
 Primera ejecución empírica completa del pipeline audit/analyzer establecida. Pipeline operando correctamente. Métricas comparables al baseline con N=13-22 (falta acumular hacia N≥50 post-v2.3.11 para reporte definitivo, estimado 2026-04-26).
 
 Referencias: §2.4 v2.3.11 Fidelidad 2 restaurada, §13.4 v2.4.2+v2.4.3+hotfix, §13.2 HALLAZGO RESUELTO lag estructural 2026-04-19, `audit_v5_report_20260421_1256.txt`, `attribution_summary_20260421_1257.txt`, investigación IMX+GRT 2026-04-21.
+
+**MATIZACIÓN 2026-04-22 por hallazgo colateral bug size_usdt=0 (v2.4.4):**
+
+Cifras del analyzer v2.4.1 del 2026-04-21 tienen sesgo conocido en atribución por componente. NO invalidan conclusiones cualitativas del audit (match rate 84.6% post-v2.3.11 entry-filter sigue válido).
+
+- PnL real +0.77 USDT: CORRECTO (de pnl_usdt del CSV, no afectado por bug size_usdt).
+- Alpha nominal +3.01: CORRECTO (balance × 5%, no usa size_usdt).
+- Factor portfolio -0.56: CORRECTO (derivado de alpha nominal).
+- Funding -0.04: CORRECTO.
+- Slippage +0.00: ESPURIO (contracts = size_usdt / entry_price = 0 → NaN → sum = 0). Valor real estimado ~-0.23 USDT basado en A02 demo 2026-04-22 midiendo -0.18% por trade.
+- Alpha residual -1.64: desagregable ex-post a ~-1.41 residual neto + ~-0.23 slippage absorbido silenciosamente.
+
+Ecuación cerraba porque PnL real era correcto; atribución estaba sesgada hacia "misterio residual" cuando parte era slippage medible. Desde v2.4.4 (22-Abr), slippage USDT computa correctamente. Audits futuros tendrán atribución limpia.
+
+Conclusiones del audit NO afectadas:
+- Fidelidad 2 empíricamente confirmada (match rate 84.6% CI95 overlap baseline 91%) → SIGUE VÁLIDA.
+- Segmentación post-v2.3.11 homogénea identificada → SIGUE VÁLIDA.
+- Hallazgo metodológico (Lección 25) → SIGUE VÁLIDO.
+
+Ver [RESUELTO] size_usdt fix 2026-04-22 para detalle completo.
 
 Cierre: primer hito empírico alcanzado. Próxima ejecución disparada por N≥50 post-v2.3.11 (~2026-04-26).
 

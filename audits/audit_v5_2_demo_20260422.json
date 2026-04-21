@@ -1,0 +1,126 @@
+{
+  "audit_version": "5.2",
+  "generated": "2026-04-21 17:35:53 UTC",
+  "window": {
+    "since": "2026-04-19T17:51:00+00:00",
+    "until": null
+  },
+  "deploy_boundaries": {
+    "v2.3.2": "2026-04-16T17:00:00+00:00",
+    "v2.3.3": "2026-04-17T08:55:00+00:00",
+    "v2.3.11": "2026-04-19T17:51:00+00:00",
+    "v2.4.0": "2026-04-20T14:08:00+00:00",
+    "v2.4.1": "2026-04-20T19:07:56+00:00",
+    "v2.4.2_v2.4.3": "2026-04-21T10:15:25+00:00",
+    "v2.4.3-hotfix": "2026-04-21T11:09:56+00:00"
+  },
+  "total": {
+    "n_window": 27,
+    "n_excluded": 7,
+    "n_entry_not_inferrable": 0,
+    "n_effective": 20,
+    "matches_ok": 0,
+    "matches_diff": 0,
+    "n_none": 20,
+    "match_rate": 0.0,
+    "ci95": [
+      0.0,
+      0.16112515805281935
+    ]
+  },
+  "exclusion_counts": {
+    "excluido_reconstruido": 1,
+    "excluido_mr_kernel_no_implementado": 3,
+    "excluido_dd_breaker": 0,
+    "excluido_reconcile_intervino": 3,
+    "excluido_ruido_cross_exchange": 0,
+    "excluido_clustering_divergente": 0
+  },
+  "segments": {
+    "v2.3.11 -> v2.4.0": {
+      "n_effective": 10,
+      "matches_ok": 0,
+      "matches_diff": 0,
+      "none": 10,
+      "excluded": 1,
+      "exclusion_counts": {
+        "excluido_reconstruido": 1
+      },
+      "match_rate": 0.0,
+      "ci_low": 0.0,
+      "ci_high": 0.27753279986288926,
+      "period": {
+        "start": "2026-04-19T17:51:00+00:00",
+        "end": "2026-04-20T14:08:00+00:00"
+      }
+    },
+    "v2.4.0 -> v2.4.1": {
+      "n_effective": 1,
+      "matches_ok": 0,
+      "matches_diff": 0,
+      "none": 1,
+      "excluded": 2,
+      "exclusion_counts": {
+        "excluido_mr_kernel_no_implementado": 2
+      },
+      "match_rate": 0.0,
+      "ci_low": 0.0,
+      "ci_high": 0.7934506856227626,
+      "period": {
+        "start": "2026-04-20T14:08:00+00:00",
+        "end": "2026-04-20T19:07:56+00:00"
+      }
+    },
+    "v2.4.1 -> v2.4.2_v2.4.3": {
+      "n_effective": 5,
+      "matches_ok": 0,
+      "matches_diff": 0,
+      "none": 5,
+      "excluded": 3,
+      "exclusion_counts": {
+        "excluido_reconcile_intervino": 2,
+        "excluido_mr_kernel_no_implementado": 1
+      },
+      "match_rate": 0.0,
+      "ci_low": 0.0,
+      "ci_high": 0.43448246478317476,
+      "period": {
+        "start": "2026-04-20T19:07:56+00:00",
+        "end": "2026-04-21T10:15:25+00:00"
+      }
+    },
+    "v2.4.2_v2.4.3 -> v2.4.3-hotfix": {
+      "n_effective": 0,
+      "matches_ok": 0,
+      "matches_diff": 0,
+      "none": 0,
+      "excluded": 0,
+      "exclusion_counts": {},
+      "match_rate": 0.0,
+      "ci_low": 0.0,
+      "ci_high": 0.0,
+      "period": {
+        "start": "2026-04-21T10:15:25+00:00",
+        "end": "2026-04-21T11:09:56+00:00"
+      }
+    },
+    "v2.4.3-hotfix -> now": {
+      "n_effective": 0,
+      "matches_ok": 0,
+      "matches_diff": 0,
+      "none": 0,
+      "excluded": 0,
+      "exclusion_counts": {},
+      "match_rate": 0.0,
+      "ci_low": 0.0,
+      "ci_high": 0.0,
+      "period": {
+        "start": "2026-04-21T11:09:56+00:00",
+        "end": "2026-04-21T17:35:53.099328+00:00"
+      }
+    }
+  },
+  "weighted_avg_match_rate": 0.0,
+  "discontinuity_warnings": [],
+  "clustering_skipped": 0
+}

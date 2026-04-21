@@ -1,0 +1,290 @@
+==============================================================================
+AUDITORIA DE FIDELIDAD v5 -- KERNEL STATELESS BingX (post-v2.3.2)
+==============================================================================
+Generado: 2026-04-21 17:35:53 UTC
+Ventana analizada: 2026-04-19 17:51 UTC -> N/A
+v2.3.2 deploy detectado: 2026-04-19 17:00 UTC
+
+--- RESUMEN EJECUTIVO ---
+N trades VPS en ventana bruta:           27
+N entry_candle no inferible:             0
+N excluidos (6 categorias):              7
+    excluido_reconstruido                        : 1  (Trade reconstruido post-hoc (orphan_close / flag reconstructed))
+    excluido_mr_kernel_no_implementado           : 3  (Trade mean-reversion (kernel MR no implementado en auditor))
+    excluido_dd_breaker                          : 0  (Ciclo con DD breaker activo (dd_multiplier < 1.0))
+    excluido_reconcile_intervino                 : 3  (Brain reconcile intervino en el ciclo de entrada)
+    excluido_ruido_cross_exchange                : 0  (Ruido cross-exchange BingX/Binance > 0.3%)
+    excluido_clustering_divergente               : 0  (Cluster live (SIGNALS_RAW.k) != cluster post-hoc (GMM stateless))
+N efectivo (denominador):                20
+Matches:                                 0
+  Mismo entry+side+razon (OK):           0
+  Mismo entry+side, razon distinta:      0
+  Regime change match:                   0
+Sin match (VPS sin kernel equivalente):  20
+Extras del kernel (no ejecutados en bot):0
+
+Match rate efectivo: 0.0%   CI95% Wilson = [0.0%, 16.1%]
+
+Comparativa numerica:
+  v3 (Binance):  N= 11  matches=9  rate=82%   CI~[52%, 95%]
+  v4 (BingX):    N= 11  matches=10  rate=91%   CI~[62%, 98%]
+  v5 (BingX+exc):N= 20  matches=0  rate=0.0%   CI [0.0%, 16.1%]
+
+VEREDICTO:
+  🚨 REGRESION GRAVE, POSIBLE BUG ACUMULATIVO
+    - match_rate = 0.0% (0/20)
+    - CI95% Wilson = [0.0%, 16.1%]
+    - Ademas N=20 < 30: acumular mas trades.
+
+==============================================================================
+SECCION 1.5 (v5.2): SEGMENTACION POR DEPLOY BOUNDARIES
+==============================================================================
+segmento                      N_eff    OK  NONE  EXCL    rate                 CI95
+------------------------------------------------------------------------------
+v2.3.11 -> v2.4.0                10     0    10     1    0.0%          [0.0, 27.8]
+v2.4.0 -> v2.4.1                  1     0     1     2    0.0%          [0.0, 79.3]
+v2.4.1 -> v2.4.2_v2.4.3           5     0     5     3    0.0%          [0.0, 43.4]
+v2.4.2_v2.4.3 -> v2.4.3-hot       0     0     0     0     N/A                  N/A
+v2.4.3-hotfix -> now              0     0     0     0     N/A                  N/A
+
+Weighted avg match rate (ponderado por N_eff): 0.0%
+
+(Sin discontinuidades significativas entre segmentos.)
+
+==============================================================================
+SECCION 2: TABLA TRADE-A-TRADE
+==============================================================================
+ts_entry             symbol       side    entry_vps  entry_ker exit_vps        exit_ker        match    exclusion                                    
+------------------------------------------------------------------------------
+2026-04-19 13:00 UTC ONDO/USDT    long       0.2574          - tf_exit         -               NONE     -                                            
+2026-04-19 18:00 UTC SAND/USDT    short      0.0786          - div_exit        -               NONE     -                                            
+2026-04-19 10:00 UTC TRX/USDT     long       0.3331          - not_operable    -               NONE     -                                            
+2026-04-18 23:00 UTC TAO/USDT     short    245.8200          - zone_exit       -               EXCL     excluido_reconcile_intervino                 
+2026-04-19 20:00 UTC SAND/USDT    long       0.0793          - tf_exit         -               NONE     -                                            
+2026-04-19 20:00 UTC OP/USDT      long       0.1230          - sl_trigger_reconstructed -               EXCL     excluido_reconstruido                        
+2026-04-18 05:00 UTC SEI/USDT     short      0.0578          - tf_exit         -               NONE     -                                            
+2026-04-20 01:00 UTC ONDO/USDT    long       0.2523          - zone_exit       -               NONE     -                                            
+2026-04-19 18:00 UTC INJ/USDT     short      3.2140          - tf_exit         -               NONE     -                                            
+2026-04-20 06:00 UTC INJ/USDT     short      3.2200          - div_exit        -               NONE     -                                            
+2026-04-20 05:00 UTC ONDO/USDT    short      0.2519          - div_exit        -               NONE     -                                            
+2026-04-18 13:00 UTC RENDER/USDT  short      1.8110          - zone_exit       -               NONE     -                                            
+2026-04-20 16:00 UTC UNI/USDT     short      3.2330          - zone_exit_mr    -               EXCL     excluido_mr_kernel_no_implementado           
+2026-04-20 14:00 UTC IMX/USDT     long       0.1638          - zone_exit       -               NONE     -                                            
+2026-04-20 18:00 UTC UNI/USDT     long       3.2600          - cancel_mr       -               EXCL     excluido_mr_kernel_no_implementado           
+2026-04-20 21:00 UTC SAND/USDT    long       0.0813          - div_exit        -               NONE     -                                            
+2026-04-20 18:00 UTC LINK/USDT    long       9.2880          - cancel_tf       -               NONE     -                                            
+2026-04-20 20:00 UTC ATOM/USDT    long       1.8010          - tf_exit         -               EXCL     excluido_reconcile_intervino                 
+2026-04-21 03:00 UTC STX/USDT     short      0.2223          - tf_exit         -               EXCL     excluido_mr_kernel_no_implementado           
+2026-04-20 01:00 UTC GRT/USDT     long       0.0245          - tf_exit         -               NONE     -                                            
+2026-04-20 08:00 UTC BNB/USDT     long     624.7600          - zone_exit       -               NONE     -                                            
+2026-04-21 03:00 UTC APT/USDT     short      0.9269          - div_exit        -               NONE     -                                            
+2026-04-19 23:00 UTC ALGO/USDT    short      0.1017          - div_exit        -               NONE     -                                            
+2026-04-21 02:00 UTC ENA/USDT     short      0.1119          - zone_exit       -               NONE     -                                            
+2026-04-21 06:00 UTC SAND/USDT    long       0.0796          - tf_exit         -               NONE     -                                            
+2026-04-21 06:00 UTC ONDO/USDT    long       0.2575          - div_exit        -               EXCL     excluido_reconcile_intervino                 
+2026-04-21 10:00 UTC ONDO/USDT    long       0.2596          - div_exit        -               NONE     -                                            
+
+==============================================================================
+SECCION 3: CASOS SIN MATCH -- ANALISIS DETALLADO
+==============================================================================
+[1] ONDO/USDT  side=long  entry=2026-04-19 13:00 UTC
+    entry_price_real   = 0.2574
+    entry_price_kernel = None
+    exit_reason_real   = tf_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_kernel
+
+[2] SAND/USDT  side=short  entry=2026-04-19 18:00 UTC
+    entry_price_real   = 0.07857
+    entry_price_kernel = None
+    exit_reason_real   = div_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_kernel
+
+[3] TRX/USDT   side=long  entry=2026-04-19 10:00 UTC
+    entry_price_real   = 0.3331
+    entry_price_kernel = None
+    exit_reason_real   = not_operable
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_kernel
+
+[4] SAND/USDT  side=long  entry=2026-04-19 20:00 UTC
+    entry_price_real   = 0.0793
+    entry_price_kernel = None
+    exit_reason_real   = tf_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_kernel
+
+[5] SEI/USDT   side=short  entry=2026-04-18 05:00 UTC
+    entry_price_real   = 0.0578
+    entry_price_kernel = None
+    exit_reason_real   = tf_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_kernel
+
+[6] ONDO/USDT  side=long  entry=2026-04-20 01:00 UTC
+    entry_price_real   = 0.2523
+    entry_price_kernel = None
+    exit_reason_real   = zone_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_kernel
+
+[7] INJ/USDT   side=short  entry=2026-04-19 18:00 UTC
+    entry_price_real   = 3.214
+    entry_price_kernel = None
+    exit_reason_real   = tf_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_kernel
+
+[8] INJ/USDT   side=short  entry=2026-04-20 06:00 UTC
+    entry_price_real   = 3.22
+    entry_price_kernel = None
+    exit_reason_real   = div_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_kernel
+
+[9] ONDO/USDT  side=short  entry=2026-04-20 05:00 UTC
+    entry_price_real   = 0.2519
+    entry_price_kernel = None
+    exit_reason_real   = div_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_kernel
+
+[10] RENDER/USDT side=short  entry=2026-04-18 13:00 UTC
+    entry_price_real   = 1.811
+    entry_price_kernel = None
+    exit_reason_real   = zone_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_kernel
+
+[11] IMX/USDT   side=long  entry=2026-04-20 14:00 UTC
+    entry_price_real   = 0.1638
+    entry_price_kernel = None
+    exit_reason_real   = zone_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_kernel
+
+[12] SAND/USDT  side=long  entry=2026-04-20 21:00 UTC
+    entry_price_real   = 0.08133
+    entry_price_kernel = None
+    exit_reason_real   = div_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_kernel
+
+[13] LINK/USDT  side=long  entry=2026-04-20 18:00 UTC
+    entry_price_real   = 9.288
+    entry_price_kernel = None
+    exit_reason_real   = cancel_tf
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_kernel
+
+[14] GRT/USDT   side=long  entry=2026-04-20 01:00 UTC
+    entry_price_real   = 0.02448
+    entry_price_kernel = None
+    exit_reason_real   = tf_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_kernel
+
+[15] BNB/USDT   side=long  entry=2026-04-20 08:00 UTC
+    entry_price_real   = 624.76
+    entry_price_kernel = None
+    exit_reason_real   = zone_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_kernel
+
+[16] APT/USDT   side=short  entry=2026-04-21 03:00 UTC
+    entry_price_real   = 0.9269
+    entry_price_kernel = None
+    exit_reason_real   = div_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_kernel
+
+[17] ALGO/USDT  side=short  entry=2026-04-19 23:00 UTC
+    entry_price_real   = 0.1017
+    entry_price_kernel = None
+    exit_reason_real   = div_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_kernel
+
+[18] ENA/USDT   side=short  entry=2026-04-21 02:00 UTC
+    entry_price_real   = 0.1119
+    entry_price_kernel = None
+    exit_reason_real   = zone_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_kernel
+
+[19] SAND/USDT  side=long  entry=2026-04-21 06:00 UTC
+    entry_price_real   = 0.07961
+    entry_price_kernel = None
+    exit_reason_real   = tf_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_kernel
+
+[20] ONDO/USDT  side=long  entry=2026-04-21 10:00 UTC
+    entry_price_real   = 0.2596
+    entry_price_kernel = None
+    exit_reason_real   = div_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_kernel
+
+
+==============================================================================
+SECCION 4: EXCLUSIONES -- DESGLOSE POR MOTIVO
+==============================================================================
+[excluido_reconstruido] -- Trade reconstruido post-hoc (orphan_close / flag reconstructed)  (1)
+    2026-04-19 20:00 UTC OP/USDT      long   reason_exit=sl_trigger_reconstructed flag=reconstructed
+
+[excluido_mr_kernel_no_implementado] -- Trade mean-reversion (kernel MR no implementado en auditor)  (3)
+    2026-04-20 16:00 UTC UNI/USDT     short  cluster=0
+    2026-04-20 18:00 UTC UNI/USDT     long   cluster=0
+    2026-04-21 03:00 UTC STX/USDT     short  cluster=2
+
+[excluido_dd_breaker] -- Ciclo con DD breaker activo (dd_multiplier < 1.0)  (0)
+
+[excluido_reconcile_intervino] -- Brain reconcile intervino en el ciclo de entrada  (3)
+    2026-04-18 23:00 UTC TAO/USDT     short  reconcile_cycle=2026-04-18 22:00:00+00:00
+    2026-04-20 20:00 UTC ATOM/USDT    long   reconcile_cycle=2026-04-20 19:00:00+00:00
+    2026-04-21 06:00 UTC ONDO/USDT    long   reconcile_cycle=2026-04-21 05:00:00+00:00
+
+[excluido_ruido_cross_exchange] -- Ruido cross-exchange BingX/Binance > 0.3%  (0)
+
+[excluido_clustering_divergente] -- Cluster live (SIGNALS_RAW.k) != cluster post-hoc (GMM stateless)  (0)
+
+
+==============================================================================
+SECCION 5: COMPARATIVA v3 / v4 / v5
+==============================================================================
+version        N    matches     rate     CI_low    CI_high
+v3            11          9    82.0%      52.0%      95.0%
+v4            11         10    91.0%      62.0%      98.0%
+v5            20          0     0.0%       0.0%      16.1%
+
+Comentario sobre convergencia/divergencia (S10 fix: CI overlap formal):
+  v5 DIVERGE A LA BAJA: CI v5 [0.0, 16.1]% no solapa con CI v4 [62, 98]%.
+
+CAVEAT IMPORTANTE: v3 y v4 tienen bugs de matching identificados en el
+ultra review del 17/04/2026 (entry/exit semantics, kernel copy, tolerancia
+laxa, rollover frágil). Sus match rate son REFERENCIALES, no ground truth.
+No extrapolar a la baja directamente si v5 da menos del 91% de v4.
+
+==============================================================================

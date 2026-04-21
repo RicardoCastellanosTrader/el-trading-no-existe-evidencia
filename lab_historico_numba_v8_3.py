@@ -993,7 +993,7 @@ def calc_zone_with_hysteresis(ma_fast_arr, ma_slow_arr, atr_arr, hyst_mult):
 # ============================================
 def precalculate_all_data(df_1h, preset=None, hyst_mult=0.0, symbol=None):
     n = len(df_1h)
-    print(f"   ⚙️ Pre-calculando indicadores para {n} velas...")
+    print(f"   [CALC] Pre-calculando indicadores para {n} velas...")
     
     fast_type, fast_len, fast_p1, fast_p2 = preset[0], preset[1], preset[2], preset[3]
     slow_type, slow_len, slow_p1, slow_p2 = preset[4], preset[5], preset[6], preset[7]

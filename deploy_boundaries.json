@@ -1,0 +1,19 @@
+{
+  "_comment": "Deploy boundaries conocidos al 2026-04-22. Timestamps UTC extraídos de §2.4 del CONTEXTO_PROYECTO_TRADING.md + verificaciones SSH al VPS. Usado por audit_fidelity_v5_2.py --deploy-boundaries.",
+  "_source_notes": {
+    "v2.3.2": "2026-04-16 ~17:00 UTC — primer deploy post-v2.3.1 (§13.4 primer audit empírico)",
+    "v2.3.3": "2026-04-17 08:55 UTC — aprox, CSV entry_timestamp_ms (§13.4 v2.3.3)",
+    "v2.3.11": "2026-04-19 17:51 UTC — Fidelidad 2 restaurada (§13.4 v2.3.11 deploy)",
+    "v2.4.0": "2026-04-20 14:08 UTC — fidelity2-ts TS no-op (§13.4 v2.4.0 deploy)",
+    "v2.4.1": "2026-04-20 19:07 UTC — emergency stop path fix (§13.4 v2.4.1 Smoke-B)",
+    "v2.4.2_v2.4.3": "2026-04-21 10:15 UTC — silent reconcile + pre-check (§13.4 Smoke-B cycle 182)",
+    "v2.4.3-hotfix": "2026-04-21 11:09 UTC — ccxt format resolution (§13.4 hotfix)"
+  },
+  "v2.3.2": "2026-04-16T17:00:00Z",
+  "v2.3.3": "2026-04-17T08:55:00Z",
+  "v2.3.11": "2026-04-19T17:51:00Z",
+  "v2.4.0": "2026-04-20T14:08:00Z",
+  "v2.4.1": "2026-04-20T19:07:56Z",
+  "v2.4.2_v2.4.3": "2026-04-21T10:15:25Z",
+  "v2.4.3-hotfix": "2026-04-21T11:09:56Z"
+}
