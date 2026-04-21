@@ -107,6 +107,13 @@ N_DOWNLOAD = 2000
 ENTRY_CANDLE_TOLERANCE = 1
 EXIT_CANDLE_TOLERANCE = 1
 
+# A34: timing_borderline. Delta EXTRA sobre ENTRY_CANDLE_TOLERANCE para
+# reclasificar pares VPS/kernel que no matchean exactamente pero caen en
+# ventana extendida. `0` desactiva la feature (comportamiento v5.1 original).
+# `1` por default: matches en entry_diff=2h (fuera de entry_tol=1) se
+# reclasifican como timing_borderline.
+DEFAULT_TIMING_TOLERANCE = 1
+
 # C2: Kernel parity checksum (opcion C del triaje).
 # Lab solo tiene Numba run_simulation_numba (sin python puro); el audit
 # reimplementa la semantica en python estatico. Para detectar drift:
@@ -1581,14 +1588,94 @@ def match_vps_to_kernel(vps_trades, kernel_trades, regime_change_events,
     return matches, no_match_vps, no_match_kernel
 
 
-def hypothesis_for_no_match(entry, kind, bingx_cache, binance_cache):
+def detect_timing_borderline_pairs(no_match_vps, no_match_kernel,
+                                   entry_tol=ENTRY_CANDLE_TOLERANCE,
+                                   timing_tolerance=DEFAULT_TIMING_TOLERANCE):
+    """A34: segunda pasada sobre trades no matcheados para detectar pares
+    VPS<->kernel con entry_diff en ventana extendida.
+
+    Un par es 'timing_borderline' si: mismo symbol + mismo side +
+    entry_tol < entry_diff_h <= entry_tol + timing_tolerance.
+
+    Cada kernel trade no matcheado se puede asignar como borderline a UN
+    solo VPS (greedy por closest entry_diff). Previene double-counting.
+
+    Args:
+      no_match_vps: lista dicts con 'idx', 'symbol', 'side', 'entry_candle'.
+      no_match_kernel: lista dicts/objects con 'symbol', 'side', 'entry_ts'.
+      entry_tol: tolerancia entry actual (default 1h).
+      timing_tolerance: delta EXTRA sobre entry_tol (default 1h). `0` =
+        feature desactivada (retorna sets vacios).
+
+    Returns:
+      vps_borderline: set de idx de no_match_vps reclasificados.
+      kernel_borderline: set de indices de no_match_kernel reclasificados.
+      pair_details: dict {vps_idx: (kernel_idx, delta_bars)} para reporte.
+    """
+    if timing_tolerance <= 0:
+        return set(), set(), {}
+
+    # Precomputar entry_candle de kernel trades (una sola vez)
+    k_candles = []
+    for kt in no_match_kernel:
+        kt_entry_ts = pd.Timestamp(kt.get('entry_ts'))
+        if kt_entry_ts.tzinfo is None:
+            kt_entry_ts = kt_entry_ts.tz_localize('UTC')
+        k_candles.append(kt_entry_ts.floor('h'))
+
+    vps_borderline = set()
+    kernel_borderline = set()
+    pair_details = {}
+    consumed_kernel = set()
+
+    for nm in no_match_vps:
+        vps_idx = nm.get('idx')
+        vps_sym = nm.get('symbol')
+        vps_side = nm.get('side')
+        vps_entry = nm.get('entry_candle')
+        if vps_entry is None or vps_sym is None or vps_side is None:
+            continue
+
+        best_ki = None
+        best_diff = float('inf')
+        for ki, kt in enumerate(no_match_kernel):
+            if ki in consumed_kernel:
+                continue
+            if kt.get('symbol') != vps_sym or kt.get('side') != vps_side:
+                continue
+            diff_h = abs((k_candles[ki] - vps_entry).total_seconds()) / 3600.0
+            # Borderline window: fuera de entry_tol, dentro de entry_tol + timing_tolerance
+            if entry_tol < diff_h <= entry_tol + timing_tolerance and diff_h < best_diff:
+                best_diff = diff_h
+                best_ki = ki
+
+        if best_ki is not None:
+            vps_borderline.add(vps_idx)
+            kernel_borderline.add(best_ki)
+            consumed_kernel.add(best_ki)
+            pair_details[vps_idx] = (best_ki, int(round(best_diff)))
+
+    return vps_borderline, kernel_borderline, pair_details
+
+
+def hypothesis_for_no_match(entry, kind, bingx_cache, binance_cache,
+                            is_timing_borderline=False):
     """kind in {'vps_no_kernel', 'kernel_no_vps', 'diff_reason'}.
-    Devuelve codigo de hipotesis (string)."""
+    Devuelve codigo de hipotesis (string).
+
+    A34: si is_timing_borderline=True, retorna 'timing_borderline' con
+    prioridad sobre no_match_kernel / no_match_bot (precedencia despues de
+    diff_reason y micro_precio, consistente con el spec). Si
+    cross_exchange_diff activa 'micro_precio', eso gana (ruido real).
+    """
     sym = entry.get('symbol') or entry.get('vps_sym')
     if kind == 'diff_reason':
         return "razon_salida_distinta"
 
     if kind == 'kernel_no_vps':
+        # A34: borderline aplica tambien para kernel sin VPS (par simetrico)
+        if is_timing_borderline:
+            return "timing_borderline"
         return "no_match_bot"
 
     # kind == 'vps_no_kernel'
@@ -1598,6 +1685,9 @@ def hypothesis_for_no_match(entry, kind, bingx_cache, binance_cache):
     diff = cross_exchange_diff_pct(df_bx, df_bn, exit_ts)
     if diff is not None and diff > CROSS_EXCHANGE_HYPOTHESIS_PCT:
         return "micro_precio_BingX_vs_Binance"
+    # A34: si no hay ruido cross-exchange pero hay borderline match → reclasificar
+    if is_timing_borderline:
+        return "timing_borderline"
     return "no_match_kernel"
 
 
@@ -2077,6 +2167,16 @@ def run_audit(args):
         vps_window, all_kernel_trades, regime_change_events
     )
 
+    # A34: post-match pasada para detectar timing_borderline pairs.
+    # timing_tolerance=0 desactiva feature (comportamiento v5.1 original).
+    timing_tol = int(getattr(args, 'timing_tolerance', DEFAULT_TIMING_TOLERANCE))
+    borderline_vps_idx, borderline_kernel_idx, borderline_pairs = \
+        detect_timing_borderline_pairs(
+            no_match_vps, no_match_kernel,
+            entry_tol=ENTRY_CANDLE_TOLERANCE,
+            timing_tolerance=timing_tol,
+        )
+
     n_matches = len(matches)
     n_same = sum(1 for m in matches if m.get('reason_match') == 'SAME')
     n_diff = sum(1 for m in matches if m.get('reason_match') == 'DIFF')
@@ -2125,7 +2225,10 @@ def run_audit(args):
     no_match_detail = []
     for nm in no_match_vps:
         probe = nm.get('entry_candle') or nm.get('exit_cycle')
-        hyp = hypothesis_for_no_match(nm, 'vps_no_kernel', bingx_cache, binance_cache)
+        # A34: flag si este VPS fue reclasificado como timing_borderline
+        is_tb = nm.get('idx') in borderline_vps_idx
+        hyp = hypothesis_for_no_match(nm, 'vps_no_kernel', bingx_cache, binance_cache,
+                                      is_timing_borderline=is_tb)
         diff = cross_exchange_diff_pct(bingx_cache.get(nm['symbol']),
                                         binance_cache.get(nm['symbol']),
                                         probe)
@@ -2139,13 +2242,16 @@ def run_audit(args):
             'cross_diff_pct': (f"{diff:.3f}%" if diff is not None else "N/A"),
             'hypothesis': hyp,
         })
-    for kt in no_match_kernel:
+    for ki, kt in enumerate(no_match_kernel):
         kt_entry = pd.Timestamp(kt['entry_ts'])
         if kt_entry.tzinfo is None:
             kt_entry = kt_entry.tz_localize('UTC')
+        # A34: flag si este kernel fue par de algun borderline VPS
+        is_tb = ki in borderline_kernel_idx
         hyp = hypothesis_for_no_match(
             {'symbol': kt['symbol'], 'exit_ts': kt['exit_ts']},
-            'kernel_no_vps', bingx_cache, binance_cache
+            'kernel_no_vps', bingx_cache, binance_cache,
+            is_timing_borderline=is_tb,
         )
         no_match_detail.append({
             'symbol': kt['symbol'], 'side': kt['side'],
@@ -2252,6 +2358,13 @@ def main():
                         help=f"N minimo para veredicto robusto (default {MIN_N_FOR_ROBUST_VERDICT})")
     parser.add_argument('--combolab-dir', type=str, default=None,
                         help="Path a combolab (default: $COMBOLAB_DIR o ../combolab)")
+    # A34: timing_borderline (hipotesis nueva, post-match reclassificacion)
+    parser.add_argument('--timing-tolerance', type=int, default=DEFAULT_TIMING_TOLERANCE,
+                        help=f"A34: delta EXTRA en horas sobre ENTRY_CANDLE_TOLERANCE "
+                             f"(default {DEFAULT_TIMING_TOLERANCE}). Trades VPS/kernel "
+                             f"con entry_diff en (entry_tol, entry_tol+timing_tolerance] "
+                             f"se reclasifican como 'timing_borderline' en vez de "
+                             f"'no_match_kernel'/'no_match_bot'. `0` desactiva feature.")
     args = parser.parse_args()
     run_audit(args)
 
