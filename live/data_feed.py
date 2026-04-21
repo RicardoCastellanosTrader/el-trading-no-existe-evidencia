@@ -330,10 +330,24 @@ async def get_open_positions(
             continue
         master_sym = from_bingx_symbol(pos["symbol"])
         side = pos.get("side", "").lower()
+        entry_px = float(pos.get("entryPrice", 0) or 0)
+        # BingX via ccxt a veces provee "notional" directo (valor USDT de
+        # la posicion). Si esta, usarlo. Si no, fallback a size*entry_price.
+        # Edge case entry_price=0 (posicion huerfana rara) -> size_usdt=0
+        # con WARNING. Fix del bug historico trade_history.csv size_usdt=0
+        # (134/135 trades pre-fix).
+        notional = float(pos.get("notional", 0) or 0)
+        size_usdt = notional if notional > 0 else (size * entry_px)
+        if size_usdt == 0 and size > 0:
+            logger.warning(
+                f"[get_open_positions] {master_sym} size_usdt=0 "
+                f"with size={size}, entry_price={entry_px}"
+            )
         result[master_sym] = {
             "side": side,
             "size": size,
-            "entry_price": float(pos.get("entryPrice", 0) or 0),
+            "entry_price": entry_px,
+            "size_usdt": size_usdt,
             "unrealized_pnl": float(pos.get("unrealizedPnl", 0) or 0),
             "leverage": int(pos.get("leverage", 1) or 1),
             "stop_order_id": None,  # se enlaza desde execution_manager
