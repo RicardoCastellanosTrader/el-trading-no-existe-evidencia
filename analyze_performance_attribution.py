@@ -74,6 +74,12 @@ import pandas as pd
 import joblib
 from datetime import datetime, timezone
 
+# A36: log rotation tolerance — spec acepta archivo, glob, CSV.
+_SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+if _SCRIPT_DIR not in sys.path:
+    sys.path.insert(0, _SCRIPT_DIR)
+from log_file_resolver import resolve_engine_log_paths, read_log_files
+
 # COMBOLAB_DIR resolution (CLI > env > default relative to __file__)
 # La resolucion final ocurre en run() segun args.combolab_dir
 _DEFAULT_COMBOLAB = os.path.join(
@@ -265,6 +271,10 @@ def parse_engine_log(log_path, log_start_date):
     ancla de fecha. Si el log tiene gaps (bot caido varias horas), la siguiente
     [ENGINE_STATE] re-sincroniza la fecha. Fallback: rollover 23->00 entre
     anclas.
+
+    A36: log_path acepta archivo unico, glob pattern o CSV (ver
+    log_file_resolver.resolve_engine_log_paths). Archivos se procesan en orden
+    cronologico ascendente (mas antiguo primero). Soporte transparente .gz.
     """
     result = {
         'engine_states': {},
@@ -280,14 +290,21 @@ def parse_engine_log(log_path, log_start_date):
         'log_date_gap_warnings': 0,
     }
 
-    if not log_path or not os.path.exists(log_path):
+    if not log_path:
+        return result
+    try:
+        paths = resolve_engine_log_paths(log_path)
+    except (FileNotFoundError, ValueError):
         return result
 
     current_date = log_start_date
     last_hour = None
 
-    with open(log_path, 'r', encoding='utf-8', errors='replace') as f:
-        for line in f:
+    # A36: bloque antes envuelto en `with open(log_path) as f`. Sustituido por
+    # read_log_files sobre paths resueltos. Indentacion preservada via sentinela
+    # para minimizar diff y facilitar auditoria literal antes/despues.
+    if True:  # A36 sentinela: preserva nivel de indentacion del `with` original
+        for line in read_log_files(paths):
             m = LOG_TS_RE.match(line)
             if not m:
                 continue
@@ -2008,7 +2025,11 @@ def run(args):
 def main():
     p = argparse.ArgumentParser(description="Performance attribution analyzer (offline)")
     p.add_argument('--trades', default=None, help="path a trade_history.csv")
-    p.add_argument('--logs', default=None, help="path a engine.log")
+    p.add_argument('--logs', default=None,
+                   help="path a engine.log. A36: acepta archivo unico, glob "
+                        "pattern (ej. 'logs/engine.log*') o CSV "
+                        "('logs/engine.log.1,logs/engine.log'). Rotados .gz "
+                        "transparentes. Orden cronologico ASC automatico.")
     p.add_argument('--json-dir', default=None, help="directorio con specialist_configs JSONs")
     p.add_argument('--combolab-dir', default=None,
                    help="path a combolab (default: $COMBOLAB_DIR o ../combolab)")
