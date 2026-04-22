@@ -1,6 +1,6 @@
 # Sistema de Trading Algorítmico — Contexto Completo del Proyecto
 
-**Última actualización:** 23 Abril 2026 (W3+W4 MERGED main 56d38d4, A12 LL1 MA dedup MERGED main ae5a21a, A14+A15 plateau/engine_tag MERGED main cf9d7b6 — todos pre-reciclaje, NO deploy; Bloque 1 roadmap COMPLETADO previamente: A36 log rotation + A35 tz-naive + A38 edge guard + A34 timing_borderline; §0.7 convención sync; §12 L27+L28)  
+**Última actualización:** 23 Abril 2026 (W3+W4 MERGED main 56d38d4, A12 LL1 MA dedup MERGED main ae5a21a, A14+A15 plateau/engine_tag MERGED main cf9d7b6, A13 LL2 ratio supervivencia RESUELTO documental — todos pre-reciclaje, NO deploy; Bloque 1 roadmap COMPLETADO previamente: A36 log rotation + A35 tz-naive + A38 edge guard + A34 timing_borderline; §0.7 convención sync; §12 L27+L28)  
 **Versión actual:** v2.4.4 (sin bump — sesión 100% herramientas offline, sin deploy operacional)  
 **Autor del sistema:** Ricardo  
 **Plataforma:** Binance (datos) + BingX (ejecución), velas 1h  
@@ -1533,11 +1533,41 @@ Disparo: N/A (item cerrado).
 Cierre: RESUELTO 2026-04-23, commit siguiente a 56d38d4 en rama feature-a12-ma-dedup → merge main pendiente.
 Referencias: lab_lite_zonas_v5e.py L112-130 (imports consolidados post-refactor), tests/test_a12_ma_parity.py, §13.4 entrada A12 IMPLEMENTADO 2026-04-23.
 
-**[MEJORA] [EN_ESPERA] lab_lite LL2: kernel simplificado tiene selection bias — 2026-04-17**
-Contexto: Ultra review lab_lite LL2. `run_simulation_v5e` solo simula zonas MA sin TF filters, divergencias, cancel_tf, SL/TS. Presets seleccionados son los que funcionan con zonas puras. Walk-forward luego añade filtros. Presets que no dan zonas limpias pero funcionarían con filtros nunca se exploran. Trade-off computacional documentado.
-Disparo: pre-reciclaje — cuantificar % presets que pasan walk-forward tras lab_lite. Si <20%, reducción demasiado agresiva.
-Cierre: métricas recopiladas en reciclaje + decisión sobre si ajustar thresholds de selección en lab_lite.
-Referencias: lab_lite_zonas_v5e.py run_simulation_v5e líneas 775-899.
+**[MEJORA] [RESUELTO] lab_lite LL2 (A13): ratio supervivencia presets saludable — 2026-04-23**
+Contexto: Ultra review lab_lite LL2 (2026-04-17). `run_simulation_v5e` simula SOLO zonas MA puras fast/slow (+trend post-hoc derivado como slow×4, no simulado en kernel). Sin TF filters, sin divergencias, sin cancelaciones (cancel_tf/zona/ghost/div), sin SL, sin TS. Presets seleccionados son "robustos a zonas puras". Walk-forward después añade los filtros completos sobre cada preset × 4M configs. El caveat §13.3 original era que presets cuyo edge depende de filtros añadidos podrían nunca pasar el pre-filtro lite.
+
+**Criterio empírico §13.3 literal**: "Si <20% presets pasan walk-forward → reducción demasiado agresiva".
+
+**Análisis empírico 2026-04-23** sobre 45 símbolos productivos (`output/production/presets_SYMBOL.csv` vs `regime_wf/SYMBOL_specialist_configs.json`):
+
+Métrica: ratio de presets únicos (signature `fast_type(period)/slow_type(period)`) de lab_lite CSV que aparecen en `top_configs` del JSON walk-forward (deduplicado por signature, excluyendo hyst tag _H00/_H05).
+
+| Métrica | Inputs lab_lite | Survived WF | Ratio% |
+|---|---|---|---|
+| Mean | 30.5 | 11.2 | **36.7%** |
+| Median | 31 | 11 | **34.4%** |
+| Min | 28 | 5 | 16.7% (MANA) |
+| Max | 32 | 20 | 63.3% (FET) |
+
+**Distribución según criterio §13.3 LL2**:
+- <20% (agresivo): **2/45 = 4.4%** (APTUSDT 17.2%, MANAUSDT 16.7%).
+- 20-70% (saludable): **43/45 = 95.6%**.
+- >70% (sobredimensionado): 0/45.
+
+**Veredicto**: **Caso saludable**. Ratio mean 36.7% cómodamente por encima del threshold 20%. Ningún símbolo en rango sobredimensionado. Sin fix al pipeline.
+
+**Cross-check cualitativo con W3 flagged (6 top-1 productivos 2026-04-23)**:
+- MANA C0 (cfg 5339578) flagged W3 + ratio MANA 16.7% (lowest). Correlación observable.
+- APT C1 (cfg 31447907) reemplazado bajo W4 simulado + ratio APT 17.2% (2nd lowest). Correlación observable.
+- Otros 4 flagged W3 (ONDO 45.2%, LTC 36.7%, GRT 28.6%, TRX 37.5%, BTC 41.9%) en rango saludable — flagged por ci_width/ci_low W3, no por supervivencia.
+
+**Hipótesis residual**: supervivencia baja lab_lite → walk-forward puede correlacionar con mayor probabilidad de specialists flagged W3 (casos MANA, APT). Potencial item monitoreo post-reciclaje; no acción inmediata.
+
+**Caveat diseño consciente**: el bias estructural del kernel lite (ausencia de SL/TS/divergencias/cancelaciones/filtros HTF) es INTENCIONAL y documentado — pre-filtro rápido sobre zonas puras. El 36.7% mean demuestra que este diseño NO sesga excesivamente la selección de specialists; walk-forward refina sobre un pool adecuado de presets candidatos.
+
+Disparo: N/A (item cerrado).
+Cierre: RESUELTO documental 2026-04-23. Ratio saludable empíricamente. No requiere ampliar TOP_N_PRESETS ni modificar kernel lite. Sin fix de código. Los 2 outliers (APT, MANA) quedan como símbolos a monitorear en audits futuros.
+Referencias: lab_lite_zonas_v5e.py `run_simulation_v5e` L558-684 (kernel), L144-165 (`build_catalog` trend=NONE), presets CSVs en output/production/, JSONs regime_wf/, §13.4 entrada A13 IMPLEMENTADO 2026-04-23.
 
 **[MEJORA] [RESUELTO] regime_walk_forward W1 (A14): plateau_ratio consistency con _get_neighbors — 2026-04-23**
 Contexto: Ultra review W1 (2026-04-17). plateau_ratio usaba bit-flip brutal en los 26 bits del config_id, mientras `_get_neighbors` (canonical, usado en `_compute_sqn_haircut`) respeta semántica bitmask vs discrete de `_PARAM_FIELDS`. Misma función semántica con dos implementaciones inconsistentes en el mismo módulo. Fix aplicado 2026-04-23 en rama `feature-a14-a15-wf-polish` (commit 5a7135b, merge cf9d7b6):
@@ -1856,6 +1886,57 @@ Referencias: §13.3 items funding runtime + observabilidad 2026-04-23; §9.3 v2.
 ---
 
 ### 13.4 RESUELTO
+
+**[MEJORA] [RESUELTO] A13 (LL2) lab_lite ratio supervivencia presets → walk-forward — 2026-04-23**
+
+Contexto: §13.3 LL2 original (2026-04-17) advertía que kernel simplificado de lab_lite (solo zonas MA puras sin SL/TS/divergencias/cancelaciones/filtros HTF) podría tener selection bias. Criterio empírico documentado: "cuantificar % presets que pasan walk-forward tras lab_lite. Si <20%, reducción demasiado agresiva".
+
+**Análisis empírico 2026-04-23** sobre 45 símbolos productivos completos (output/production/presets_*.csv vs regime_wf/*_specialist_configs.json):
+
+Metodología:
+- Extraer presets únicos de `presets_SYMBOL.csv` por signature `fast_type(period)/slow_type(period)` (excluyendo hyst tag _H00/_H05 y trend derivado slow×4).
+- Extraer presets únicos de `top_configs` del JSON (union de clusters C0/C1/C2).
+- Calcular intersection / inputs = ratio supervivencia per símbolo.
+
+Resultados:
+
+| Métrica cross-símbolo | Inputs lab_lite | Survived WF | Ratio% |
+|---|---|---|---|
+| Mean | 30.5 | 11.2 | **36.7%** |
+| Median | 31 | 11 | **34.4%** |
+| Min | 28 | 5 | 16.7% (MANA) |
+| Max | 32 | 20 | 63.3% (FET) |
+
+Distribución según §13.3 LL2:
+- **<20% (agresivo)**: 2/45 = 4.4% (APTUSDT 17.2%, MANAUSDT 16.7%).
+- **20-70% (saludable)**: 43/45 = 95.6%.
+- **>70% (sobredimensionado)**: 0/45.
+
+**Veredicto**: **Caso saludable**. Ratio mean 36.7% cómodamente por encima del threshold 20%. El pipeline lab_lite + walk-forward está apropiadamente calibrado. Sin fix al código requerido.
+
+Cross-check cualitativo con W3 flagged (6 top-1 productivos flagged por bootstrap ci_low<1.0 o ci_width>5.0):
+- **MANA C0** (cfg 5339578) flagged W3 + ratio MANA 16.7% (lowest del roster). Correlación observable.
+- **APT C1** (cfg 31447907) reemplazado bajo W4 simulado + ratio APT 17.2% (2nd lowest). Correlación observable.
+- Otros 4 flagged (ONDO 45.2%, LTC 36.7%, GRT 28.6%, TRX 37.5%, BTC 41.9%) en rango saludable — flagged por CI W3, no por supervivencia.
+
+Hipótesis residual (observable, no causal): supervivencia baja lab_lite↔walk-forward puede correlacionar con mayor probabilidad de specialists flagged W3. Casos MANA + APT consistentes con hipótesis. Item monitoreo post-reciclaje, no acción inmediata.
+
+**Matización importante del diseño**: el bias estructural del kernel lite (ausencia de SL/TS/divergencias/cancelaciones) es diseño INTENCIONAL y documentado — pre-filtro rápido sobre zonas puras. El 36.7% mean demuestra empíricamente que este pre-filtro **NO sesga excesivamente** la selección downstream: walk-forward refina sobre un pool adecuado de presets candidatos.
+
+Reporte análisis previo (desestimado): la caracterización estructural del kernel lite vs completo (Fase 1 A13 primera iteración) diagnosticó el problema incorrecto — comparó equivalencia funcional de kernels cuando el criterio correcto §13.3 era ratio supervivencia de presets a lo largo del pipeline. La caracterización estructural es válida como observación arquitectónica pero no determina el veredicto. El veredicto correcto es empírico y saludable.
+
+Deploy VPS NO requerido (sin fix). Bot v2.4.5 operacional. Fidelidad 2 invariante.
+
+Items §13.3 actualizados:
+- LL2 → RESUELTO.
+- W3 (commit ee4ce69), W4 (ee4ce69), A12 LL1 (347639a), A14 W1 + A15 W2 (5a7135b): todos RESUELTO.
+- Backlog pre-reciclaje §13.3 TF reducido significativamente con estas 6 resoluciones consecutivas.
+
+Referencias: output/production/presets_*.csv (45 files), regime_wf/*_specialist_configs.json (45 files), §13.3 LL2 movido a RESUELTO.
+
+Cierre: permanente. Próximo monitoreo natural al primer audit post-reciclaje para verificar que APT+MANA no emergen como problema específico.
+
+---
 
 **[MEJORA] [RESUELTO] A14+A15 regime_walk_forward polish — 2026-04-23**
 
