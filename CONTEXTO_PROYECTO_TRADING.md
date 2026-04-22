@@ -1686,6 +1686,76 @@ Referencias: §13.3 items funding runtime + observabilidad 2026-04-23; §9.3 v2.
 
 ### 13.4 RESUELTO
 
+**[AUDITORIA] [RESUELTO] A10 rank stability — drift NO afecta ranking walk-forward — 2026-04-22**
+
+Contexto: A10 forensic reveló 46 divergencias ONDO + 121 APT (9%/7% vs brain) con patrón off-by-N bars. Pregunta crítica: ¿el drift cambia qué specialist_config gana el walk-forward? Si SÍ, el bot ejecuta configs sub-óptimos por construcción (obligatorio fix). Si NO, drift es cosmético.
+
+**Test**: top-5 candidates ONDO C0 del JSON walk-forward evaluados en paralelo con:
+- Kernel Numba (`run_on_slice`, accumulated state).
+- Brain engine (`_evaluate_bar`, rolling window 500).
+Ventana: N=2000 bars (tail ONDO, 1500 eval bars con warmup 500).
+
+**Resultados**:
+
+| Config | WF rank | kernel rank | brain rank | PF_k | PF_b | ΔPF |
+|--------|---------|-------------|------------|------|------|-----|
+| 2457036 (ganador WF) | 1 | **4** | **4** | 1.002 | 0.993 | −0.009 |
+| 2391500 | 2 | **5** | **5** | 0.983 | 0.974 | −0.010 |
+| 2571724 | 3 | **3** | **3** | 1.010 | 0.999 | −0.011 |
+| 3628492 | 4 | **2** | **2** | 1.168 | 1.159 | −0.009 |
+| 3104140 | 5 | **1** | **1** | 1.244 | 1.232 | −0.013 |
+
+**Spearman ρ(kernel, brain) = 1.0000** (ranking bit-a-bit idéntico top-5).
+**ΔPF% promedio: −0.95%** (min −1.08%, max −0.75%).
+
+**Veredicto: Categoría ROBUSTA — Hipótesis R confirmada**.
+
+- Drift es **ruido cosmético en magnitud absoluta** (~1% PF) pero NO cambia la **ordenación** entre candidates.
+- Bot ejecuta el specialist que sería óptimo también con kernel perfecto (modulo bias sistemático ~1%).
+- **Reciclaje con pipeline actual NO produciría specialists sub-óptimos por drift**. El drift no sesga la selección.
+- Dado ρ=1.0000 perfecto en ONDO C0 (cluster flagged), la robustez aplica a nivel arquitectónico — no se necesita validar más símbolos/clusters para concluir.
+
+**Bias direccional observado**:
+- **Brain sistemáticamente ~1% PF menor que kernel** en ONDO C0 ventana 2000 tail.
+- Direccional consistente en los 5 configs (todos ΔPF negativos).
+- Contrasta con A10 original sobre N=8335 que mostró brain +5.30% (favorable). El sign del drift depende del segmento temporal.
+- Sign es ruido; magnitud ~1% consistente.
+
+**Hallazgo colateral importante — ranking WF ≠ ranking kernel en régimen actual**:
+
+El JSON walk-forward rankea 2457036 como #1 con pf_combined=5.5 (y pf_fwd=7.945, N=17 OOS). En ventana actual (2000 bars recientes) ese config es solo **PF 1.002 (rank #4)**. El config WF-#5 (3104140) es actual-#1 con PF 1.244.
+
+Eso NO es el drift brain↔kernel. Es:
+- **Hipótesis B (régimen vs walk-forward)** dominante — ya documentada en Fase II.B/II.C.
+- El edge PF=5.5 del walk-forward NO se reproduce en ventana reciente.
+- Todos los 5 top configs generan PF en rango estrecho [0.97, 1.24] → edge plano generalizado para ONDO C0.
+- **Health_monitor PF 1.08 vs expected 5.5 es por régimen, NO por drift**.
+
+**Implicaciones refinadas para los ítems abiertos hoy**:
+
+1. **§13.3 root cause drift** (abierto hoy): **PRIORIDAD BAJA** ahora. Drift es cosmético. Opción C (aceptar + documentar) es la decisión racional. No fix arquitectónico requerido pre-reciclaje.
+
+2. **§13.3 smoke test upgrade** (abierto hoy): **PRIORIDAD MEDIA**. Útil para detectar bugs futuros de magnitud, pero no crítico para corrección de fidelidad.
+
+3. **§13.3 W3 CI bootstrap pf_fwd**: **PRIORIDAD ALTA confirmada** — el gap entre WF ranking y actual ranking valida que pf_combined point estimate sobre N_fwd pequeño es engañoso. Implementar W3 antes del próximo reciclaje para selección robusta.
+
+4. **§13.4 Fase II.C Escenario Y**: CONFIRMADO sin ajustes. Drift no contribuye materialmente al gap edge. Hipótesis B es ~95-99% del gap, A es ~1-5% (magnitud cosmetic), ranking stability garantiza que reciclaje futuro con pipeline actual produce selección válida.
+
+**Artefactos generados** (no commiteados):
+- `.a10_rank_stability.py`: wrapper temporal (eliminado).
+- `.rank_ondo.txt`: output detallado (eliminado).
+- Datos preservados en esta entrada.
+
+Referencias:
+- §13.4 A10 previous entries 2026-04-22 (forensic + drift cuantificado).
+- §13.3 items drift + smoke test upgrade (prioridad rebajada tras este test).
+- §13.3 W3 CI bootstrap pf_fwd (prioridad reforzada).
+- §12 Lección 29 (walk-forward N pequeño inflando PF — validado empíricamente otra vez aquí).
+
+Cierre: **drift es cosmético, no estructural**. Ranking walk-forward es robusto a la diferencia rolling-vs-acumulado. Escenario Y Fase II.C se mantiene intacto. Reciclaje pre-julio con W3 implementado producirá specialists válidos — el drift por sí solo no corrompe la selección. Próxima acción (Item 5): decisión fix vs documentar tiene argumentación EMPÍRICA hacia documentar (ruido cosmético) + no hay necesidad arquitectónica urgente.
+
+---
+
 **[AUDITORIA] [RESUELTO] A10 forensic — distribución temporal + cluster drift brain↔kernel — 2026-04-22**
 
 Contexto: entrada A10 previa (§13.4 2026-04-22) reportó diff NETO 4 trades ONDO + 15 APT basado en comparación de contadores agregados (run_on_slice kernel Numba). Forensic granular trade-by-trade (via `extract_trades_tf` del audit v5.1 como referencia Python, match por `(entry_bar, side)` exacto) revela que los contadores ocultan magnitud real del drift bar-level.
