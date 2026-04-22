@@ -743,6 +743,22 @@ c:\Users\rixip\combolab\
 27. **Items §13.3 EN_ESPERA pueden estar obsoletos por reviews previos no documentados en §13.4 — 2026-04-23**. Dos casos detectados en 2 días consecutivos: (a) 2026-04-22 A40 parser rollover — fix ya aplicado en ultra review C5 (2026-04-17) pero item seguía en §13.3 EN_ESPERA; (b) 2026-04-23 A34 timing_borderline — `ENTRY_CANDLE_TOLERANCE=1` ya aplicado en ultra review C8 (2026-04-17) pero item seguía en §13.3 EN_ESPERA describiendo fix para problema ya resuelto. **Causa raíz**: ultra reviews agrupan varios fixes bajo etiquetas Cn (C1..Cn). Al aplicarse, §13.3 no se limpia sistemáticamente de items que ya resolvieron. Gap documental entre "fix aplicado" y "item backlog actualizado". **Consecuencia**: sesiones futuras que consultan §13.3 leen items obsoletos como tareas pendientes. Si se implementan literalmente: duplicación de funcionalidad o refactor innecesario. **Mitigación protocolaria**: al arrancar cualquier item de §13.3, Fase 0 obligatoria = verificar si el fix ya existe en código actual. Patrón diagnóstico: (1) grep del componente afectado; (2) citar literal función/constante en código actual; (3) comparar contra descripción del item; (4a) si ya implementado → reclasificar a §13.4 RESUELTO con referencia al review que lo resolvió; (4b) si parcialmente implementado → reinterpretar scope (como A34 adoptó "extender más allá del tol actual" en vez de "añadir tol=1"); (4c) si NO implementado → proceder. **Caso positivo**: A34 reinterpretación terminó siendo conceptualmente mejor que scope original (captura genuinamente caso útil ±2 beyond tol=1). La obsolescencia del item reveló oportunidad de mejora, no duplicación. **Aplicabilidad**: cualquier sistema con backlog documental + reviews que agrupan cambios. Cuando ritmo de review > ritmo de limpieza backlog, el backlog queda desfasado sistemáticamente. Ver §13.4 entrada A34 2026-04-23 para caso de estudio.
 28. **Sincronización implícita incorrecta entre directorios paralelos — 2026-04-23**. Durante sesión 2026-04-22 y 2026-04-23 se detectaron 3+ instancias del mismo patrón: archivos creados/modificados en combolab no se propagaron automáticamente a comboclaude. Claude Code, al detectar asimetría posteriormente, "justificó" la ausencia como intencional en vez de verificar contra convención. **Caso concreto**: al cierre 2026-04-22 se commitaron `audit_fidelity_v5_2.py`, `deploy_boundaries.json`, `signal_price_lookup.py` en combolab; comboclaude no recibió copia. En sesión 2026-04-23, Claude Code reportó 3 veces "archivo X no existe en comboclaude, consistente dejarlo así" antes de detectarse como oversight acumulado. Sync retroactivo reveló **13 archivos desincronizados al inicio de 2026-04-23** (3 código + 10 tests que no existían en comboclaude). **Causa raíz**: ausencia de convención explícita documentada sobre sync 2-way. Claude Code infiere convención en cada sesión, y la inferencia por defecto es "preservar estado actual" (asume asimetría = intencional). **Mitigación adoptada 2026-04-23**: convención explícita en §0.7 ("Convención de sincronización combolab ↔ comboclaude"). Protocolo al cierre de tarea: MD5 2-way verification de TODOS los archivos modificados. Anti-patrón explicitado: "El archivo no estaba antes en comboclaude, consistente dejarlo así" es asunción INCORRECTA por defecto. **Aplicabilidad**: cualquier proyecto con múltiples checkouts o directorios paralelos del mismo código. La regla general es SYNC-BY-DEFAULT con excepciones listadas explícitamente, no PRESERVE-BY-DEFAULT con sync como excepción. Ver §0.7 para regla operativa + §13.4 entrada A34 2026-04-23 para cierre que aplicó protocolo retroactivo.
 
+29. **Walk-forward con N_fwd pequeño puede producir expected PF significativamente inflado vs régimen futuro — 2026-04-22**. Caso empírico: ONDO/USDT C0 walk-forward arrojó pf_fwd=7.945 con N=17 OOS (pf_combined=5.5 reportado como expected en specialist_score). En operación real 2026-04-14 → 2026-04-21 sobre OHLCV ONDO real (16 trades bot, 7 efectivo matchable post-Fase II.B), PF observado=1.08 (fidelidad bot↔kernel 100% match expandido confirmada en Fase II.B). El gap NO es de ejecución (fidelidad OK), es **gap entre "edge inferred on small OOS sample" vs "edge reproduced in live régimen"**. Caveat §13.3 W3 (CI bootstrap en pf_fwd) era especulativo pre-2026-04-22; este caso lo valida empíricamente como necesario. **Generalización en Fase II.C global mismo día**: 2 candidatos exclusión adicionales (ONDO C2, SAND C1) + 17 símbolos con WARN_neg_res + edge_erosion alert direccional. NO es caso aislado, es patrón.
+
+**Patrón problemático**: pf_fwd con N<25 y bootstrap CI no computado puede tener CI95 wide [1.0, 15.0+]. pf_combined=5.5 como punto estimado es engañoso cuando proviene de OOS noisy. Specialist seleccionado puede ser mayoritariamente ruido amplificado por multiple-testing bias del walk-forward (selección sobre miles de configs, mejor PF gana, sin penalty por N).
+
+**Mitigación pre-reciclaje próximo**:
+(a) Implementar W3 (CI bootstrap pf_fwd) en `regime_walk_forward.py`. N=1000 resamples por config. Filtrar specialists con `pf_fwd_ci_low < 1.5` o threshold a definir.
+(b) Implementar W4 (subir _FWD_MIN_TRADES de 15 → 25 o 30) para reducir candidatos noise.
+(c) Ordenar specialists por `pf_combined_ci_low` en lugar de `pf_combined` punto estimado.
+(d) Warning en JSON output cuando `N_fwd < 25`.
+
+**Consecuencia metodológica**: cualquier modelo que selecciona "mejor de N" con N pequeño y métrica continua sufre **multiple testing bias**. Walk-forward es instancia clásica. Solución estándar académica: bootstrap CI o penalty por N (FDR control). Implementación pre-reciclaje no urgente pero crítica para que el reciclaje julio no produzca specialists similarmente inflados.
+
+**Aplicabilidad fuera de trading**: cualquier sistema con selección sobre samples pequeños + métrica continua. Inflación de point estimates vs CI lower bound. Fenómeno generalizable.
+
+**Caso origen**: Fase II.B + Fase II.C audit/analyzer 2026-04-22. Validación de empírica de W3 que estaba como hipótesis sin data hasta este punto. Ver §13.4 entries respectivos + §13.3 W3 (priorizar pre-reciclaje).
+
 ---
 
 ## 13. LISTA VIVA DE SEGUIMIENTO
@@ -1209,6 +1225,46 @@ Referencias: analyze_performance_attribution.py bloque attribute_trade(), test d
 
 ### 13.3 EN_ESPERA
 
+**[POLÍTICA] [EN_ESPERA] Adelantar reciclaje por criterio empírico degradación clusters — 2026-04-22**
+
+Contexto: Fase II.C (§13.4 2026-04-22) reveló patrón de degradación edge generalizada antes del calendario reciclaje original julio:
+- 3 clusters flagged (ONDO C0 health_monitor + ONDO C2 + SAND C1 candidatos exclusión analyzer).
+- 17 símbolos con WARN_neg_res (alpha residual significativamente negativo).
+- Edge_erosion alert direccional (alpha residual cae >10% últimos 20 trades vs 20 anteriores).
+- PnL realizado +0.48 USDT vs alpha esperado +5.64 (gap -91% sobre 47 trades en 3 días).
+
+Política propuesta para adelantar reciclaje por criterio empírico (no calendario):
+
+**Disparador automático**:
+- 5+ clusters cruzando ratio_oos/pool < 0.5 con N≥3 cada uno (umbral W3 conservador).
+- O alpha residual sistemático <-50% del alpha nominal en ventana 30d con N≥30.
+- O PnL cumulativo turn negativo en ventana 30d con N≥30.
+
+**Disparador semi-automático (alerta + decisión Ricardo)**:
+- 3+ clusters flagged candidato_exclusion sostenido en 2+ reportes consecutivos del analyzer (semanal).
+- O degradación edge >20% en métrica direccional consecutivos 2 reportes.
+
+**Estado actual (2026-04-22)**:
+- 3 clusters flagged (límite del semi-automático).
+- Alpha residual -68% del alpha nominal (cerca del trigger automático -50% si se mantiene).
+- PnL aún positivo (+0.48 USDT, no trigger negativo).
+- Veredicto: NO disparar reciclaje todavía. Monitorear próximos 7-14 días.
+
+**Disparo del item**: próximo audit/analyzer N≥50 (~2026-04-26) o cualquier degradación adicional sustantiva (clusters flagged crecen, PnL turn neg).
+
+**Cierre**:
+- (a) Reciclaje adelantado ejecutado con W3+W4 implementados pre-corrida (mejor specialists post-reciclaje).
+- (b) Patrón estabiliza/revierte naturalmente (régimen mejora) → mantener calendario julio.
+- (c) Decisión documentada de mantener calendario julio aceptando degradación marginal.
+
+Referencias:
+- §13.4 Fase II.C 2026-04-22.
+- §12 Lección 29 (W3 validación empírica).
+- §13.3 W3 (CI bootstrap) + W4 (thresholds _FWD) — ambos prioridad elevada.
+- §9.4 v3.0 reciclaje calendario original julio 2026.
+
+---
+
 **[AUDIT] [EN_ESPERA] Audit definitivo Fidelidad 2 con N ≥ 50 post-v2.3.11 — 2026-04-21**
 Contexto: primer audit empírico 2026-04-21 confirmó Fidelidad 2 con N=13 efectivo entry-filter (84.6% match rate, CI95 overlap con baseline 91%). Pero N=13 tiene CI95 ancho; veredicto robusto requiere N≥50.
 Al ritmo actual (~10 trades/día observados post-v2.3.3), N=50 post-v2.3.11 entry-filter se proyecta para ~2026-04-26 (cinco días desde hoy). Primera ejecución con N≥50 será el audit definitivo inicial.
@@ -1568,6 +1624,151 @@ Referencias: §13.3 items funding runtime + observabilidad 2026-04-23; §9.3 v2.
 ---
 
 ### 13.4 RESUELTO
+
+**[AUDITORIA] [RESUELTO] Fase II.C — Audit v5.2 + Analyzer v2.4.1 global N=47 post-v2.3.11 — 2026-04-22**
+
+Contexto: tras Fase II.B (audit ONDO específico veredicto B_CONFIRMADA con caveat N=7), extender análisis a sistema completo con infraestructura Bloque 1 ejercitada en producción real por primera vez. Audit v5.2 (A01 segmentación + clustering_check + A34 timing_borderline + A36 log rotation + A02 verbose-slippage) + Analyzer v2.4.1 (A38 cluster_estructuralmente_perdedor + slippage USDT directo post-v2.4.4 + signal_price_lookup).
+
+**Datos del audit v5.2 global** (`audit_v5_2_report_20260422_1046_utf8.txt`):
+- N ventana: 47 trades.
+- N excluidos: 10 (1 reconstructed + 4 mr_kernel_no_implementado + 4 reconcile_intervino + 1 clustering_divergente).
+- N efectivo: 37.
+- Match restrictivo (OK exact): 22/37 = **59.5%** [CI95 43.5%-73.7%].
+- Match generoso (OK + timing_borderline reclasificados por A34): 28/37 = **75.7%** [CI95 ~60%-87%].
+- Por encima del threshold 70% de "fidelidad mayoritaria".
+
+**Segmentación por deploy_boundaries** (A01 Feature A):
+
+| Segmento | N_eff | OK | NONE | EXCL | Rate | CI95 |
+|----------|-------|----|----|------|------|------|
+| v2.3.11 → v2.4.0 | 11 | 5 | 6 | 1 | 45.5% | [21.3, 72.0] |
+| v2.4.0 → v2.4.1 | 2 | 2 | 0 | 2 | 100.0% | [34.2, 100] |
+| v2.4.1 → v2.4.2_v2.4.3 | 7 | 7 | 0 | 4 | 100.0% | [64.6, 100] |
+| v2.4.3-hotfix → now | 13 | 8 | 5 | 2 | 61.5% | [35.5, 82.3] |
+| **Weighted avg** | 33 | 22 | — | — | **66.7%** | — |
+
+Sin discontinuidades significativas entre segmentos (A01 detector). N pequeño por segmento limita CI individual.
+
+**Hipótesis de no_match VPS (15 trades sin kernel exact match)**:
+- timing_borderline (A34): **6 trades** — kernel match existe en (1, 2] velas. NO son fidelity failures.
+- no_match_kernel: 9 trades — kernel post-hoc no genera signal en bar donde bot operó. Causas plausibles: drift implementación kernel Numba (live) vs Python (audit); cluster_live==cluster_post_hoc por k pero kernel post-hoc condiciones distintas; edge case TF/divergencias filter.
+
+**Datos del analyzer v2.4.1 global** (`attribution_summary_20260422_1039_utf8.txt`):
+- PnL total realizado: **+0.48 USDT** sobre 47 trades en ventana ~3 días.
+- Alpha esperado nominal: **+5.64 USDT** (gap -91% vs realizado).
+- Descomposición: slippage TOTAL -0.08 USDT (-17%, primer valor real post-v2.4.4 + v2.4.5), factor portfolio -1.17 (block_reduct -0.83 dominante), funding -0.06, alpha residual **-3.84 USDT (-799% del PnL real)**.
+- Ecuación cierra: 5.64 - 1.17 - 0.08 - 0.06 - 3.84 = +0.49 ≈ +0.48 ✓.
+
+**Alerts críticos del analyzer**:
+- 🚨 **CANDIDATO EXCLUSION RECICLAJE**: ONDO/USDT C2, SAND/USDT C1 (NUEVOS — distintos de ONDO C0 del health_monitor).
+- ⚠️ **EDGE EROSIONANDOSE**: alpha residual cae >10% en últimos 20 trades vs 20 anteriores.
+- 🔧 ACELERAR v2.6 FILTRO FUNDING: funding/pnl_neto = -13.1%.
+- 17 símbolos con `WARN_neg_res` (alpha residual negativo significativo).
+- Slippage por símbolo: ADA peor con -20.46 bp total.
+
+**Brain reconciles**: 253 eventos en ventana, tendencia decreciente -52.9% segunda mitad vs primera (efecto v2.4.2 silent reconcile + v2.4.3 pre-check operando).
+
+**Veredicto consolidado**: **Escenario Y** (Sistema marginal + fidelidad mayoritariamente OK + varios clusters degradados):
+- ✅ Sistema rentable marginalmente (PnL > 0 pero << alpha esperado).
+- ✅ Fidelidad mayoritaria OK (75.7% generoso, 66.7% weighted segmentado).
+- ❌ Edge generalizado erosionando: 2 candidatos exclusión nuevos + 17 WARN_neg_res + edge_erosion alert direccional.
+
+NO es Escenario X (no es "todo bien" — claros problemas edge).
+NO es Escenario Z (sistema rentable, no degradación masiva todavía).
+NO es Escenario W (fidelidad 75.7% mayoritaria, no rota).
+
+**Implicaciones operacionales**:
+1. **Adelantar reciclaje por criterio empírico** justificado pero no urgente. Calendario original julio 2026, podría adelantarse a 2026-05/06 si emerge 3+ candidatos exclusión adicionales o PnL gira negativo sostenido.
+2. **ONDO C0 NO es aislado** — patrón emergente. La hipótesis original Ricardo "falta de fidelidad" se valida débilmente (algunos no_match_kernel sospechosos), pero la causa primaria del gap PF expected vs real es **degradación walk-forward → régimen** (Hipótesis B dominante).
+3. **W3 (CI bootstrap pf_fwd) validado empíricamente** como necesario para el reciclaje (ver Lección 29 nueva §12). El walk-forward original infló pf_fwd con N pequeño (ONDO C0 N=17 OOS pf_fwd=7.95 no se reproduce; SAND C1 similar; ONDO C2 N=38 ratio_oos=1.59 también flagged).
+4. **W4 (thresholds _FWD laxos)** también gana relevancia como pre-reciclaje.
+5. **Slippage operacionalmente contenido** (-0.08 USDT total = 17% del PnL real, marginal).
+6. **Funding filter v2.6** acelera prioridad — funding/pnl_neto -13% es proporción significativa con balance bajo.
+
+**Items §13.3 actualizables**:
+- Política empírica "adelantar reciclaje por degradación clusters" (NUEVO item — ver §13.3).
+- W3 + W4 prioridad elevada para pre-reciclaje (existentes en §13.3).
+
+**Caveat de N**:
+- N=37 efectivo aún bajo target N≥50 oficial. Veredicto Y_CONFIRMADA tiene confianza media-alta, no alta.
+- CI95 wide en segmentos por N pequeño (varias ventanas de 2-7 trades).
+- Convergencia esperada al alcanzar N≥50 (estimado 2026-04-26).
+
+**Validación operacional infraestructura Bloque 1**:
+Esta ejecución valida en producción real el roadmap completo:
+- A01 segmentación por deploy_boundaries: funcional, detectó variación entre segmentos.
+- A01 clustering_check: 1 trade excluido (ETC 2026-04-22 02:00, cluster live ≠ post-hoc).
+- A02 signal_price_lookup: slippage USDT cuantificado por primera vez.
+- A34 timing_borderline: 6 trades reclasificados (subió match rate de 59.5 → 75.7%).
+- A36 log rotation: 13 .gz + actual procesados sin intervención manual.
+- A38 cluster edge guard: separación losing_clusters de edge_erosion operacional.
+- v2.4.4 size_usdt fix: slippage USDT computable.
+- v2.4.5 entry_timestamp_ms fix: aplicable a trades futuros.
+
+Pipeline empírico end-to-end validado.
+
+Referencias:
+- `audit_v5_2_report_20260422_1046_utf8.txt`: reporte audit completo.
+- `attribution_summary_20260422_1039_utf8.txt`: reporte analyzer completo.
+- §13.4 Audit ONDO Fase II.B 2026-04-22 (precedente).
+- §12 Lección 29 nueva (validación empírica W3).
+- §13.3 política reciclaje empírico (nuevo item).
+
+Cierre: Fase II.C completa. Próxima evaluación al alcanzar N≥50 (~2026-04-26) o ante cambio sustantivo en alerts del analyzer.
+
+---
+
+**[AUDITORIA] [RESUELTO] Fase II.B — Audit ONDO/USDT específico veredicto B_CONFIRMADA — 2026-04-22**
+
+Contexto: health monitor flaggea ONDO/USDT C0 con PF real 1.08 vs expected 5.5 (ratio 20%) en daily summary 2026-04-22 00:00 UTC. Primer cluster empíricamente flagged. Cuestiona hipótesis histórica de falta de fidelidad simulación↔ejecución vs degradación real de edge en régimen actual.
+
+Audit trade-a-trade kernel stateless vs bot sobre 16 trades ONDO/USDT totales (2026-04-14 → 2026-04-21). N efectivo matchable = 7 (7 pre-v2.3.1 sin entry_candle inferible, 2 excluidos reconcile_intervino).
+
+**Resultado matching** (`audit_v5_2_report_20260422_1021_utf8.txt`):
+- MATCH exact 3/7 (43% con CI95 ancho por N=7).
+- timing_borderline 4/7 (A34 captura los demás dentro ±2h).
+- Match expandido **7/7 = 100%**.
+- 0 no_match_kernel genuinos.
+- 3 MATCH exact con exit reasons IDÉNTICAS bot↔kernel + entries ±0.15% (slippage operacional normal).
+
+24 kernel_no_bot todos explicables: pre-bot-operating (4 del 2026-04-12), pre-v2.3.1 sin matching robusto (otros), o reentry bloqueado por posición abierta. Ningún caso anómalo.
+
+**Veredicto: Categoría B_CONFIRMADA — degradación edge real en régimen actual**.
+
+Evidencia primary:
+- Bot ejecuta correctamente las decisiones que kernel generaría (fidelidad estructural OK para ONDO).
+- Walk-forward entregó PF_combined=5.5 con pf_fwd=7.945 sobre N=17 OOS (CI ancho por N pequeño — caveat W3 §13.3 aplicable).
+- PnL trades matched mean +0.18%, sum +0.54% — edge plano, no perdedor.
+- Régimen actual no reproduce PF histórico del walk-forward.
+
+Hipótesis A (fidelidad rota) DESCARTADA específicamente para ONDO:
+- 0 trades bot sin kernel equivalente (incl. timing_borderline).
+- 0 mismatch exit reason en MATCH OK.
+- Entry diff ±0.15% coherente con slippage market order.
+
+Caveat metodológico:
+- N=7 efectivo → veredicto confidence media, no alta (CI95 [15.8%, 75.0%] restrictivo).
+- Confidence sube al incluir timing_borderline en match expandido.
+- Generalización a otros clusters validada en Fase II.C global (mismo día) que confirma patrón emergente.
+
+Implicaciones arquitectónicas:
+- Hipótesis histórica Ricardo "falta de fidelidad" no invalidada como prior estratégico, pero **debilitada como causa primaria** del gap en ONDO específicamente.
+- Causa primaria observada: degradación edge walk-forward vs realidad, no ejecución divergente.
+- Caveat W3 (§13.3 EN_ESPERA pre-existente) **validado empíricamente**: implementar CI bootstrap en pf_fwd pre-próximo-reciclaje para evitar specialist inflado.
+
+Decisión operacional ONDO C0: mantener activo (Opción 1 del análisis). No genera pérdidas (PF 1.08, mean PnL +0.05%, Tipo A degradación plana confirmado), consume slot. Reciclaje natural eventual recalibraría o descartará.
+
+Referencias:
+- `audit_v5_2_report_20260422_1021_utf8.txt`: reporte detallado.
+- `audit_fidelity_v5_2.py --timing-tolerance 1` (A34 utilizado).
+- `engine.log` consolidado 2026-04-14 → 2026-04-22 (13 gz + actual).
+- `regime_wf/ONDOUSDT_specialist_configs.json` C0 config_id 2457036 (VIDYA(18)/KAMA(54), pf_combined=5.5, pf_fwd=7.945 N=17).
+- §13.4 Fase II.C 2026-04-22 (consecuencia: confirmación que ONDO no es aislado).
+- §12 Lección 29 (formalización metodológica).
+
+Cierre: veredicto establecido. ONDO C0 monitoreo pasivo. Próxima evaluación con audit N≥50 global o si emergen cambios estructurales.
+
+---
 
 **[RESUELTO] Bug entry_timestamp_ms=0 en trade_history.csv — fix v2.4.5 — 2026-04-22**
 
