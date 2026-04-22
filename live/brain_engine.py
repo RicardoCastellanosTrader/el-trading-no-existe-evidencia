@@ -30,6 +30,11 @@ if _project_root not in sys.path:
 
 from regime_features import compute_regime_features, LOOKBACK_SHORT, LOOKBACK_LONG, N_FEATURES
 
+# A05 S3 (2026-04-23): single source of truth para zone_bull_mr/zone_bear_mr
+# — elimina 6 inline comparisons fast<slow/fast>slow dispersos en MR cancel
+# checks. Ver §13.4 entrada A05.
+from mean_reversion_features import zone_bull_mr, zone_bear_mr
+
 # Importar funciones de cálculo de MAs e indicadores de lab_historico
 from lab_historico_numba_v8_3 import (
     calc_ema, calc_sma, calc_hma, calc_alma, calc_zlema, calc_kama,
@@ -140,6 +145,12 @@ class SymbolState:
 
     # Mean-reversion specific state
     mr_entry_zone_bull: bool = False
+    # A05 S2 DEPRECATED 2026-04-23: dead fields — asignados en entry MR path
+    # (L2099-2100, L2119-2120) pero NUNCA leídos en el resto del código.
+    # Residuos de iteración previa de diseño (cancel_zona snapshot-based)
+    # abandonada al migrar a paridad kernel MR. Preservados con default 0/0.0
+    # para back-compat de engine_state.json productivo (VPS + local).
+    # Eliminación planificada en próxima versión mayor (v3.0 pre-reciclaje).
     mr_entry_filters_forming: int = 0
     mr_entry_slow_line: float = 0.0
     mr_zone_history: list = field(default_factory=list)
@@ -1716,9 +1727,37 @@ def _find_bar_by_timestamp(df, timestamp_ms):
 
 
 def _check_cancel_zona_mr(state, df, fast_line, slow_forming, slow_resolved, t):
-    """
-    Cancel zona: forming zone at entry repainted and entry zone no longer valid.
-    Faithful to mean_reversion_kernel.py cancel_zona logic.
+    """Cancel zona MR: detecta si la zona de entry fue invalidada.
+
+    Dos modos según si el día entry sigue abierto (repintable) o cerrado:
+      - Same day (entry_day == current_day): compara zona_bull/bear MR en
+        el bar actual `t` usando `slow_forming` (HA daily smoothed
+        repintable). Si la dirección de posición NO coincide con la zona
+        actual → cancel.
+      - Day closed (entry_day < current_day): compara zona_bull/bear MR en
+        el entry_bar usando `slow_resolved` (HA daily smoothed cerrada).
+        Si la zona resolved del día entry contradice la dirección
+        original → cancel.
+
+    Fidelidad a `mean_reversion_kernel.py` cancel_zona logic. Semántica MR
+    invertida via `zone_bull_mr` / `zone_bear_mr` (§0.5): zone_bull = fast
+    < slow (precio bajo la media → reversion al alza esperada).
+
+    Docstring preciso A05 S1 (2026-04-23) reemplaza versión previa que
+    decía "forming zone at entry repainted" — descripción conceptual pero
+    imprecisa. La implementación NO compara "forming en entry_bar" sino
+    "zona actual (same-day)" o "resolved en entry_bar (day-closed)".
+
+    Args:
+        state: SymbolState del símbolo.
+        df: DataFrame 1h con columna 'timestamp'.
+        fast_line: array Tenkan 1h.
+        slow_forming: array HA daily smoothed forming (repintable).
+        slow_resolved: array HA daily smoothed resolved (cerrada).
+        t: índice del bar actual.
+
+    Returns:
+        bool: True si cancel zona activo, False otherwise.
     """
     ts_now = df['timestamp'].iloc[t]
     ts_entry = pd.Timestamp(state.entry_bar_timestamp, unit='ms', tz='UTC') if state.entry_bar_timestamp > 0 else ts_now
@@ -1732,9 +1771,9 @@ def _check_cancel_zona_mr(state, df, fast_line, slow_forming, slow_resolved, t):
         sf = slow_forming[t]
         if np.isnan(ft) or np.isnan(sf):
             return False
-        if state.position == 1 and not (ft < sf):  # zone_bull = fast < slow
+        if state.position == 1 and not zone_bull_mr(ft, sf):
             return True
-        if state.position == -1 and not (ft > sf):  # zone_bear = fast > slow
+        if state.position == -1 and not zone_bear_mr(ft, sf):
             return True
     else:
         # Day closed: check resolved zone at entry bar
@@ -1744,9 +1783,9 @@ def _check_cancel_zona_mr(state, df, fast_line, slow_forming, slow_resolved, t):
             sr = slow_resolved[entry_idx]
             if np.isnan(ft) or np.isnan(sr):
                 return False
-            if state.position == 1 and not (ft < sr):
+            if state.position == 1 and not zone_bull_mr(ft, sr):
                 return True
-            if state.position == -1 and not (ft > sr):
+            if state.position == -1 and not zone_bear_mr(ft, sr):
                 return True
 
     return False
@@ -1774,14 +1813,14 @@ def _check_cancel_ghost_mr(state, df, fast_line, slow_forming, slow_resolved, t)
             sf = slow_forming[t]  # current bar's forming value
             if np.isnan(fl) or np.isnan(sf):
                 continue
-            traj_zone_bull = fl < sf
+            traj_zone_bull = zone_bull_mr(fl, sf)
         else:
             # Closed day: use resolved
             fl = fast_line[traj_bar]
             sr = slow_resolved[traj_bar]
             if np.isnan(fl) or np.isnan(sr):
                 continue
-            traj_zone_bull = fl < sr
+            traj_zone_bull = zone_bull_mr(fl, sr)
 
         if entry_was_bull and not traj_zone_bull:
             return True
