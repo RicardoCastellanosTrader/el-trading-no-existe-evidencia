@@ -1,6 +1,6 @@
 # Sistema de Trading Algorítmico — Contexto Completo del Proyecto
 
-**Última actualización:** 23 Abril 2026 (W3 bootstrap pf_fwd + W4 thresholds/CI filters IMPLEMENTADOS en rama `feature-w3-bootstrap-pf-fwd` — pre-requisito pre-reciclaje, NO deploy; Bloque 1 roadmap COMPLETADO previamente: A36 log rotation + A35 tz-naive + A38 edge guard + A34 timing_borderline; §0.7 convención sync; §12 L27+L28)  
+**Última actualización:** 23 Abril 2026 (W3 bootstrap pf_fwd + W4 thresholds/CI filters MERGED a main commit 56d38d4; A12 LL1 MA dedup IMPLEMENTADO en rama `feature-a12-ma-dedup` — pre-reciclaje, NO deploy; Bloque 1 roadmap COMPLETADO previamente: A36 log rotation + A35 tz-naive + A38 edge guard + A34 timing_borderline; §0.7 convención sync; §12 L27+L28)  
 **Versión actual:** v2.4.4 (sin bump — sesión 100% herramientas offline, sin deploy operacional)  
 **Autor del sistema:** Ricardo  
 **Plataforma:** Binance (datos) + BingX (ejecución), velas 1h  
@@ -444,6 +444,9 @@ xx:00:00 UTC (diario) Health monitor + resumen
 **regime_walk_forward.py (2):**
 1. 2026-04-23 W3 bootstrap pf_fwd + selección por ci_low (rama `feature-w3-bootstrap-pf-fwd`, NO deploy — activación en próximo reciclaje). Contexto: specialists con N_fwd pequeño (13-30) producían pf_fwd point estimate engañoso; ONDO C0 pf_fwd=7.945 con N=17 observado en realidad con PF 1.08 (Fase II.B 2026-04-22). Validación empírica múltiple (§13.4 2026-04-22) promovió W3 a PRIORIDAD ALTA. Implementado: `_bootstrap_pf_fwd_vectorized` (N=1000 resamples binomial sobre pool sintético reconstruido desde agregados {wins_fwd, gp_fwd, gl_fwd}, chunked 5000 configs/batch), `_apply_bootstrap_pf_fwd` (añade 6 campos: pf_fwd_ci_low, pf_fwd_ci_high, ci_width, pf_combined_ci_low, specialist_score_ci_low, flag_sospechoso_outlier), integración post-haircut en `extract_validated_specialists` con re-sort W3b por `specialist_score_ci_low`. Caveat: bootstrap binomial es lower bound de CI real (no captura dispersión intra-grupo). Validación sobre JSONs productivos: 6/12 top-1 flagged (ONDO C0, LTC C2, GRT C2, TRX C2, BTC C2, MANA C0) — sesgo N pequeño generalizado. Tests 8/8 PASS (tests/test_w3_bootstrap.py). Fidelidad 2 invariante (cambio del pipeline del lab, no toca bot). Ver §13.4 entrada W3 IMPLEMENTADO 2026-04-23.
 2. 2026-04-23 W4 thresholds _FWD + CI filters (misma rama, layered sobre W3, NO deploy). Contexto: `_FWD_MIN_TRADES=15` / `_FWD_MIN_PF=1.0` laxos permitían outliers pasar; ultra review W4 (2026-04-17) marcó para pre-reciclaje. Análisis cuantitativo Fase 1 sobre 138k candidates reveló que `NOT sospechoso` (W3 flag) es el filtro dominante (-35% pool); subir trades/PF es marginal. Thresholds adoptados: `_FWD_MIN_TRADES=25, _FWD_MIN_PF=1.1, _FWD_REQUIRE_NOT_SOSPECHOSO=True` + hooks opcionales (`_FWD_MIN_CI_LOW=0.0`, `_FWD_MAX_CI_WIDTH=inf` — default OFF). Nueva función `_apply_w4_fwd_ci_filters(df)` aplicada post-bootstrap con WARN log si cluster queda orphan. Validación Fase 3 reciclaje hipotético: 42/45 símbolos (93%) operables en 3/3 clusters, 3 clusters orphan (TAO C1, TRX C2, WLD C0), los 6 flagged W3 reemplazados o marked orphan. Patrón típico: old pf_fwd alto + N pequeño flagged → new pf_fwd moderado + N grande clean. TRX C2 orphan (top TF score 30.9 original) consistente con Lección 29 (N pequeño selecciona noise amplificado). Tests 8/8 PASS (tests/test_w4_thresholds.py) + W3 no-regression 8/8. Fidelidad 2 invariante. Ver §13.4 entrada W4 IMPLEMENTADO 2026-04-23.
+
+**lab_lite_zonas_v5e.py (1):**
+1. 2026-04-23 A12 (LL1) MA dedup (rama `feature-a12-ma-dedup`, NO deploy). Contexto: ultra review LL1 marcó 16 MAs duplicadas en 4 archivos. Inventario real: duplicación 2-way (lab_lite ↔ lab_historico). brain_engine y MR features ya eran pass-through. Fase 2 verificación bit-a-bit: 52/52 tests PASS rtol=1e-10 (drift max 3.3e-11 por cumsum vs loop, sub-ULP). Fase 4 aplicado: bloque L112-348 (234 líneas, 17 defs MA) reemplazado por import consolidado desde lab_historico_numba_v8_3 (17 líneas). calc_wma eliminado (único local sin contraparte, usado solo por calc_hma local ahora importado). `lab_lite.calc_X is lab_historico.calc_X → True` → cero posibilidad drift por construcción. Neto: -234/+17 líneas. Tests parity 4/4 PASS + no-regresión W3/W4 16/16 + Smoke §0.8 A+C PASS (Nivel B omitido por scope, no toca brain/kernel). Fidelidad 2 invariante (brain ya importaba desde lab_historico). Ver §13.4 entrada A12 IMPLEMENTADO 2026-04-23.
 
 **Infraestructura (5):**
 1. SSH puerto 2222 → 22 (ISP bloqueaba)
@@ -1491,11 +1494,42 @@ Disparo: al tener primer reporte v5.1 disponible.
 Cierre: test diferencial ejecutado, impacto de R1 medido y fix aplicado o justificadamente diferido.
 Referencias: ítem "Cooldown brain diverge del kernel" en 13.2, ítem "test diferencial brain vs kernel" en 13.3.
 
-**[MEJORA] [EN_ESPERA] lab_lite LL1: MA implementations duplicadas en 4 archivos — 2026-04-17**
-Contexto: Ultra review lab_lite LL1. Funciones calc_ema, calc_sma, calc_hma, calc_alma, calc_kama, calc_dema, calc_tema, calc_mcginley, calc_vidya, calc_frama, calc_t3, calc_ssmoother, calc_vwma, calc_tenkan, calc_jma duplicadas en lab_lite_zonas_v5e.py (líneas 116-348), lab_historico_numba_v8_3.py, live/brain_engine.py (importadas), y mean_reversion_kernel.py. Drift silencioso si alguien modifica una sin actualizar las demás.
-Disparo: pre-reciclaje, o al modificar alguna MA implementation.
-Cierre: lab_lite importa calc_* desde lab_historico. Eliminar las duplicaciones en lab_lite (~250 líneas).
-Referencias: lab_lite_zonas_v5e.py líneas 116-348.
+**[MEJORA] [RESUELTO] lab_lite LL1 (A12): MA implementations deduplicadas — 2026-04-23**
+Contexto: Ultra review lab_lite LL1 (2026-04-17). Funciones calc_ema, calc_sma, calc_hma, calc_alma, calc_kama, calc_dema, calc_tema, calc_mcginley, calc_vidya, calc_frama, calc_t3, calc_ssmoother, calc_vwma, calc_tenkan, calc_jma se asumía duplicadas en 4 archivos. Drift silencioso si alguien modificaba una sin actualizar las demás.
+
+**Hallazgo del inventario Fase 1 (2026-04-23)**: la hipótesis "4 archivos" era incorrecta. Duplicación real es **2-way**:
+- `lab_historico_numba_v8_3.py`: source-of-truth canónica (16 MAs).
+- `lab_lite_zonas_v5e.py`: copias independientes (17 MAs, incluye calc_wma único).
+- `live/brain_engine.py`: **pass-through** — ya importa desde lab_historico (L34-45).
+- `mean_reversion_features.py`: pass-through — importa subset desde lab_historico (L23-34).
+- `mean_reversion_kernel.py`: no usa MAs directamente (consume features precomputadas).
+
+**Verificación Fase 2 bit-a-bit** (52 tests: 14 pares × 3-4 periods):
+- **13 de 14 MAs con diff absoluto 0.000e+00** (idéntico bit-a-bit).
+- 4 MAs con drift sub-ε (max 3.3e-11 en calc_vwma por cumsum vectorizado vs loop en lab_historico).
+- **52/52 PASS rtol=1e-10**. Veredicto: **Caso A — TODAS EQUIVALENTES**.
+- calc_wma solo en lab_lite, sin contraparte pública en lab_historico (está como closure interno en calc_hma lite); único usuario era lab_lite.calc_hma local.
+
+**Refactor Fase 4 aplicado** (branch `feature-a12-ma-dedup`, commit pendiente):
+- `lab_lite_zonas_v5e.py`: bloque MAs L112-348 (234 líneas) reemplazado por import consolidado desde lab_historico_numba_v8_3 (17 líneas). calc_wma eliminado (ya no tenía caller post-refactor dado que calc_hma importado tiene wma interno).
+- lab_historico sin cambios (source canónica preservada).
+- brain_engine sin cambios (transitivo).
+- Neto: -234 líneas / +17 líneas.
+
+**Validación post-refactor**:
+- `tests/test_a12_ma_parity.py` 4/4 PASS (16/16 MAs son literal `is` True mismas funciones, calc_wma eliminado, dispatcher calc_ma operativo, sanity numérico trivial).
+- No-regresión: `tests/test_w3_bootstrap.py` 8/8, `tests/test_w4_thresholds.py` 8/8.
+- Smoke §0.8 Nivel A (BTC N=1000): diff 0.0000 exacto ✓.
+- Smoke §0.8 Nivel C (SEI MR): 7/7 métricas diff 0.0000 ✓.
+- Nivel B omitido por scope: A12 NO toca brain_engine ni kernel Numba (solo lab_lite, pipeline del lab usado por master.py). §0.8 establece Nivel B como gate obligatorio para cambios brain/kernel — fuera del scope. Parity tests + Nivel A+C bastaron.
+
+**Resultado**: 0 posibilidad de drift por construcción (`lite.calc_X is lab.calc_X`). Cualquier modificación futura a MAs se aplica automáticamente a ambos consumers. Deuda técnica LL1 eliminada permanentemente para TF. Fidelidad 2 invariante por construcción (brain ya usaba lab_historico).
+
+**Nota residual lab_historico**: `calc_tenkan` definido 2 veces internamente (L536 DataFrame-based, L929 arrays-based). Duplicación intra-archivo no cubierta por A12 (scope cross-file). Candidato a refactor menor pre-reciclaje si emerge necesidad.
+
+Disparo: N/A (item cerrado).
+Cierre: RESUELTO 2026-04-23, commit siguiente a 56d38d4 en rama feature-a12-ma-dedup → merge main pendiente.
+Referencias: lab_lite_zonas_v5e.py L112-130 (imports consolidados post-refactor), tests/test_a12_ma_parity.py, §13.4 entrada A12 IMPLEMENTADO 2026-04-23.
 
 **[MEJORA] [EN_ESPERA] lab_lite LL2: kernel simplificado tiene selection bias — 2026-04-17**
 Contexto: Ultra review lab_lite LL2. `run_simulation_v5e` solo simula zonas MA sin TF filters, divergencias, cancel_tf, SL/TS. Presets seleccionados son los que funcionan con zonas puras. Walk-forward luego añade filtros. Presets que no dan zonas limpias pero funcionarían con filtros nunca se exploran. Trade-off computacional documentado.
@@ -1809,6 +1843,64 @@ Referencias: §13.3 items funding runtime + observabilidad 2026-04-23; §9.3 v2.
 ---
 
 ### 13.4 RESUELTO
+
+**[MEJORA] [RESUELTO] A12 (LL1) MA implementations deduplicadas cross-file — 2026-04-23**
+
+Contexto: Ultra review lab_lite LL1 (2026-04-17) marcó MAs como duplicadas en "4 archivos" con riesgo de drift silencioso. A12 verifica empíricamente la equivalencia y consolida si procede.
+
+**Fase 1 — Inventario corregido** (hipótesis original errónea):
+- Duplicación real es **2-way**, no 4-way: `lab_historico_numba_v8_3.py` ↔ `lab_lite_zonas_v5e.py`.
+- `live/brain_engine.py` ya importa desde lab_historico (pass-through).
+- `mean_reversion_features.py` idem pass-through (subset).
+- `mean_reversion_kernel.py` consume features precomputadas, no usa MAs directamente.
+- `lab_lite_zonas_v5d.py` legacy (master.py usa v5e).
+
+**Fase 2 — Verificación bit-a-bit** (serie sintética N=2000, seed=42):
+- 14 pares × 3-4 periods = 52 tests.
+- **13 pares con diff absoluto 0.000e+00** (bit-idénticos).
+- 4 MAs con drift sub-ε: calc_sma ~1e-11 (cumsum vectorizado vs loop), calc_hma ~1e-13 (ULP float), calc_alma ~5e-14 (ULP), calc_vwma ~3e-11 (cumsum).
+- **52/52 PASS rtol=1e-10**.
+- calc_wma única sin contraparte pública en lab_historico (está como closure interno en calc_hma).
+
+**Fase 3 — Clasificación**:
+- Veredicto: **Caso A — TODAS EQUIVALENTES** (drift <3e-11 << threshold 1e-10).
+- Decisión: refactor consolidation. No crear módulo intermedio `indicators/moving_averages.py` — `lab_historico` ya es canon de facto (consumido por brain, MR features, regime_walk_forward).
+
+**Fase 4 — Refactor aplicado** (rama `feature-a12-ma-dedup`):
+- `lab_lite_zonas_v5e.py`: bloque L112-348 (234 líneas con 17 defs MA) reemplazado por import consolidado L112-132 (17 líneas):
+  ```python
+  from lab_historico_numba_v8_3 import (
+      calc_ema, calc_sma, calc_hma, calc_alma, calc_zlema, calc_kama,
+      calc_dema, calc_tema, calc_mcginley, calc_vidya, calc_frama,
+      calc_t3, calc_ssmoother, calc_vwma, calc_tenkan, calc_jma,
+  )
+  ```
+- calc_wma eliminado (era único caller calc_hma local; lab_historico.calc_hma tiene wma interno).
+- Neto: -234 / +17 líneas.
+- lab_historico preservada sin cambios (source canónica).
+- brain_engine y MR features sin cambios (transitivos).
+
+**Validación post-refactor**:
+- Identity check: `lab_lite.calc_X is lab_historico.calc_X` → True para las 16 MAs. **Cero posibilidad de drift por construcción**.
+- `tests/test_a12_ma_parity.py` **4/4 PASS**:
+  1. 16/16 MA functions identical (`is` True).
+  2. calc_wma eliminado de ambos módulos.
+  3. Dispatcher `calc_ma` operativo (types 0, 10, 13, 15 verificados).
+  4. Sanity numérica trivial (same obj → array_equal).
+- No-regresión: `test_w3_bootstrap.py` 8/8, `test_w4_thresholds.py` 8/8.
+- Smoke §0.8 Nivel A (BTC N=1000): diff 0.0000 exacto 5 métricas ✓.
+- Smoke §0.8 Nivel C (SEI MR): 7/7 métricas diff 0.0000 ✓.
+- Nivel B omitido por scope: A12 NO toca brain_engine/kernel (solo lab_lite del pipeline lab). §0.8 Nivel B gate obligatorio para brain/kernel signal logic, no aplica a este refactor. Parity tests + Nivel A+C suficientes.
+
+**Deuda residual**: lab_historico tiene `calc_tenkan` duplicado interno (L536 DataFrame-based, L929 arrays-based). Duplicación intra-archivo fuera del scope cross-file de A12. Candidato pre-reciclaje.
+
+**Deploy VPS NO requerido** — A12 toca pipeline del lab, no el bot. Fidelidad 2 invariante por construcción.
+
+Referencias: `lab_lite_zonas_v5e.py` L112-132 (import block), `tests/test_a12_ma_parity.py`, §13.3 LL1 (movido a RESUELTO).
+
+Cierre: permanente. Deuda técnica LL1 eliminada. Modificaciones futuras a MAs se aplican automáticamente a ambos consumers via single source of truth.
+
+---
 
 **[MEJORA] [RESUELTO] W4 thresholds _FWD + CI filters implementado — 2026-04-23**
 
