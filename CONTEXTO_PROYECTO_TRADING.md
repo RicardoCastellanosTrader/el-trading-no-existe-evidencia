@@ -1,6 +1,6 @@
 # Sistema de Trading Algorítmico — Contexto Completo del Proyecto
 
-**Última actualización:** 23 Abril 2026 (W3+W4 MERGED main 56d38d4, A12 LL1 MA dedup MERGED main ae5a21a, A14+A15 plateau/engine_tag MERGED main cf9d7b6, A13 LL2 RESUELTO documental, A04 Fidelidad 1 TF kernel↔Pine RESUELTO documental scope TF — todos pre-reciclaje, NO deploy; Bloque 1 roadmap COMPLETADO previamente: A36 log rotation + A35 tz-naive + A38 edge guard + A34 timing_borderline; §0.7 convención sync; §12 L27+L28)  
+**Última actualización:** 23 Abril 2026 (W3+W4 MERGED main 56d38d4, A12 LL1 MA dedup MERGED main ae5a21a, A14+A15 plateau/engine_tag MERGED main cf9d7b6, A13 LL2 RESUELTO documental, A04 Fidelidad 1 TF kernel↔Pine RESUELTO documental scope TF, A05 MR docstring + dead fields + zone_bull helper MERGED main ca3bbd6 — todos pre-reciclaje, NO deploy; Bloque 1 roadmap COMPLETADO previamente: A36 log rotation + A35 tz-naive + A38 edge guard + A34 timing_borderline; §0.7 convención sync; §12 L27+L28)  
 **Versión actual:** v2.4.4 (sin bump — sesión 100% herramientas offline, sin deploy operacional)  
 **Autor del sistema:** Ricardo  
 **Plataforma:** Binance (datos) + BingX (ejecución), velas 1h  
@@ -1439,15 +1439,36 @@ Contexto: durante auditoría Fidelidad 2 TF cancel_tf de 2026-04-21 emergió com
 Cierre: RESUELTO parcial — scope TF completo. Scope MR pendiente como tarea separada (A04b).
 Referencias: §13.4 entrada A04 IMPLEMENTADO 2026-04-23, §0.6 Kernel como verdad operacional, `lab_historico_numba_v8_3.py` L1558-1562 (cancel_tf documentado), L1458-1460 (showlimit), L633 (dontconfirm), L641/653 (source), L1630-1637 (cooldown diferenciado), `indicador_v44_0_smartdiv_v11_0_TF.pine` L134-139 (div params), L897-906 (TS/SL), L912-934 (cancel_tf).
 
-**[MEJORA] [EN_ESPERA] Deuda documental/refactor menores de auditoría Fidelidad 2 — 2026-04-21**
-Contexto: agregado de MENORES emergidos durante auditorías Fidelidad 2 TF y MR del 2026-04-20 y 2026-04-21. Todos sin impacto operacional actual. Candidatos a consolidación en refactor pre-reciclaje julio.
-Items agrupados:
-- **MENOR 1 (MR audit 2026-04-21)**: `_check_cancel_tf` (brain_engine.py l.1371) es helper compartido entre ramas TF y MR. Ventaja: cualquier fix futuro afecta TF y MR simultáneamente (coherencia automática). Deuda documental: docstring no menciona dual-use. **APLICADO EN ESTE COMMIT**: docstring actualizado con semántica explícita y referencia a §0.6. Resto del item cerrado.
-- **MENOR 2 (MR audit 2026-04-21)**: brain MR (_check_cancel_zona_mr, _check_cancel_ghost_mr) recomputa zonas on-the-fly (`ft < sf`) usando `fast_line` y `slow_*` que sí están guardados como arrays. Kernel MR usa arrays precomputados `zone_bull_forming/resolved` construidos por `mean_reversion_features.calc_zones`. Semánticamente idénticos (misma fórmula). Riesgo teórico: drift silencioso si `mean_reversion_features.calc_zones` cambia sin actualizar brain. Acción sugerida pre-reciclaje julio: extraer fórmula a función compartida `_zone_bull_mr(fast, slow) -> bool` importada por ambos. Alineado con item §13.3 LL1 (MA implementations duplicadas en 4 archivos).
-- **MENOR 3 (verificación snapshot 2026-04-21)**: `mr_entry_filters_forming` (SymbolState l.143) y `mr_entry_slow_line` (l.144) son dead fields: asignados en entry path (l.2097/2098/2117/2118), nunca leídos en el resto del código. Residuos de iteración previa de diseño que contemplaba cancel_zona snapshot-based (abandonada al replicar kernel). Impacto operacional: nulo (unos bytes por posición en state JSON). Acción sugerida pre-reciclaje julio: opción A eliminar campos + asignaciones, opción B preservar con docstring "reserved, deprecated since migration to kernel-parity cancel_zona".
-- **MENOR docstring (MR audit 2026-04-21)**: docstring de `_check_cancel_zona_mr` (l.1702) dice "forming zone at entry repainted and entry zone no longer valid". Descripción conceptual correcta pero implementación no compara "forming at entry" directamente — compara "zona actual" (same-day) o "resolved en entry_bar" (day-closed). Acción sugerida: docstring más preciso "detects zone invalidity against current bar (same day) or against resolved data in entry bar (day closed)".
-Disparador: pre-reciclaje julio, consolidar con LL1 (MA duplicates) en refactor único que extraiga fórmulas compartidas con tests de parity.
-Cierre: tras commit del refactor pre-reciclaje.
+**[MEJORA] [RESUELTO A05] Deuda documental/refactor menores de auditoría Fidelidad 2 MR — 2026-04-23**
+Contexto: agregado de MENORES emergidos durante auditorías Fidelidad 2 TF y MR del 2026-04-20 y 2026-04-21. Todos sin impacto operacional al detectarse.
+
+**Resolución 2026-04-23** (rama `feature-a05-mr-docstring-cleanup` commit 8552b95, merge ca3bbd6):
+
+- **MENOR 1 `_check_cancel_tf` dual-use docstring**: RESUELTO 2026-04-21 en commit previo (docstring actualizado con semántica TF+MR explícita + referencia §0.6).
+
+- **MENOR 2 `_zone_bull_mr` helper extract**: RESUELTO 2026-04-23. Brain MR reemplaza 6 inline comparisons (`fast < slow` / `fast > slow`) en `_check_cancel_zona_mr` (L1735/1737/1747/1749) y `_check_cancel_ghost_mr` (L1777/1784) por calls a `zone_bull_mr(fast, slow)` / `zone_bear_mr(fast, slow)` — funciones module-level añadidas en `mean_reversion_features.py` (escalar + array friendly, NaN guard). `calc_zones` refactorizado internamente para delegar a los helpers (single source of truth). Drift silencioso eliminado por construcción.
+
+- **MENOR 3 dead fields**: RESUELTO 2026-04-23 opción B (preservar con docstring DEPRECATED). `mr_entry_filters_forming` y `mr_entry_slow_line` mantenidos en `SymbolState` para back-compat con `engine_state.json` productivo (VPS + local). Docstring explícito sobre eliminación planificada en v3.0 pre-reciclaje. Campos siguen siendo asignados en entry path pero su "lectura" ahora es explícitamente None (dead confirmed).
+
+- **MENOR docstring `_check_cancel_zona_mr`**: RESUELTO 2026-04-23. Docstring reescrito con semántica exacta:
+  - Same day: compara zona_bull/bear MR en bar actual `t` con `slow_forming[t]` (NO "forming en entry_bar").
+  - Day closed: compara zona_bull/bear MR en `entry_bar` con `slow_resolved[entry_idx]`.
+  - Referencia §0.5 para semántica MR invertida (fast < slow = bull).
+  - Args/Returns documentados.
+
+**Validación**:
+- Tests 6/6 PASS (`tests/test_a05_zone_helpers.py`): escalar basic, NaN defensive, array vectorizado, calc_zones delega, scalar helper ≡ inline comparison (100 random pairs), brain_engine usa helpers (no inline remnants).
+- Regresión 34/34 PASS: W3 8/8 + W4 8/8 + A12 4/4 + A14 4/4 + A15 4/4 + A05 6/6.
+- Smoke §0.8 Nivel A (BTC N=1000): diff 0.0000 exacto ✓.
+- Smoke §0.8 Nivel C (SEI MR, MANDATORIO): 7/7 métricas diff 0.0000 ✓.
+- Nivel B omitido: cambios aislados a helpers puros bit-equivalentes (test 5 prueba parity).
+
+**Fidelidad 2 MR invariante por construcción**. Deploy VPS NO requerido (cambios activan al próximo restart del bot, helpers puros idempotentes). Bot v2.4.5 operacional con comportamiento bit-equivalente.
+
+**Complementa A12 LL1** (commit ae5a21a): A12 consolidó MAs entre lab_lite ↔ lab_historico. A05 S3 consolida zonas MR entre mean_reversion_features ↔ brain_engine. Ahora brain MR es 100% pass-through para los 2 cómputos comunes (MAs + zonas).
+
+Referencias: `live/brain_engine.py` L33-37 (import helpers), L148-156 (dead fields DEPRECATED docstring), L1718-1776 (docstring preciso + refactor cancel_zona), L1784-1796 (cancel_ghost refactor), `mean_reversion_features.py` L213-282 (zone_bull_mr/zone_bear_mr + calc_zones delegation), `tests/test_a05_zone_helpers.py`, §13.4 entrada A05 IMPLEMENTADO 2026-04-23.
+Cierre: RESUELTO permanente. Próxima eliminación real de dead fields en v3.0 reciclaje.
 
 **[INFORMACIONAL] Reapertura fantasma UNI (y patrón similar en ETH/ALGO) — reclasificado 2026-04-21 post v2.4.2+v2.4.3**
 Contexto original: descubierto durante investigación post-v2.4.0 Smoke-B. Patrón recurrente donde brain emite signal, portfolio descarta (low_confidence, below_min_order) o execution falla (BingX reject), brain state queda fantasma, reconcile cycle siguiente resetea. Observado en UNI/USDT SHORT cycles 154-161 del 2026-04-20 (11 ocurrencias por low_confidence), ETH/USDT LONG 2026-04-20/21 (11 ocurrencias por BingX precision reject), ALGO/USDT SHORT 2026-04-21 (4 ocurrencias por below_min_order).
@@ -1891,6 +1912,71 @@ Referencias: §13.3 items funding runtime + observabilidad 2026-04-23; §9.3 v2.
 ---
 
 ### 13.4 RESUELTO
+
+**[MEJORA] [RESUELTO] A05 MR audit cleanup (docstring + dead fields + zone_bull helper) — 2026-04-23**
+
+Contexto: auditoría Fidelidad 2 MR 2026-04-21 identificó 4 MENORES sin impacto operacional. MENOR 1 resuelto en su commit original (docstring dual-use `_check_cancel_tf`). Los 3 restantes (MENOR 2 zone_bull drift, MENOR 3 dead fields, MENOR docstring `_check_cancel_zona_mr` impreciso) quedaron consolidados en A05 pre-reciclaje julio.
+
+**Resolución anticipada 2026-04-23** (3 MENORES en batch, commit 8552b95 → merge ca3bbd6):
+
+**Sub-item 1 — docstring `_check_cancel_zona_mr` preciso**:
+
+Pre-fix decía "forming zone at entry repainted and entry zone no longer valid" — descripción conceptual pero imprecisa. La implementación no compara "forming en entry_bar" directamente; compara:
+- Same day (`entry_day == current_day`): zona actual usando `slow_forming[t]` (bar actual).
+- Day closed: zona resolved en `entry_bar` usando `slow_resolved[entry_idx]`.
+
+Docstring reescrito con semántica exacta + Args/Returns + referencia §0.5 MR invertida.
+
+**Sub-item 2 — dead fields deprecation**:
+
+`SymbolState.mr_entry_filters_forming` y `mr_entry_slow_line` son dead fields (asignados en entry MR path, nunca leídos). Residuos de diseño previo (cancel_zona snapshot-based abandonada). Opción adoptada: **preservar con docstring DEPRECATED** para back-compat con `engine_state.json` productivo (VPS + local). Eliminación planificada en v3.0 pre-reciclaje julio.
+
+Justificación de no-eliminar: engine_state.json persistido en VPS contiene estos campos. Eliminarlos + dataclass frozen implícito causaría KeyError al `load_state` sobre JSON legacy. Preservar con default 0/0.0 es idempotente y zero-risk.
+
+**Sub-item 3 — `zone_bull_mr` + `zone_bear_mr` helpers extract**:
+
+Pre-fix: brain_engine recomputaba `fast < slow` inline en 6 sitios (4 en `_check_cancel_zona_mr`, 2 en `_check_cancel_ghost_mr`); kernel MR usaba `calc_zones` con arrays precomputados. Riesgo drift silencioso si `calc_zones` cambiaba fórmula sin actualizar brain.
+
+Fix arquitectural:
+- `zone_bull_mr(fast, slow)` y `zone_bear_mr(fast, slow)` añadidos module-level en `mean_reversion_features.py` (escalar + array friendly, NaN guard defensive).
+- `calc_zones` refactorizado para delegar a helpers (single source of truth).
+- `brain_engine.py` importa `from mean_reversion_features import zone_bull_mr, zone_bear_mr`.
+- 6 inline comparisons reemplazados preservando NaN guards explícitos existentes:
+  * `_check_cancel_zona_mr` L1735 (`ft<sf` → `zone_bull_mr(ft, sf)`), L1737, L1747, L1749.
+  * `_check_cancel_ghost_mr` L1777, L1784.
+
+Semántica bit-equivalente verificada (test 5: scalar helper ≡ inline comparison sobre 100 random pairs).
+
+**Complementa A12 LL1** (commit ae5a21a): A12 consolidó MAs entre `lab_lite` ↔ `lab_historico`. A05 S3 consolida zonas MR entre `mean_reversion_features` ↔ `brain_engine`. Post-A05 brain MR es pass-through para los 2 cómputos comunes (MAs + zonas); cambios futuros en la fórmula zone_bull/bear MR se propagan automáticamente a ambos consumers.
+
+**Validación**:
+
+Tests 6/6 PASS (`tests/test_a05_zone_helpers.py`):
+1. scalar bull/bear basic (fast<slow → bull True, inversos False, equal False strict).
+2. NaN defensive: NaN input → False siempre (never crash).
+3. Array vectorizado: shape + NaN propagation a False.
+4. `calc_zones` delega correctamente (forming + resolved branches).
+5. Parity scalar helper ≡ inline `fl<sf` sobre 100 pairs aleatorios.
+6. brain_engine source verifica import + ausencia de inline remnants `ft<sf`.
+
+Regresión 34/34 PASS acumulada (W3 8 + W4 8 + A12 4 + A14 4 + A15 4 + A05 6).
+
+Smoke §0.8:
+- Nivel A (BTC N=1000): diff 0.0000 exacto 5 métricas ✓.
+- Nivel C (SEI MR, MANDATORIO por tocar brain MR): 7/7 métricas diff 0.0000 exacto ✓.
+- Nivel B omitido: cambios aislados a helpers puros bit-equivalentes; test 5 prueba parity empírica.
+
+**Fidelidad 2 MR invariante por construcción**. Deploy VPS NO requerido — helpers puros idempotentes, activan al próximo restart del bot. Bot v2.4.5 operacional con comportamiento bit-equivalente al pre-merge.
+
+**Impacto residual para v3.0 reciclaje**:
+- Dead fields mr_entry_filters_forming / mr_entry_slow_line: planificada eliminación total (campos + asignaciones L2099-2100, L2119-2120).
+- Opcional: unificar también slow_line / fast_line MR (brain tiene `_calc_slow_line_*_mr` / `_calc_fast_line_mr` duplicados de `mean_reversion_features`). Fuera de scope A05.
+
+Referencias: commit 8552b95 (fix) + ca3bbd6 (merge main), `live/brain_engine.py` (docstring + imports + helper calls + deprecation), `mean_reversion_features.py` (helpers + calc_zones delegation), `tests/test_a05_zone_helpers.py`, §0.5 MR invertida, §13.3 entry movido a RESUELTO A05.
+
+Cierre: permanente para los 3 MENORES. Dead fields eliminación real en v3.0.
+
+---
 
 **[AUDITORIA] [RESUELTO scope TF] A04 Fidelidad 1 formal kernel TF ↔ Pine v44 — 2026-04-23**
 
