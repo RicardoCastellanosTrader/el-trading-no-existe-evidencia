@@ -285,6 +285,7 @@ xx:00:00 UTC (diario) Health monitor + resumen
 | v2.4.3 | 21 Abr | Pre-check symbol-aware min_order en portfolio: `compute_min_order_usdt_for(symbol, price, markets_info)` reemplaza constante `MIN_ORDER_USDT=5.0`. Evalúa constraints reales de BingX por símbolo — `max(limits.cost.min, limits.amount.min × price, precision.amount × price)` con floor 5.0 USDT. Elimina CRITICAL `[EXEC] OPEN FALLIDO ETH` (7-11/día) causados por size < 0.01 ETH precision con balance bajo. Ejemplos: ETH @ 2310 → min 23.1 USDT; UNI @ 3.25 → 5.0 USDT (floor); ALGO @ 0.10 → 5.0 USDT (floor). Reason label enriquecido `below_min_order_X.Xusdt`. Wiring: `live_engine.start()` invoca `exchange.load_markets()` post-conexión y cachea `self.markets_info` (2879 símbolos BingX confirmados). Se pasa como kwarg opcional a `allocate_positions`. Fallback 5 USDT genérico si markets_info vacío o price inválido. Tests 8/8 min_order_precheck PASS. Fidelidad 2 preservada (cambio solo en threshold de descarte, no toca brain/execution). 1 commit rama v2.4.2-silent-reconcile+precheck → merge main. Ver §13.4 entrada v2.4.2+v2.4.3 Smoke-A PASS. |
 | v2.4.3-hotfix | 21 Abr | Fix resolución ccxt symbol format en `compute_min_order_usdt_for`. Bug detectado en Smoke-B cycle 181 (11:00 UTC): markets_info ccxt usa formato perpetuo `"ETH/USDT:USDT"` pero bot pasa símbolos en formato master `"ETH/USDT"`, causando `symbol not in markets_info` → fallback `DEFAULT_MIN=5.0` en vez del threshold real (ETH 23.1 USDT). ETH `sz=11.67` alcanzaba execution y fallaba con `precision 0.01` reject. Fix: condicional que primero intenta `symbol` directo (backward compat para llamadas con formato ccxt), si no está intenta con sufijo `":USDT"` añadido (traducción master→ccxt), si tampoco está fallback a `DEFAULT_MIN`. Test adicional `test_master_format_resolves_to_ccxt` añadido. Tests 13/13 PASS (9 min_order + 4 silent_reconcile). Deploy VPS 11:09:56 UTC, MD5 `c4d5e7496…074`. Validación Smoke-B cycle 182 (11:59-12:00 UTC) confirmó code path v2.4.3 operando (ALGO discarded con label enriquecido `below_min_order_5.0usdt`) + v2.4.2 silent reconcile activo (0 INFO BRAIN_RECONCILE para ALGO fantasma). Validación directa ETH con threshold 23.1 pendiente de signal orgánico (evidencia indirecta robusta: test unit + code path confirmado + lógica inspeccionada). Commit 8b61e94 en main. |
 | v2.4.4 | 22 Abr | Fix bug histórico `size_usdt=0` en trade_history.csv (134/135 trades afectados desde origen del dataset 2026-04-13). Root cause: `data_feed.get_open_positions` construía pos dict sin campo `size_usdt`; log_trade fallback `pos.get("size_usdt", 0.0)` persistía 0 sistemáticamente. Fix: 1 línea en `data_feed.py` (líneas 326-340) que añade `size_usdt = notional if notional > 0 else size × entry_price` con warning sentinel para edge case `entry_price=0 && size>0`. Impacto retroactivo: trades históricos permanecen con `size_usdt=0` (documentado, no migrable). Impacto forward: analyzer ahora computa slippage USDT correctamente (previo era espurio +0.00). Bug aislado, no afectaba pnl_usdt/pnl_pct/funding_paid (sanos por cómputo independiente). Tests 8/8 PASS (notional present/absent, entry_price=0 warning, multiple positions). Fidelidad 2 invariante: `_run_verify_test` TF diff 0.0000 + `audit_mr_fidelity_sei.py` MR diff 0.0000 en 7 métricas. Deploy VPS 18:22:02 UTC, MD5 3-way `d69afccf1be685c1c910a9d1c1a84f28`, downtime ~20s, Smoke-A PASS (6 posiciones sincronizadas sin WARNINGs). Validación directa orgánica pendiente de próximo close post-deploy. |
+| v2.4.5 | 22 Abr | Fix bug `entry_timestamp_ms=0` en trade_history.csv (51/155 trades afectados, 100% de closes via `_evaluate_bar` post-v2.3.9). Root cause: `_reset_state_on_exit` (v2.3.9 fix B1, brain_engine.py L264-285) setea `state.entry_timestamp_ms = 0` durante `generate_signals` (línea 485), antes del call-site de enriquecimiento en live_engine.py L616. Sin este fix, trades via `_evaluate_bar` CLOSE paths (div_exit, tf_exit, zone_exit, sl_hit, cancel_tf, cancel_mr, zone_exit_mr) persistían entry_timestamp_ms=0 al CSV. Trades via paths alternativos (regime_change L627, not_operable L621, sl_trigger_reconstructed L958) estaban exentos por flujos propios que no invocan `_reset_state_on_exit`. Fix: extraer enriquecimiento a `_enrich_positions_with_entry_ms(positions, pre_signal_state)` que lee desde `pre_signal_state` (snapshot pre-reset, L467-483) en vez de `self.brain.symbol_state` (post-reset). `pre_signal_state` ya capturaba el campo desde v2.3.2. Impacto: bug AISLADO a observabilidad. Analyzer v2.4.1 y audit v5.1 mitigados via fallback a log SIGNALS_EXECUTED (`infer_entry_candle` C1 pre-existente). Health_monitor usa exit timestamp (no entry_ms), no afectado. Tests 8/8 PASS (happy, zero guard, missing sym/key, multi-symbol, override, empty, regression). Fidelidad 2 invariante: TF `_run_verify_test` BTC/USDT diff 0.0000 + MR `audit_mr_fidelity_sei` SEI C2 diff 0.0000 en 7 métricas. Deploy VPS 09:45:30→09:46:17 UTC, MD5 3-way `4141ab7157b9eb341e99347b37f0cc44`, downtime 47s, Smoke-A PASS (6 posiciones sincronizadas con entry_ms VALID en engine_state.json). Smoke-B cycle 205 pendiente verificación CSV con entry_ms>0 si cierra posición. Commit bc673c8 rama `fix-entry-timestamp-ms-v2.4.5` → merge main 3ec73f6. |
 | analyzer v2.4.1 | 17 Abr | Ultra review fixes: C1 entry_candle inferido, C2 consistency check por precios, C3 COMBOLAB_DIR via env/CLI, C4 rollover con ENGINE_STATE.t, S1/S2/S5/S7/M9 + S3/S4/S6/M3 |
 | audit v5.1 | 17 Abr | Ultra review fixes: C1 entry/exit semantics correctas, C2 kernel parity checksum (opcion C: lab solo tiene Numba), C3 flag recon organic, C4 MR cluster_hint via SIGNALS_RAW/GMM, C5 rollover con ENGINE_STATE.t, C6 path env/CLI, C7 CSV 12col, C8 tolerancia +-1, S4/S5/S8/S10/M4/M6 |
 
@@ -349,7 +350,7 @@ xx:00:00 UTC (diario) Health monitor + resumen
 6. v2.4.3 pre-check symbol-aware min_order: constante `MIN_ORDER_USDT = 5.0` genérica producía CRITICAL `[EXEC] OPEN FALLIDO ETH` (7-11/día) porque ETH @ 2310 requiere mínimo 0.01 ETH = 23.1 USDT por precision.amount, pero portfolio permitía sizes 5-11 USDT. Fix: nueva función `compute_min_order_usdt_for(symbol, price, markets_info)` que evalúa `max(limits.cost.min, limits.amount.min × price, precision.amount × price)` con floor 5.0 USDT. Nuevo kwarg `markets_info` a `allocate_positions` (opcional, fallback 5 USDT genérico). ETH threshold 23.1 USDT a precio 2310, UNI/ALGO quedan en floor 5.0 USDT. Reason label enriquecido: `below_min_order_X.Xusdt`. Tests 8/8 PASS.
 7. v2.4.3-hotfix ccxt symbol format resolution en `compute_min_order_usdt_for`. Bug detectado en Smoke-B cycle 181 (2026-04-21 11:00 UTC): `markets_info` cargado vía `exchange.load_markets()` usa key formato perpetuo ccxt BingX swap (`"ETH/USDT:USDT"`); el bot pasa símbolos en formato master (`"ETH/USDT"`). La condición `symbol not in markets_info` se cumplía siempre → fallback `DEFAULT_MIN=5.0` → ETH `sz=11.67 USDT > 5.0` pasaba el portfolio, alcanzaba execution y BingX rechazaba con precision 0.01. Fix: resolver ambos formatos con condicional ordenada: (a) intentar `symbol` directamente (backward compat para llamadas con formato ccxt), (b) si no está intentar `f"{symbol}:USDT"` (traducción master→ccxt), (c) si tampoco está fallback `DEFAULT_MIN`. Añadido test `test_master_format_resolves_to_ccxt` que valida específicamente la traducción ETH/USDT → ETH/USDT:USDT → threshold 23.1 USDT. Tests 13/13 PASS (9 min_order + 4 silent_reconcile). Commit 8b61e94.
 
-**live_engine.py (17):**
+**live_engine.py (18):**
 1. Unclosed session -> try/finally
 2. Telegram env vars -> os.environ.get
 3. -> (U+2192) -> -> en logging
@@ -367,6 +368,7 @@ xx:00:00 UTC (diario) Health monitor + resumen
 15. v2.3.10 D4: alerts Telegram en _post_cycle usaban await secuencial en 2 loops (OPEN + CLOSE). Con N trades por ciclo y timeout Telegram 10s, latencia acumulada 1-3s por cycle — presión sobre margen de tiempo antes del siguiente cierre. Fix: `asyncio.create_task(self._send_alert(msg))` fire-and-forget. Single alerts (ERROR, DD, daily) mantienen await (no son bottleneck). _send_alert tiene try/except interno que captura excepciones sin propagar a la task huérfana (no "Task exception was never retrieved").
 16. v2.4.2 silent reconcile en `_reconcile_brain_after_execution`: el reset de fantasmas (Bug #1 del v2.3.2) disparaba siempre INFO `[BRAIN_RECONCILE]`, generando 26 log lines/13h en la ventana 2026-04-20 20:00→2026-04-21 09:00 UTC (UNI 11 + ETH 11 + ALGO 4). Estos resets son consecuencia MECÁNICA del diseño optimista v2.3.2: brain marca state.position al emitir signal → portfolio descarta (low_confidence, below_min_order) o execution falla (BingX reject) → BingX vacío → reset. Fix: calcular `flat_syms = {sym : alloc.action=="FLAT"}` + `failed_syms = {sym : exec_report.orders_failed}` al inicio del reset loop. Si `sym in (flat_syms ∪ failed_syms)` → log DEBUG `[BRAIN_ROLLBACK_EXPECTED]` (rollback esperado, silencioso en INFO). Else → INFO `[BRAIN_RECONCILE]` preservado (desinc real: BingX cerró entre ciclos, orphan fill). Los 6 campos reseteados (position, entry_price, sl_level, stop_order_id, entry_filters_forming, entry_timestamp_ms) idénticos a v2.4.1. Sin toque en brain/execution/portfolio. Fidelidad 2 preservada. Tests 4/4 PASS.
 17. v2.4.3 wiring markets_info: en `start()` post-conexión a BingX, invocar `await self.exchange.load_markets()` (idempotente, ccxt cachea) y `self.markets_info = self.exchange.markets or {}`. Se expone como nuevo atributo del `LiveEngine.__init__`. En `run_cycle()` se pasa como kwarg `markets_info=self.markets_info` a `allocate_positions`. Confirmado post-deploy: 2879 símbolos cargados. Fallback a dict vacío si `load_markets()` falla (warning + portfolio usa floor 5 USDT genérico).
+18. v2.4.5 enrichment entry_timestamp_ms desde `pre_signal_state`: bug introducido por v2.3.9 B1 (`_reset_state_on_exit` setea `state.entry_timestamp_ms=0` durante generate_signals, antes del call-site de enriquecimiento L616). Trades via `_evaluate_bar` CLOSE paths (div_exit, tf_exit, zone_exit, sl_hit, cancel_*, zone_exit_mr) persistían entry_timestamp_ms=0 al CSV (43/43 = 100% post-v2.3.9). Trades via paths alternativos (regime_change, not_operable, sl_trigger_reconstructed) no afectados por flujos propios. Fix: extraer lógica a función módulo-level `_enrich_positions_with_entry_ms(positions, pre_signal_state)` que lee desde `pre_signal_state` (snapshot pre-reset en L467-483) en vez de `self.brain.symbol_state` (post-reset). `pre_signal_state` ya capturaba entry_timestamp_ms desde v2.3.2. Tests 8/8 PASS (happy, zero guard, missing sym/key, multi-symbol, override, empty, regression). Fidelidad 2 invariante: TF + MR diff 0.0000.
 
 **health_monitor.py (4):**
 1. v2.3.5 H3: _load_trades fallaba con pd.read_csv en CSV con schema evolucionado (header 10 cols vs rows 11-12 cols). Fix: parseo posicional con pad/trunc a 12 cols.
@@ -1567,6 +1569,119 @@ Referencias: §13.3 items funding runtime + observabilidad 2026-04-23; §9.3 v2.
 
 ### 13.4 RESUELTO
 
+**[RESUELTO] Bug entry_timestamp_ms=0 en trade_history.csv — fix v2.4.5 — 2026-04-22**
+
+Contexto: Durante Fase I del reconocimiento empírico 2026-04-22 (preparación para decisión audit completo post-health report ONDO CRITICAL), el análisis del CSV VPS reveló 51/155 trades (33%) con `entry_timestamp_ms=0` a pesar de tener schema post-v2.3.3 (12 cols). Afecta incluso trades post-v2.4.4 (ej. SAND 2026-04-22 03:00). Patrón idéntico al bug size_usdt de v2.4.4 de ayer: campo sistemáticamente persistido a 0.
+
+Investigación forense (Fase I, 5 preguntas respondidas):
+
+**P1 — Alcance histórico por era**:
+- pre-v2.3.3 (schema 10-col, 65 trades): N/A (campo no existía).
+- v2.3.3 → v2.3.9 (40 trades): 7 con entry_ms=0 (17%), 33 con >0 — bug NO presente.
+- v2.3.9 → v2.4.4 (50 trades): 41 con entry_ms=0 (82%) — bug activo.
+- post-v2.4.4 (13 trades): 10 con entry_ms=0 (77%) — bug sigue vivo post-size_usdt fix.
+
+Segregado por reason_exit:
+- `_evaluate_bar` CLOSE reasons (div_exit, tf_exit, zone_exit, sl_hit, cancel_*, zone_exit_mr) **post-v2.3.9: 43/43 trades = 100% afectados**.
+- Other reasons (regime_change, not_operable, below_min_order, sl_trigger_reconstructed) **post-v2.3.9: 0/7 afectados**.
+
+Primer bug: 2026-04-17 10:00 APT (pre-v2.3.9, causa menor distinta).
+Último bug: 2026-04-22 03:00 SAND (bug vivo).
+
+**P2 — Bug aislado**: cross-tabulación con size_usdt, pnl_usdt, pnl_pct, funding_paid no mostró correlación. Bug afecta EXCLUSIVAMENTE a entry_timestamp_ms. size_usdt=0 residual era el bug v2.4.4 pre-fix, independiente.
+
+**P3 — Root cause confirmado (H1)**:
+- `brain_engine.py:285` (dentro de `_reset_state_on_exit` L264-287 introducido por v2.3.9 fix B1): `state.entry_timestamp_ms = 0`.
+- `brain_engine.py:907` (TF) y `:2022` (MR): invocación de `_reset_state_on_exit` dentro de `_evaluate_bar` durante la generación de signal CLOSE.
+- `live_engine.py:485`: `generate_signals(...)` invoca `_evaluate_bar` → reset corre AQUÍ.
+- `live_engine.py:616-622` (bug): enriquecimiento lee `self.brain.symbol_state[sym].entry_timestamp_ms` POST-reset → campo es 0 → condición `> 0` falsa → NO enriquece `pos`.
+- `execution_manager.py:944/972/1060`: `log_trade({..., "entry_timestamp_ms": pos.get("entry_timestamp_ms", 0)})` → persiste 0 al CSV.
+
+Paths alternativos (exentos):
+- `brain_engine.py:621` FLAT/not_operable: `state` no se muta → enriquecimiento funciona.
+- `brain_engine.py:627-643` regime_change: reset parcial (solo position/entry_price/sl_level, NO entry_timestamp_ms) → enriquecimiento funciona.
+- `live_engine.py:948-959` ORPHAN_CLOSE reconstructed: usa `pre.get("entry_timestamp_ms", 0)` desde `pre_signal_state` → funciona.
+
+**P4 — Impacto análisis previos**:
+- Audit v5.1 (`audit_fidelity_v5.py:211-231` `infer_entry_candle`): tiene **fallback** a log SIGNALS_EXECUTED cuando CSV entry_ms=0/missing → **MITIGADO** por C1 fix preexistente.
+- Analyzer v2.4.1 (`analyze_performance_attribution.py:219-231`): misma mitigación → **MITIGADO**.
+- Health_monitor (`health_monitor.py:34` `evaluation_window_days=30`): filtra por timestamp CSV col 0 (exit), no entry_ms → **NO afectado**.
+- N=13 effective del audit 2026-04-21 **probablemente correcto** vía fallback (el audit filtra by entry_cycle inferido, no por CSV raw entry_ms).
+
+Fix aplicado (`live_engine.py` +48/-7):
+- Extraer lógica de enriquecimiento a función módulo-level `_enrich_positions_with_entry_ms(positions, pre_signal_state)` (nueva, L119-149).
+- Cambiar fuente de `self.brain.symbol_state` (post-reset) a `pre_signal_state` (snapshot pre-reset en L467-483).
+- Call-site reemplazado por 1 línea: `_enrich_positions_with_entry_ms(positions, pre_signal_state)`.
+
+`pre_signal_state` ya capturaba `entry_timestamp_ms` desde v2.3.2 (phantom fix), solo no se usaba como fuente de enriquecimiento.
+
+Scope: **1 archivo** (`live_engine.py`), 1 test nuevo (`test_entry_timestamp_ms_enrichment.py`, 186 líneas). Zero cambios a `brain_engine`, `execution_manager`, `state schema`. Zero riesgo Fidelidad 2 (cambio solo en fuente de metadata).
+
+Tests 8/8 PASS (`tests/test_entry_timestamp_ms_enrichment.py`):
+- `test_enriches_from_pre_signal_state` (happy path).
+- `test_ignores_zero_pre_ts` (guard > 0).
+- `test_ignores_missing_sym_in_pre_state`.
+- `test_ignores_missing_entry_ms_key`.
+- `test_enriches_multiple_symbols_independently`.
+- `test_overrides_existing_entry_ms_in_pos` (defensivo).
+- `test_empty_positions_noop`.
+- `test_post_reset_scenario_regression` (regresión directa del bug).
+
+Fidelidad 2 invariante:
+- TF `_run_verify_test --symbol BTC/USDT`: Trades 1=1, Wins 0=0, PnL -0.5935=-0.5935, Gross profit 0.0000=0.0000, Gross loss 0.5935=0.5935 → diff **0.0000** en 5 métricas.
+- MR `audit_mr_fidelity_sei.py` SEI/USDT C2 config 45686: PnL 1.0180=1.0180, Trades 17=17, Wins 5=5, Cancels 2=2, MaxDD 3.9316=3.9316, GrossProfit 9.6434=9.6434, GrossLoss 8.6254=8.6254 → diff **0.0000** en 7 métricas.
+
+Deploy VPS 2026-04-22:
+- T_stop = 09:45:30 UTC (graceful shutdown, 6 posiciones preservadas).
+- T_start = 09:46:17 UTC (bot active + reconcile).
+- Downtime total: **47 segundos** dentro de ventana segura xx:15-xx:45 UTC.
+- MD5 3-way sincronizado: `4141ab7157b9eb341e99347b37f0cc44` (combolab + comboclaude + VPS).
+- Backup: `/home/trader/combolab/live/live_engine.py.bak-pre-v245-20260422-094544`.
+
+Smoke-A ✓ PASS:
+- 45 GMM + 45 specialist_configs cargados en 2.06s.
+- Estado restaurado ciclo #204 (continúa numeración natural).
+- 6 posiciones sincronizadas desde exchange (RENDER/THETA/ONDO/APT/SEI long + SAND short — idénticas pre-stop).
+- `[ALERT] [START]` Telegram emitido.
+- Boot total 3.5s.
+- 0 errores Python, 0 WARNINGs inesperados.
+- **Validación indirecta del fix**: `engine_state.json` post-arranque muestra `entry_timestamp_ms` VÁLIDO (>0) para las 6 posiciones abiertas. Feature v2.3.3 de persistencia state intacta; fix v2.4.5 listo para trigger en próximo CLOSE.
+
+Smoke-B ✓ PASS (cycle post-deploy 09:59:50-10:00:05 UTC):
+- Cycle duration: **14735ms** (dentro de rango operacional 14-22s, sin degradación atribuible al helper extraído).
+- Numeración cycle: `#204` (re-uso natural post-stop — state restauró cycle_count=204, mismo patrón que reboot kernel de esta mañana; cycle_count interno ya incrementó para persistir, próximo cycle a 10:59:54 será #205).
+- 3 signals evaluadas (BNB/AVAX/UNI LONG), **0 ejecutadas** (todas `low_confidence` descartadas), 0 closes.
+- 6 TS updates como `TS_NOOP_V240` (Fidelidad 2 TS operando normal post-fix).
+- Balance estable 296.24 USDT.
+- 6 posiciones preservadas (idénticas pre-stop: RENDER/THETA/ONDO/APT/SEI long + SAND short).
+- 0 errores Python, 0 WARNINGs inesperados.
+- `[SIGNALS_RAW]`, `[SIGNALS_EXECUTED]`, `[SIGNALS_DISCARDED]` emitidos con schema íntegro.
+
+**Validación directa del fix (CSV entry_ms>0 post-close)** pendiente de próximo cycle que ejecute CLOSE. Cycle 204 post-deploy no generó closes (mercado lateral + 3 signals low_confidence descartadas). Próximos cycles con close confirmarán fix directamente via `tail trade_history.csv` verificando `entry_timestamp_ms` > 0 en columna 12.
+
+**Evidencia indirecta robusta ya confirmada**:
+- `_enrich_positions_with_entry_ms` llamado en cycle 204 post-fix (code path ejercitado).
+- `engine_state.json` post-arranque muestra entry_ms VÁLIDO (>0) para las 6 posiciones — fuente que `pre_signal_state` capturará al próximo close.
+- Tests 8/8 unit cubren el contrato completo del helper.
+- Lógica inspeccionada línea a línea, refactor conservador (mismo algoritmo, fuente distinta).
+
+Trades históricos (51 afectados) permanecen con `entry_timestamp_ms=0` en CSV — no migrables. Mitigación continúa vía fallback en analyzers/audits que ya existía.
+
+Commits:
+- `bc673c8` fix(v2.4.5): entry_timestamp_ms enrichment desde pre_signal_state (rama `fix-entry-timestamp-ms-v2.4.5`).
+- `3ec73f6` merge rama → main con `--no-ff` (rama preservada para rollback).
+
+Referencias:
+- `live/live_engine.py` L119-149 (función helper), L616 (call-site).
+- `live/brain_engine.py` L264-287 (_reset_state_on_exit), L285 (línea que setea entry_ms=0), L907/L2022 (invocaciones).
+- `tests/test_entry_timestamp_ms_enrichment.py` (186 líneas, 8 tests).
+- Fase I investigación 2026-04-22 (datos forenses CSV VPS analizado read-only).
+- §12 Lección 26 (ecuaciones que cierran ≠ atribución correcta) — patrón análogo al size_usdt.
+
+Cierre: fix deployado + validado Smoke-A. Validación directa Smoke-B cycle 205 pendiente de completion.
+
+---
+
 **[OBSERVACION] [RESUELTO] Evento unattended-upgrades restart automático + mitigación APT window — 2026-04-22**
 
 Contexto: 2026-04-22 06:40:38 UTC, `unattended-upgrades.service` (timer APT diario Ubuntu) aplicó security update `python3.12` (3.12.3-1ubuntu0.12 → 0.13) entre 06:40:31-37 UTC junto con upgrades de `libpython3.12*`, `libcap2*`, `libntfs-3g89t64`, `ntfs-3g`, `linux-aws` (kernel 6.17.0-1012 instalado pero no activo al momento). `needrestart` en modo automático (default APT hook Ubuntu) disparó stop+start de `trading-bot.service` (+ `fail2ban.service`) 1 segundo después del fin del upgrade de Python. Bot respondió con graceful shutdown, 5 posiciones con stops en BingX preservadas, reconcile post-restart 5/5 recuperó idénticas (RENDER/THETA/ONDO/APT/SEI long). Downtime real ~11s dentro de ventana inactiva entre ciclo 201 (06:00) y ciclo 202 (07:00). Cero ciclos perdidos — esta vez por suerte, no por diseño.
@@ -2009,6 +2124,20 @@ Conclusiones del audit NO afectadas:
 - Hallazgo metodológico (Lección 25) → SIGUE VÁLIDO.
 
 Ver [RESUELTO] size_usdt fix 2026-04-22 para detalle completo.
+
+**MATIZACIÓN 2026-04-22 adicional por bug entry_timestamp_ms=0 (v2.4.5 fix):**
+
+El audit reportó N=13 effective post-v2.3.11 usando entry-filter. Investigación forense 2026-04-22 (Fase I del reconocimiento empírico) reveló bug sistemático entry_timestamp_ms=0 en CSV (51/155 trades con valor 0, 100% de closes via `_evaluate_bar` post-v2.3.9).
+
+Impacto en el audit 2026-04-21:
+- El audit v5.1 (`audit_fidelity_v5.py:211-231` `infer_entry_candle`) tiene cadena de fallback: (1) CSV `entry_timestamp_ms` si presente y >0, (2) log `SIGNALS_EXECUTED` cycle_ts. Si el CSV raw tenía entry_ms=0, el audit automáticamente delegaba al log → entry_cycle inferido correctamente.
+- Por tanto N=13 effective **probablemente correcto** vía fallback, no afectado por el bug en el CSV directo.
+- Conclusión cualitativa 84.6% match rate **preserva validez**.
+- Analyzer v2.4.1 tiene misma cadena de fallback (`analyze_performance_attribution.py:219-231`) → análisis de atribución no afectado por entry_ms.
+
+Fix v2.4.5 deployado 2026-04-22 09:46 UTC. Trades post-deploy tendrán entry_ms correcto en CSV directo → fallback ya no será necesario. Trades históricos (51 afectados) permanecen con entry_ms=0 en CSV, pero audits/analyzers seguirán resolviendo vía fallback.
+
+Ver [RESUELTO] entry_timestamp_ms fix v2.4.5 2026-04-22 para detalle completo.
 
 Cierre: primer hito empírico alcanzado. Próxima ejecución disparada por N≥50 post-v2.3.11 (~2026-04-26).
 
