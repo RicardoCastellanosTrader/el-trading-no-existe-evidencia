@@ -1,6 +1,6 @@
 # Sistema de Trading Algorítmico — Contexto Completo del Proyecto
 
-**Última actualización:** 23 Abril 2026 (W3+W4 MERGED main 56d38d4, A12 LL1 MA dedup MERGED main ae5a21a, A14+A15 plateau/engine_tag MERGED main cf9d7b6, A13 LL2 RESUELTO documental, A04 + A04b Fidelidad 1 TF+MR kernel↔Pine RESUELTO documental ambos scopes, A05 MR docstring + dead fields + zone_bull helper MERGED main ca3bbd6 — todos pre-reciclaje, NO deploy; Bloque 1 roadmap COMPLETADO previamente: A36 log rotation + A35 tz-naive + A38 edge guard + A34 timing_borderline; §0.7 convención sync; §12 L27+L28)  
+**Última actualización:** 23 Abril 2026 CIERRE SESIÓN — 9 items §13.3 RESUELTOS (W3+W4 bootstrap/filtros CI, A12 LL1 MA dedup, A14 W1 plateau_ratio, A15 W2 engine tag, A13 LL2 ratio supervivencia, A04+A04b Fidelidad 1 TF+MR auditorías, A05 MR cleanup) + runbook reciclaje en docs/runbook_reciclaje.md + §12 Lecciones 31+32 nuevas. Smoke §0.8 3 niveles PASS post-sesión. Bot v2.4.5 operacional. Pipeline pre-reciclaje significativamente mejorado. Pendientes pre-reciclaje: cooldown asimétrico TF+MR (POT INVOLUNTARIA única A04+A04b), otros §13.3 EN_ESPERA dormidos. Bloque 1 roadmap COMPLETADO previamente: A36 + A35 + A38 + A34. §0.7 convención sync. §12 L27+L28+L29+L30+L31+L32.
 **Versión actual:** v2.4.4 (sin bump — sesión 100% herramientas offline, sin deploy operacional)  
 **Autor del sistema:** Ricardo  
 **Plataforma:** Binance (datos) + BingX (ejecución), velas 1h  
@@ -848,6 +848,31 @@ c:\Users\rixip\combolab\
 **Aplicabilidad fuera de trading**: cualquier sistema con dos implementaciones independientes de la misma lógica (referencia + optimizada, Python + Numba/C, interpreter + JIT). Regresión tests con N pequeño pueden pasar por coincidencia; N grande discrimina. Valid también para tests de algoritmos numéricos iterativos (SGD, ODE solvers, Kalman filters).
 
 **Caso origen**: A10 diferencial brain↔kernel Numba 2026-04-22 sobre N≥8000 altcoins activas (ONDO, APT). Ver §13.4 A10 entrada respectiva + §13.3 item root cause drift + smoke test upgrade.
+
+31. **Verificar diseño documentado antes de diagnosticar problema arquitectónico — 2026-04-23**. Caso origen: A13 LL2 kernel simplificado lab_lite. Primera iteración diagnosticó "Caso C bias severo" comparando kernel lite (solo zonas puras) vs kernel completo (con SL/TS/divergencias/cancelaciones). Veredicto estructural aparente: drift inevitable, reducción 0.05%. Ricardo interrumpió preguntando si CONTEXTO documentaba este diseño como intencional. Re-lectura §13.3 LL2: el criterio empírico documentado era "ratio supervivencia presets input lab_lite → walk-forward outputs, saludable si ≥20%". Re-análisis con métrica correcta: **ratio mean 36.7%**, 43/45 símbolos en rango saludable → veredicto LIMPIO, el diseño funciona como intencional.
+
+**Patrón problemático**: diagnosticar "problema arquitectónico" sin verificar primero si es diseño intencional documentado. El análisis correcto depende de qué pregunta se pretende responder — "¿el sistema funciona como diseñó?" vs "¿el sistema es óptimo globalmente?" son evaluaciones distintas con métricas distintas.
+
+**Mitigación**: antes de clasificar un comportamiento como "bug arquitectónico", (a) grep CONTEXTO para la palabra clave del componente; (b) leer items §13.3 relevantes completamente, incluyendo "Disparo" y "Cierre"; (c) si CONTEXTO documenta el comportamiento como diseño, aplicar el criterio empírico definido ahí, no el criterio intuitivo que surja del análisis estructural. El criterio documentado captura la intención del diseñador; el criterio intuitivo refleja asunciones no validadas.
+
+**Escalabilidad**: aplica a cualquier sistema con diseño evolutivo documentado + desarrolladores externos (o agentes AI) que no necesariamente conocen las decisiones previas. La documentación del "por qué" de un diseño es tan importante como el "qué" — sin el por qué, cada auditor re-inventa la rueda (incorrectamente) al detectar el "qué" desviado de una norma implícita.
+
+**Caso origen**: A13 LL2 2026-04-23 diagnóstico inicial incorrecto corregido por Ricardo con señalamiento explícito al CONTEXTO §13.3.
+
+32. **Auditorías comparativas con referencia histórica requieren inventario de adaptaciones esperadas a priori — 2026-04-23**. Caso origen: A04b Fidelidad 1 MR kernel ↔ Pine v7.25. Ricardo aportó contexto crítico en el prompt: Pine v7.25 MR es versión **congelada con faltas conocidas** documentadas §0.2 (hidden divergence sin fix, cancelaciones unificadas bajo `i_use_cancel`). Kernel MR moderno incluye **4 adaptaciones intencionales** listadas a priori. Sin ese aviso, la auditoría habría clasificado las 4 adaptaciones como "divergencias POT INVOLUNTARIAS", generando 4 falsos positivos sobre ~5 divergencias totales → reporte virtualmente inservible.
+
+**Patrón problemático**: auditar "kernel moderno" vs "referencia histórica congelada" asumiendo que ambos deberían ser funcionalmente idénticos. En proyectos con evolución arquitectónica intencional, la referencia histórica **diverge esperablemente** del estado actual — las divergencias son adaptaciones documentadas, no bugs.
+
+**Mitigación**: al diseñar un prompt de auditoría comparativa, incluir explícitamente:
+- **Jerarquía clara**: qué archivo es "verdad operacional" vs cuál es "referencia histórica" (§0.6 en este proyecto).
+- **Inventario de adaptaciones esperadas a priori**: lista de divergencias intencionales conocidas, con referencia al documento que las justifica (§0.2 en este caso).
+- **Categorías de clasificación asimétricas**: distinguir "ADAPTACIÓN DOCUMENTADA" (esperada, no es divergencia a reconciliar) de "POT INVOLUNTARIA" (divergencia real a investigar).
+
+Sin esto, el auditor produce falsos positivos masivos y la auditoría pierde valor.
+
+**Escalabilidad**: cualquier sistema con diseño vivo + referencia histórica (indicadores Pine vs kernel Python, papers académicos vs implementación industrial, specs originales vs producto maduro). La auditoría comparativa es útil solo si el marco de clasificación reconoce que "divergencia ≠ bug" cuando hay evolución consciente.
+
+**Caso origen**: A04b 2026-04-23. Prompt mejorado por Ricardo incluyó explícitamente: las 4 adaptaciones esperadas (hidden fix, cancelaciones bits 14-16, HA/Tenkan cruce invertido, semántica zona invertida), clasificación jerárquica §0.6, categorías distintas "ADAPTACIÓN DOC §0.2" vs "POT INVOLUNTARIA". Resultado: auditoría limpia (4/5 divergencias correctamente clasificadas como ADAPTACIÓN §0.2 esperadas, 1 única POT INVOLUNTARIA real a investigar).
 
 ---
 
@@ -1912,6 +1937,90 @@ Referencias: §13.3 items funding runtime + observabilidad 2026-04-23; §9.3 v2.
 ---
 
 ### 13.4 RESUELTO
+
+**[SESIÓN] [RESUELTO] Sesión 2026-04-23 — 9 items §13.3 resueltos + runbook reciclaje**
+
+Contexto: sesión intensiva de resolución pre-reciclaje. Ricardo decidió atacar agresivamente el backlog §13.3 con foco en items que afectan el próximo `master.py --recycle`. Al cierre: 9 items RESUELTOS, pipeline pre-reciclaje significativamente mejorado, runbook operacional documentado.
+
+**Balance arquitectónico del día**:
+
+| Item | Scope | Impacto pipeline | Commit |
+|---|---|---|---|
+| **W3** | bootstrap pf_fwd + selección por ci_low | walk-forward output + selection logic | `4e54c8d` |
+| **W4** | thresholds _FWD + filtros CI | walk-forward filtering | `ee4ce69` |
+| (merge W3+W4) | — | — | `56d38d4` |
+| **A12 LL1** | MAs dedup lab_lite ↔ lab_historico | single source of truth MAs | `347639a` + `ae5a21a` |
+| **A14 W1** | plateau_ratio consistency | metadata correcta | `5a7135b` + `cf9d7b6` |
+| **A15 W2** | engine tag + resume check | reproducibilidad + heterogeneidad prevention | (mismo commit A14) |
+| **A13 LL2** | ratio supervivencia validado saludable | diseño OK, sin fix código | `bcc3828` (docs) |
+| **A04 TF** | Fidelidad 1 formal kernel TF ↔ Pine v44 | auditoría limpia, 5 divergencias catalogadas | `b620d9f` |
+| **A05 MR** | docstring + dead fields + zone helpers | brain MR pass-through cleanup | `8552b95` + `ca3bbd6` + `4a19c09` |
+| **A04b MR** | Fidelidad 1 formal kernel MR ↔ Pine v7.25 | auditoría limpia, 4 ADAPTACIÓN §0.2 esperadas + 1 POT INVOLUNTARIA compartida | `09b01f6` |
+| Cierre docs | L31+L32 + runbook + §13.4 consolidación | documentación completa sesión | (este commit) |
+
+**Totales arquitectónicos**:
+
+- Pipeline walk-forward: W3 bootstrap CI + W4 thresholds + CI filters + A14 plateau canonical + A15 engine tag. 4 mejoras metodológicas nuevas activas.
+- Code dedup: A12 (MAs) + A05 S3 (zone_bull_mr) — 2 dominios con single source of truth establecido.
+- Auditorías Fidelidad 1 completadas: TF (A04) + MR (A04b). 21 áreas mapeadas, 1 única POT INVOLUNTARIA real (cooldown asimétrico compartido TF+MR, impacto bajo).
+- A05 MR audit cleanup: docstring preciso + dead fields DEPRECATED + 6 inline comparisons refactoradas.
+- Validación empírica: A13 ratio supervivencia 36.7% mean cross-símbolo.
+
+**Regresión acumulada 34/34 tests PASS**:
+- W3 bootstrap 8/8, W4 thresholds 8/8, A12 MA parity 4/4, A14 plateau 4/4, A15 engine tag 4/4, A05 zone helpers 6/6.
+
+**Smoke test §0.8 3 niveles PASS** (al cierre):
+- Nivel A BTC N=1000: diff 0.0000 exacto 5 métricas ✓.
+- Nivel B ONDO+APT N=10000: match >99%, ratio bar-level consistente con baseline A10 2026-04-22 (ONDO ~0.79% / APT ~0.84% gross-count; PnL diff ~5.3% / ~1.3% dentro de drift arquitectónico §12.30 documentado) ✓.
+- Nivel C SEI MR C2: 7/7 métricas diff 0.0000 ✓.
+
+**Items §13.3 que quedan EN_ESPERA post-sesión**:
+
+1. **Cooldown asimétrico TF+MR** (NUEVO — emergente A04+A04b). Única POT INVOLUNTARIA real detectada en ambas auditorías Fidelidad 1. Kernel diferencia `emergency/cancel → cooldown=t fijo` vs `sl/div → cooldown=t+cooldown_bars-1`; Pine uniforma `i_cooldown_bars`. Con default `cooldown_bars=1` son operacionalmente idénticos. Candidato pequeño pre-v3.0 reciclaje: investigar intención original o unificar.
+
+2. **A30 hidden divergence asimetría TF vs MR**: diferido v3.0 por scope arquitectónico (67/138 configs). Requiere test diferencial completo con simulador swap TF↔MR.
+
+3. **B2 prev_zone asimetría TF vs MR + B3 TF locals vs MR state directo div_ctx**: diferidos v3.0 por complejidad refactor API interna brain.
+
+4. **P1 portfolio leverage**: proyecto arquitectónico separado. Disparador: balance >1000 USDT.
+
+5. **§13.3 política adelantar reciclaje por criterio empírico**: pendiente decisión Ricardo según evolución post-N≥50.
+
+6. **Batch fix emojis cp1252 restantes en lab_historico** (§13.3 MEJORA EN_ESPERA): 14 ocurrencias no críticas.
+
+7. **R1 brain cooldown emergency/cancel**: diferido post-N≥50 + test diferencial.
+
+8. **W3 sesiones futuras ampliar muestreo**: opcional post-primer reciclaje con W3.
+
+9. Otros §13.3 EN_ESPERA dormidos (inventario antes próximo ciclo).
+
+**Lecciones metodológicas §12 nuevas**:
+- **L31 Verificar diseño documentado antes de diagnosticar problema arquitectónico** (caso origen A13 LL2 primera iteración incorrecta).
+- **L32 Auditorías comparativas con referencia histórica requieren inventario de adaptaciones esperadas a priori** (caso origen A04b).
+
+**Runbook reciclaje** creado en `docs/runbook_reciclaje.md` con 10 secciones: estado requerido, precondiciones hardware/compute, variables decisión, comandos ejecución, criterios aceptación, plan contingencia, items pendientes post-reciclaje, protocolo deploy VPS, referencias, cuándo ejecutar.
+
+**Commits del día** (cronológicos en main):
+1. `4e54c8d` feat(w3) + `ee4ce69` feat(w4) + `56d38d4` merge W3+W4.
+2. `347639a` refactor(A12) + `ae5a21a` merge A12.
+3. `5a7135b` fix(a14+a15) + `cf9d7b6` merge + `c6cf68c` docs.
+4. `bcc3828` docs(a13 LL2).
+5. `b620d9f` docs(A04 TF).
+6. `8552b95` cleanup(A05) + `ca3bbd6` merge + `4a19c09` docs.
+7. `09b01f6` docs(A04b MR).
+8. (este commit cierre) docs sesión + L31+L32 + runbook.
+
+**Estado operacional al cierre**:
+- Bot v2.4.5 operacional VPS Tokio (sin deploy hoy — todas las resoluciones pre-reciclaje, no productivas).
+- Fidelidad 2 invariante (ningún fix tocó path brain↔kernel operacional).
+- Main branch commits 2026-04-23 todos mergeados.
+- comboclaude ↔ combolab sincronizado (§0.7 MD5 2-way verificado en cada merge).
+
+**Próxima acción esperada**: N≥50 trades post-v2.4.5 para primer audit/analyzer con data fresca → decisión adelantar reciclaje o mantener calendario julio.
+
+Cierre: permanente. Sesión 2026-04-23 cerrada. Runbook listo para ejecutar reciclaje cuando Ricardo decida el momento.
+
+---
 
 **[AUDITORIA] [RESUELTO scope MR] A04b Fidelidad 1 formal kernel MR ↔ Pine v7.25 — 2026-04-23**
 
