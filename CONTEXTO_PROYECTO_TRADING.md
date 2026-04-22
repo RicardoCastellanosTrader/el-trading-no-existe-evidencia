@@ -1,6 +1,6 @@
 # Sistema de Trading Algorítmico — Contexto Completo del Proyecto
 
-**Última actualización:** 23 Abril 2026 CIERRE SESIÓN — 9 items §13.3 RESUELTOS (W3+W4 bootstrap/filtros CI, A12 LL1 MA dedup, A14 W1 plateau_ratio, A15 W2 engine tag, A13 LL2 ratio supervivencia, A04+A04b Fidelidad 1 TF+MR auditorías, A05 MR cleanup) + runbook reciclaje en docs/runbook_reciclaje.md + §12 Lecciones 31+32 nuevas. Smoke §0.8 3 niveles PASS post-sesión. Bot v2.4.5 operacional. Pipeline pre-reciclaje significativamente mejorado. Pendientes pre-reciclaje: cooldown asimétrico TF+MR (POT INVOLUNTARIA única A04+A04b), otros §13.3 EN_ESPERA dormidos. Bloque 1 roadmap COMPLETADO previamente: A36 + A35 + A38 + A34. §0.7 convención sync. §12 L27+L28+L29+L30+L31+L32.
+**Última actualización:** 22 Abril 2026 — Cooldown unify (§13.3 último bloqueante arquitectónico pre-reciclaje RESUELTO por Opción A confirmada Ricardo). Refactor kernel TF L1630-1637 + kernel MR L408-415 a expresión Pine canónica uniforme (commit `9389af9` rama `feature-cooldown-unify`). Discovery pre-ejecución: `COOLDOWN_BARS=1` constante única en 9 módulos del pipeline productivo → 4 ramas del switch colapsaban a `t` (código muerto). Confirmatorio §0.8 A+C diff 0.0000 exacto; B dentro de baseline. Fidelidad 2 invariante. Sin deploy VPS. Previamente sesión 2026-04-23: 9 items §13.3 RESUELTOS (W3+W4 bootstrap/filtros CI, A12 LL1 MA dedup, A14 W1 plateau_ratio, A15 W2 engine tag, A13 LL2 ratio supervivencia, A04+A04b Fidelidad 1 TF+MR auditorías, A05 MR cleanup) + runbook reciclaje en docs/runbook_reciclaje.md + §12 Lecciones 31+32 nuevas. Bot v2.4.5 operacional. Pipeline pre-reciclaje arquitectónicamente listo. Pendientes pre-reciclaje: política adelantar reciclaje por criterio empírico, P1 leverage >1000 USDT, otros §13.3 EN_ESPERA dormidos. Bloque 1 roadmap COMPLETADO previamente: A36 + A35 + A38 + A34. §0.7 convención sync. §12 L27+L28+L29+L30+L31+L32.
 **Versión actual:** v2.4.4 (sin bump — sesión 100% herramientas offline, sin deploy operacional)  
 **Autor del sistema:** Ricardo  
 **Plataforma:** Binance (datos) + BingX (ejecución), velas 1h  
@@ -449,6 +449,9 @@ xx:00:00 UTC (diario) Health monitor + resumen
 
 **lab_lite_zonas_v5e.py (1):**
 1. 2026-04-23 A12 (LL1) MA dedup (rama `feature-a12-ma-dedup`, NO deploy). Contexto: ultra review LL1 marcó 16 MAs duplicadas en 4 archivos. Inventario real: duplicación 2-way (lab_lite ↔ lab_historico). brain_engine y MR features ya eran pass-through. Fase 2 verificación bit-a-bit: 52/52 tests PASS rtol=1e-10 (drift max 3.3e-11 por cumsum vs loop, sub-ULP). Fase 4 aplicado: bloque L112-348 (234 líneas, 17 defs MA) reemplazado por import consolidado desde lab_historico_numba_v8_3 (17 líneas). calc_wma eliminado (único local sin contraparte, usado solo por calc_hma local ahora importado). `lab_lite.calc_X is lab_historico.calc_X → True` → cero posibilidad drift por construcción. Neto: -234/+17 líneas. Tests parity 4/4 PASS + no-regresión W3/W4 16/16 + Smoke §0.8 A+C PASS (Nivel B omitido por scope, no toca brain/kernel). Fidelidad 2 invariante (brain ya importaba desde lab_historico). Ver §13.4 entrada A12 IMPLEMENTADO 2026-04-23.
+
+**lab_historico_numba_v8_3.py + mean_reversion_kernel.py (1):**
+1. 2026-04-22 Cooldown unify TF+MR (rama `feature-cooldown-unify` commit `9389af9`, NO deploy). Contexto: A04 TF + A04b MR detectaron switch cooldown 4-branch (`emergency/cancel → t` fijo; `sl/div → t + cooldown_bars - 1` parametrizable) vs Pine uniforme. Discovery pre-ejecución: `COOLDOWN_BARS = 1` constante única en 9 módulos del pipeline productivo (lab + live + audit); con ese valor las 4 ramas colapsan matemáticamente a `t` → asimetría estructural latente sin efecto operacional. Ricardo confirmó Opción A: cooldown=1 siempre operacional en Pine histórico, diferenciación era código muerto. Refactor `lab_historico_numba_v8_3.py` L1630-1637 (kernel TF Numba) + `mean_reversion_kernel.py` L408-415 (kernel MR Numba) unificado a `if any_exit_signal: cooldown_until = t + cooldown_bars - 1` (expresión Pine canónica). Comportamiento bit-idéntico con `cooldown_bars=1`. Fall-through preservado en tf_exit/zone_exit (asimetría 4-vs-6 separada, fuera de scope). Confirmatorio §0.8 Nivel A (BTC N=1000) + Nivel C (SEI MR C2 N=1500) pre/post: diff 0.0000 exacto en todas métricas. Nivel B (ONDO+APT N=10000) ejecutado post-refactor dentro de baseline arquitectónico. Fidelidad 2 invariante. Deploy VPS NO requerido. Ver §13.4 entrada Cooldown unify 2026-04-22 + §13.3 cooldown → RESUELTO.
 
 **Infraestructura (5):**
 1. SSH puerto 2222 → 22 (ISP bloqueaba)
@@ -1340,35 +1343,11 @@ Referencias: analyze_performance_attribution.py bloque attribute_trade(), test d
 
 ### 13.3 EN_ESPERA
 
-**[MEJORA] [EN_ESPERA] Cooldown asimétrico por tipo exit — investigación empírica pre-reciclaje — 2026-04-23**
+**[MEJORA] [RESUELTO] Cooldown asimétrico por tipo exit — UNIFICAR SEGURO confirmado 2026-04-22**
 
-Contexto: A04 TF (kernel TF L1630-1637) y A04b MR (kernel MR L408-415) identificaron cooldown diferenciado por tipo exit (`emergency/cancel → cooldown_until = t` fijo 1 bar, `sl_exit/div_exit → t + cooldown_bars - 1` parametrizable) vs Pine uniforme `i_cooldown_bars` default=1. Inicialmente clasificado como "NO DOC POT INVOLUNTARIA impacto bajo" en ambas auditorías Fidelidad 1.
+Ver §13.4 entrada RESUELTO 2026-04-22 "Cooldown asimétrico — UNIFICAR SEGURO por Opción A".
 
-**Información histórica añadida post-auditorías (Ricardo 2026-04-23)**: el cooldown fue implementado originalmente en Pine para evitar aperturas-cierres en velas contiguas sin explicación aparente (probablemente whipsaws por bar forming/resolved timing en indicador operando productivamente). Tiene **base operacional empírica del sistema Pine**, no es diseño arbitrario del kernel Python.
-
-Reclasificación: **ITEM INVESTIGATIVO heredado con base operacional Pine**, no POT INVOLUNTARIA. Antes de unificar, validar empíricamente si los mecanismos modernos anti-repainting del kernel Python ya resuelven el problema que Pine mitigaba.
-
-**Incógnita metodológica**: ¿el problema original Pine persiste en kernel Python tras mecanismos modernos?
-- Bits 14-16 cancelaciones (cancel_zona, cancel_tf, cancel_ghost) resuelven aspectos del repainting.
-- v2.3.11 bar forming fix determinizó que `iloc[-1]` sea siempre bar `t` en curso (antes inconsistente por BingX paginated).
-- Posiblemente ambos mecanismos juntos ya eliminan el motivo del cooldown asimétrico original.
-
-**Metodología de investigación** (estimado 1-2h + compute):
-1. Clonar kernel con modo `cooldown_uniform=True` (todos los tipos exit usan mismo `COOLDOWN_BARS=1`).
-2. Simular sobre subset representativo (BTC+ETH+ONDO+APT), ventana últimos 3000-5000 bars con specialist_configs actuales.
-3. Detectar aperturas-cierres en velas contiguas (trade N exit bar T, trade N+1 entry bar T o T+1).
-4. Comparar ratio de eventos "apertura-cierre contiguo" modo uniforme vs modo asimétrico.
-
-**Criterios decisión**:
-- Ratio similar ambos modos (±20%): mecanismos modernos resuelven problema. Cooldown asimétrico es legacy no necesario → unificar seguro (consistencia con Pine).
-- Ratio significativamente mayor en modo uniforme: cooldown asimétrico mitiga silenciosamente whipsaws → mantener + documentar razón en comment código.
-- Ratio menor en modo uniforme: hallazgo inesperado → investigar.
-
-**Disparo**: pre-reciclaje (cualquier scope α/β/γ según runbook §0). Test puede ejecutarse en cualquier momento con specialists actuales sin tocar producción. Ejecución read-only (simulación offline, no toca bot live).
-
-**Cierre**: decisión fundamentada empíricamente (unificar si mecanismos modernos suficientes, mantener con docs si aún necesario). Actualización código kernel TF + MR acorde. Documentación en §13.4 + §0.X si corresponde.
-
-Referencias: A04 commit b620d9f (TF audit), A04b commit 09b01f6 (MR audit), §13.4 entradas A04 + A04b 2026-04-23, Ricardo contexto histórico Pine 2026-04-23.
+Resumen: Ricardo confirmó Opción A (cooldown=1 siempre operacional en Pine productivo histórico; diferenciación en kernel era código muerto). Refactor kernel TF L1630-1637 + kernel MR L408-415 a expresión Pine canónica uniforme. Confirmatorio empírico + Smoke §0.8 A+B+C PASS. Último ítem §13.3 bloqueante arquitectónico pre-reciclaje cerrado.
 
 **[MEJORA] [EN_ESPERA] Upgrade `_run_verify_test` — parametrizar n_bars + tolerance escalada — 2026-04-22**
 
@@ -1967,6 +1946,89 @@ Referencias: §13.3 items funding runtime + observabilidad 2026-04-23; §9.3 v2.
 ---
 
 ### 13.4 RESUELTO
+
+**[MEJORA] [RESUELTO] Cooldown asimétrico — UNIFICAR SEGURO por Opción A — 2026-04-22**
+
+Contexto: A04 TF (§13.4 2026-04-23) + A04b MR (§13.4 2026-04-23) identificaron la única POT INVOLUNTARIA compartida entre ambas auditorías Fidelidad 1: switch cooldown por tipo exit en kernels (`emergency/cancel → cooldown_until = t`; `sl_exit/div_exit → t + cooldown_bars - 1`) vs Pine uniforme `i_cooldown_bars`. §13.3 planteó investigación empírica para decidir unificar vs mantener.
+
+**Discovery pre-ejecución** (2026-04-22 ultrathink): `COOLDOWN_BARS = 1` es constante única en 9 módulos del pipeline productivo (`lab_historico_numba_v8_3.py` L422, `mean_reversion_kernel.py` L38, `live/brain_engine.py` L88, `audit_fidelity_v5_2.py` L98, `master.py` L61+L456 CONFIG, `pipeline.py` L65, `regime_walk_forward.py` L566 L574 vía `lab.COOLDOWN_BARS`, `mean_reversion_walk_forward.py` L152, `walk_forward_experiment.py` L71). Ningún override a >1 en producción, live, audit ni pipeline lab. Con `cooldown_bars=1` las 4 ramas del switch colapsan matemáticamente a `t` (la variable `cooldown_bars - 1 = 0`). **La "asimetría" era código estructural latente sin efecto operacional**; §13.4 A04 ya lo avisaba: "Impacto BAJO con default `cooldown_bars=1`; divergencia solo emerge si `cooldown_bars>1`".
+
+**Confirmación Ricardo Opción A** (2026-04-22): cooldown=1 siempre operó en Pine productivo histórico. La diferenciación por tipo exit en kernel es estructura que **nunca fue validada operacionalmente** — código muerto bajo la configuración única productiva. No hay base empírica histórica para mantenerla.
+
+**Descartados** vs plan original test empírico:
+- Test cooldown_bars=2,3 hipotético: no hay razón operativa (Pine productivo siempre 1, roadmap no lo contempla).
+- Caracterizar asimetría "latente" para futuro: no tiene base operacional histórica.
+- Matriz 4 símbolos × 3 configs × 2 modos a cooldown_bars=1: vacua por construcción (0 diff esperado).
+
+**Refactor aplicado** (branch `feature-cooldown-unify`, commit `9389af9`):
+
+Kernel TF `lab_historico_numba_v8_3.py` L1630-1637 + Kernel MR `mean_reversion_kernel.py` L408-415:
+
+```python
+# ANTES (4-branch switch, código muerto bajo cooldown_bars=1):
+if sl_emergency_signal:   cooldown_until = t
+elif sl_exit_signal:      cooldown_until = t + cooldown_bars - 1
+elif div_exit_signal:     cooldown_until = t + cooldown_bars - 1
+elif cancel_signal:       cooldown_until = t
+
+# DESPUÉS (expresión Pine canónica i_cooldown_bars uniforme):
+if sl_emergency_signal or sl_exit_signal or div_exit_signal or cancel_signal:
+    cooldown_until = t + cooldown_bars - 1
+```
+
+Con `cooldown_bars=1`: `t + 1 - 1 = t` (idéntico a valor anterior de las 4 ramas). Con hipotético `cooldown_bars>1` aplicaría uniforme (convención Pine). Comportamiento bit-idéntico en régimen productivo.
+
+Fall-through preservado intencionalmente: `tf_exit` y `zone_exit` siguen sin actualizar `cooldown_until` (asimetría 4-vs-6 distinta que §13.3 NO cubre — representa "exits graceful por cambio de régimen" sin cooldown protectivo, fuera de scope).
+
+**Confirmatorio empírico** pre/post refactor:
+
+Nivel A (§0.8 — `brain_engine --verify BTC/USDT` N=1000, config BTC C0 38007639):
+| Métrica | Pre | Post | Diff |
+|---|---|---|---|
+| Trades | 1 | 1 | 0 |
+| Wins | 0 | 0 | 0 |
+| PnL neto | -0.5935% | -0.5935% | 0.0000 |
+| Gross profit | 0.0000% | 0.0000% | 0.0000 |
+| Gross loss | 0.5935% | 0.5935% | 0.0000 |
+
+Nivel C (§0.8 — `audit_mr_fidelity_sei.py` SEI/USDT C2 config 45686 N=1500):
+| Métrica | Pre | Post | Diff |
+|---|---|---|---|
+| PnL % | 1.0180 | 1.0180 | 0.0000 |
+| Trades | 17 | 17 | 0 |
+| Wins | 5 | 5 | 0 |
+| Cancels | 2 | 2 | 0 |
+| MaxDD % | 3.9316 | 3.9316 | 0.0000 |
+| GrossProfit | 9.6434 | 9.6434 | 0.0000 |
+| GrossLoss | 8.6254 | 8.6254 | 0.0000 |
+
+Nivel B (§0.8 — wrapper temporal `.nivel_b_cooldown.py`) POST-refactor:
+
+| Símbolo | Config | N bars | Brain trades | Brain PnL | Kernel trades | Kernel PnL | Trade ratio | PnL diff abs | Match % |
+|---|---|---|---|---|---|---|---|---|---|
+| ONDO/USDT | 2457036 VIDYA(18)/KAMA(54) C0 | 8335 | 506 | +12.3097% | 510 | +7.0114% | 0.78% | 5.2983% | 99.22% |
+| APT/USDT | 2473235 Tenkan(24)/KAMA(72) C0 | 10000 | 1786 | -88.9407% | 1801 | -87.6147% | 0.83% | 1.3260% | 99.17% |
+
+Resultados **bit-idénticos a §13.4 A10 baseline pre-refactor** (ONDO A10: brain=506 kernel=510 diff PnL +5.2983%; APT A10: brain vs kernel diff PnL 1.326%). Criterios §0.8: trade ratio <5% ✓ ambos (0.78% + 0.83%), match count >95% ✓ ambos (99.22% + 99.17%). Drift brain↔kernel (propiedad arquitectónica §12.30, ranking estable §13.4 A10) **invariante** al refactor — confirmación empírica independiente de la prueba analítica (cooldown_bars=1 hace ambas ramas idénticas).
+
+Pre-refactor Nivel B no se re-ejecutó (Nivel A+C diff 0.0000 anclan equivalencia matemáticamente; Nivel B POST-refactor vs §13.4 A10 baseline bit-idéntica cierra el triple anclaje empírico).
+
+**Veredicto empírico**: **UNIFICAR SEGURO** confirmado. Refactor es zero-impact en régimen productivo (`cooldown_bars=1`). Fidelidad 2 TF + MR invariante por construcción (los 7 métricas MR + 5 métricas TF bit-idénticas).
+
+**Deuda residual (fuera de scope A)**:
+- `audit_fidelity_v5_2.py` L961-968 + `audit_fidelity_v5.py` L969-976 + `lab_cuda.py` L542-546 L1060-1062 mantienen el switch asimétrico 4-way. Con `COOLDOWN_BARS=1` es igualmente inerte. Candidatos a pass de consistencia pre-reciclaje (1h refactor cosmético).
+- `EXPECTED_LAB_KERNEL_HASH` en audit_fidelity_v5/v5_2 puede necesitar actualización si emite WARN al ver la nueva firma de `run_simulation_numba`. Monitorear en próxima ejecución de audit N≥50 (~2026-04-24 post-trades).
+- Asimetría 4-vs-6 distinta (tf_exit/zone_exit sin cooldown): observación estructural separada, no tratada en §13.3. No hay evidencia operacional de que deba unificarse con Pine (que sí impone cooldown en todos los exits).
+
+**Item §13.3 cooldown → RESUELTO**. Último ítem bloqueante arquitectónico pre-reciclaje cerrado. Pipeline pre-reciclaje listo (pending decisiones operacionales: política adelantar reciclaje por criterio empírico, P1 leverage cuando balance >1000 USDT).
+
+Deploy VPS NO requerido (Fidelidad 2 invariante; cambio activa al próximo restart del bot con comportamiento bit-equivalente).
+
+Referencias: commit `9389af9` refactor kernels, §13.3 "Cooldown asimétrico" movido a RESUELTO, §13.4 entrada A04 TF 2026-04-23, §13.4 entrada A04b MR 2026-04-23 (POT INVOLUNTARIA compartida ahora resuelta), §2.6 kernel TF + kernel MR fix entry adicional, Ricardo confirmación Opción A 2026-04-22.
+
+Cierre: permanente.
+
+---
 
 **[SESIÓN] [RESUELTO] Sesión 2026-04-23 — 9 items §13.3 resueltos + runbook reciclaje**
 
