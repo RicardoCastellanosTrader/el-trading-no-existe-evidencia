@@ -1,6 +1,6 @@
 # Sistema de Trading Algorítmico — Contexto Completo del Proyecto
 
-**Última actualización:** 23 Abril 2026 (Bloque 1 roadmap COMPLETADO: A36 log rotation + A35 tz-naive + A38 edge guard + A34 timing_borderline; §0.7 convención sync; §12 L27+L28)  
+**Última actualización:** 23 Abril 2026 (W3 bootstrap pf_fwd IMPLEMENTADO en rama `feature-w3-bootstrap-pf-fwd` — pre-requisito pre-reciclaje, NO deploy; Bloque 1 roadmap COMPLETADO previamente: A36 log rotation + A35 tz-naive + A38 edge guard + A34 timing_borderline; §0.7 convención sync; §12 L27+L28)  
 **Versión actual:** v2.4.4 (sin bump — sesión 100% herramientas offline, sin deploy operacional)  
 **Autor del sistema:** Ricardo  
 **Plataforma:** Binance (datos) + BingX (ejecución), velas 1h  
@@ -440,6 +440,9 @@ xx:00:00 UTC (diario) Health monitor + resumen
 2. v2.3.5 H2: reconstructed trades incluidos en agregados, inconsistente con analyzer/audit. Fix: filtro `flag in {reconstructed_post_hoc, reconstructed}` excluido por defecto.
 3. v2.3.6 H1: portfolio_dd_from_peak se calculaba sobre cumsum de pnl_usdt de trades cerrados, produciendo DD espurio (-121.7% reportado en daily summary Telegram 19/04 con balance real 297 USDT y DD real 0.23%). Fix: leer peak_balance y current_balance de engine_state.json (mismas referencias que DD breaker del live_engine). Guard `current_balance > 0` para el caso ramp-up post-restart antes del primer ciclo. Enabler: live_engine.py persiste current_balance.
 4. v2.3.6 H4: _days_since_recycle retornaba 9999 sin last_recycle.txt, disparando trigger calendario espuriamente (9999 > 90). Fix: retorna 0 si el archivo no existe; placeholder "??/90" se mantiene en display via check directo de existencia.
+
+**regime_walk_forward.py (1):**
+1. 2026-04-23 W3 bootstrap pf_fwd + selección por ci_low (rama `feature-w3-bootstrap-pf-fwd`, NO deploy — activación en próximo reciclaje). Contexto: specialists con N_fwd pequeño (13-30) producían pf_fwd point estimate engañoso; ONDO C0 pf_fwd=7.945 con N=17 observado en realidad con PF 1.08 (Fase II.B 2026-04-22). Validación empírica múltiple (§13.4 2026-04-22) promovió W3 a PRIORIDAD ALTA. Implementado: `_bootstrap_pf_fwd_vectorized` (N=1000 resamples binomial sobre pool sintético reconstruido desde agregados {wins_fwd, gp_fwd, gl_fwd}, chunked 5000 configs/batch), `_apply_bootstrap_pf_fwd` (añade 6 campos: pf_fwd_ci_low, pf_fwd_ci_high, ci_width, pf_combined_ci_low, specialist_score_ci_low, flag_sospechoso_outlier), integración post-haircut en `extract_validated_specialists` con re-sort W3b por `specialist_score_ci_low`. Caveat: bootstrap binomial es lower bound de CI real (no captura dispersión intra-grupo). Validación sobre JSONs productivos: 6/12 top-1 flagged (ONDO C0, LTC C2, GRT C2, TRX C2, BTC C2, MANA C0) — sesgo N pequeño generalizado. Tests 8/8 PASS (tests/test_w3_bootstrap.py). Fidelidad 2 invariante (cambio del pipeline del lab, no toca bot). Ver §13.4 entrada W3 IMPLEMENTADO 2026-04-23.
 
 **Infraestructura (5):**
 1. SSH puerto 2222 → 22 (ISP bloqueaba)
@@ -1511,21 +1514,32 @@ Disparo: pre-reciclaje, o si aparece discrepancia empírica entre corridas del m
 Cierre: añadir columna `engine` a DataFrames, validar consistencia en resume. Idealmente: test diferencial CUDA vs CPU sobre preset de referencia para cuantificar drift.
 Referencias: regime_walk_forward.py líneas 487-505.
 
-**[MEJORA] [EN_ESPERA] regime_walk_forward W3: falta CI/bootstrap en pf_fwd — 2026-04-17 — PRIORIDAD ALTA (validación empírica 2026-04-22)**
-Contexto: Ultra review W3. specialist_score y pf_fwd son point estimates. Sin intervalo de confianza ni bootstrap, configs con N=15-20 y 1-2 outliers inflan pf_fwd artificialmente. Ya existía hallazgo específico sobre GRT C2 MR (pf_fwd=14.975 N=13) — W3 formaliza el riesgo estructural para TF también.
-Nota 2026-04-20: el caveat N pequeño aplica también a otros rescates MR, no solo a GRT C2. BCH C0 tiene N fwd=13 (idéntico a GRT C2), DOT C1 tiene N fwd=27. Ambos heredan el riesgo de pf_fwd inflado por 1-2 ganadores atípicos. Al evaluar resultados empíricos de estos clusters cuando lleguen a N≥15 real, usar pf_train como expectativa base, no pf_fwd (mismo criterio que GRT). Los 3 rescates restantes (SEI C2 N=24, STX C2 N=29, LTC C2 N=27, UNI C0 N=66) tienen N más robusto — UNI C0 particularmente sólido.
+**[MEJORA] [RESUELTO] regime_walk_forward W3: bootstrap pf_fwd + selection by ci_low — 2026-04-23**
+Contexto: Ultra review W3 (2026-04-17). specialist_score y pf_fwd eran point estimates sin intervalo de confianza. Configs con N=15-20 y 1-2 outliers inflaban pf_fwd artificialmente. Validado empíricamente 2026-04-22: ONDO C0 walk-forward entregó pf_fwd=7.945 con N=17, real observado PF 1.08 (ratio 0.14). Fase II.C reveló 2 candidatos exclusión adicionales (ONDO C2 + SAND C1). Item 3.5 ranking stability: ranking WF ≠ ranking kernel-actual (config #1 WF 2457036 es rank #4 en régimen actual).
+W3 fue elevado a PRIORIDAD ALTA como prerequisito OBLIGATORIO pre-reciclaje (§12.29 Lección walk-forward N pequeño infla PF).
 
-**Nota PRIORIDAD ALTA 2026-04-22**: validación empírica múltiple confirmó riesgo estructural:
-- Fase II.B: ONDO C0 walk-forward entregó pf_fwd=7.945 con N=17, real observado PF 1.08 (ratio 0.14).
-- Fase II.C: 2 candidatos exclusión adicionales (ONDO C2 + SAND C1) con mismo patrón.
-- Item 3.5 (ranking stability): ranking WF ≠ ranking kernel-en-régimen-actual. Config #1 WF (2457036 pf_combined=5.5) es solo rank #4 actual (PF 1.002). Config #5 WF (3104140) es actual #1 (PF 1.244). Evidencia directa de que pf_combined point estimate es engañoso para selección.
-- Ver §12.29 (Lección walk-forward N pequeño infla PF).
+**Implementación 2026-04-23** (branch `feature-w3-bootstrap-pf-fwd`):
+- W3a aditivo: función `_bootstrap_pf_fwd_vectorized` — N=1000 resamples binomial sobre pool sintético {W × avg_win, (T-W) × -avg_loss} reconstruido desde agregados `{trades_fwd, wins_fwd, gp_fwd, gl_fwd}`. Chunking 5000 configs/batch (~40MB RAM). Seed 42 determinista. Computa `pf_fwd_ci_low, pf_fwd_ci_high, ci_width` (percentil 2.5/97.5).
+- Función `_apply_bootstrap_pf_fwd(df)`: añade 6 columnas (`pf_fwd_ci_low, pf_fwd_ci_high, ci_width, pf_combined_ci_low, specialist_score_ci_low, flag_sospechoso_outlier`). `pf_combined_ci_low = (gp_tr + pf_fwd_ci_low × gl_fwd) / (gl_tr + gl_fwd)` (substituye gp_fwd conservadoramente). `specialist_score_ci_low` usa misma fórmula que `_compute_sqn_haircut` con `pf_combined_ci_low`. Flag disparado por `pf_fwd_ci_low < 1.0 OR ci_width > 5.0`.
+- W3b cambio selección: integrado en `extract_validated_specialists` post-`_compute_sqn_haircut` → `top_all.sort_values('specialist_score_ci_low')`. JSON output y report text reflejan el nuevo orden.
+- JSON output `top_configs[*]` extendido con 6 campos W3.
+- Report text nueva sección "W3 BOOTSTRAP pf_fwd" con distribuciones y flagged count.
 
-W3 es prerequisito arquitectónico OBLIGATORIO pre-reciclaje para evitar que el próximo ciclo produzca specialists similarmente inflados. No es "feature nice-to-have" sino "fix metodológico validado empíricamente".
+**Caveat metodológico documentado**: bootstrap binomial sobre pool sintético **NO captura dispersión intra-grupo** (todos los wins tratados como avg_win uniforme). CI resultante es **lower bound** de la incertidumbre real. Implementación fiel trade-level requeriría modificar kernel Numba `run_on_slice` para exportar arrays de PnL per trade — cambio invasivo no justificado para W3 inicial. Aproximación Opción F suficiente para detectar casos como ONDO C0 (CI ancho claramente flagged).
 
-Disparo: pre-reciclaje julio 2026 OBLIGATORIO. Si se adelanta reciclaje por criterio empírico (§13.3 política), W3 debe implementarse ANTES del reciclaje adelantado.
-Cierre: añadir bootstrap de pf_fwd (N=1000 resamples) y exponer pf_fwd_ci_low en JSON output. Configs con pf_fwd_ci_low < 1.0 flaggear como sospechosas de outliers. Ordenar specialists por pf_combined_ci_low en lugar de point estimate.
-Referencias: regime_walk_forward.py _compute_specialist_metrics, analyzer v2.4.1 hallazgo GRT C2 MR, §13.4 Fase II.B+II.C+Item 3.5 2026-04-22 (validaciones empíricas), §12.29 Lección metodológica.
+**Validación empírica sobre JSONs productivos** (2026-04-23):
+- ONDO C0 config 2457036 (WF #1, Fase II.B): pf_fwd=7.94 N=17 → ci_low=2.75, ci_width=36.36 → **flagged=Y ✓** (coincide con expectativa empírica post-Fase II.B).
+- 967/1000 top validated ONDO C0 configs flagged (96.7%) → sesgo N pequeño dominante en este cluster.
+- 6/12 top-1 productivos cross-symbol flagged (50%): ONDO C0, LTC C2, GRT C2, TRX C2, BTC C2, MANA C0. NO flagged (N≥58): SEI C2, STX C2, UNI C0, DOT C1, BCH C0, HBAR C1.
+- Score penalty W3b típica: 7-24% (ONDO −24%, TRX −7%).
+- ci_low=2.75 de ONDO está por encima del real 1.08 → confirmación empírica del caveat: bootstrap binomial es **lower bound**. Real CI más ancho; aún así flag operativo.
+
+**Tests 8/8 PASS** (tests/test_w3_bootstrap.py): happy N=5, fallback N<5, all-winners, all-losers, seed determinism, ONDO-like flagged, pf_combined_ci_low conservador, W3b selection change.
+
+**NO hay deploy**. Código en rama, pendiente activación via próximo `master.py --recycle`. Bot v2.4.5 sigue operacional con specialists actuales. Fidelidad 2 invariante (cambio es del pipeline del lab, no toca brain/execution/portfolio).
+
+Cierre: **IMPLEMENTADO 2026-04-23**. Commit en rama `feature-w3-bootstrap-pf-fwd`. Siguiente ítem dependiente: W4 (_FWD_MIN_TRADES 15 → 25/30) — análisis cuantitativo ahora factible con CI data que W3 provee.
+Referencias: regime_walk_forward.py L930-1030 (constantes W3 + `_bootstrap_pf_fwd_vectorized` + `_apply_bootstrap_pf_fwd`), L1668-1677 (integración post-haircut), L1770-1788 (JSON output), tests/test_w3_bootstrap.py, §12.29 Lección metodológica, §13.4 Fase II.B+II.C+Item 3.5 2026-04-22 (validaciones empíricas base), §13.4 entrada W3 IMPLEMENTADO 2026-04-23.
 
 **[MEJORA] [EN_ESPERA] regime_walk_forward W4: _FWD thresholds laxos (15 trades, PF 1.0) — 2026-04-17**
 Contexto: Ultra review W4. `_FWD_MIN_TRADES=15` y `_FWD_MIN_PF=1.0` permiten configs con poca muestra y PF borderline pasar filtro. Outliers de entry timing pueden sobrevivir. Vinculado con W3.
@@ -1738,6 +1752,79 @@ Referencias: §13.3 items funding runtime + observabilidad 2026-04-23; §9.3 v2.
 ---
 
 ### 13.4 RESUELTO
+
+**[MEJORA] [RESUELTO] W3 bootstrap pf_fwd + selección por ci_low implementado — 2026-04-23**
+
+Contexto: W3 priorizado ALTA empíricamente post-2026-04-22 (§13.3 W3 previa + §12.29). Implementación completa hoy en rama `feature-w3-bootstrap-pf-fwd` sin deploy (specialists productivos permanecen — se activarán en próximo reciclaje).
+
+**Método adoptado — Opción F (bootstrap sintético binomial)**:
+
+Kernel Numba (`lab.run_on_slice`) NO exporta trade-level PnL arrays — solo agregados per config (`pnl, trades, wins, maxdd, gp, gl`). Modificar kernel para exportar trade-level sería invasivo (se descartó, se difiere a refactor §13.3 LL1 pre-reciclaje). W3 implementa bootstrap aproximado sobre pool sintético binario reconstruido desde agregados:
+- Pool = {W × avg_win, (T-W) × -avg_loss} donde `avg_win = GP/W, avg_loss = GL/(T-W)`.
+- Resample T trades con reemplazo → analíticamente: `k ~ Binomial(T, W/T)`, `pf_r = (k · avg_win) / ((T-k) · avg_loss)`.
+- N=1000 resamples, percentil 2.5/97.5 → `pf_fwd_ci_low, pf_fwd_ci_high`.
+
+**Caveat documentado**: NO captura dispersión intra-grupo. CI real es más ancho que el medido. Validación empírica lo confirmó: ONDO C0 `ci_low=2.75` pero real observado `PF=1.08` cae por debajo. El bootstrap aún flaggea el caso por `ci_width=36.36 > 5.0`.
+
+**Arquitectura del cambio**:
+- `regime_walk_forward.py` L930-1030: constantes `_BOOTSTRAP_*` + función `_bootstrap_pf_fwd_vectorized` (chunked, memoria ~40MB/batch) + función `_apply_bootstrap_pf_fwd`.
+- L1668-1677: integración en `extract_validated_specialists` post-`_compute_sqn_haircut`. Re-sort por `specialist_score_ci_low` (W3b) desplaza el ordenamiento de selección.
+- L1770-1788: JSON `top_configs[*]` extendido con 6 campos nuevos (opcional, backwards-compatible para JSONs existentes).
+- L1528-1547: report text añade sección "W3 BOOTSTRAP pf_fwd" con distribuciones + flagged count.
+
+**Campos nuevos por config**:
+- `pf_fwd_ci_low, pf_fwd_ci_high, ci_width` (bootstrap pf_fwd).
+- `pf_combined_ci_low` (fórmula: sustituir gp_fwd con `pf_fwd_ci_low × gl_fwd` manteniendo gl_fwd fijo — sesgo conservador).
+- `specialist_score_ci_low` (recomputa score con pf_combined_ci_low).
+- `flag_sospechoso_outlier` (True si `pf_fwd_ci_low < 1.0 | ci_width > 5.0`).
+
+**Tests 8/8 PASS** (`tests/test_w3_bootstrap.py`, standalone estilo proyecto):
+1. Happy path N=5 → CI finite.
+2. N<5 → fallback ci_low=0, ci_high=pf_point, width=0.
+3. All winners (L=0) → fallback invalid.
+4. All losers (W=0) → fallback invalid.
+5. Seed=42 determinista across 3 calls (mismo bit-a-bit).
+6. ONDO-like N=17 pf_fwd=7.95 → ci_width=22.93 > 5 → flagged=True.
+7. pf_combined_ci_low ≤ pf_combined point (sesgo conservador verificado).
+8. W3b cambio ranking: config con CI wide penalizado vs config narrow-CI.
+
+**Validación Fase 3 sobre JSONs productivos** (CSVs intermedios `{sym}_cluster_{k}_specialists.csv` preservan `wins_fwd, gp_fwd, gl_fwd`):
+
+| Symbol/Cluster | cfg_id | pf_fwd | N_fwd | ci_low | ci_width | sc_old → sc_new | flag |
+|---|---|---|---|---|---|---|---|
+| ONDO C0 (Fase II.B) | 2457036 | 7.94 | 17 | 2.75 | 36.36 | 4.66 → 3.52 | **Y** |
+| SEI C2 (MR rescue) | 50461968 | 2.20 | 58 | 1.33 | 2.52 | 1.72 → 1.58 | N |
+| STX C2 (MR rescue) | 39664143 | 1.64 | 145 | 1.21 | 1.10 | 1.85 → 1.73 | N |
+| UNI C0 (MR rescue) | 1614377 | 1.94 | 124 | 1.37 | 1.41 | 1.98 → 1.81 | N |
+| LTC C2 (MR rescue) | 2532096 | 5.04 | 27 | 2.29 | 27.50 | 2.04 → 1.76 | **Y** |
+| DOT C1 (MR rescue) | 34569536 | 2.53 | 107 | 1.67 | 2.11 | 2.20 → 1.89 | N |
+| BCH C0 (MR rescue) | 40807173 | 1.94 | 84 | 1.24 | 1.89 | 1.68 → 1.53 | N |
+| GRT C2 (swap MR) | 58457547 | 1.27 | 211 | 0.96 | 0.67 | 1.79 → 1.70 | **Y** |
+| TRX C2 (top TF) | 53066572 | 12.74 | 33 | 6.25 | 34.51 | 30.90 → 28.73 | **Y** |
+| BTC C2 (top TF) | 20607806 | 6.36 | 53 | 3.71 | 7.25 | 17.21 → 15.61 | **Y** |
+| MANA C0 (top TF) | 5339578 | 4.49 | 64 | 2.71 | 5.14 | 15.51 → 13.84 | **Y** |
+| HBAR C1 (top TF) | 20707614 | 3.43 | 83 | 2.11 | 3.31 | 12.23 → 10.95 | N |
+
+**Hallazgos validación**:
+- **6/12 = 50% top-1 productivos flagged**. Sesgo N pequeño NO es aislado a ONDO.
+- **ONDO C0 flagged=Y ✓** confirma predictividad empírica vs Fase II.B.
+- Patrón: N<58 tiende a `ci_width > 5` (flagged). N≥58 narrow-CI.
+- GRT C2 caso especial: N=211 grande pero `ci_low=0.96 < 1.0` → edge débil robustamente medido. Flagged por threshold ci_low.
+- Score penalty W3b: 7-24% típica (ONDO -24%, TRX -7%).
+
+**Implicaciones pre-reciclaje**:
+- W3 está listo para activarse en próximo `master.py --recycle`. No se re-ejecuta walk-forward hoy (specialists productivos preservados hasta reciclaje formal).
+- El reciclaje (julio 2026 calendario o adelantado por §13.3 política empírica) producirá JSONs con 6 campos nuevos por config. Selección automáticamente prefiere robustez.
+- W4 (_FWD_MIN_TRADES 15 → 25/30) ahora puede cuantificarse empíricamente usando la data de CI que W3 genera — siguiente ítem dependiente.
+- §13.3 W3 → RESUELTO.
+
+**Deploy VPS NO requerido** — cambio es del pipeline del lab, no del bot. Bot v2.4.5 sigue operacional con specialists actuales. Fidelidad 2 invariante por construcción (brain/execution/portfolio no tocados).
+
+Referencias: `regime_walk_forward.py` (rama `feature-w3-bootstrap-pf-fwd`), `tests/test_w3_bootstrap.py`, §12.29 Lección base, §13.4 Fase II.B+II.C+Item 3.5 2026-04-22 (validaciones empíricas pre-implementación), §13.3 entradas actualizadas (W3 RESUELTO, W4 PRIORIDAD ALTA heredada, LL1 MA shared module backlog).
+
+Cierre: permanente. Siguiente activación al primer `master.py --recycle` post-implementación.
+
+---
 
 **[PROTOCOLO] [RESUELTO] Protocolo smoke test pre-deploy formalizado (§0.8) — cierre sesión 2026-04-22**
 

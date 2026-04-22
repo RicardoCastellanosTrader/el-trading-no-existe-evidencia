@@ -921,6 +921,208 @@ _FWD_MIN_PF = 1.0
 _TOP_KEEP_RAM = 50000       # max validated configs to keep in RAM per cluster
 _TOP_JSON = 100             # top configs per cluster in JSON output for bot
 
+# W3 — Bootstrap CI for pf_fwd (validated empirically 2026-04-22, §12.29)
+_BOOTSTRAP_N_RESAMPLES = 1000
+_BOOTSTRAP_SEED = 42
+_BOOTSTRAP_CHUNK_SIZE = 5000      # configs per chunk to cap memory ~40MB
+_BOOTSTRAP_CI = 0.95              # two-sided
+_FLAG_CI_LOW_THRESHOLD = 1.0      # flag if pf_fwd_ci_low below this
+_FLAG_CI_WIDTH_THRESHOLD = 5.0    # flag if ci_high - ci_low above this
+
+
+def _bootstrap_pf_fwd_vectorized(trades_fwd, wins_fwd, gp_fwd, gl_fwd,
+                                  n_resamples=_BOOTSTRAP_N_RESAMPLES,
+                                  ci=_BOOTSTRAP_CI,
+                                  chunk_size=_BOOTSTRAP_CHUNK_SIZE,
+                                  rng_seed=_BOOTSTRAP_SEED):
+    """Bootstrap CI for pf_fwd via multinomial resampling over synthetic
+    binary pool {W × avg_win, (T-W) × -avg_loss} per config.
+
+    The kernel Numba (lab.run_on_slice) only exports aggregated metrics
+    per config, not trade-level PnLs. We reconstruct an approximate pool
+    assuming uniform avg_win and uniform avg_loss within the config, then
+    resample T trades with replacement and compute pf. With a binary pool
+    this reduces analytically to k ~ Binomial(T, W/T) → pf_r = (k·avg_win)
+    / ((T-k)·avg_loss).
+
+    Caveat: this does NOT capture intra-group PnL dispersion (all wins
+    treated as avg_win). The resulting CI is a LOWER BOUND on true
+    uncertainty — real CI may be wider, never narrower. Bootstrap with
+    true trade-level data would require a kernel refactor to export
+    per-trade PnL arrays (deferred; see §13.3 LL1 shared MA module).
+
+    Parameters
+    ----------
+    trades_fwd, wins_fwd, gp_fwd, gl_fwd : array-like (N,)
+        Forward period aggregates per config.
+    n_resamples : int
+        Bootstrap iterations.
+    ci : float
+        Two-sided confidence level (default 0.95).
+    chunk_size : int
+        Configs processed per batch to cap memory at ~40MB per batch.
+
+    Returns
+    -------
+    dict with arrays (N,):
+        pf_fwd_ci_low, pf_fwd_ci_high, ci_width.
+        Configs with wins<=0, losses<=0, or trades<5 return ci_low=0,
+        ci_high=pf_fwd (point estimate), ci_width=0 as conservative
+        fallback.
+    """
+    T_arr = np.asarray(trades_fwd, dtype=np.int64)
+    W_arr = np.asarray(wins_fwd, dtype=np.int64)
+    GP_arr = np.asarray(gp_fwd, dtype=np.float64)
+    GL_arr = np.asarray(gl_fwd, dtype=np.float64)
+    N = len(T_arr)
+
+    L_arr = T_arr - W_arr
+
+    # Point estimate for fallback on invalid configs
+    pf_point = np.where(GL_arr > 0, GP_arr / np.maximum(GL_arr, 1e-12),
+                        np.where(GP_arr > 0, 5.0, 0.0))
+
+    ci_low = np.zeros(N, dtype=np.float64)
+    ci_high = pf_point.copy().astype(np.float64)
+    ci_width = np.zeros(N, dtype=np.float64)
+
+    valid = (W_arr > 0) & (L_arr > 0) & (T_arr >= 5) & (GL_arr > 0)
+    if not np.any(valid):
+        return {
+            'pf_fwd_ci_low': ci_low,
+            'pf_fwd_ci_high': ci_high,
+            'ci_width': ci_width,
+        }
+
+    idx_valid = np.where(valid)[0]
+    alpha = 1.0 - ci
+    pct_low = 100.0 * alpha / 2.0
+    pct_high = 100.0 * (1.0 - alpha / 2.0)
+
+    # avg_win and avg_loss per valid config
+    avg_win_v = GP_arr[valid] / W_arr[valid].astype(np.float64)
+    avg_loss_v = GL_arr[valid] / L_arr[valid].astype(np.float64)
+    T_v = T_arr[valid]
+    W_v = W_arr[valid]
+
+    # PF cap to avoid Infs percolating into percentiles
+    _PF_CAP = 100.0
+
+    # Chunked bootstrap to cap memory: each chunk holds
+    # (chunk_size × n_resamples) floats ≈ 40 MB for defaults.
+    rng = np.random.default_rng(rng_seed)
+    n_valid = len(T_v)
+    for start in range(0, n_valid, chunk_size):
+        stop = min(start + chunk_size, n_valid)
+        cs = stop - start
+
+        T_c = T_v[start:stop]
+        W_c = W_v[start:stop]
+        p_c = W_c.astype(np.float64) / T_c.astype(np.float64)
+        aw_c = avg_win_v[start:stop]
+        al_c = avg_loss_v[start:stop]
+
+        # Vectorized binomial: shape (cs, n_resamples)
+        k = rng.binomial(T_c[:, None], p_c[:, None],
+                         size=(cs, n_resamples))
+        T_minus_k = (T_c[:, None] - k).clip(min=1)
+
+        # pf_r = (k × avg_win) / ((T-k) × avg_loss)
+        pf_samples = (k.astype(np.float64) * aw_c[:, None]) / (
+            T_minus_k.astype(np.float64) * al_c[:, None])
+        pf_samples = np.where(np.isfinite(pf_samples), pf_samples, _PF_CAP)
+        pf_samples = np.clip(pf_samples, 0.0, _PF_CAP)
+
+        low_c = np.percentile(pf_samples, pct_low, axis=1)
+        high_c = np.percentile(pf_samples, pct_high, axis=1)
+
+        chunk_idx = idx_valid[start:stop]
+        ci_low[chunk_idx] = low_c
+        ci_high[chunk_idx] = high_c
+        ci_width[chunk_idx] = high_c - low_c
+
+    return {
+        'pf_fwd_ci_low': ci_low,
+        'pf_fwd_ci_high': ci_high,
+        'ci_width': ci_width,
+    }
+
+
+def _apply_bootstrap_pf_fwd(df):
+    """Add W3 bootstrap CI columns to a DataFrame with aggregated fwd metrics.
+
+    Modifies df in-place adding columns:
+      pf_fwd_ci_low, pf_fwd_ci_high, ci_width,
+      pf_combined_ci_low, specialist_score_ci_low, flag_sospechoso_outlier.
+
+    Assumes df already has pf_combined, pf_robustness, trades_total, sqn_p5
+    (i.e. after _compute_specialist_metrics + _compute_sqn_haircut).
+
+    pf_combined_ci_low is computed by substituting gp_fwd with the
+    conservative estimate gp_fwd_low = pf_fwd_ci_low × gl_fwd (keeps
+    gl_fwd fixed, scales gp_fwd down). This produces a pessimistic
+    pf_combined consistent with the bootstrap lower bound of pf_fwd.
+
+    specialist_score_ci_low recomputes the same formula as
+    _compute_sqn_haircut but with pf_combined_ci_low instead of pf_combined.
+
+    flag_sospechoso_outlier is True if pf_fwd_ci_low < 1.0 OR ci_width > 5.0.
+    """
+    if len(df) == 0:
+        df['pf_fwd_ci_low'] = np.float32(0)
+        df['pf_fwd_ci_high'] = np.float32(0)
+        df['ci_width'] = np.float32(0)
+        df['pf_combined_ci_low'] = np.float32(0)
+        df['specialist_score_ci_low'] = np.float32(0)
+        df['flag_sospechoso_outlier'] = False
+        return df
+
+    boot = _bootstrap_pf_fwd_vectorized(
+        df['trades_fwd'].values,
+        df['wins_fwd'].values,
+        df['gp_fwd'].values,
+        df['gl_fwd'].values,
+    )
+    df['pf_fwd_ci_low'] = boot['pf_fwd_ci_low'].astype(np.float32)
+    df['pf_fwd_ci_high'] = boot['pf_fwd_ci_high'].astype(np.float32)
+    df['ci_width'] = boot['ci_width'].astype(np.float32)
+
+    # pf_combined_ci_low: substitute gp_fwd with conservative gp_fwd_low
+    gp_tr = df['gp_tr'].values.astype(np.float64)
+    gl_tr = df['gl_tr'].values.astype(np.float64)
+    gp_fwd = df['gp_fwd'].values.astype(np.float64)
+    gl_fwd = df['gl_fwd'].values.astype(np.float64)
+    pf_fwd_lo = boot['pf_fwd_ci_low']
+
+    gp_fwd_low = pf_fwd_lo * gl_fwd
+    gp_total_low = gp_tr + gp_fwd_low
+    gl_total = gl_tr + gl_fwd
+    pf_combined_lo = np.where(
+        gl_total > 0,
+        gp_total_low / np.maximum(gl_total, 1e-12),
+        np.where(gp_total_low > 0, 5.0, 0.0))
+    df['pf_combined_ci_low'] = pf_combined_lo.astype(np.float32)
+
+    # specialist_score_ci_low: same formula as _compute_sqn_haircut using ci_low pf
+    sqn_p5 = df['sqn_p5'].values.astype(np.float64)
+    pf_robustness = df['pf_robustness'].values.astype(np.float64)
+    trades_total = df['trades_total'].values.astype(np.float64)
+    sqn_factor = np.maximum(sqn_p5 / 3.0, 0.5)
+    specialist_score_lo = (
+        pf_combined_lo
+        * np.sqrt(np.maximum(pf_robustness, 0.0))
+        * np.log(1.0 + trades_total / 50.0)
+        * sqn_factor
+    )
+    df['specialist_score_ci_low'] = specialist_score_lo.astype(np.float32)
+
+    # Flag suspicious specialists
+    df['flag_sospechoso_outlier'] = (
+        (boot['pf_fwd_ci_low'] < _FLAG_CI_LOW_THRESHOLD) |
+        (boot['ci_width'] > _FLAG_CI_WIDTH_THRESHOLD)
+    )
+    return df
+
 
 def _approx_sqn_vec(pnl, gp, gl, wins, trades):
     """Vectorized SQN approximation from aggregated metrics.
@@ -1463,6 +1665,18 @@ def extract_validated_specialists(sym_result, output_dir):
         if len(top_all) > 0:
             top_all = _compute_sqn_haircut(top_all, parts_dir, k)
 
+        # --- W3 bootstrap CI for pf_fwd + specialist_score_ci_low ---
+        if len(top_all) > 0:
+            t_boot = time.time()
+            top_all = _apply_bootstrap_pf_fwd(top_all)
+            # W3b: reorder by ci_low score for final selection
+            top_all = top_all.sort_values(
+                'specialist_score_ci_low', ascending=False).reset_index(drop=True)
+            n_flagged = int(top_all['flag_sospechoso_outlier'].sum())
+            print(f"      Bootstrap pf_fwd done: {n_flagged}/{len(top_all)}"
+                  f" flagged (ci_low<{_FLAG_CI_LOW_THRESHOLD} | ci_width>"
+                  f"{_FLAG_CI_WIDTH_THRESHOLD}) ({time.time()-t_boot:.1f}s)")
+
         # Track validated config_ids for cross-cluster check
         if len(top_all) > 0:
             validated_ids_per_cluster[k] = set(top_all['config_id'].astype(int).tolist())
@@ -1525,6 +1739,25 @@ def extract_validated_specialists(sym_result, output_dir):
                            f"  median={np.median(pf_comb_v):.2f}"
                            f"  p75={np.percentile(pf_comb_v, 75):.2f}"
                            f"  max={pf_comb_v.max():.2f}")
+
+            # W3 bootstrap CI distribution + flagged count
+            if 'pf_fwd_ci_low' in top_all.columns:
+                ci_low_v = top_all['pf_fwd_ci_low'].values
+                ci_w_v = top_all['ci_width'].values
+                n_flag = int(top_all['flag_sospechoso_outlier'].sum())
+                rpt.append(f"\n  W3 BOOTSTRAP pf_fwd (N={_BOOTSTRAP_N_RESAMPLES}"
+                           f" resamples, binomial pool approx, CI={_BOOTSTRAP_CI}):")
+                rpt.append(f"    pf_fwd_ci_low: min={ci_low_v.min():.2f}"
+                           f"  median={np.median(ci_low_v):.2f}"
+                           f"  max={ci_low_v.max():.2f}")
+                rpt.append(f"    ci_width:      min={ci_w_v.min():.2f}"
+                           f"  median={np.median(ci_w_v):.2f}"
+                           f"  max={ci_w_v.max():.2f}")
+                rpt.append(f"    flagged suspicious: {n_flag}/{len(top_all)}"
+                           f"  (ci_low<{_FLAG_CI_LOW_THRESHOLD} or"
+                           f" ci_width>{_FLAG_CI_WIDTH_THRESHOLD})")
+                rpt.append(f"    selection order: specialist_score_ci_low"
+                           f" (W3b: replaces point-estimate ranking)")
 
             # Write top 1000 to CSV (overwrite, not append)
             _CSV_TOP_N = 1000
@@ -1772,6 +2005,14 @@ def extract_validated_specialists(sym_result, output_dir):
                 "pnl_tr": round(float(row['pnl_tr']), 3),
                 "pnl_fwd": round(float(row['pnl_fwd']), 3),
             }
+            # W3 bootstrap fields (added post-haircut in Phase 3 of extract)
+            if 'pf_fwd_ci_low' in row.index:
+                entry["pf_fwd_ci_low"] = round(float(row['pf_fwd_ci_low']), 3)
+                entry["pf_fwd_ci_high"] = round(float(row['pf_fwd_ci_high']), 3)
+                entry["ci_width"] = round(float(row['ci_width']), 3)
+                entry["pf_combined_ci_low"] = round(float(row['pf_combined_ci_low']), 3)
+                entry["specialist_score_ci_low"] = round(float(row['specialist_score_ci_low']), 3)
+                entry["flag_sospechoso_outlier"] = bool(row['flag_sospechoso_outlier'])
             if 'plateau_ratio' in row.index and np.isfinite(row.get('plateau_ratio', np.nan)):
                 entry["plateau_ratio"] = round(float(row['plateau_ratio']), 3)
             if has_surv_col:
