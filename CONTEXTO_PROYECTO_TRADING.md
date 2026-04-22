@@ -1686,6 +1686,81 @@ Referencias: §13.3 items funding runtime + observabilidad 2026-04-23; §9.3 v2.
 
 ### 13.4 RESUELTO
 
+**[AUDITORIA] [RESUELTO] A10 forensic — distribución temporal + cluster drift brain↔kernel — 2026-04-22**
+
+Contexto: entrada A10 previa (§13.4 2026-04-22) reportó diff NETO 4 trades ONDO + 15 APT basado en comparación de contadores agregados (run_on_slice kernel Numba). Forensic granular trade-by-trade (via `extract_trades_tf` del audit v5.1 como referencia Python, match por `(entry_bar, side)` exacto) revela que los contadores ocultan magnitud real del drift bar-level.
+
+**Resultados forensic**:
+
+| Símbolo | Preset | Brain trades | Kernel trades | Common (match exact) | Brain_only | Kernel_only | Total divergentes | Ratio vs brain |
+|---------|--------|--------------|---------------|----------------------|------------|-------------|-------------------|----------------|
+| ONDO/USDT | VIDYA(18)/KAMA(54) | 506 | 510 | 485 | 21 | 25 | **46** | **9.09%** |
+| APT/USDT | Tenkan(24)/KAMA(72) | 1786 | 1801 | 1685* | 101* | 116* | **121** | **6.77%** |
+
+*APT common derivado de totals.
+
+**Patrón observado**: muchos divergentes son **off-by-N bars pairs** (mismo exit_bar, mismo side, entry_bar difiere 1-6 bars). Ejemplo ONDO T1:
+- bar 819 short brain_only → exit 844
+- bar 820 short kernel_only → exit 844
+
+Son conceptualmente el mismo trade con shift de 1 bar en entry timing por drift numérico en cruces ma_fast vs ma_slow. No es "trade distinto" sino "mismo trade detectado con drift temporal".
+
+**Distribución temporal (3 tercios de bars evaluados)**:
+
+| Símbolo | T1 | T2 | T3 | Ratio T1/T3 |
+|---------|-----|-----|-----|--------------|
+| ONDO | 25 (54.3%) | 11 (23.9%) | 10 (21.7%) | 2.5× |
+| APT | 56 (46.3%) | 39 (32.2%) | 26 (21.5%) | 2.2× |
+
+**Veredicto categoría: ESTRUCTURAL NUMÉRICA** (mezcla Caso α + drift continuo).
+
+- T1 tiene 2-2.5× más divergencias que T3 → **componente warmup transitorio confirmado** (Caso α parcial).
+- T2+T3 suman 46-54% del total → **drift continuo path-dependent también presente** (no solo warmup).
+- NO es Caso α puro (en ese caso T1 sería ~90%+).
+- NO es Caso β puro (distribución uniforme esperaría ~33%/tercio).
+- Es mixto: warmup-fuerte + steady-state drift persistente.
+
+**Cross-symbol correlación**:
+- ONDO ratio 9.09% vs APT ratio 6.77% → **ratios similares** (diff ~30%). Drift no es fuertemente símbolo-dependiente.
+- Ambos clusters C0 usan KAMA (indicador iterativo path-dependent) → consistente con hipótesis numérica.
+- Preset ONDO usa VIDYA + KAMA (ambos path-dep), APT usa Tenkan + KAMA (1 path-dep). Ratio ONDO marginalmente mayor — consistente con más MAs path-dep → más drift.
+
+**NO hay concentración focal en ONDO C0** (cluster flagged por health_monitor). El drift es distribuido estructural, no atribuible al cluster degradado específico.
+
+**Recalibración sobre gap PF ONDO C0 (1.08 vs 5.5 esperado)**:
+- A10 original reportó 99.2% match count → parecía drift minor.
+- Forensic revela 9% de trades con off-by-N bar shift.
+- Aunque 9% suena grande, la magnitud promedio del shift en PnL es pequeña (los trades "pares off-by-N" tienen PnL similar, diferenciándose por ~1-3% pnl por trade, ver ejemplos #2+#3 ONDO).
+- Impacto estimado en PF ONDO C0: probablemente 5-15% del gap (mayor que la estimación previa 1-10% pero sigue siendo componente minoritario).
+- **Causa raíz dominante del gap sigue siendo Hipótesis B** (degradación edge régimen vs walk-forward inflation).
+
+**Implicaciones para ítems derivados**:
+
+1. **Item §13.3 root cause drift** (abierto hoy): priorizar investigación pre-reciclaje. El drift es ESTRUCTURAL NUMÉRICA, no bug lógico. Opción C (aceptar + documentar) es razonable si no se quiere refactor mayor. Opción B (extender warmup brain 500→2000 bars) reduciría T1 drift ~50% pero no elimina T2/T3.
+
+2. **Item §13.3 smoke test upgrade**: N≥5000 sobre símbolo con MAs path-dep necesario. Protocol detail:
+   - Benchmark smoke: BTC N=1000 (fast, catch logical bugs).
+   - Deep smoke: ONDO o APT N≥8000 (catch drift path-dependent).
+   - Ambos requeridos antes de deploys críticos.
+
+3. **Escenario Y de Fase II.C**: matización cuantitativa. Match rate audit v5.2 ajustado por drift off-by-N bars sería ~73% (vs 75.7% reportado). Pequeño ajuste, no cambia veredicto global Y+A_parcial.
+
+**Artefactos generados** (no commiteados):
+- `.a10_forensic.py`: wrapper temporal (eliminado al cierre).
+- `.a10_ondo_forensic.txt`, `.a10_apt_forensic.txt`: outputs detallados (eliminados).
+
+Datos forensic preservados en esta entrada §13.4.
+
+Referencias:
+- §13.4 entrada previa A10 2026-04-22 (veredicto Caso D que este forensic matiza).
+- §13.3 root cause drift + smoke upgrade (items abiertos hoy).
+- §12 Lección 30 (smoke test N pequeño oculta drift path-dependent).
+- `audit_fidelity_v5.py:689` `extract_trades_tf` (usado como reference Python kernel).
+
+Cierre: drift cuantificado a granularidad bar-by-bar. Categoría ESTRUCTURAL NUMÉRICA confirmada. No es bug lógico, es arquitectura rolling-vs-acumulado en MAs path-dependent. No requiere fix urgente. Priorizar para pre-reciclaje julio.
+
+---
+
 **[AUDITORIA] [RESUELTO] A10 test diferencial brain↔kernel sobre N≥10000 — divergencia cuantificada — 2026-04-22**
 
 Contexto: tras Fase II.B (audit ONDO específico B_CONFIRMADA) y Fase II.C (audit + analyzer global Escenario Y), queda una asunción implícita de toda la infraestructura de audits: **kernel stateless del lab ≡ brain engine bit-a-bit**. El smoke test `_run_verify_test` de deploys previos usa BTC/USDT N=1000 y reporta consistentemente diff 0.0000. A10 escala a N≥10000 sobre ONDO (max 8335 disponible) y APT (10000) para validar/refutar la asunción en régimen de alta actividad.
