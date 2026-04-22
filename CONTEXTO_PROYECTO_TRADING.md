@@ -1340,6 +1340,36 @@ Referencias: analyze_performance_attribution.py bloque attribute_trade(), test d
 
 ### 13.3 EN_ESPERA
 
+**[MEJORA] [EN_ESPERA] Cooldown asimétrico por tipo exit — investigación empírica pre-reciclaje — 2026-04-23**
+
+Contexto: A04 TF (kernel TF L1630-1637) y A04b MR (kernel MR L408-415) identificaron cooldown diferenciado por tipo exit (`emergency/cancel → cooldown_until = t` fijo 1 bar, `sl_exit/div_exit → t + cooldown_bars - 1` parametrizable) vs Pine uniforme `i_cooldown_bars` default=1. Inicialmente clasificado como "NO DOC POT INVOLUNTARIA impacto bajo" en ambas auditorías Fidelidad 1.
+
+**Información histórica añadida post-auditorías (Ricardo 2026-04-23)**: el cooldown fue implementado originalmente en Pine para evitar aperturas-cierres en velas contiguas sin explicación aparente (probablemente whipsaws por bar forming/resolved timing en indicador operando productivamente). Tiene **base operacional empírica del sistema Pine**, no es diseño arbitrario del kernel Python.
+
+Reclasificación: **ITEM INVESTIGATIVO heredado con base operacional Pine**, no POT INVOLUNTARIA. Antes de unificar, validar empíricamente si los mecanismos modernos anti-repainting del kernel Python ya resuelven el problema que Pine mitigaba.
+
+**Incógnita metodológica**: ¿el problema original Pine persiste en kernel Python tras mecanismos modernos?
+- Bits 14-16 cancelaciones (cancel_zona, cancel_tf, cancel_ghost) resuelven aspectos del repainting.
+- v2.3.11 bar forming fix determinizó que `iloc[-1]` sea siempre bar `t` en curso (antes inconsistente por BingX paginated).
+- Posiblemente ambos mecanismos juntos ya eliminan el motivo del cooldown asimétrico original.
+
+**Metodología de investigación** (estimado 1-2h + compute):
+1. Clonar kernel con modo `cooldown_uniform=True` (todos los tipos exit usan mismo `COOLDOWN_BARS=1`).
+2. Simular sobre subset representativo (BTC+ETH+ONDO+APT), ventana últimos 3000-5000 bars con specialist_configs actuales.
+3. Detectar aperturas-cierres en velas contiguas (trade N exit bar T, trade N+1 entry bar T o T+1).
+4. Comparar ratio de eventos "apertura-cierre contiguo" modo uniforme vs modo asimétrico.
+
+**Criterios decisión**:
+- Ratio similar ambos modos (±20%): mecanismos modernos resuelven problema. Cooldown asimétrico es legacy no necesario → unificar seguro (consistencia con Pine).
+- Ratio significativamente mayor en modo uniforme: cooldown asimétrico mitiga silenciosamente whipsaws → mantener + documentar razón en comment código.
+- Ratio menor en modo uniforme: hallazgo inesperado → investigar.
+
+**Disparo**: pre-reciclaje (cualquier scope α/β/γ según runbook §0). Test puede ejecutarse en cualquier momento con specialists actuales sin tocar producción. Ejecución read-only (simulación offline, no toca bot live).
+
+**Cierre**: decisión fundamentada empíricamente (unificar si mecanismos modernos suficientes, mantener con docs si aún necesario). Actualización código kernel TF + MR acorde. Documentación en §13.4 + §0.X si corresponde.
+
+Referencias: A04 commit b620d9f (TF audit), A04b commit 09b01f6 (MR audit), §13.4 entradas A04 + A04b 2026-04-23, Ricardo contexto histórico Pine 2026-04-23.
+
 **[MEJORA] [EN_ESPERA] Upgrade `_run_verify_test` — parametrizar n_bars + tolerance escalada — 2026-04-22**
 
 Contexto: §0.8 protocolo formalizó Nivel B deep smoke N≥8000, pero `_run_verify_test` (brain_engine.py L2284) sigue hardcodeado N=1000. Actualmente requiere wrapper temporal externo para N custom. Refactor menor pendiente para que el protocolo se pueda aplicar con comando único estándar.
@@ -2044,7 +2074,7 @@ Contexto: scope simétrico a A04 TF (commit b620d9f). Caveat arquitectónico cr�
 | 10 | TS 0.5% on-close | hardcoded `low[t-1]/high[t-1]` monotónico L222-231 | `i_ts_percent=0.5` `low[1]/high[1]` math.max/min L660-666 | ✓ IDÉNTICO |
 | 11 | Filtros HTF | entry_mask bits 4-8 (TF1-TF5) | `i3_use_tf1/2/3/4/5` L186-196 | ✓ EQUIVALENTE |
 | 12 | Umbral consenso div | hardcoded `>=1` L198 | `i_div_showlimit` 1-8 param L86 | ADAPTACIÓN NO DOC INTENCIONAL (igual div#2 A04 TF) |
-| 13 | Cooldown asimétrico | `emergency/cancel=t` fijo, `sl/div=t+cooldown_bars-1` L408-415 | `i_cooldown_bars` uniforme | **NO DOC POT INVOLUNTARIA** (igual div#5 A04 TF; benigna con defaults) |
+| 13 | Cooldown asimétrico | `emergency/cancel=t` fijo, `sl/div=t+cooldown_bars-1` L408-415 | `i_cooldown_bars` uniforme | **ITEM INVESTIGATIVO** (reclasificado post-2026-04-23 con contexto Pine, ver §13.3 "Cooldown asimétrico — investigación empírica pre-reciclaje") |
 
 **Tabla agregada A04b**:
 
@@ -2061,7 +2091,9 @@ Contexto: scope simétrico a A04 TF (commit b620d9f). Caveat arquitectónico cr�
 - #3 HA/Tenkan cruce invertido: ✅ CONFIRMADA en ambos (propiedad diseño MR nativa, no adaptación del kernel sobre Pine).
 - #4 Semántica zona invertida: ✅ CONFIRMADA en ambos (Pine v7.25 L154 nativo).
 
-**POT INVOLUNTARIA única**: cooldown asimétrico por tipo de exit (compartido TF+MR). Confirmado como **patrón arquitectónico compartido del proyecto**, no bug aislado MR. Impacto bajo con `cooldown_bars=1` default. Recomendación: investigar intención original pre-reciclaje y unificar o documentar en 1 refactor que toque ambos kernels.
+**POT INVOLUNTARIA única (reclasificada 2026-04-23)**: cooldown asimétrico por tipo de exit (compartido TF+MR). Confirmado como **patrón arquitectónico compartido del proyecto**, no bug aislado MR. Impacto bajo con `cooldown_bars=1` default. 
+
+**Nota matizadora 2026-04-23**: Ricardo aportó contexto histórico Pine post-auditoría — el cooldown fue implementado originalmente para evitar aperturas-cierres en velas contiguas sin explicación aparente (whipsaws por bar forming/resolved timing en indicador Pine productivo). Reclasificado de "POT INVOLUNTARIA arbitraria" a **ITEM INVESTIGATIVO heredado con base operacional Pine**. Metodología test empírico documentada en §13.3 entrada "Cooldown asimétrico — investigación empírica pre-reciclaje" 2026-04-23.
 
 **Cross-checks**:
 
@@ -2200,9 +2232,11 @@ Contexto: A04 del roadmap pre-reciclaje exige inventario formal de divergencias 
 **#5 cooldown diferenciado por tipo de exit en kernel**
 - Kernel L1630-1637: `sl_emergency_signal` / `cancel_signal` → `cooldown_until = t` (1 bar fijo); `sl_exit_signal` / `div_exit_signal` → `cooldown_until = t + cooldown_bars - 1` (parametrizable).
 - Pine: `last_cancel_bar := bar_index + i_cooldown_bars - 1` uniforme todos los exits.
-- **Tipo: NO DOC POT INVOLUNTARIA**.
+- **Tipo inicial: NO DOC POT INVOLUNTARIA**.
 - Impacto: BAJO con default `cooldown_bars=1` (ambos valores colapsan a 1 bar); divergencia solo emerge si `cooldown_bars>1`.
 - Resolución: investigar intención original pre-reciclaje. Si intencional → añadir comment código. Si no → unificar.
+
+**Nota matizadora 2026-04-23 post-A04/A04b**: Ricardo aportó contexto histórico Pine — el cooldown fue implementado originalmente para evitar aperturas-cierres en velas contiguas sin explicación aparente (whipsaws por bar forming/resolved timing en indicador operando productivamente). Reclasificado a **ITEM INVESTIGATIVO heredado con base operacional Pine**, no POT INVOLUNTARIA arbitraria. Ver §13.3 entrada "Cooldown asimétrico — investigación empírica pre-reciclaje" para metodología test empírico validando si mecanismos modernos (bits 14-16 cancelaciones + v2.3.11 bar forming fix) ya resuelven el problema original.
 
 **Tabla agregada**:
 

@@ -4,6 +4,98 @@ Guía operacional para ejecutar `master.py --recycle` con el pipeline mejorado t
 
 ---
 
+## 0. Scope del reciclaje — DECISIÓN PREVIA
+
+Antes de ejecutar reciclaje, decidir qué mejoras se incluyen. Tres opciones según §9.3 y §9.4 del CONTEXTO:
+
+### Opción α — Reciclaje con pipeline de hoy
+
+**Scope**:
+- Mejoras sesión 2026-04-23: W3 + W4 + A12 + A13 + A14 + A15 + A04 + A04b + A05.
+- Sin features nuevas. Sin v2.5 Walk-Forward Continuo. Sin v2.6 Funding Rate Filter. Sin Z_ATR GMM.
+
+**Tiempo**:
+- Preparación: sistema ya listo post-sesión 2026-04-23.
+- Compute: ~15 días walk-forward estándar.
+- Total hasta deploy: ~15-20 días desde activación.
+
+**Ventaja**:
+- Ejecutable inmediatamente.
+- Valida mejoras de sesión 2026-04-23 en producción.
+- Genera datos empíricos que informarán siguiente reciclaje.
+
+**Desventaja**:
+- Reciclaje "incompleto" respecto a roadmap v3.0 original.
+- Requiere reciclaje posterior para features restantes.
+
+### Opción β — Reciclaje completo v3.0
+
+**Scope**:
+- Todo α + mejoras §9.3 + §9.4:
+  - v2.5 Walk-Forward Continuo (infraestructura monitoring semanal).
+  - v2.6 Funding Rate Filter (brain bloquea entradas funding extremos).
+  - v3.0 Z_ATR como feature GMM (añade feature training + subsume "cortafuegos BTC").
+  - BTC Override evolución binario → BIC → Bayesiano según §9.4.
+
+**Tiempo**:
+- Implementación adicional: 5-10 sesiones dedicadas.
+- Validación empírica multicolinealidad Z_ATR (BIC test).
+- Compute walk-forward: +15 días tras implementación.
+- Total hasta deploy: 6-10 semanas desde activación.
+
+**Ventaja**: reciclaje único con todas las mejoras del roadmap.
+
+**Desventaja**:
+- Bundle grande. Si falla alguna feature, debug complejo.
+- Timeline largo contradice "cuanto antes".
+- Z_ATR GMM feature crítica sin datos empíricos previos sobre sistema α → arriesgado calibrar a ciegas.
+
+### Opción γ — Híbrida recomendada
+
+**Scope**:
+- α ahora (reciclaje con pipeline de hoy).
+- Entre α y β: implementar v2.6 Funding Filter (NO requiere reciclaje, es filtro runtime brain + precondición analyzer observabilidad funding).
+- β posterior con v2.5 + Z_ATR GMM + BTC override.
+
+**Timeline**:
+1. Ejecutar α: ~15-20 días hasta deploy.
+2. Monitoreo α + implementación v2.6 funding filter paralelo.
+3. Monitoreo N≥50 trades post-α para datos empíricos.
+4. Implementación v2.5 + Z_ATR + BTC override (calibrados con datos α).
+5. Ejecutar β: calibración más robusta basada en α.
+
+**Ventaja**:
+- Balance entre "cuanto antes" y "con mejoras".
+- Datos empíricos de α informan diseño β.
+- v2.6 funding se beneficia sin esperar reciclaje.
+- Evita bundle monolítico arriesgado.
+
+**Desventaja**:
+- Dos reciclajes en lugar de uno.
+- Mayor compute total.
+
+### Criterio recomendado
+
+| Prioridad | Opción |
+|---|---|
+| "Validar mejoras de hoy cuanto antes" | **α** |
+| "Todo junto no importa tiempo" | **β** |
+| "Balance pragmático con calibración empírica" | **γ** |
+
+**Decisión Ricardo pre-ejecución**. Inventario mejoras pendientes §9.3 y §9.4:
+
+| Mejora | Ubicación CONTEXTO | Estado | Scope |
+|---|---|---|---|
+| v2.4 Performance Attribution | §9.3 | ✅ Implementado (analyzer v2.4.1) | α |
+| v2.5 Walk-Forward Continuo | §9.3 | ❌ Pendiente | β |
+| v2.6 Funding Rate Filter | §9.3 | ❌ Pendiente (§13.3 observabilidad + filtro runtime 2026-04-23) | β (o intercalado γ) |
+| v3.0 Z_ATR GMM | §9.4 | ❌ Pendiente | β |
+| BTC Override evolución | §9.4 | ❌ v1 binario actual | β |
+
+Tras decisión α/β/γ, continuar con Sección 1.
+
+---
+
 ## 1. Estado requerido pre-reciclaje
 
 **Sistema**:
@@ -229,6 +321,8 @@ De los items §13.3 que quedaron EN_ESPERA tras sesión 2026-04-23:
 3. Evaluar si triggers empíricos se cruzan.
 4. Si sí: adelantar reciclaje aprovechando pipeline mejorado (W3+W4+A12+A13+A14+A15+A04+A04b+A05).
 5. Si no: mantener calendario julio 2026.
+
+**Decisión previa obligatoria**: scope α/β/γ según Sección 0. Recomendación técnica default: **γ híbrida** (α inmediato + v2.6 funding filter intercalado + β posterior con calibración empírica). Sujeto a decisión Ricardo.
 
 **Ventana ejecución óptima**: fin de semana con Ricardo monitoreando primeras ~4-6h para detección temprana de fallos.
 
