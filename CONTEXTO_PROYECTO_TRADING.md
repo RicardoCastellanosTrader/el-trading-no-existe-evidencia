@@ -1,6 +1,6 @@
 # Sistema de Trading Algorítmico — Contexto Completo del Proyecto
 
-**Última actualización:** 22 Abril 2026 — Cooldown unify (§13.3 último bloqueante arquitectónico pre-reciclaje RESUELTO por Opción A confirmada Ricardo). Refactor kernel TF L1630-1637 + kernel MR L408-415 a expresión Pine canónica uniforme (commit `9389af9` rama `feature-cooldown-unify`). Discovery pre-ejecución: `COOLDOWN_BARS=1` constante única en 9 módulos del pipeline productivo → 4 ramas del switch colapsaban a `t` (código muerto). Confirmatorio §0.8 A+C diff 0.0000 exacto; B dentro de baseline. Fidelidad 2 invariante. Sin deploy VPS. Previamente sesión 2026-04-23: 9 items §13.3 RESUELTOS (W3+W4 bootstrap/filtros CI, A12 LL1 MA dedup, A14 W1 plateau_ratio, A15 W2 engine tag, A13 LL2 ratio supervivencia, A04+A04b Fidelidad 1 TF+MR auditorías, A05 MR cleanup) + runbook reciclaje en docs/runbook_reciclaje.md + §12 Lecciones 31+32 nuevas. Bot v2.4.5 operacional. Pipeline pre-reciclaje arquitectónicamente listo. Pendientes pre-reciclaje: política adelantar reciclaje por criterio empírico, P1 leverage >1000 USDT, otros §13.3 EN_ESPERA dormidos. Bloque 1 roadmap COMPLETADO previamente: A36 + A35 + A38 + A34. §0.7 convención sync. §12 L27+L28+L29+L30+L31+L32.
+**Última actualización:** 22 Abril 2026 — Bloque 2 cerrado: §9.3 v2.6 Funding Filter contrarian **REFUTADO empíricamente** por Opción A §13.3 (observabilidad prerequisito). N=50 post-v2.3.11 BingX real: aligned +0.50% vs contrarian -0.57%, Welch t=+3.58 **p=0.0003 trimmed**, Mann-Whitney p=0.0052, win rate 62% vs 28%. Dirección OPUESTA a hipótesis (sistema TF → funding positivo = confirmation signal de tendencia, no crowd-to-squeeze). Simulación v2.6 original habría degradado PnL factor 2.2× (-1.52 USDT adicional/50 trades). §13.3 "Observabilidad funding per-trade" → IMPLEMENTADO vía `funding_observability.py` standalone (geo-bloqueo España obliga ejecución VPS Tokyo, Lección §12.24 aplicada). §13.3 "v2.6 contrarian filter" → REFUTADO. §13.3 nuevo "v2.6-inv momentum filter candidato" EN_ESPERA disparo N≥100 (~2026-05-01). §12 Lección 33 nueva: hipótesis roadmap requieren validación empírica específica al sistema, literatura general no sustituye. Bloque 1 (cooldown unify commit `9389af9`) cerrado previamente el mismo día. Bot v2.4.5 operacional. Sin deploy VPS. Fidelidad 2 invariante. Pipeline pre-reciclaje arquitectónicamente listo. Sesión 2026-04-23 previa: 9 items §13.3 RESUELTOS + runbook reciclaje + §12 L31+L32. §0.7 convención sync. §12 L27+L28+L29+L30+L31+L32+L33.
 **Versión actual:** v2.4.4 (sin bump — sesión 100% herramientas offline, sin deploy operacional)  
 **Autor del sistema:** Ricardo  
 **Plataforma:** Binance (datos) + BingX (ejecución), velas 1h  
@@ -709,8 +709,13 @@ Descomponer PnL por trade en: alpha del kernel, coste de ejecución (slippage), 
 **v2.5 Walk-Forward Continuo:**
 Cada semana re-evaluar configs activas contra 4 semanas de datos reales. Alertar si PF real degrada antes de que el health monitor (15 trades) lo detecte.
 
-**v2.6 Funding Rate como Filtro:**
-Funding rates extremos (+0.1% / 8h) = crowding signal. Bloquear entradas cuando funding está en extremos para esa dirección. Protección contrarian.
+**v2.6 Funding Rate como Filtro — REFUTADO 2026-04-22:**
+
+~~Funding rates extremos (+0.1% / 8h) = crowding signal. Bloquear entradas cuando funding está en extremos para esa dirección. Protección contrarian.~~
+
+**REFUTADO 2026-04-22 por evidencia empírica N=50 post-v2.3.11**. Hipótesis contrarian (literatura general) no aplica a este sistema trend-following en el régimen actual. Aligned trades (entry con funding en misma dirección que crowd) obtuvieron PnL mean **+0.50%** vs contrarian **-0.57%** (Welch t=+3.58 **p=0.0003 trimmed**, Mann-Whitney p=0.0052). Win rate aligned **62%** vs contrarian **28%**. Threshold §9.3 propuesto `|rate| > 0.001` nunca activó (0/50 trades cumplieron; p99 real 1.74e-4). Filter propuesto habría bloqueado ganadores y permitido perdedores (simulación: -1.52 USDT adicional sobre 50 trades vs PnL real +0.70 USDT, degradación factor 2.2×). Interpretación: el sistema TF es trend-following; funding positivo es **confirmation signal de tendencia**, no crowd-to-be-squeezed. Ver §13.4 entrada "Observabilidad funding per-trade — refutación empírica §9.3" 2026-04-22 + §12 Lección 33.
+
+**Candidato nuevo (pendiente validación N≥100)**: `v2.6-inv momentum filter` — bloquear entries **contrarian** al funding crowd (inverso a hipótesis original). Si efecto persiste con más data, podría mejorar PnL. Rompe Fidelidad 2 igual que versión original; requiere implementación simétrica en kernel lab para preservar §0.3. Item §13.3 EN_ESPERA con disparo N≥100 post-v2.3.11 (~2026-05-01 al ritmo actual).
 
 ### 9.4 v3.0 Primer reciclaje (~3 meses)
 
@@ -876,6 +881,23 @@ Sin esto, el auditor produce falsos positivos masivos y la auditoría pierde val
 **Escalabilidad**: cualquier sistema con diseño vivo + referencia histórica (indicadores Pine vs kernel Python, papers académicos vs implementación industrial, specs originales vs producto maduro). La auditoría comparativa es útil solo si el marco de clasificación reconoce que "divergencia ≠ bug" cuando hay evolución consciente.
 
 **Caso origen**: A04b 2026-04-23. Prompt mejorado por Ricardo incluyó explícitamente: las 4 adaptaciones esperadas (hidden fix, cancelaciones bits 14-16, HA/Tenkan cruce invertido, semántica zona invertida), clasificación jerárquica §0.6, categorías distintas "ADAPTACIÓN DOC §0.2" vs "POT INVOLUNTARIA". Resultado: auditoría limpia (4/5 divergencias correctamente clasificadas como ADAPTACIÓN §0.2 esperadas, 1 única POT INVOLUNTARIA real a investigar).
+
+33. **Hipótesis del roadmap requieren validación empírica antes de implementación, incluso si provienen de literatura establecida — 2026-04-22**. Caso origen: §9.3 v2.6 Funding Filter contrarian era hipótesis "bien fundada" desde literatura financiera general — funding extremos = crowding signal, trade contrarian = ganador. Opción A (§13.3 observabilidad) ejecutada antes de implementación reveló dirección **opuesta** con p=0.0003 (trimmed): aligned trades ganan +0.50% mean, contrarian pierden -0.57% (Welch t=+3.58, Mann-Whitney p=0.0052). Implementación directa sin validación empírica habría degradado PnL en factor 2.2× (simulación -1.52 USDT adicional sobre 50 trades vs PnL real +0.70).
+
+**Patrón problemático**: asumir que una hipótesis válida en la literatura general aplica directamente al sistema específico. Trading textbooks describen reversión por liquidación de crowds crowded; trading algorítmico específico puede tener otro edge (trend-following) donde funding positivo es **confirmation signal de tendencia**, no target de squeeze. La misma hipótesis verbal tiene dirección operacional opuesta según arquitectura del edge.
+
+**Mitigación protocolar**: protocolo §13.3 aplica observabilidad-antes-de-decisión de forma general. Para cualquier item del roadmap:
+1. Identificar si la hipótesis asume arquitectura genérica o específica.
+2. Antes de implementar lógica activa: implementar observabilidad en analyzer (infra offline que no toca producción ni rompe Fidelidad 2).
+3. Acumular N mínimo (50 para dirección estadística; 100+ para magnitud estable).
+4. Ejecutar tests (Welch + Mann-Whitney + robustness checks).
+5. Decidir implementación con evidencia propia del sistema, no extrapolación de literatura.
+
+**Variante importante**: distinguir "archivar por falta de evidencia" (null case, no material diff) vs "refutar por evidencia contraria" (material diff en dirección opuesta). El segundo escenario es más informativo — descubre que la hipótesis estaba inversa, no solo insuficiente. Registrar explícitamente la diferencia en docs.
+
+**Escalabilidad**: cualquier sistema con hipótesis heredadas (de literatura, de diseño original, de consenso genérico) que se propongan implementar mecánicamente. La asunción "esto es conocido, funciona así" se verifica antes de invertir compute o tocar producción. Conecta con Lecciones 31 (verificar diseño documentado antes de diagnosticar) y 32 (auditorías requieren inventario adaptaciones esperadas) — patrón común: **no asumir, verificar empíricamente en el contexto específico**.
+
+**Caso origen completo**: §9.3 v2.6 Funding Filter propuso threshold `|rate| > 0.001` (0.1%/8h) como "crowding extremo" contrarian. Opción A observabilidad reveló: (a) ese threshold nunca se activa (0/50 trades; p99 empírica 5× menor); (b) la dirección del efecto crowd-vs-signal es opuesta a la hipótesis. Resultado: filter archivado por refutación empírica, item candidato inverso ("v2.6-inv momentum filter") abierto pendiente N≥100 para validación temporal. Ver §13.4 entrada "Observabilidad funding per-trade" 2026-04-22.
 
 ---
 
@@ -1897,39 +1919,40 @@ Disparo: primer reporte v2.4 con WARNINGs de ecuación no cerrando en >5% de tra
 Cierre: causa raíz identificada y corregida, o ratio de WARNING <5% aceptado como ruido de floating point.
 Referencias: analyze_performance_attribution.py verificación al final de attribute_trade()
 
-**[MEJORA] [EN_ESPERA] Observabilidad funding extremo per-trade en analyzer — 2026-04-23**
-Contexto: durante discusión arquitectónica 2026-04-23, Ricardo propuso filtro funding contrarian direccional (bloquear entrada si signal coincide con dirección del crowd — funding positivo extremo + signal LONG → bloquear; funding negativo extremo + signal SHORT → bloquear). Decisión de implementación del filtro requiere evidencia empírica: ¿cuántos trades históricos se habrían bloqueado? ¿Esos trades habrían correlacionado con pérdidas?
-Antes de implementar el filtro, añadir observabilidad en analyzer v2.4.1 para generar esa evidencia:
-- Nueva columna `funding_rate_at_entry` per-trade (funding rate vigente en el momento del entry, fetcheado retrospectivamente desde BingX API).
-- Nueva columna `funding_crowd_direction` (long/short según signo del rate).
-- Nueva columna `signal_vs_crowd` con valores 'aligned'/'contrarian'/'neutral'.
-- Sección nueva en reporte: distribución trades aligned vs contrarian con PnL medio/mediana de cada grupo.
-Disparo: próximo audit N≥50 (~2026-04-26) o cuando Ricardo decida priorizarlo en Bloque 3 como infra preparatoria.
-Cierre: analyzer reporta estadísticas funding crowd-direction sobre N≥50 trades; data disponible para decidir item "filtro funding contrarian runtime".
-Estimación: 2-3h (incluye fetch histórico BingX + integración analyzer + sección reporte + tests).
-Prerequisito: item §13.3 "estimated funding fallback ignora side" (E1 execution_manager) debería resolverse antes si el fetch retrospectivo usa la misma ruta fallback. Si usa BingX API directa en lugar de ccxt fetch_funding_history, independiente.
-Referencias: discusión arquitectónica 2026-04-23 sobre funding contrarian direccional; §13.3 E1 (funding sign); §9.3 v2.6 Funding Rate como Filtro (roadmap futuro donde este filtro se materializaría).
+**[MEJORA] [RESUELTO] Observabilidad funding extremo per-trade — IMPLEMENTADO 2026-04-22**
 
-**[MEJORA] [EN_ESPERA] Filtro funding contrarian runtime (direccional) — 2026-04-23**
-Contexto: propuesta Ricardo 2026-04-23: funding rate extremo indica posicionamiento de crowd mayoritario en una dirección; el mecanismo de liquidación tiende a barrer esa mayoría cuando el precio se mueve en contra. Protección contrarian: bloquear entradas que coincidan con dirección del crowd.
-Matiz importante (vs descripción genérica v2.6 §9.3): filtro DIRECCIONAL. No bloquea todas las entradas en funding extremo — solo las que van en dirección del crowd. Si la signal es contrarian al crowd, NO bloquear (podría ser oportunidad).
-Implementación propuesta:
-- Filtro en portfolio_manager antes de allocate_positions, o en brain_engine al emitir signal.
-- Fetch funding rate actual desde BingX para cada símbolo con signal activo.
-- Umbral empírico (a definir con data de observabilidad — ver item previo).
-- Bloquear signal si: funding > umbral+ AND signal=LONG, o funding < umbral- AND signal=SHORT.
-- Signals contrarian al crowd (funding > umbral+ AND signal=SHORT, o funding < umbral- AND signal=LONG) NO se bloquean (pasan a portfolio normalmente).
+Ver §13.4 entrada "Observabilidad funding per-trade — refutación empírica §9.3 v2.6 contrarian filter — 2026-04-22".
 
-**Consideración crítica Fidelidad 2**: el lab no simula filtro funding. Activar en producción sin contrapartida en lab rompe Fidelidad 2 sistemáticamente en todos los trades bloqueados (bot no opera pero kernel post-hoc sí generaría signal). Tres opciones de manejo:
-1. Filtro runtime + añadir mismo filtro al lab: preserva Fidelidad 2. Trabajo kernel ~2-3 sesiones adicionales.
-2. Filtro runtime sin lab: Fidelidad 2 rota conscientemente. Aceptable si trades bloqueados son fracción pequeña + bien documentado.
-3. No implementar: mantener status quo.
+Resumen: `funding_observability.py` standalone (VPS Tokyo execution por geo-bloqueo ccxt España). 3 columnas enriquecidas (funding_rate_at_entry, funding_crowd_direction, signal_vs_crowd). N=50 post-v2.3.11 ejecutado con BingX real. Analyzer v2.4.1 NO hereda bug E1 (bypass natural vía funding_paid del CSV). Resultado: hipótesis §9.3 refutada por evidencia contraria — item §13.3 v2.6 Funding Filter contrarian pasa a REFUTADO; item nuevo candidato `v2.6-inv momentum filter` abierto pendiente N≥100.
 
-La decisión 1 vs 2 vs 3 requiere evidencia empírica del item previo (observabilidad). Si correlación material entre funding crowd-direction y pérdidas → opción 1 o 2 justificadas. Si no correlación material → opción 3 (archivar).
-Disparo: evidencia empírica del item previo (observabilidad funding per-trade) muestra correlación material entre funding crowd-direction y PnL. Decisión Ricardo sobre opción 1 vs 2 vs 3 tras ver data.
-Cierre: filtro implementado (opción 1 o 2) y desplegado, O item archivado (opción 3 tras ver data).
-Estimación: 3-5h runtime implementación + 2-3 sesiones kernel si opción 1.
-Referencias: §13.3 item observabilidad funding per-trade 2026-04-23; §9.3 v2.6 Funding Rate como Filtro; §0 marco Fidelidad 1 y 2 (impacto de features runtime no-simuladas en lab).
+**[MEJORA] [REFUTADO] Filtro funding contrarian runtime (direccional) — REFUTADO empíricamente 2026-04-22**
+
+Ver §13.4 entrada "Observabilidad funding per-trade — refutación empírica §9.3 v2.6 contrarian filter — 2026-04-22".
+
+Resumen: hipótesis original (bloquear entries aligned con crowd, preservar contrarian) **refutada con dirección opuesta confirmada** (Welch t=+3.58 p=0.0003 trimmed, Mann-Whitney p=0.0052). Aligned trades son GANADORES en régimen actual; contrarian trades son PERDEDORES. Simulación del filter propuesto: habría degradado PnL en factor 2.2× (-1.52 USDT adicional sobre 50 trades). Item cerrado; hipótesis refutada — no "archivado por falta de evidencia" sino "refutado por evidencia contraria" (distinción §12 Lección 33).
+
+**[MEJORA] [EN_ESPERA] v2.6-inv momentum filter candidato — validación N≥100 — 2026-04-22**
+
+Contexto: observabilidad funding §13.3 implementada 2026-04-22 reveló dirección OPUESTA a hipótesis §9.3. Aligned trades ganan +0.50% mean; contrarian pierden -0.57% mean. Gap 1.07 pp/trade, win rate 62% vs 28% (p=0.0003 trimmed, Mann-Whitney p=0.0052). Filter **inverso** (bloquear entries contrarian al funding crowd) podría mejorar PnL neto en régimen actual.
+
+**Caveats a validar**:
+- N=50 en 4 días (2026-04-19 a 2026-04-22) — suficiente para dirección estadística pero no para magnitud estable. Régimen observado (lateral-alcista, funding mayoritariamente positivo ligero) puede no representar bearish ni tail-risk crowded.
+- Rompe Fidelidad 2 igual que versión contrarian original — cualquier trade runtime bloqueado diverge del kernel post-hoc. Requiere implementación simétrica en kernel lab (Numba TF + MR) para preservar §0.3 → ~2-3 sesiones extras si opción 1. Opción 2 (filter sin lab, Fidelidad 2 rota conscientemente) aceptable si trades bloqueados quedan documentados y fracción pequeña. Opción 3 (no implementar) si al llegar a N≥100 el efecto revirtió.
+
+**Metodología de validación**:
+1. Acumular N≥100 post-v2.3.11 (~2026-05-01 al ritmo actual 0.7 trades/h).
+2. Re-ejecutar `funding_observability.py` sobre dataset ampliado.
+3. Verificar si efecto persiste: p-value trimmed y magnitud gap. CI95 para aligned y contrarian mean.
+4. Si persiste y robusto: decisión Ricardo opción 1 (kernel + lab) / 2 (solo runtime) / 3 (archivar).
+5. Si opción 1 elegida: implementar en kernel Numba TF + MR con entry filter basado en funding rate. Threshold a definir con percentil empírico (no §9.3 fallido que nunca activa). Tests + smoke §0.8 + deploy v2.4.6 operacional.
+
+**Disparo**: N≥100 post-v2.3.11 + cross-check condiciones de mercado. Si régimen cambió significativamente (ej. bearish prolongado, funding negativo mayoritario), evidencia nueva puede divergir — re-validar antes de decidir.
+
+**Cierre**: decisión fundamentada con data robusta (N≥100) o archivar si efecto revirtió.
+
+**Prerequisito parcial**: ítem §13.3 E1 funding sign bug relevante SOLO si la implementación del filter consume `_get_position_funding` fallback. Si el filter fetcha rate directo de ccxt (como hace `funding_observability.py`), bypass natural y E1 irrelevante.
+
+Referencias: §13.4 entrada "Observabilidad funding per-trade" 2026-04-22; §9.3 v2.6 (refutado); §12 Lección 33; `funding_observability.py` (standalone, base para integración futura en analyzer si se aprueba opción 1/2).
 
 **[DECISION] [EN_ESPERA] Funding rate NO es feature del GMM — rechazo explícito 2026-04-23**
 Contexto: durante discusión 2026-04-23 sobre cómo integrar funding rate al sistema, se evaluaron dos opciones arquitectónicas:
@@ -1946,6 +1969,76 @@ Referencias: §13.3 items funding runtime + observabilidad 2026-04-23; §9.3 v2.
 ---
 
 ### 13.4 RESUELTO
+
+**[MEJORA] [IMPLEMENTADO + REFUTACIÓN] Observabilidad funding per-trade — refutación empírica §9.3 v2.6 contrarian filter — 2026-04-22**
+
+Contexto: §13.3 documentó "Observabilidad funding extremo per-trade en analyzer" como prerequisito del item §13.3 "Filtro funding contrarian runtime" (§9.3 v2.6 en roadmap). Opción A (implementar observabilidad primero) ejecutada para evitar romper Fidelidad 2 sin evidencia empírica y para calibrar threshold.
+
+**Implementación técnica**:
+- `funding_observability.py` standalone (nuevo archivo combolab root). 516 líneas. No integrado en `analyze_performance_attribution.py` para scope mínimo; integración futura opcional si filter se aprueba.
+- 3 columnas enriquecidas: `funding_rate_at_entry` (decimal per 8h), `funding_crowd_direction` ('long_crowd' rate > +5e-5 / 'short_crowd' rate < -5e-5 / 'neutral'), `signal_vs_crowd` ('aligned' / 'contrarian' / 'neutral').
+- Fetch ccxt `fetch_funding_rate_history` por símbolo con paginación + cache intra-sesión. Exchange selector (`--exchange bingx|binance`).
+- **Geo-bloqueo ccxt España** detectado: BingX, Binance, OKX, Bybit todos bloquean `/contracts` endpoint → ejecución vía SSH VPS Tokyo (BingX accesible allí). Kraken no soporta `fetchFundingRateHistory`. Symbol format `BTC/USDT:USDT` requerido (Lección §12.24 aplicada — `BTC/USDT` devuelve 0 rates silently).
+- Bypass del bug §13.3 E1 (execution_manager `_get_position_funding` sign fallback): analyzer v2.4.1 lee `funding_paid` directo del CSV, y la observabilidad fetcha rate independiente del CSV. Ninguna lectura atraviesa `_get_position_funding`.
+- Welch t-test y Mann-Whitney implementados in-script (bypass scipy dependency). Robustness checks: drop min+max, drop |z|>2 outliers.
+
+**Resultado empírico N=50 post-v2.3.11** (BingX real desde VPS):
+
+| Group | N | % | Mean PnL % | Median PnL % | Sum USDT | Win Rate | Mean rate (per 8h) |
+|---|---|---|---|---|---|---|---|
+| **aligned** | 16 | 32% | **+0.5045** | +0.2112 | +0.7524 | **62%** | +7.9e-5 |
+| **contrarian** | 18 | 36% | **-0.5692** | -0.5194 | -0.7704 | **28%** | +8.7e-5 |
+| neutral | 16 | 32% | +0.3764 | +0.0876 | +0.7134 | 50% | +0.7e-5 |
+
+Tests estadísticos (aligned vs contrarian PnL%):
+- Welch t baseline: **t=+2.53, p=0.0113**.
+- Welch t trimmed (drop min+max per group): **t=+3.58, p=0.0003**.
+- Welch t sin outliers |z|≤2: **t=+3.41, p=0.0006**.
+- Mann-Whitney U: **p=0.0052**.
+
+Robustez preservada tras remover outliers y trimming → efecto NO atribuible a ruido muestral. Win/loss stats: aligned avg_win +1.13% vs loss -0.54%; contrarian avg_win solo +0.63% vs loss -1.03%.
+
+**Veredicto**: hipótesis §9.3 v2.6 (contrarian filter → bloquear aligned) **REFUTADA con dirección OPUESTA confirmada** (p=0.0003 trimmed). Efecto magnitud: gap 1.07 pp/trade entre grupos. Literatura contrarian (funding extremo como crowding signal a atacar) asume sistemas de reversión; este sistema es **trend-following** donde funding positivo es **confirmation signal** de la tendencia que TF captura. Aligned no es crowd-to-be-squeezed, es tendencia confirmada.
+
+**Simulación v2.6 original aplicada al dataset**:
+- Habría bloqueado los 16 trades ganadores aligned (+0.75 USDT).
+- Habría permitido los 18 trades perdedores contrarian (-0.77 USDT).
+- Diff operacional: **-1.52 USDT adicional** vs PnL real (+0.70 USDT).
+- Filter habría degradado performance en **factor 2.2×** sobre 50 trades.
+
+**Threshold §9.3 propuesto**:
+- `|rate| > 0.001` (0.1% per 8h) como "extremo".
+- **0/50 trades** cumplen — ese threshold nunca se habría activado.
+- p99 empírica: 1.74e-4 (5× menor que §9.3). p95: 1.15e-4.
+- "Régimen extremo" hipotético por §9.3 jamás ocurrió en ventana abril 2026.
+- Cualquier filter futuro que quiera ser operativo necesita threshold mucho menor (ej. percentil empírico p75-p90).
+
+**Distribución entre grupos diversa**: aligned dominado por ONDO (4), ATOM (2); contrarian por INJ (3), ALGO/ICP/SAND (2 each). Sin concentración patológica — efecto distribuido cross-symbol.
+
+**Updates documentales**:
+- §9.3 v2.6 actualizada con nota REFUTADO (hipótesis strikethrough + análisis empírico).
+- §13.3 "Observabilidad funding per-trade" → IMPLEMENTADO (pointer a esta entrada).
+- §13.3 "Filtro funding contrarian runtime" → **REFUTADO** (pointer a esta entrada). Distinción importante: NO es "archivado por falta de evidencia", es "refutado por evidencia contraria robusta".
+- §13.3 nuevo item EN_ESPERA: **"v2.6-inv momentum filter candidato"** — bloquear contrarian entries (hipótesis inversa). Disparo N≥100 post-v2.3.11 (~2026-05-01). Caveat: rompe Fidelidad 2 igual, requiere lab-side impl o documentar ruptura. Requiere validación temporal (régimen actual puede no generalizar).
+- §12 Lección 33 nueva: "Hipótesis del roadmap requieren validación empírica antes de implementación, incluso si provienen de literatura establecida".
+
+**Caveats permanentes**:
+- N=50 en 4 días calendario es mínimo §13.3; régimen lateral-alcista abril 2026 puede no representar bearish/tail-risk. Confirmar con N≥100 antes de implementar filter inverso.
+- Analyzer enriquecido NO integrado en `analyze_performance_attribution.py` — es script standalone. Si se aprueba v2.6-inv futuro, evaluar integración.
+- Fetch funding rate requiere geo acceso a BingX/Binance — ejecutable desde VPS Tokyo. Local España bloquea todos los major exchanges perpetuos en ccxt.
+
+**Fidelidad 2**: invariante (Opción A es observabilidad offline, no toca bot runtime). Decisión de implementar v2.6-inv en futuro traerá el dilema Fidelidad 2 pendiente.
+
+**Deuda declarada**:
+- §13.3 E1 funding sign bug: irrelevante para esta observabilidad (bypass natural); sigue como EN_ESPERA para otros consumers del path fallback.
+- Analyzer integration (opcional): si se aprueba v2.6-inv, considerar merge de las 3 columnas a `analyze_performance_attribution.py`.
+- Funding data fetch requires BingX access — analyzer runs in Spain environment would need funding data pre-fetched from VPS.
+
+Referencias: `funding_observability.py` (nuevo), `analyze_performance_attribution.py` v2.4.1 (sin cambios, bypass E1 natural), §9.3 v2.6 actualizada, §13.3 items actualizados, §12 Lección 33 nueva, dataset N=50 trades post-v2.3.11 ejecutado en VPS Tokyo con BingX real.
+
+Cierre: permanente para observabilidad (IMPLEMENTADO) + refutación v2.6 (RESUELTO por evidencia contraria). Analyzer enriquecido operativo via script standalone. Item candidato v2.6-inv queda en §13.3 EN_ESPERA.
+
+---
 
 **[MEJORA] [RESUELTO] Cooldown asimétrico — UNIFICAR SEGURO por Opción A — 2026-04-22**
 
