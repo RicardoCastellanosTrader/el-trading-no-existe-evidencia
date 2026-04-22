@@ -213,31 +213,74 @@ def calc_fast_line(df_1h, tenkan_len=9):
 # 5. calc_zones (invertidas para mean-reversion)
 # ============================================
 
+# ---------------------------------------------------------------------------
+# A05 S3 (2026-04-23): helpers compartidos para la semántica MR zone_bull/bear.
+# Antes: brain_engine recomputaba `fast < slow` inline en 6 sitios distintos
+# mientras `calc_zones` computaba arrays precomputados. Riesgo: drift
+# silencioso si calc_zones cambiaba la fórmula sin actualizar brain. Fix:
+# funciones puras module-level aquí, importadas por brain_engine y
+# consumidas por calc_zones internamente. Single source of truth para la
+# semántica MR invertida (§0.5).
+# ---------------------------------------------------------------------------
+
+def zone_bull_mr(fast, slow):
+    """Mean-reversion zone_bull: fast < slow.
+
+    Semántica invertida respecto al TF (donde zone_bull = fast > slow).
+    Precio bajo la media → reversion al alza esperada (§0.5).
+
+    Escalar-friendly (usado en brain_engine bar-by-bar) y array-friendly
+    (usado por calc_zones vectorizado). NaN en cualquier input → False.
+
+    Args:
+        fast: valor escalar float o np.ndarray de la fast line (Tenkan 1h).
+        slow: valor escalar float o np.ndarray de la slow line (HA daily
+              smoothed).
+
+    Returns:
+        bool si inputs escalares, np.ndarray si arrays.
+    """
+    if np.isscalar(fast) and np.isscalar(slow):
+        if np.isnan(fast) or np.isnan(slow):
+            return False
+        return bool(fast < slow)
+    f = np.asarray(fast)
+    s = np.asarray(slow)
+    valid = ~(np.isnan(f) | np.isnan(s))
+    result = np.zeros_like(f, dtype=np.bool_)
+    result[valid] = f[valid] < s[valid]
+    return result
+
+
+def zone_bear_mr(fast, slow):
+    """Mean-reversion zone_bear: fast > slow. Ver zone_bull_mr para semántica."""
+    if np.isscalar(fast) and np.isscalar(slow):
+        if np.isnan(fast) or np.isnan(slow):
+            return False
+        return bool(fast > slow)
+    f = np.asarray(fast)
+    s = np.asarray(slow)
+    valid = ~(np.isnan(f) | np.isnan(s))
+    result = np.zeros_like(f, dtype=np.bool_)
+    result[valid] = f[valid] > s[valid]
+    return result
+
+
 def calc_zones(fast_line, slow_line_forming, slow_line_resolved):
     """
     Zona invertida para mean-reversion:
       zone_bull = fast < slow (precio debajo de la media -> reversion al alza)
       zone_bear = fast > slow
+
+    A05 S3 refactor 2026-04-23: delega a zone_bull_mr/zone_bear_mr
+    (single source of truth). Mantiene firma + shape de retorno idéntica
+    para compatibilidad con consumers existentes.
     """
-    valid_f = ~(np.isnan(fast_line) | np.isnan(slow_line_forming))
-    valid_r = ~(np.isnan(fast_line) | np.isnan(slow_line_resolved))
-
-    n = len(fast_line)
-    zone_bull_forming = np.zeros(n, dtype=np.bool_)
-    zone_bear_forming = np.zeros(n, dtype=np.bool_)
-    zone_bull_resolved = np.zeros(n, dtype=np.bool_)
-    zone_bear_resolved = np.zeros(n, dtype=np.bool_)
-
-    zone_bull_forming[valid_f] = fast_line[valid_f] < slow_line_forming[valid_f]
-    zone_bear_forming[valid_f] = fast_line[valid_f] > slow_line_forming[valid_f]
-    zone_bull_resolved[valid_r] = fast_line[valid_r] < slow_line_resolved[valid_r]
-    zone_bear_resolved[valid_r] = fast_line[valid_r] > slow_line_resolved[valid_r]
-
     return {
-        'zone_bull_forming': zone_bull_forming,
-        'zone_bear_forming': zone_bear_forming,
-        'zone_bull_resolved': zone_bull_resolved,
-        'zone_bear_resolved': zone_bear_resolved,
+        'zone_bull_forming': zone_bull_mr(fast_line, slow_line_forming),
+        'zone_bear_forming': zone_bear_mr(fast_line, slow_line_forming),
+        'zone_bull_resolved': zone_bull_mr(fast_line, slow_line_resolved),
+        'zone_bear_resolved': zone_bear_mr(fast_line, slow_line_resolved),
     }
 
 
