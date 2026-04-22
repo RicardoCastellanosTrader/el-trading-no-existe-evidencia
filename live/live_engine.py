@@ -117,6 +117,44 @@ def load_engine_config(config_path: str | None = None) -> EngineConfig:
 
 
 # ---------------------------------------------------------------------------
+# Enrichment helper (v2.4.5)
+# ---------------------------------------------------------------------------
+
+def _enrich_positions_with_entry_ms(
+    positions: dict, pre_signal_state: dict
+) -> None:
+    """
+    Enriquece positions dict in-place con entry_timestamp_ms desde
+    pre_signal_state (snapshot capturado antes de generate_signals).
+
+    v2.3.3 original: leia desde self.brain.symbol_state post-signals.
+    v2.3.9 rompio ese path: _reset_state_on_exit (brain_engine.py L264-285)
+    invocado durante _evaluate_bar CLOSE branches (L907 TF, L2022 MR) setea
+    state.entry_timestamp_ms = 0 ANTES del call-site de enriquecimiento
+    (L616). Consecuencia: 100% de trades via _evaluate_bar CLOSE paths
+    (div_exit, tf_exit, zone_exit, sl_hit, cancel_tf, cancel_mr,
+    zone_exit_mr) persistian entry_timestamp_ms=0 al CSV trade_history.
+    Trades via paths alternativos (regime_change L627, not_operable L621,
+    sl_trigger_reconstructed L958) no sufrian el bug porque tenian flujos
+    propios que NO invocaban _reset_state_on_exit.
+
+    v2.4.5 fix: pre_signal_state preserva el campo pre-reset porque se
+    captura en L467-483 ANTES de generate_signals (L485). Esta funcion
+    usa esa fuente canonica en lugar del brain state ya reseteado.
+
+    Args:
+        positions: dict {sym: pos_dict} retornado por get_open_positions
+            (modificado in-place).
+        pre_signal_state: dict {sym: {"entry_timestamp_ms": int, ...}}
+            snapshot pre-reset. Solo enriquece si pre_ts > 0.
+    """
+    for sym, pos in positions.items():
+        pre_ts = pre_signal_state.get(sym, {}).get("entry_timestamp_ms", 0)
+        if pre_ts > 0:
+            pos["entry_timestamp_ms"] = pre_ts
+
+
+# ---------------------------------------------------------------------------
 # CycleReport
 # ---------------------------------------------------------------------------
 
@@ -613,13 +651,9 @@ class LiveEngine:
             # ---- ESPERA HASTA VENTANA DE EJECUCION ----
             await self._wait_for_execution_window()
 
-            # ---- v2.3.3: enriquecer positions con entry_timestamp_ms del brain ----
-            # Para que close_position / log_trade tengan la ms fill-time al cerrar.
-            if self.brain:
-                for sym, pos in positions.items():
-                    ss = self.brain.symbol_state.get(sym)
-                    if ss and getattr(ss, "entry_timestamp_ms", 0) > 0:
-                        pos["entry_timestamp_ms"] = ss.entry_timestamp_ms
+            # v2.4.5: enriquecer positions con entry_timestamp_ms desde
+            # pre_signal_state (ver _enrich_positions_with_entry_ms).
+            _enrich_positions_with_entry_ms(positions, pre_signal_state)
 
             # ---- EJECUCION ----
             exec_report = await exec_cycle(
