@@ -1,6 +1,6 @@
 # Sistema de Trading Algorítmico — Contexto Completo del Proyecto
 
-**Última actualización:** 22 Abril 2026 — Bloque 2 cerrado: §9.3 v2.6 Funding Filter contrarian **REFUTADO empíricamente** por Opción A §13.3 (observabilidad prerequisito). N=50 post-v2.3.11 BingX real: aligned +0.50% vs contrarian -0.57%, Welch t=+3.58 **p=0.0003 trimmed**, Mann-Whitney p=0.0052, win rate 62% vs 28%. Dirección OPUESTA a hipótesis (sistema TF → funding positivo = confirmation signal de tendencia, no crowd-to-squeeze). Simulación v2.6 original habría degradado PnL factor 2.2× (-1.52 USDT adicional/50 trades). §13.3 "Observabilidad funding per-trade" → IMPLEMENTADO vía `funding_observability.py` standalone (geo-bloqueo España obliga ejecución VPS Tokyo, Lección §12.24 aplicada). §13.3 "v2.6 contrarian filter" → REFUTADO. §13.3 nuevo "v2.6-inv momentum filter candidato" EN_ESPERA disparo N≥100 (~2026-05-01). §12 Lección 33 nueva: hipótesis roadmap requieren validación empírica específica al sistema, literatura general no sustituye. Bloque 1 (cooldown unify commit `9389af9`) cerrado previamente el mismo día. Bot v2.4.5 operacional. Sin deploy VPS. Fidelidad 2 invariante. Pipeline pre-reciclaje arquitectónicamente listo. Sesión 2026-04-23 previa: 9 items §13.3 RESUELTOS + runbook reciclaje + §12 L31+L32. §0.7 convención sync. §12 L27+L28+L29+L30+L31+L32+L33.
+**Última actualización:** 22 Abril 2026 — Bloque 2 **ampliado** con solución definitiva: `funding_observability.py` (entry-only) → borrado; `funding_context.py` (575 líneas, 11 cols + 9-pattern, cache CSV, workflow VPS/local) lo sustituye. Tests 19/19 PASS. Nuevos hallazgos sobre N=50: Section 2 exit (contrarian pierde, p=0.0162); Section 3 patterns dominados por `->same` con 0 crowd flips; Section 4 **Spearman ρ=-0.3172 p=0.0205** correlación n_bars_contrarian vs PnL → más tiempo contrarian = peor PnL. Dos candidatos derivados EN_ESPERA §13.3: **v2.6-inv** entry filter (bloquear contrarian entries, disparo N≥100) + **v2.6-exit** filter (cerrar contrarian losing, disparo N≥150). Analyzer enriquecido definitivo para decisión sin retrabajo. Bloque 2 core previo (refutación §9.3): aligned +0.50% vs contrarian -0.57%, Welch t=+3.58 p=0.0003 trimmed, Mann-Whitney p=0.0052 — dirección OPUESTA hipótesis. Bloque 1 (cooldown unify `9389af9`) cerrado previamente mismo día. Bot v2.4.5 operacional. Sin deploy VPS. Fidelidad 2 invariante. §12 Lección 33 nueva: validación empírica antes de implementar hipótesis literatura. Pipeline pre-reciclaje arquitectónicamente listo. Sesión 2026-04-23 previa: 9 items §13.3 RESUELTOS + runbook reciclaje + §12 L31+L32. §0.7 convención sync. §12 L27+L28+L29+L30+L31+L32+L33.
 **Versión actual:** v2.4.4 (sin bump — sesión 100% herramientas offline, sin deploy operacional)  
 **Autor del sistema:** Ricardo  
 **Plataforma:** Binance (datos) + BingX (ejecución), velas 1h  
@@ -1919,11 +1919,11 @@ Disparo: primer reporte v2.4 con WARNINGs de ecuación no cerrando en >5% de tra
 Cierre: causa raíz identificada y corregida, o ratio de WARNING <5% aceptado como ruido de floating point.
 Referencias: analyze_performance_attribution.py verificación al final de attribute_trade()
 
-**[MEJORA] [RESUELTO] Observabilidad funding extremo per-trade — IMPLEMENTADO 2026-04-22**
+**[MEJORA] [RESUELTO] Observabilidad funding per-trade (bar-a-bar + exit context) — IMPLEMENTADO 2026-04-22**
 
-Ver §13.4 entrada "Observabilidad funding per-trade — refutación empírica §9.3 v2.6 contrarian filter — 2026-04-22".
+Ver §13.4 entrada "Observabilidad funding bar-a-bar — integración permanente — 2026-04-22" (ampliación post-Bloque 2).
 
-Resumen: `funding_observability.py` standalone (VPS Tokyo execution por geo-bloqueo ccxt España). 3 columnas enriquecidas (funding_rate_at_entry, funding_crowd_direction, signal_vs_crowd). N=50 post-v2.3.11 ejecutado con BingX real. Analyzer v2.4.1 NO hereda bug E1 (bypass natural vía funding_paid del CSV). Resultado: hipótesis §9.3 refutada por evidencia contraria — item §13.3 v2.6 Funding Filter contrarian pasa a REFUTADO; item nuevo candidato `v2.6-inv momentum filter` abierto pendiente N≥100.
+Resumen: `funding_context.py` reemplaza `funding_observability.py` standalone (borrado). 11 columnas enriquecimiento total (3 entry + 3 exit + 5 evolution) + entry_exit_pattern de 9 combos. Cache CSV por símbolo (compat VPS sin pyarrow) en `.funding_cache/`. CLI `refresh-cache` (VPS Tokyo) + `enrich` (local). Analyzer v2.4.1 NO modificado (post-hoc enrichment workflow; integration directa pospuesta por scope). Cross-check empírico: Section 1 (entry) N=50 bit-idéntico a Bloque 2 (p=0.0113). Nuevos hallazgos descriptivos: Section 2 (exit) p=0.0162 soporta candidato v2.6-exit filter; Section 4 correlación Spearman ρ=-0.3172 p=0.0205 n_bars_contrarian vs PnL → más tiempo contrarian = peor PnL. Analyzer enriquecido definitivo operativo para futuras evaluaciones N≥100 y N≥150.
 
 **[MEJORA] [REFUTADO] Filtro funding contrarian runtime (direccional) — REFUTADO empíricamente 2026-04-22**
 
@@ -1933,7 +1933,9 @@ Resumen: hipótesis original (bloquear entries aligned con crowd, preservar cont
 
 **[MEJORA] [EN_ESPERA] v2.6-inv momentum filter candidato — validación N≥100 — 2026-04-22**
 
-Contexto: observabilidad funding §13.3 implementada 2026-04-22 reveló dirección OPUESTA a hipótesis §9.3. Aligned trades ganan +0.50% mean; contrarian pierden -0.57% mean. Gap 1.07 pp/trade, win rate 62% vs 28% (p=0.0003 trimmed, Mann-Whitney p=0.0052). Filter **inverso** (bloquear entries contrarian al funding crowd) podría mejorar PnL neto en régimen actual.
+Contexto (actualizado post-Bloque 2 ampliación): observabilidad funding §13.3 implementada 2026-04-22 reveló dirección OPUESTA a hipótesis §9.3. Aligned trades ganan +0.50% mean; contrarian pierden -0.57% mean. Gap 1.07 pp/trade, win rate 62% vs 28% (Welch baseline p=0.0113, trimmed p=0.0003, Mann-Whitney p=0.0052). Filter **inverso** (bloquear entries contrarian al funding crowd) podría mejorar PnL neto en régimen actual.
+
+**Ampliación datos post-bar-a-bar** (funding_context.py primera ejecución): en 50 trades, 0 crowd flips observados (crowd stable en ventana 4d); `entry_exit_pattern` dominado por `aligned->aligned` (16) + `contrarian->contrarian` (17) + `neutral->neutral` (15). Correlación Spearman ρ=-0.3172 p=0.0205 entre n_bars_contrarian y PnL confirma la hipótesis inversa con perspectiva temporal (más tiempo contrarian = peor PnL).
 
 **Caveats a validar**:
 - N=50 en 4 días (2026-04-19 a 2026-04-22) — suficiente para dirección estadística pero no para magnitud estable. Régimen observado (lateral-alcista, funding mayoritariamente positivo ligero) puede no representar bearish ni tail-risk crowded.
@@ -1952,7 +1954,32 @@ Contexto: observabilidad funding §13.3 implementada 2026-04-22 reveló direcci�
 
 **Prerequisito parcial**: ítem §13.3 E1 funding sign bug relevante SOLO si la implementación del filter consume `_get_position_funding` fallback. Si el filter fetcha rate directo de ccxt (como hace `funding_observability.py`), bypass natural y E1 irrelevante.
 
-Referencias: §13.4 entrada "Observabilidad funding per-trade" 2026-04-22; §9.3 v2.6 (refutado); §12 Lección 33; `funding_observability.py` (standalone, base para integración futura en analyzer si se aprueba opción 1/2).
+Referencias: §13.4 entrada "Observabilidad funding per-trade" 2026-04-22 + ampliación bar-a-bar; §9.3 v2.6 (refutado); §12 Lección 33; `funding_context.py` (reemplaza `funding_observability.py` borrado; analyzer enriquecido definitivo).
+
+**[MEJORA] [EN_ESPERA] v2.6-exit filter candidato (cerrar contrarian losing trades) — validación N≥150 — 2026-04-22**
+
+Contexto: Bloque 2 ampliación (funding_context.py bar-a-bar) reveló evidencia de candidato DISTINTO al v2.6-inv entry filter. Section 4 del reporte muestra **correlación Spearman ρ=-0.3172 p=0.0205** entre `n_bars_contrarian` (bars posicionado contra crowd vigente) y `pnl_pct` — más tiempo contrarian = peor PnL. Direccional y significativo con N=50.
+
+**Hipótesis**: cerrar preventivamente posiciones contrarian que estén en pérdida + tiempo prolongado contrarian reduciría pérdidas. A diferencia de v2.6-inv (bloquea entries), v2.6-exit permite entries normales pero gestiona activamente exits en base al crowd evolution.
+
+**Caveats críticos**:
+- 0 crowd flips observados en ventana 4d (todos los trades entry_pattern == exit_pattern). Section 3: 16 aligned->aligned, 17 contrarian->contrarian, 15 neutral->neutral, 2 cross. El efecto depende **parcialmente** de crowd cambios durante trade, que en régimen actual son raros.
+- Solo 4/50 (8%) trades cruzan boundary 8h funding. Para régimen típico con hold time mediano 1h, n_bars_contrarian es simplemente hold_time_contrarian × 1 (sin variación). La correlación observada puede reducirse a "trades contrarian largos pierden más", no "crowd flip dispara reversión".
+- N=150 requerido para power estadístico en 9-pattern breakdown + duración correlación robusta con CI estrecho.
+- Rompe Fidelidad 2 **MÁS** que v2.6-inv entry (v2.6-exit altera múltiples exits potenciales, no solo algunas entradas). Implementación kernel lab-side más invasiva.
+
+**Metodología de validación**:
+1. Acumular N≥150 post-v2.3.11 (~2026-05-10 al ritmo actual).
+2. Re-ejecutar `funding_context.py enrich` (cache sirve data fresca automáticamente).
+3. Verificar si (a) correlación Spearman n_bars_contrarian vs pnl persiste CI bajo; (b) trades con crowd_flipped=True muestran gap PnL material vs non-flipped; (c) pattern `contrarian->*` breakdown revela señal.
+4. Si persiste y robusto: decisión Ricardo con trade-off Fidelidad 2 (igual a v2.6 original/inv).
+5. Si opción lab-side: threshold time de cierre (ej. "bloquear/cerrar si n_bars_contrarian > 4 AND pnl<0") + threshold crowd signal.
+
+**Disparo**: N≥150 post-v2.3.11. Cross-check con v2.6-inv entry filter (decisión excluyente o combinable — v2.6-inv bloquea entry, v2.6-exit gestiona exit; podrían coexistir como dos filtros ortogonales).
+
+**Cierre**: decisión fundamentada con data robusta o archivar si efectos revirtieron.
+
+Referencias: §13.4 entrada "Observabilidad funding bar-a-bar — integración permanente" 2026-04-22; §9.3 v2.6 refutada; §13.3 v2.6-inv (candidato paralelo); §12 Lección 33; `funding_context.py`.
 
 **[DECISION] [EN_ESPERA] Funding rate NO es feature del GMM — rechazo explícito 2026-04-23**
 Contexto: durante discusión 2026-04-23 sobre cómo integrar funding rate al sistema, se evaluaron dos opciones arquitectónicas:
@@ -1969,6 +1996,114 @@ Referencias: §13.3 items funding runtime + observabilidad 2026-04-23; §9.3 v2.
 ---
 
 ### 13.4 RESUELTO
+
+**[MEJORA] [IMPLEMENTADO] Observabilidad funding bar-a-bar — integración permanente + 2 candidatos derivados — 2026-04-22 (post-Bloque 2)**
+
+Contexto: Bloque 2 original (funding_observability.py entry-only) implementado horas antes en la misma sesión refutó hipótesis §9.3. Ampliación inmediata por solicitud Ricardo: "solución definitiva no patada hacia delante". Observabilidad expandida a entry + exit + bar-a-bar trajectory para que N≥100 y N≥150 puedan evaluarse sin trabajo adicional.
+
+**Reemplazo arquitectónico**: `funding_observability.py` (Bloque 2) → **borrado**. `funding_context.py` (nuevo, 575 líneas) lo reemplaza como librería importable + CLI dual-command (`refresh-cache` + `enrich`). Single source of truth (evita drift futuro §12.24).
+
+**Data model expandido** (11 columnas + pattern derivado):
+
+| Categoría | Columna | Descripción |
+|---|---|---|
+| Entry (existían) | funding_rate_at_entry | decimal per 8h (o 4h en algunos símbolos) |
+| | funding_crowd_direction_entry | long_crowd / short_crowd / neutral |
+| | signal_vs_entry_crowd | aligned / contrarian / neutral |
+| Exit (nuevas) | funding_rate_at_exit | rate más reciente ≤ exit_ts |
+| | funding_crowd_direction_exit | análogo a entry |
+| | position_vs_exit_crowd | análogo a entry pero al cerrar |
+| Evolution (nuevas) | funding_rate_min_during | rate min visto en hourly bars [entry, exit] |
+| | funding_rate_max_during | rate max |
+| | funding_rate_mean_during | rate mean |
+| | funding_crowd_flipped | bool: non-neutral entry crowd ≠ non-neutral exit crowd |
+| | n_bars_contrarian | bars con posición contrarian al crowd |
+| | max_consecutive_bars_contrarian | longest run contrarian |
+| Derived | entry_exit_pattern | "X->Y" donde X,Y ∈ {aligned, contrarian, neutral} (9 combos) |
+
+**Arquitectura técnica**:
+- `FundingCache`: CSV-per-symbol en `.funding_cache/`. CSV en vez de parquet por compat VPS sin pyarrow. 324 KB para 34 símbolos × ~200 rates.
+- `refresh_cache(symbols, since, until, cache)`: fetch incremental (solo gap vs cache existente) via ccxt BingX. Geo-bloqueo España (§12.24) obliga ejecutar desde VPS Tokyo; cache rsync/scp+tar de vuelta.
+- `lookup_rate_at(rates, ts)`: binary search, O(log N).
+- `compute_bar_level_evolution(rates, entry_ts, exit_ts, side)`: walk hourly bars entre entry-exit, computar 6 stats.
+- `enrich_trades(trades, cache)`: batch con load-once por símbolo.
+- CLI dual: `refresh-cache` (fetch, VPS) + `enrich` (análisis post-hoc, local).
+
+**Integration con analyzer**: decisión scope-conservadora — NO modificado `analyze_performance_attribution.py` (2097 líneas, análisis enriquecido funciona como workflow post-hoc). Analyzer run normal → funding_context.py enrich CSV output → reporte separado. Integration directa posible si se aprueba alguno de los candidatos derivados (v2.6-inv / v2.6-exit).
+
+**Workflow documentado**:
+```
+# 1. VPS — refresh funding cache:
+ssh trader@vps "cd combolab && python funding_context.py refresh-cache \
+  --csv trade_history.csv --cache-dir .funding_cache --since 2026-03-01"
+
+# 2. Sync cache local (una vez por sesión de análisis):
+ssh trader@vps "tar czf /tmp/fc.tgz .funding_cache/"
+scp trader@vps:/tmp/fc.tgz /tmp/
+tar xzf /tmp/fc.tgz -C combolab/
+
+# 3. Local — analyzer normal + enrich funding:
+python analyze_performance_attribution.py <trades.csv>
+python funding_context.py enrich <trades.csv> --cache-dir .funding_cache
+```
+
+**Primera ejecución empírica N=50 post-v2.3.11** (cross-check Bloque 2):
+
+Section 1 — Entry crowd (bit-idéntico Bloque 2):
+| group | N | mean_pnl_% | sum_USDT | win_rate |
+|---|---|---|---|---|
+| aligned | 16 | +0.5045 | +0.7524 | 62.5% |
+| contrarian | 18 | -0.5692 | -0.7704 | 27.8% |
+| neutral | 16 | +0.3764 | +0.7134 | 50.0% |
+| | | | Welch | p=0.0113; Mann-Whitney p=0.0052 |
+
+Section 2 — Exit crowd (NUEVO):
+| group | N | mean_pnl_% | sum_USDT | win_rate |
+|---|---|---|---|---|
+| aligned | 16 | +0.5045 | +0.7524 | 62.5% |
+| contrarian | 18 | -0.5237 | -0.7103 | 33.3% |
+| neutral | 16 | +0.3252 | +0.6533 | 43.8% |
+| | | | Welch | p=0.0162; Mann-Whitney p=0.0107 |
+
+Section 3 — Trajectory pattern (9 combos):
+| pattern | N | mean_pnl_% |
+|---|---|---|
+| aligned->aligned | 16 | +0.5045 |
+| contrarian->contrarian | 17 | -0.5798 (29% WR) |
+| contrarian->neutral | 1 | -0.3903 |
+| neutral->contrarian | 1 | +0.4293 |
+| neutral->neutral | 15 | +0.3729 |
+| (otros 4 combos) | 0 | - |
+
+Section 4 — Evolution + correlations:
+- **0 crowd flips** en 50 trades (crowd súper estable en ventana 4d).
+- Hold time: median **1h**, max 25h, mean 2.26h.
+- Trades >=8h boundary cross: **4/50 (8.0%)**.
+- **Spearman ρ(n_bars_contrarian, pnl_pct) = -0.3172 p=0.0205** → correlación negativa significativa (más tiempo contrarian = peor PnL).
+- ρ idéntico para max_consecutive_bars_contrarian (por 0 flips, son iguales).
+
+**Consecuencias arquitectónicas + nuevos candidatos**:
+
+1. **v2.6-inv entry filter** (refutación Bloque 2 → candidato inverso): soportado adicionalmente por exit context (p=0.0162) y trajectory (patterns dominados por `->same`). Mantiene disparo N≥100.
+
+2. **v2.6-exit filter** (NUEVO candidato): soportado por correlación Spearman duration-PnL. Hipótesis: cerrar trades contrarian en pérdida ahorraría PnL. Disparo N≥150. Caveat crítico: 0 crowd flips actuales significa que "exit filter" reduce a "close if contrarian entry + hold time > X + pnl<0" — distinto de "close on crowd flip".
+
+**Cross-check consistency Bloque 2 → Bloque 2 ampliación**: entry columns N=50 reproducen exactamente p=0.0113, mean +0.5045 vs -0.5692, win rate 62.5% vs 27.8%. Cero drift.
+
+**Tests 19/19 PASS** (`tests/test_funding_context.py`): FundingCache save/load/coverage, lookup (before/exact/between/empty), classify (neutral/long/short/unknown/aligned/contrarian), bar-level evolution (short constant, boundary no-flip, crowd-flip, contrarian-throughout), enrich pattern (aligned-aligned, flip, NaN fallback), 9 pattern combos.
+
+**Impacto operacional**: zero (offline). Fidelidad 2 invariante.
+
+**Deuda**:
+- Analyzer direct integration: pospuesta (funciona como post-hoc workflow). Si v2.6-inv o v2.6-exit se aprueba futuro, re-evaluar.
+- N de data: 50 es mínimo direccional. Para decisiones implementación necesario N≥100 (entry) y N≥150 (exit + pattern breakdown).
+- Régimen temporal: 4 días no representa bearish markets, tail-risk crowded events. Persistencia del efecto requiere validación temporal.
+
+Referencias: `funding_context.py` (575 líneas), `tests/test_funding_context.py` (19 tests), `funding_observability.py` (borrado), §13.3 v2.6-inv + v2.6-exit candidatos actualizados, §9.3 v2.6 refutada, §12 Lección 33.
+
+Cierre: permanente. Solución definitiva para observabilidad funding; base de decisión para N mayor sin trabajo adicional.
+
+---
 
 **[MEJORA] [IMPLEMENTADO + REFUTACIÓN] Observabilidad funding per-trade — refutación empírica §9.3 v2.6 contrarian filter — 2026-04-22**
 
