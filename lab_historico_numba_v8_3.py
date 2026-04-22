@@ -1627,15 +1627,15 @@ def run_simulation_numba(
                     else:
                         div_ctx_bear = False
 
-                    if sl_emergency_signal:
-                        cooldown_until = t
-                    elif sl_exit_signal:
+                    # Cooldown uniforme (convención Pine canónica i_cooldown_bars).
+                    # Las 4 ramas del switch original (emergency/sl/div/cancel) colapsaban
+                    # matemáticamente a `t` con cooldown_bars=1 (valor productivo único).
+                    # Unificado 2026-04-22 tras confirmación Opción A: cooldown=1 siempre operacional
+                    # en Pine histórico, la diferenciación por tipo exit era código muerto.
+                    # Ver §13.3 "Cooldown asimétrico" RESUELTO + §13.4 entrada 2026-04-22.
+                    if sl_emergency_signal or sl_exit_signal or div_exit_signal or cancel_signal:
                         cooldown_until = t + cooldown_bars - 1
-                    elif div_exit_signal:
-                        cooldown_until = t + cooldown_bars - 1
-                    elif cancel_signal:
-                        cooldown_until = t
-                    
+
                     position = 0
                     entry_price = 0.0
                     sl_level = 0.0
