@@ -152,6 +152,71 @@ No confundir prioridades: bot que replica fielmente un kernel con "Fix fidelidad
 
 Ver §12 Lección 28 (sync implícito incorrecto) para caso de estudio y mitigación documental.
 
+### 0.8 Protocolo de smoke test pre-deploy — 2026-04-22
+
+Contexto histórico: A10 test diferencial (§13.4 2026-04-22) reveló que el smoke test estándar `_run_verify_test` sobre BTC/USDT con N~500 bars (usado como gate único en 5+ deploys previos: v2.3.11, v2.4.0, v2.4.1, v2.4.2, v2.4.3, v2.4.4, v2.4.5) reportaba consistentemente diff 0.0000 pero **ocultaba drift path-dependent** que se manifiesta a partir de N≥2000 bars en indicadores iterativos (VIDYA, KAMA, ALMA, T3, FRAMA, McGinley). Forensic sobre ONDO+APT con N=8335-10000 cuantificó ratio divergencia bar-level 7-9% (Lección §12.30). Item 3.5 (§13.4 ranking stability) validó que el drift NO afecta selección walk-forward (Spearman ρ=1.0000), por lo que es propiedad arquitectónica aceptable, no bug. Pero el smoke test N pequeño era insuficiente para detectar drift NUEVO que SÍ pudiera ser bug.
+
+Protocolo corregido desde 2026-04-22:
+
+**Nivel A — Benchmark rápido (GATE OBLIGATORIO en TODO deploy brain/kernel):**
+- Comando: `python -m live.brain_engine --verify --symbol BTC/USDT`.
+- Dataset: baseline histórico con N~500-1000 bars (4 señales, 2 trades esperados).
+- Criterio: diff **0.0000 exacto** en Trades, Wins, PnL neto %, Gross profit %, Gross loss %.
+- Tiempo: ~30-60 segundos.
+- Propósito: regresión automática contra bugs lógicos de determinismo (typos, constantes incorrectas, orden de operaciones).
+
+**Nivel B — Deep smoke (GATE OBLIGATORIO para cambios específicos + periódico):**
+- Comandos: wrapper temporal sobre `_run_verify_test` con N configurable (actualmente hardcoded N=1000, ver §13.3 upgrade pendiente). Template:
+  ```python
+  from live.brain_engine import _run_verify_test
+  # TODO: parametrizar _run_verify_test con n_bars
+  # Alternativa inline: replicar código de _run_verify_test con tail 10000.
+  ```
+- Dataset: N≥8000 barras sobre ONDO/USDT + APT/USDT (2 altcoins activas con specialists con MAs path-dependent + rolling cerradas).
+- Criterio: ratio divergencia bar-level <5% (alerta si significativamente mayor que drift baseline arquitectónico ~7-9% documentado en §12.30). Match count brain↔kernel > 95%.
+- Tiempo: ~10-15 minutos (kernel Numba rápido, brain engine ~8 min/símbolo).
+- Propósito: catches drift path-dependent que N=500 oculta.
+- Disparos OBLIGATORIOS:
+  - Cambios en `brain_engine.py` que toquen cálculo de signals (no solo logs/emit/alerts).
+  - Cambios en `lab_historico_numba_v8_3.py` (kernel Numba).
+  - Refactors de `data_feed.py` que afecten flujo de bars al brain (ej. bar forming, paginated fetch).
+  - Pre-reciclaje: validación antes de regenerar specialists para confirmar que pipeline actual sigue bajo control.
+- Disparos RECOMENDADOS:
+  - Periódico cada ~2 semanas (health check del sistema).
+  - Cuando se detecte anomalía en health_monitor o analyzer que sugiera divergencia estructural.
+
+**Nivel C — MR fidelity (GATE OBLIGATORIO deploys MR o cambios brain completos):**
+- Comando: `python audit_mr_fidelity_sei.py`.
+- Dataset: SEI/USDT C2 config 45686 (1500 bars warmup brain=500 + kernel=100).
+- Criterio: **diff 0.0000 en 7 métricas** (PnL, Trades, Wins, Cancels, MaxDD, GrossProfit, GrossLoss).
+- Tiempo: ~140 segundos.
+- Propósito: verifica fidelidad específica camino MR (`_evaluate_bar_mr`, `mr_zone_history`).
+- Disparos: cambios brain engine MR O cualquier cambio brain al completo.
+
+**Tabla resumen**:
+
+| Nivel | Test | Criterio | Tiempo | Disparos |
+|-------|------|----------|--------|----------|
+| A — Benchmark rápido | `brain_engine --verify BTC/USDT` N~500 | diff 0.0000 | ~30-60s | **TODO deploy brain/kernel** |
+| B — Deep smoke | ONDO+APT N≥8000 via wrapper | ratio div <5% | ~10-15 min | **Brain/kernel signal logic + data_feed bar flow + pre-reciclaje + periódico** |
+| C — MR fidelity | `audit_mr_fidelity_sei.py` | diff 0.0000 en 7 métricas | ~140s | **Deploys MR + cualquier cambio brain completo** |
+
+**Convención de reporte en commits**:
+
+Todo commit de deploy debe documentar en el mensaje los niveles aplicados:
+```
+Tests pre-deploy:
+- Nivel A (BTC N=500): diff 0.0000 ✓
+- Nivel B (ONDO N=10000, APT N=10000): ratio 7-9% dentro de baseline arquitectónico ✓
+- Nivel C (SEI MR): diff 0.0000 en 7 métricas ✓
+```
+
+Si Nivel B NO se ejecutó en un deploy que lo requiere, flag explícito en commit message con justificación.
+
+**Anti-patrón explícito a evitar**: "Smoke test PASS" sin especificación de nivel. Puede interpretarse como solo Nivel A cuando debería incluir Nivel B o C.
+
+Ver §12.30 (Lección drift oculto por smoke test N pequeño) + §13.4 A10 entries 2026-04-22 (base empírica del protocolo).
+
 ---
 
 ## 1. ARQUITECTURA GENERAL
@@ -1241,48 +1306,27 @@ Referencias: analyze_performance_attribution.py bloque attribute_trade(), test d
 
 ### 13.3 EN_ESPERA
 
-**[MEJORA] [EN_ESPERA] Root cause drift brain↔kernel Numba sobre N grandes + upgrade smoke test — 2026-04-22**
+**[MEJORA] [EN_ESPERA] Upgrade `_run_verify_test` — parametrizar n_bars + tolerance escalada — 2026-04-22**
 
-Contexto: A10 test (§13.4 2026-04-22) cuantificó que kernel Numba ≠ brain Python en ~1% de barras sobre N≥8000 (ONDO 99.22% match, APT 99.17% match). Dirección no sistemática (ONDO brain MÁS rentable, APT MENOS). Hipótesis dominante: path-dependent MAs (VIDYA, KAMA, ALMA, T3, FRAMA, McGinley) con state accumulation distinta entre:
-- Brain: `df.iloc[max(0, i-499):i+1]` (rolling window 500 bars, recomputa desde window start).
-- Kernel: estado acumulado desde t=0 con warmup=100 interno.
+Contexto: §0.8 protocolo formalizó Nivel B deep smoke N≥8000, pero `_run_verify_test` (brain_engine.py L2284) sigue hardcodeado N=1000. Actualmente requiere wrapper temporal externo para N custom. Refactor menor pendiente para que el protocolo se pueda aplicar con comando único estándar.
 
-**Investigación root cause pre-reciclaje**:
+Cambios propuestos:
+1. Signature extendida: `_run_verify_test(symbol, n_bars=None, cluster=None)`. Default `n_bars=None` → max(len(parquet), 5000) para auto-escalar a deep smoke cuando data lo permite.
+2. CLI: `python -m live.brain_engine --verify --symbol X --n-bars N --cluster K`.
+3. Tolerance escalada automáticamente:
+   - N<2000: tolerance PnL 0.1% (actual, Nivel A).
+   - N≥2000: tolerance PnL 2% (reconoce drift path-dependent documentado §12.30, Nivel B).
+   - Trade count diff absoluto ≤ max(1, 0.5% de N_trades).
 
-Pasos propuestos:
-1. Bar-by-bar snapshot de MAs (ma_fast, ma_slow, ma_trend) brain vs kernel en una ventana ONDO específica donde brain y kernel difieren (los 4 trades extras del kernel).
-2. Identificar qué indicador específico produce diff:
-   - Si drift proviene de VIDYA/KAMA (kernel ONDO C0 usa VIDYA(18)/KAMA(54)): candidato más probable.
-   - Si proviene de divergencias (path-dependent pivots): considerar.
-3. Quantificar magnitud diff per indicador.
-4. Decidir estrategia:
-   - **Opción A — Refactor brain a estado acumulado**: igualar kernel pero rompe arquitectura stateless per-cycle. Coste alto.
-   - **Opción B — Extender rolling window brain a 1500 bars** (ya tiene acceso a 1500 en producción via data_feed). Reduce drift pero no elimina.
-   - **Opción C — Aceptar drift como feature**: documentar como propiedad del diseño dual. Actualizar audits para reflejar.
-   - **Opción D — Unificar MA implementations** (alineado con §13.3 LL1): eliminar duplicación en 4 archivos (lab_lite, lab_historico, brain_engine, mean_reversion_kernel). Tests parity entre implementaciones. Puede no eliminar drift si la lógica diverge por state construction, pero elimina fuentes adicionales.
+Disparador: próximo deploy que justifique Nivel B del protocolo §0.8 + refactor menor brain_engine. Scope ~30 min de trabajo.
 
-**Upgrade protocolo smoke test**:
-
-Actualmente `_run_verify_test` (brain_engine.py L2284) hardcodea N=1000. Smoke tests de 5+ deploys reportaron diff 0.0000 ocultando el drift real. Proponer:
-1. Extender signature: `_run_verify_test(symbol, n_bars=None)`. Default None → max(len(parquet), 5000). 
-2. Deploy protocol: smoke test N=5000-10000 para deploys que toquen brain_engine, execution_manager, o kernel. Smoke N=1000 OK para deploys de observabilidad (logs, alerts) que no afectan lógica.
-3. Actualizar tolerance del comparativo: 
-   - N<2000: tolerance PnL 0.1% (actual).
-   - N≥2000: tolerance PnL 2% (reconoce drift esperado path-dependent).
-   - En ambos: trade count diff absoluto ≤ max(1, 0.5% de N_trades).
-
-Disparador: próximo reciclaje julio 2026, o si emerge bug específico relacionado con MA implementation drift.
-
-Cierre:
-- (a) Root cause identificado + opción A/B/C/D ejecutada + drift reducido a 0 o aceptado documentalmente.
-- (b) Smoke test upgraded: deploys futuros detectan drift >2% como fallo.
-- (c) LL1 relacionado resuelto (refactor shared MA implementations).
+Cierre: CLI soporta Nivel A y B sin wrapper externo. Deploy commits pueden invocar directamente según §0.8 convención.
 
 Referencias:
-- §13.4 2026-04-22 A10 test diferencial (caso origen).
-- §13.3 LL1 (MA implementations duplicadas — hipótesis root cause relacionada).
-- `live/brain_engine.py` `_evaluate_bar` (rolling window 500), `_run_verify_test` (smoke hardcoded 1000).
-- `lab_historico_numba_v8_3.py` `run_on_slice` (estado acumulado kernel).
+- §0.8 protocolo smoke test (base metodológica).
+- §13.4 2026-04-22 A10 entries (cuantificación drift).
+- §12.30 (lección drift oculto por N pequeño).
+- `live/brain_engine.py:2284` `_run_verify_test` (target de refactor).
 
 ---
 
@@ -1467,12 +1511,21 @@ Disparo: pre-reciclaje, o si aparece discrepancia empírica entre corridas del m
 Cierre: añadir columna `engine` a DataFrames, validar consistencia en resume. Idealmente: test diferencial CUDA vs CPU sobre preset de referencia para cuantificar drift.
 Referencias: regime_walk_forward.py líneas 487-505.
 
-**[MEJORA] [EN_ESPERA] regime_walk_forward W3: falta CI/bootstrap en pf_fwd — 2026-04-17**
+**[MEJORA] [EN_ESPERA] regime_walk_forward W3: falta CI/bootstrap en pf_fwd — 2026-04-17 — PRIORIDAD ALTA (validación empírica 2026-04-22)**
 Contexto: Ultra review W3. specialist_score y pf_fwd son point estimates. Sin intervalo de confianza ni bootstrap, configs con N=15-20 y 1-2 outliers inflan pf_fwd artificialmente. Ya existía hallazgo específico sobre GRT C2 MR (pf_fwd=14.975 N=13) — W3 formaliza el riesgo estructural para TF también.
 Nota 2026-04-20: el caveat N pequeño aplica también a otros rescates MR, no solo a GRT C2. BCH C0 tiene N fwd=13 (idéntico a GRT C2), DOT C1 tiene N fwd=27. Ambos heredan el riesgo de pf_fwd inflado por 1-2 ganadores atípicos. Al evaluar resultados empíricos de estos clusters cuando lleguen a N≥15 real, usar pf_train como expectativa base, no pf_fwd (mismo criterio que GRT). Los 3 rescates restantes (SEI C2 N=24, STX C2 N=29, LTC C2 N=27, UNI C0 N=66) tienen N más robusto — UNI C0 particularmente sólido.
-Disparo: pre-reciclaje.
-Cierre: añadir bootstrap de pf_fwd (N=1000 resamples) y exponer pf_fwd_ci_low en JSON output. Configs con pf_fwd_ci_low < 1.0 flaggear como sospechosas de outliers.
-Referencias: regime_walk_forward.py _compute_specialist_metrics, analyzer v2.4.1 hallazgo GRT C2 MR.
+
+**Nota PRIORIDAD ALTA 2026-04-22**: validación empírica múltiple confirmó riesgo estructural:
+- Fase II.B: ONDO C0 walk-forward entregó pf_fwd=7.945 con N=17, real observado PF 1.08 (ratio 0.14).
+- Fase II.C: 2 candidatos exclusión adicionales (ONDO C2 + SAND C1) con mismo patrón.
+- Item 3.5 (ranking stability): ranking WF ≠ ranking kernel-en-régimen-actual. Config #1 WF (2457036 pf_combined=5.5) es solo rank #4 actual (PF 1.002). Config #5 WF (3104140) es actual #1 (PF 1.244). Evidencia directa de que pf_combined point estimate es engañoso para selección.
+- Ver §12.29 (Lección walk-forward N pequeño infla PF).
+
+W3 es prerequisito arquitectónico OBLIGATORIO pre-reciclaje para evitar que el próximo ciclo produzca specialists similarmente inflados. No es "feature nice-to-have" sino "fix metodológico validado empíricamente".
+
+Disparo: pre-reciclaje julio 2026 OBLIGATORIO. Si se adelanta reciclaje por criterio empírico (§13.3 política), W3 debe implementarse ANTES del reciclaje adelantado.
+Cierre: añadir bootstrap de pf_fwd (N=1000 resamples) y exponer pf_fwd_ci_low en JSON output. Configs con pf_fwd_ci_low < 1.0 flaggear como sospechosas de outliers. Ordenar specialists por pf_combined_ci_low en lugar de point estimate.
+Referencias: regime_walk_forward.py _compute_specialist_metrics, analyzer v2.4.1 hallazgo GRT C2 MR, §13.4 Fase II.B+II.C+Item 3.5 2026-04-22 (validaciones empíricas), §12.29 Lección metodológica.
 
 **[MEJORA] [EN_ESPERA] regime_walk_forward W4: _FWD thresholds laxos (15 trades, PF 1.0) — 2026-04-17**
 Contexto: Ultra review W4. `_FWD_MIN_TRADES=15` y `_FWD_MIN_PF=1.0` permiten configs con poca muestra y PF borderline pasar filtro. Outliers de entry timing pueden sobrevivir. Vinculado con W3.
@@ -1685,6 +1738,67 @@ Referencias: §13.3 items funding runtime + observabilidad 2026-04-23; §9.3 v2.
 ---
 
 ### 13.4 RESUELTO
+
+**[PROTOCOLO] [RESUELTO] Protocolo smoke test pre-deploy formalizado (§0.8) — cierre sesión 2026-04-22**
+
+Contexto: sesión multi-fase 2026-04-22 ejercitó secuencialmente:
+1. Fase I — reconocimiento empírico revelando bug entry_timestamp_ms + degradación ONDO C0.
+2. Fase II.A — fix v2.4.5 deployado.
+3. Fase II.B — audit ONDO específico veredicto B_CONFIRMADA.
+4. Fase II.C — audit + analyzer global Escenario Y.
+5. A10 test diferencial brain↔kernel N≥10000 — Caso D drift cuantificado.
+6. A10 forensic — distribución temporal ESTRUCTURAL NUMÉRICA.
+7. A10 rank stability — Spearman ρ=1.0000 categoría ROBUSTA.
+
+**Resultado metodológico consolidado**: smoke test legacy (N=1000 BTC/USDT) ocultó drift path-dependent en 5+ deploys previos. Upgrade formalizado en §0.8:
+
+**Nivel A (~30-60s)**: `_run_verify_test --symbol BTC/USDT` N~500 — gate obligatorio TODO deploy brain/kernel. Criterio diff 0.0000 exacto. Catches bugs lógicos.
+
+**Nivel B (~10-15 min)**: deep smoke ONDO+APT N≥8000 — gate obligatorio cambios brain/kernel signal logic + data_feed bar flow + pre-reciclaje + periódico. Criterio ratio divergencia bar-level <5% (baseline arquitectónico ~7-9% documentado §12.30). Catches drift path-dependent.
+
+**Nivel C (~140s)**: `audit_mr_fidelity_sei.py` — gate obligatorio deploys MR o cambios brain completos. Criterio diff 0.0000 en 7 métricas. Verifica camino MR.
+
+**Convención commits**: especificar niveles aplicados (Nivel A/B/C). Anti-patrón "Smoke test PASS" sin nivel.
+
+**Items §13.3 resueltos en este cierre**:
+
+1. **Root cause drift brain↔kernel**: RESUELTO vía Item 3.5 ranking stability (ρ=1.0000). Drift clasificado ESTRUCTURAL NUMÉRICA no-bloqueante (Opción C del análisis: aceptar + documentar). Documentación completa en §12.30 y §13.4 A10 entries. Sin refactor arquitectónico requerido pre-reciclaje.
+
+2. **Upgrade protocolo smoke test (documental)**: RESUELTO vía §0.8. Aplicabilidad inmediata a todos los deploys futuros sin modificar código.
+
+3. **Refactor `_run_verify_test` CLI**: queda en §13.3 EN_ESPERA como item menor (~30 min trabajo) para automatizar Nivel B sin wrapper externo. No bloquea aplicación de §0.8.
+
+**Item W3 (CI bootstrap pf_fwd)**: elevado a PRIORIDAD ALTA empíricamente confirmada. Triple evidencia:
+- Fase II.B ONDO C0 pf_fwd=7.945 N=17 → real PF 1.08 (ratio 0.14).
+- Fase II.C 2 candidatos exclusión adicionales con mismo patrón.
+- Item 3.5 ranking WF ≠ ranking kernel-actual: config #1 WF es rank #4 en régimen actual.
+
+W3 es prerequisito OBLIGATORIO pre-reciclaje (julio o adelantado).
+
+**Resumen completo del día 2026-04-22** (6 commits):
+
+| Commit | Fase | Contenido |
+|--------|------|-----------|
+| `afaf0cc` | Evento ops | unattended-upgrades + APT mitigation + kernel reboot 1009→1012 |
+| `bc673c8` `3ec73f6` `53951be` | Fase II.A | v2.4.5 entry_timestamp_ms fix + docs |
+| `8b67397` | Fase II.B+C | Audit ONDO (B_CONFIRMADA) + Fase II.C global (Escenario Y) |
+| `fa4da9f` | A10 | Test diferencial brain↔kernel N≥10000 (Caso D) |
+| `acb1385` | A10 forensic | Distribución temporal ESTRUCTURAL NUMÉRICA |
+| `e995168` | A10 rank stability | Spearman ρ=1.0000 (Categoría ROBUSTA) |
+| (este commit) | Cierre | §0.8 protocolo formalizado + limpieza §13 |
+
+**Veredicto final día**:
+- Bot v2.4.5 operacional, kernel 6.17.0-1012-aws, APT window xx:15-xx:45 UTC.
+- Fidelidad arquitectónica: drift cuantificado + documentado, ranking ROBUSTO.
+- Escenario Y confirmado: sistema marginalmente rentable, edge walk-forward erosionando, reciclaje pre-julio candidato.
+- 2 bugs metadata resueltos (size_usdt ayer + entry_timestamp_ms hoy).
+- Protocolo smoke test formalizado para evitar regresiones futuras.
+
+Referencias: §0.8 (protocolo), §12.29 + §12.30 (lecciones metodológicas), §13.4 A10 entries (base empírica), §13.3 items actualizados.
+
+Cierre: sesión multi-fase completada. Próxima acción esperada: N≥50 oficial (~2026-04-26) o evento operacional que requiera attention.
+
+---
 
 **[AUDITORIA] [RESUELTO] A10 rank stability — drift NO afecta ranking walk-forward — 2026-04-22**
 
