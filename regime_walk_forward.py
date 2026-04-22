@@ -916,8 +916,14 @@ def analyze_correlations(sym_result, output_dir):
 # Thresholds for specialist extraction
 _TRAIN_MIN_TRADES = 30
 _TRAIN_MIN_PF = 1.2
-_FWD_MIN_TRADES = 15
-_FWD_MIN_PF = 1.0
+# W4 (2026-04-23): tightened from 15/1.0 after empirical sensitivity analysis
+# on 138k candidates. Combined with W3 bootstrap filters below, 6/6 top-1
+# productive flagged specialists (§13.4 W3 validation) are excluded while
+# preserving SEI C2 + UNI C0 controls. 4 clusters become orphan (TAO C1,
+# TRX C2, WLD C0 active + TON C1 retired) — symbols remain operable in
+# remaining clusters.
+_FWD_MIN_TRADES = 25
+_FWD_MIN_PF = 1.1
 _TOP_KEEP_RAM = 50000       # max validated configs to keep in RAM per cluster
 _TOP_JSON = 100             # top configs per cluster in JSON output for bot
 
@@ -928,6 +934,14 @@ _BOOTSTRAP_CHUNK_SIZE = 5000      # configs per chunk to cap memory ~40MB
 _BOOTSTRAP_CI = 0.95              # two-sided
 _FLAG_CI_LOW_THRESHOLD = 1.0      # flag if pf_fwd_ci_low below this
 _FLAG_CI_WIDTH_THRESHOLD = 5.0    # flag if ci_high - ci_low above this
+
+# W4 — CI-based filters applied post-bootstrap (§13.3 W4 empirically validated
+# 2026-04-23). REQUIRE_NOT_SOSPECHOSO is the dominant filter and encapsulates
+# ci_low>=1.0 AND ci_width<=5.0 via the W3 flag. The extra CI hooks default
+# OFF so they can be activated for future calibration without code changes.
+_FWD_REQUIRE_NOT_SOSPECHOSO = True
+_FWD_MIN_CI_LOW = 0.0             # hook, default off (NOT_SOSPECHOSO already covers ci_low>=1.0)
+_FWD_MAX_CI_WIDTH = float('inf')  # hook, default off (NOT_SOSPECHOSO already covers ci_w<=5.0)
 
 
 def _bootstrap_pf_fwd_vectorized(trades_fwd, wins_fwd, gp_fwd, gl_fwd,
@@ -1046,6 +1060,47 @@ def _bootstrap_pf_fwd_vectorized(trades_fwd, wins_fwd, gp_fwd, gl_fwd,
         'pf_fwd_ci_high': ci_high,
         'ci_width': ci_width,
     }
+
+
+def _apply_w4_fwd_ci_filters(df,
+                              require_not_sospechoso=None,
+                              min_ci_low=None,
+                              max_ci_width=None):
+    """Apply W4 CI-based filters to a DataFrame already augmented with W3
+    bootstrap columns (pf_fwd_ci_low, ci_width, flag_sospechoso_outlier).
+
+    The trades/pf base filters (_FWD_MIN_TRADES, _FWD_MIN_PF) are applied
+    upstream during the parquet scan in extract_validated_specialists
+    (before bootstrap runs) — those values cannot be checked here because
+    the DataFrame has already been filtered at that stage.
+
+    This function applies the post-bootstrap dimension:
+      - flag_sospechoso_outlier == False (default ON — dominant filter).
+      - pf_fwd_ci_low >= _FWD_MIN_CI_LOW (default 0.0, hook).
+      - ci_width <= _FWD_MAX_CI_WIDTH (default inf, hook).
+
+    Returns a filtered copy. Caller decides policy on len(out)==0
+    (typically log WARNING + skip cluster).
+    """
+    if require_not_sospechoso is None:
+        require_not_sospechoso = _FWD_REQUIRE_NOT_SOSPECHOSO
+    if min_ci_low is None:
+        min_ci_low = _FWD_MIN_CI_LOW
+    if max_ci_width is None:
+        max_ci_width = _FWD_MAX_CI_WIDTH
+
+    if len(df) == 0:
+        return df
+
+    mask = pd.Series(True, index=df.index)
+    if require_not_sospechoso and 'flag_sospechoso_outlier' in df.columns:
+        mask = mask & (df['flag_sospechoso_outlier'] == False)
+    if min_ci_low > 0.0 and 'pf_fwd_ci_low' in df.columns:
+        mask = mask & (df['pf_fwd_ci_low'] >= min_ci_low)
+    if np.isfinite(max_ci_width) and 'ci_width' in df.columns:
+        mask = mask & (df['ci_width'] <= max_ci_width)
+
+    return df.loc[mask].copy()
 
 
 def _apply_bootstrap_pf_fwd(df):
@@ -1494,7 +1549,10 @@ def extract_validated_specialists(sym_result, output_dir):
     rpt.append(f"Date: {datetime.now().strftime('%Y-%m-%d %H:%M')}")
     rpt.append(f"Bars: {sym_result['n_bars']} | Clusters: {n_clusters}")
     rpt.append(f"Train filters : trades >= {_TRAIN_MIN_TRADES}, pnl > 0, PF >= {_TRAIN_MIN_PF}")
-    rpt.append(f"Forward filters: trades >= {_FWD_MIN_TRADES}, pnl > 0, PF >= {_FWD_MIN_PF}")
+    rpt.append(f"Forward filters: trades >= {_FWD_MIN_TRADES}, pnl > 0, PF >= {_FWD_MIN_PF}"
+               f" (W4); then W4 CI post-bootstrap:"
+               f" require_not_sospechoso={_FWD_REQUIRE_NOT_SOSPECHOSO},"
+               f" min_ci_low={_FWD_MIN_CI_LOW}, max_ci_width={_FWD_MAX_CI_WIDTH}")
     toxic_tail_mode = sym_result.get('toxic_tail_mode', 'fixed')
     toxic_tail_val = sym_result.get('toxic_tail', 0)
     if toxic_tail_mode == 'dynamic':
@@ -1676,6 +1734,19 @@ def extract_validated_specialists(sym_result, output_dir):
             print(f"      Bootstrap pf_fwd done: {n_flagged}/{len(top_all)}"
                   f" flagged (ci_low<{_FLAG_CI_LOW_THRESHOLD} | ci_width>"
                   f"{_FLAG_CI_WIDTH_THRESHOLD}) ({time.time()-t_boot:.1f}s)")
+
+        # --- W4 CI-based filters (NOT sospechoso + optional ci_low/ci_width) ---
+        if len(top_all) > 0:
+            n_before = len(top_all)
+            top_all = _apply_w4_fwd_ci_filters(top_all).reset_index(drop=True)
+            n_after = len(top_all)
+            print(f"      W4 CI filter: {n_after}/{n_before} pass"
+                  f" (require_not_sospechoso={_FWD_REQUIRE_NOT_SOSPECHOSO},"
+                  f" min_ci_low={_FWD_MIN_CI_LOW}, max_ci_width={_FWD_MAX_CI_WIDTH})")
+            if n_after == 0:
+                print(f"      ⚠️  W4 ORPHAN CLUSTER: {symbol} C{k}"
+                      f" — no specialist passes W4 filters. Cluster not"
+                      f" operable under current thresholds.")
 
         # Track validated config_ids for cross-cluster check
         if len(top_all) > 0:

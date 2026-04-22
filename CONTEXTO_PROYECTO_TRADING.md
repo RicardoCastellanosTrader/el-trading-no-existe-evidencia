@@ -1,6 +1,6 @@
 # Sistema de Trading Algorítmico — Contexto Completo del Proyecto
 
-**Última actualización:** 23 Abril 2026 (W3 bootstrap pf_fwd IMPLEMENTADO en rama `feature-w3-bootstrap-pf-fwd` — pre-requisito pre-reciclaje, NO deploy; Bloque 1 roadmap COMPLETADO previamente: A36 log rotation + A35 tz-naive + A38 edge guard + A34 timing_borderline; §0.7 convención sync; §12 L27+L28)  
+**Última actualización:** 23 Abril 2026 (W3 bootstrap pf_fwd + W4 thresholds/CI filters IMPLEMENTADOS en rama `feature-w3-bootstrap-pf-fwd` — pre-requisito pre-reciclaje, NO deploy; Bloque 1 roadmap COMPLETADO previamente: A36 log rotation + A35 tz-naive + A38 edge guard + A34 timing_borderline; §0.7 convención sync; §12 L27+L28)  
 **Versión actual:** v2.4.4 (sin bump — sesión 100% herramientas offline, sin deploy operacional)  
 **Autor del sistema:** Ricardo  
 **Plataforma:** Binance (datos) + BingX (ejecución), velas 1h  
@@ -441,8 +441,9 @@ xx:00:00 UTC (diario) Health monitor + resumen
 3. v2.3.6 H1: portfolio_dd_from_peak se calculaba sobre cumsum de pnl_usdt de trades cerrados, produciendo DD espurio (-121.7% reportado en daily summary Telegram 19/04 con balance real 297 USDT y DD real 0.23%). Fix: leer peak_balance y current_balance de engine_state.json (mismas referencias que DD breaker del live_engine). Guard `current_balance > 0` para el caso ramp-up post-restart antes del primer ciclo. Enabler: live_engine.py persiste current_balance.
 4. v2.3.6 H4: _days_since_recycle retornaba 9999 sin last_recycle.txt, disparando trigger calendario espuriamente (9999 > 90). Fix: retorna 0 si el archivo no existe; placeholder "??/90" se mantiene en display via check directo de existencia.
 
-**regime_walk_forward.py (1):**
+**regime_walk_forward.py (2):**
 1. 2026-04-23 W3 bootstrap pf_fwd + selección por ci_low (rama `feature-w3-bootstrap-pf-fwd`, NO deploy — activación en próximo reciclaje). Contexto: specialists con N_fwd pequeño (13-30) producían pf_fwd point estimate engañoso; ONDO C0 pf_fwd=7.945 con N=17 observado en realidad con PF 1.08 (Fase II.B 2026-04-22). Validación empírica múltiple (§13.4 2026-04-22) promovió W3 a PRIORIDAD ALTA. Implementado: `_bootstrap_pf_fwd_vectorized` (N=1000 resamples binomial sobre pool sintético reconstruido desde agregados {wins_fwd, gp_fwd, gl_fwd}, chunked 5000 configs/batch), `_apply_bootstrap_pf_fwd` (añade 6 campos: pf_fwd_ci_low, pf_fwd_ci_high, ci_width, pf_combined_ci_low, specialist_score_ci_low, flag_sospechoso_outlier), integración post-haircut en `extract_validated_specialists` con re-sort W3b por `specialist_score_ci_low`. Caveat: bootstrap binomial es lower bound de CI real (no captura dispersión intra-grupo). Validación sobre JSONs productivos: 6/12 top-1 flagged (ONDO C0, LTC C2, GRT C2, TRX C2, BTC C2, MANA C0) — sesgo N pequeño generalizado. Tests 8/8 PASS (tests/test_w3_bootstrap.py). Fidelidad 2 invariante (cambio del pipeline del lab, no toca bot). Ver §13.4 entrada W3 IMPLEMENTADO 2026-04-23.
+2. 2026-04-23 W4 thresholds _FWD + CI filters (misma rama, layered sobre W3, NO deploy). Contexto: `_FWD_MIN_TRADES=15` / `_FWD_MIN_PF=1.0` laxos permitían outliers pasar; ultra review W4 (2026-04-17) marcó para pre-reciclaje. Análisis cuantitativo Fase 1 sobre 138k candidates reveló que `NOT sospechoso` (W3 flag) es el filtro dominante (-35% pool); subir trades/PF es marginal. Thresholds adoptados: `_FWD_MIN_TRADES=25, _FWD_MIN_PF=1.1, _FWD_REQUIRE_NOT_SOSPECHOSO=True` + hooks opcionales (`_FWD_MIN_CI_LOW=0.0`, `_FWD_MAX_CI_WIDTH=inf` — default OFF). Nueva función `_apply_w4_fwd_ci_filters(df)` aplicada post-bootstrap con WARN log si cluster queda orphan. Validación Fase 3 reciclaje hipotético: 42/45 símbolos (93%) operables en 3/3 clusters, 3 clusters orphan (TAO C1, TRX C2, WLD C0), los 6 flagged W3 reemplazados o marked orphan. Patrón típico: old pf_fwd alto + N pequeño flagged → new pf_fwd moderado + N grande clean. TRX C2 orphan (top TF score 30.9 original) consistente con Lección 29 (N pequeño selecciona noise amplificado). Tests 8/8 PASS (tests/test_w4_thresholds.py) + W3 no-regression 8/8. Fidelidad 2 invariante. Ver §13.4 entrada W4 IMPLEMENTADO 2026-04-23.
 
 **Infraestructura (5):**
 1. SSH puerto 2222 → 22 (ISP bloqueaba)
@@ -1541,11 +1542,67 @@ W3 fue elevado a PRIORIDAD ALTA como prerequisito OBLIGATORIO pre-reciclaje (§1
 Cierre: **IMPLEMENTADO 2026-04-23**. Commit en rama `feature-w3-bootstrap-pf-fwd`. Siguiente ítem dependiente: W4 (_FWD_MIN_TRADES 15 → 25/30) — análisis cuantitativo ahora factible con CI data que W3 provee.
 Referencias: regime_walk_forward.py L930-1030 (constantes W3 + `_bootstrap_pf_fwd_vectorized` + `_apply_bootstrap_pf_fwd`), L1668-1677 (integración post-haircut), L1770-1788 (JSON output), tests/test_w3_bootstrap.py, §12.29 Lección metodológica, §13.4 Fase II.B+II.C+Item 3.5 2026-04-22 (validaciones empíricas base), §13.4 entrada W3 IMPLEMENTADO 2026-04-23.
 
-**[MEJORA] [EN_ESPERA] regime_walk_forward W4: _FWD thresholds laxos (15 trades, PF 1.0) — 2026-04-17**
-Contexto: Ultra review W4. `_FWD_MIN_TRADES=15` y `_FWD_MIN_PF=1.0` permiten configs con poca muestra y PF borderline pasar filtro. Outliers de entry timing pueden sobrevivir. Vinculado con W3.
-Disparo: pre-reciclaje. Análisis cuantitativo requerido — subir thresholds puede dejar símbolos sin especialistas operables.
-Cierre: decisión sobre nuevos thresholds basada en análisis empírico del próximo reciclaje (contar cuántos configs pasan con 15/1.0 vs 25/1.1 vs 30/1.2), y correlacionar con supervivencia cross-cluster.
-Referencias: regime_walk_forward.py líneas 919-920.
+**[MEJORA] [RESUELTO] regime_walk_forward W4: _FWD thresholds + CI filters — 2026-04-23**
+Contexto: Ultra review W4 (2026-04-17). `_FWD_MIN_TRADES=15` y `_FWD_MIN_PF=1.0` permitían configs con poca muestra y PF borderline pasar filtro. Outliers de entry timing sobrevivían. Vinculado con W3 (bootstrap pf_fwd).
+
+**Implementación 2026-04-23** (misma rama `feature-w3-bootstrap-pf-fwd`, layered sobre W3):
+
+Análisis cuantitativo Fase 1 sobre **138k candidates** (45 símbolos activos + TON histórico × 3 clusters × top-1000 cada):
+- Distribuciones base: trades_fwd median=73 p25=37; pf_fwd median=2.47 p25=1.83; pf_fwd_ci_low median=1.52; ci_width median=2.34 p75=5.86; ~35% del pool flagged por W3.
+- Sensibilidad (trades × pf, sin CI): subir 15→25 elimina solo 80 candidates de 90k (0.09%). Subir PF 1.0→1.1 elimina 74 más. Diferencias marginales.
+- **`NOT sospechoso` es el filtro dominante**. Reduce pool 138k → 90k (-35%).
+- Combinaciones ensayadas: ninguna con `NOT sospechoso` activa deja <134/138 clusters operables.
+
+**Thresholds adoptados**:
+- `_FWD_MIN_TRADES = 25` (+10 vs baseline; defense-in-depth con W3; alineado con Lección 29).
+- `_FWD_MIN_PF = 1.1` (marginal sobre 1.0; consistencia metodológica).
+- `_FWD_REQUIRE_NOT_SOSPECHOSO = True` (filtro dominante — encapsula `ci_low ≥ 1.0 AND ci_width ≤ 5.0` vía W3 flag).
+- `_FWD_MIN_CI_LOW = 0.0` (hook opcional, default OFF — redundante con NOT sospechoso).
+- `_FWD_MAX_CI_WIDTH = inf` (hook opcional, default OFF — redundante con NOT sospechoso).
+
+Los dos últimos hooks se exponen para calibración futura sin code change.
+
+**Arquitectura del cambio**:
+- `regime_walk_forward.py` L923-932: constantes W4 documentadas con racional.
+- L1032-1074: función nueva `_apply_w4_fwd_ci_filters(df, ...)` — filtra sobre DataFrame post-bootstrap con NOT sospechoso + hooks opcionales.
+- L1690-1703: integración en `extract_validated_specialists` post-W3 bootstrap + WARN log si cluster queda orphan.
+- L1552-1556: reporte text muestra tanto base thresholds como CI thresholds aplicados.
+
+**Validación Fase 3 — reciclaje hipotético sobre JSONs actuales**:
+
+| Métrica | Valor |
+|---|---|
+| Clusters productivos (45 activos × 3) | 135 |
+| Clusters orphan bajo W4 | **3** (TAO C1, TRX C2, WLD C0) |
+| Símbolos con 3/3 clusters operables | **42/45 (93%)** |
+| Símbolos con 2/3 clusters | 3 |
+| Clusters donde mismo specialist ganaría | 26 (19%) |
+| Clusters donde cambia specialist | 106 (79%) |
+
+**Cross-check los 6 flagged W3 (top-1 productivos actuales)**:
+- ONDO C0 2457036 → reemplazado por 33586655.
+- LTC C2 2532096 → 1534656.
+- GRT C2 58457547 → 41610560.
+- TRX C2 53066572 → **ORPHAN** (top-1000 completo no pasa filtros).
+- BTC C2 20607806 → 33831247.
+- MANA C0 5339578 → 5339579 (config adjacent in bit space, similar preset).
+
+**TRX C2 caso crítico**: fue top TF score 30.9 (§2.1), N=33 pf_fwd=12.74 flagged ci_width=34.51. W4 revela que el cluster entero no tiene candidatos robustos — todos los 1000 top tienen N<25 o flagged. TRX seguirá operable en C0 y C1. Hallazgo consistente con Lección 29 (walk-forward N pequeño infla PF selecciona noise, no edge).
+
+**Patrón de reemplazo típico**:
+- Old: pf_fwd alto + N pequeño + flagged (ej. APT C1 PF 4.78 N=25 flagged).
+- New: pf_fwd moderado + N grande + CI estrecho (ej. APT C1 PF 1.63 N=146 clean).
+
+Defense-in-depth operando como diseño pretende.
+
+**Tests 8/8 PASS** (tests/test_w4_thresholds.py): constantes, NOT sospechoso bloquea flagged + pasa clean, hooks ci_low/ci_width ON/OFF, retroactivo ONDO C0 bloqueado.
+
+**No regression W3**: `tests/test_w3_bootstrap.py` sigue 8/8 PASS.
+
+Deploy VPS NO requerido (cambio del pipeline del lab). Activación en próximo `master.py --recycle`. Bot v2.4.5 operacional con specialists actuales preservados hasta reciclaje formal.
+
+Cierre: **IMPLEMENTADO 2026-04-23**. Commit siguiente a 4e54c8d en rama `feature-w3-bootstrap-pf-fwd`. Siguiente dependiente: `§13.3 política adelantar reciclaje por criterio empírico` — W4 facilita decisión (ratio sospechosos/total por cluster es métrica monitorizable).
+Referencias: regime_walk_forward.py L919-932 (constantes), L1032-1074 (_apply_w4_fwd_ci_filters), L1690-1703 (integración), tests/test_w4_thresholds.py, §13.4 entrada W4 IMPLEMENTADO 2026-04-23, §12.29 Lección base, §13.4 W3 entrada 2026-04-23 (prerequisito).
 
 **[MEJORA] [EN_ESPERA] data_feed: attach stops redundante en get_open_positions — 2026-04-17 (v2.3.8 investigado, no aplicado)**
 Contexto: Ultra review D3. get_open_positions líneas 242-251 hacen get_open_orders y attachean stop_order_id. Pero reconcile_state (execution_manager) usa su propia llamada a get_open_orders desde live_engine línea 424. Dos fetches por ciclo de fetch_open_orders.
@@ -1752,6 +1809,81 @@ Referencias: §13.3 items funding runtime + observabilidad 2026-04-23; §9.3 v2.
 ---
 
 ### 13.4 RESUELTO
+
+**[MEJORA] [RESUELTO] W4 thresholds _FWD + CI filters implementado — 2026-04-23**
+
+Contexto: W4 (§13.3 priorizado post-Fase II.C 2026-04-22, ultra review 2026-04-17). Layered sobre W3 (commit 4e54c8d). Objetivo: subir thresholds `_FWD_MIN_TRADES=15/_FWD_MIN_PF=1.0` laxos + añadir filtros CI que W3 provee.
+
+**Análisis Fase 1 cuantitativo sobre 138k candidates** (45 símbolos activos + TON histórico × 3 clusters × top-1000 per CSV intermedio):
+- `trades_fwd`: median=73, p25=37. Subir 15→25 elimina solo 80 candidates/90k (0.09%).
+- `pf_fwd`: median=2.47, p25=1.83. Subir 1.0→1.1 elimina 74 más.
+- `pf_fwd_ci_low`: median=1.52, p25=1.23.
+- `ci_width`: median=2.34, p75=5.86.
+- **`NOT sospechoso` filtro dominante**: reduce pool 138k→90k (-35%). Los thresholds trade/pf son marginalmente discriminantes comparados.
+- Todas las combinaciones con `NOT sospechoso` activa dan 134/138 clusters operables (baseline).
+
+**Thresholds adoptados W4**:
+- `_FWD_MIN_TRADES = 25` (vs 15 previo — defense-in-depth con W3).
+- `_FWD_MIN_PF = 1.1` (vs 1.0 previo — marginal, consistencia metodológica).
+- `_FWD_REQUIRE_NOT_SOSPECHOSO = True` (nuevo — encapsula ci_low≥1.0 AND ci_width≤5.0 vía flag W3).
+- `_FWD_MIN_CI_LOW = 0.0` (hook nuevo, default OFF).
+- `_FWD_MAX_CI_WIDTH = inf` (hook nuevo, default OFF).
+
+Hooks se exponen para calibración futura sin code change.
+
+**Integración**:
+- Base filters (trades/pf) aplicados en primer pass sobre parquets (L1429-1432 ya existente).
+- CI filters aplicados en `_apply_w4_fwd_ci_filters(df)` post-W3 bootstrap sobre `top_all` (L1690-1703 nuevo).
+- WARN log `⚠️ W4 ORPHAN CLUSTER: sym Ck` si cluster queda sin candidatos.
+- Reporte text (L1552-1556) documenta thresholds base + CI aplicados.
+
+**Validación Fase 3 — reciclaje hipotético** sobre JSONs productivos actuales:
+
+| Métrica | Valor |
+|---|---|
+| Clusters productivos (45 activos × 3) | 135 |
+| Clusters orphan bajo W4 | **3** (TAO C1, TRX C2, WLD C0) |
+| Símbolos con 3/3 clusters operables | 42/45 (93%) |
+| Símbolos con 2/3 (1 orphan) | 3 |
+| Mismo winner W4 vs actual | 26 (19%) |
+| Cambio de winner | 106 (79%) |
+
+**Cross-check los 6 flagged W3 (top-1 productivos actuales, §13.4 W3 validación Fase 3)**:
+- ONDO C0 2457036 (pf_fwd=7.94 N=17) → 33586655 (reemplazado).
+- LTC C2 2532096 → 1534656.
+- GRT C2 58457547 → 41610560.
+- TRX C2 53066572 → **ORPHAN** (ningún candidato en top-1000 pasa filtros W4).
+- BTC C2 20607806 → 33831247.
+- MANA C0 5339578 → 5339579.
+
+**TRX C2 caso crítico**: top TF score 30.9 original (§2.1), flagged por ci_width=34.51 (pf_fwd=12.74 N=33). W4 confirma que cluster entero no tiene candidatos robustos — todos top-1000 flagged. Hallazgo consistente con Lección 29 (walk-forward N pequeño selecciona noise amplificado, no edge). TRX permanece operable en C0 y C1.
+
+**Patrón típico de reemplazo**: old `pf_fwd` alto + N pequeño + flagged → new `pf_fwd` moderado + N grande + CI estrecho. Ejemplos:
+- APT C1: PF 4.78 N=25 flagged → PF 1.63 N=146 clean.
+- BNB C0: PF 1.17 N=104 flagged (ci_low=0.78) → PF 1.42 N=136 clean.
+- ARB C2: PF 12.54 N=17 flagged → PF 2.52 N=47 clean.
+
+Defense-in-depth operando como diseño pretende.
+
+**Tests 8/8 PASS** (`tests/test_w4_thresholds.py`):
+1. Constante `_FWD_MIN_TRADES=25`.
+2. Constante `_FWD_MIN_PF=1.1`.
+3. Defaults hooks (NOT sosp=True, ci_low=0.0, ci_width=inf).
+4. NOT sospechoso bloquea flagged config.
+5. NOT sospechoso pasa clean config.
+6. ci_low hook ON bloquea, OFF pasa (ambos verificados).
+7. ci_width hook ON bloquea wide-CI.
+8. Retroactivo: ONDO C0 cfg 2457036 bloqueado (base N<25 + sospechoso).
+
+**No-regression W3**: `tests/test_w3_bootstrap.py` sigue 8/8 PASS.
+
+**Deploy VPS NO requerido** — cambio del pipeline del lab, no del bot. Bot v2.4.5 operacional con specialists actuales. Fidelidad 2 invariante (no toca brain/execution/portfolio). Activación en próximo `master.py --recycle`.
+
+Referencias: `regime_walk_forward.py` L923-932 + L1032-1074 + L1690-1703, `tests/test_w4_thresholds.py`, §13.4 W3 entrada 2026-04-23 (prerequisito), §12.29 Lección base, §13.3 W4 movido a RESUELTO.
+
+Cierre: permanente. Próxima acción dependiente: `§13.3 política adelantar reciclaje por criterio empírico` — W4 hace monitorizable el ratio sospechoso/total por cluster como señal de degradación.
+
+---
 
 **[MEJORA] [RESUELTO] W3 bootstrap pf_fwd + selección por ci_low implementado — 2026-04-23**
 
