@@ -1,6 +1,6 @@
 # Sistema de Trading Algorítmico — Contexto Completo del Proyecto
 
-**Última actualización:** 23 Abril 2026 (W3 bootstrap pf_fwd + W4 thresholds/CI filters MERGED a main commit 56d38d4; A12 LL1 MA dedup IMPLEMENTADO en rama `feature-a12-ma-dedup` — pre-reciclaje, NO deploy; Bloque 1 roadmap COMPLETADO previamente: A36 log rotation + A35 tz-naive + A38 edge guard + A34 timing_borderline; §0.7 convención sync; §12 L27+L28)  
+**Última actualización:** 23 Abril 2026 (W3+W4 MERGED main 56d38d4, A12 LL1 MA dedup MERGED main ae5a21a, A14+A15 plateau/engine_tag MERGED main cf9d7b6 — todos pre-reciclaje, NO deploy; Bloque 1 roadmap COMPLETADO previamente: A36 log rotation + A35 tz-naive + A38 edge guard + A34 timing_borderline; §0.7 convención sync; §12 L27+L28)  
 **Versión actual:** v2.4.4 (sin bump — sesión 100% herramientas offline, sin deploy operacional)  
 **Autor del sistema:** Ricardo  
 **Plataforma:** Binance (datos) + BingX (ejecución), velas 1h  
@@ -441,9 +441,11 @@ xx:00:00 UTC (diario) Health monitor + resumen
 3. v2.3.6 H1: portfolio_dd_from_peak se calculaba sobre cumsum de pnl_usdt de trades cerrados, produciendo DD espurio (-121.7% reportado en daily summary Telegram 19/04 con balance real 297 USDT y DD real 0.23%). Fix: leer peak_balance y current_balance de engine_state.json (mismas referencias que DD breaker del live_engine). Guard `current_balance > 0` para el caso ramp-up post-restart antes del primer ciclo. Enabler: live_engine.py persiste current_balance.
 4. v2.3.6 H4: _days_since_recycle retornaba 9999 sin last_recycle.txt, disparando trigger calendario espuriamente (9999 > 90). Fix: retorna 0 si el archivo no existe; placeholder "??/90" se mantiene en display via check directo de existencia.
 
-**regime_walk_forward.py (2):**
+**regime_walk_forward.py (4):**
 1. 2026-04-23 W3 bootstrap pf_fwd + selección por ci_low (rama `feature-w3-bootstrap-pf-fwd`, NO deploy — activación en próximo reciclaje). Contexto: specialists con N_fwd pequeño (13-30) producían pf_fwd point estimate engañoso; ONDO C0 pf_fwd=7.945 con N=17 observado en realidad con PF 1.08 (Fase II.B 2026-04-22). Validación empírica múltiple (§13.4 2026-04-22) promovió W3 a PRIORIDAD ALTA. Implementado: `_bootstrap_pf_fwd_vectorized` (N=1000 resamples binomial sobre pool sintético reconstruido desde agregados {wins_fwd, gp_fwd, gl_fwd}, chunked 5000 configs/batch), `_apply_bootstrap_pf_fwd` (añade 6 campos: pf_fwd_ci_low, pf_fwd_ci_high, ci_width, pf_combined_ci_low, specialist_score_ci_low, flag_sospechoso_outlier), integración post-haircut en `extract_validated_specialists` con re-sort W3b por `specialist_score_ci_low`. Caveat: bootstrap binomial es lower bound de CI real (no captura dispersión intra-grupo). Validación sobre JSONs productivos: 6/12 top-1 flagged (ONDO C0, LTC C2, GRT C2, TRX C2, BTC C2, MANA C0) — sesgo N pequeño generalizado. Tests 8/8 PASS (tests/test_w3_bootstrap.py). Fidelidad 2 invariante (cambio del pipeline del lab, no toca bot). Ver §13.4 entrada W3 IMPLEMENTADO 2026-04-23.
 2. 2026-04-23 W4 thresholds _FWD + CI filters (misma rama, layered sobre W3, NO deploy). Contexto: `_FWD_MIN_TRADES=15` / `_FWD_MIN_PF=1.0` laxos permitían outliers pasar; ultra review W4 (2026-04-17) marcó para pre-reciclaje. Análisis cuantitativo Fase 1 sobre 138k candidates reveló que `NOT sospechoso` (W3 flag) es el filtro dominante (-35% pool); subir trades/PF es marginal. Thresholds adoptados: `_FWD_MIN_TRADES=25, _FWD_MIN_PF=1.1, _FWD_REQUIRE_NOT_SOSPECHOSO=True` + hooks opcionales (`_FWD_MIN_CI_LOW=0.0`, `_FWD_MAX_CI_WIDTH=inf` — default OFF). Nueva función `_apply_w4_fwd_ci_filters(df)` aplicada post-bootstrap con WARN log si cluster queda orphan. Validación Fase 3 reciclaje hipotético: 42/45 símbolos (93%) operables en 3/3 clusters, 3 clusters orphan (TAO C1, TRX C2, WLD C0), los 6 flagged W3 reemplazados o marked orphan. Patrón típico: old pf_fwd alto + N pequeño flagged → new pf_fwd moderado + N grande clean. TRX C2 orphan (top TF score 30.9 original) consistente con Lección 29 (N pequeño selecciona noise amplificado). Tests 8/8 PASS (tests/test_w4_thresholds.py) + W3 no-regression 8/8. Fidelidad 2 invariante. Ver §13.4 entrada W4 IMPLEMENTADO 2026-04-23.
+3. 2026-04-23 A14 (W1) plateau_ratio consistency (rama `feature-a14-a15-wf-polish` commit 5a7135b → merge main cf9d7b6, NO deploy). Contexto: plateau_ratio pre-fix usaba bit-flip brutal sobre 26 bits del config_id mientras `_compute_sqn_haircut` ya usaba `_get_neighbors` canonical (respeta bitmask vs discrete de `_PARAM_FIELDS`). Dos fórmulas semánticas de "neighbor" en el mismo módulo. Fix: bloque Phase 4 reemplaza 4 líneas bit-flip por llamada única a `_get_neighbors(cid)`. Evidencia: ONDO C0 cfg 2457036 canonical=25 vs brute-26=26 neighbors (symmetric diff 3 → 3 "neighbors" viejos NO paramétricamente adyacentes). Impacto retroactivo: plateau_ratio es metadata informativa pura en pipeline canónico (NO filtro de selección; extractor_gemas.py lo usa como filtro pero NO está en pipeline productivo, §13.2). Cero impacto operacional hasta próximo reciclaje. Tests 4/4 PASS (tests/test_a14_plateau_consistency.py). Ver §13.4 entrada A14+A15 2026-04-23.
+4. 2026-04-23 A15 (W2) engine tag en parquet output + resume consistency check (misma rama). Contexto: bifurcación runtime CUDA↔CPU (L487-505) con `engine_tag` local solo para print, no persistido. Resume tras crash con engine distinto = heterogeneidad silenciosa en specialists (precisión float32/float64 difiere marginalmente CUDA vs Numba CPU). Fix: módulo añade `_MACHINE_ID`, `_NUMBA_VERSION` + funciones `_get_engine_tag()` (4 campos) y `_check_resume_engine_consistency(parts_dir)` (WARN loud si mismatch, legacy pre-A15 tolerado como 'unknown'). `process_symbol` invoca check post-mkdir. Parquet write L548-585 extendido con 4 columnas engine broadcast a todas las rows. Impacto retroactivo: parquets actuales no tienen engine tag, regeneración completa via `master.py --recycle` los reescribe con tag. Resume intermedio: WARN legacy, no abort. Tests 4/4 PASS (tests/test_a15_engine_tag.py). Ver §13.4 entrada A14+A15 2026-04-23.
 
 **lab_lite_zonas_v5e.py (1):**
 1. 2026-04-23 A12 (LL1) MA dedup (rama `feature-a12-ma-dedup`, NO deploy). Contexto: ultra review LL1 marcó 16 MAs duplicadas en 4 archivos. Inventario real: duplicación 2-way (lab_lite ↔ lab_historico). brain_engine y MR features ya eran pass-through. Fase 2 verificación bit-a-bit: 52/52 tests PASS rtol=1e-10 (drift max 3.3e-11 por cumsum vs loop, sub-ULP). Fase 4 aplicado: bloque L112-348 (234 líneas, 17 defs MA) reemplazado por import consolidado desde lab_historico_numba_v8_3 (17 líneas). calc_wma eliminado (único local sin contraparte, usado solo por calc_hma local ahora importado). `lab_lite.calc_X is lab_historico.calc_X → True` → cero posibilidad drift por construcción. Neto: -234/+17 líneas. Tests parity 4/4 PASS + no-regresión W3/W4 16/16 + Smoke §0.8 A+C PASS (Nivel B omitido por scope, no toca brain/kernel). Fidelidad 2 invariante (brain ya importaba desde lab_historico). Ver §13.4 entrada A12 IMPLEMENTADO 2026-04-23.
@@ -1537,17 +1539,28 @@ Disparo: pre-reciclaje — cuantificar % presets que pasan walk-forward tras lab
 Cierre: métricas recopiladas en reciclaje + decisión sobre si ajustar thresholds de selección en lab_lite.
 Referencias: lab_lite_zonas_v5e.py run_simulation_v5e líneas 775-899.
 
-**[MEJORA] [EN_ESPERA] regime_walk_forward W1: plateau_ratio inconsistente con _get_neighbors — 2026-04-17**
-Contexto: Ultra review W1. Líneas 1549-1552 computan plateau_ratio con bit-flip brutal en los 26 bits del config_id, mientras _get_neighbors (línea 989, usado en SQN haircut) hace correctamente ±1 para campos discretos y bit-flip para bitmasks. Misma función semántica con dos implementaciones distintas en el mismo módulo. plateau_ratio en JSONs actuales tiene significado diluido.
-Disparo: pre-reciclaje ~julio.
-Cierre: reemplazar lógica inline por llamada a _get_neighbors(cid). Re-correr afectaría plateau_ratio de todos los JSONs pero no altera config_ids seleccionados (plateau es informativo, no filtro).
-Referencias: regime_walk_forward.py líneas 1549-1552 (plateau) vs 989-1018 (_get_neighbors).
+**[MEJORA] [RESUELTO] regime_walk_forward W1 (A14): plateau_ratio consistency con _get_neighbors — 2026-04-23**
+Contexto: Ultra review W1 (2026-04-17). plateau_ratio usaba bit-flip brutal en los 26 bits del config_id, mientras `_get_neighbors` (canonical, usado en `_compute_sqn_haircut`) respeta semántica bitmask vs discrete de `_PARAM_FIELDS`. Misma función semántica con dos implementaciones inconsistentes en el mismo módulo. Fix aplicado 2026-04-23 en rama `feature-a14-a15-wf-polish` (commit 5a7135b, merge cf9d7b6):
+- Bloque Phase 4 Plateau analysis reemplaza los 4 líneas del bit-flip loop por llamada única a `_get_neighbors(cid)`.
+- Evidencia test_2 empírica: ONDO C0 cfg 2457036 — canonical=25 neighbors vs brute-26=26 neighbors, symmetric diff 3 (3 neighbors del brute NO son paramétricamente adyacentes — flips de bit alto en campo discreto saltaban valores no-vecinos).
+- **plateau_ratio NO es filtro de selección** en pipeline canónico (metadata informativa pura: reporte L1780 + JSON output opcional L2087). extractor_gemas.py sí lo usa como filtro pero NO está en pipeline productivo (master.py no lo invoca, §13.2). Impacto retroactivo: cero operacional. JSONs actuales mantienen plateau_ratio con fórmula vieja hasta próximo reciclaje, cuando se regenera con nueva fórmula.
+- Tests 4/4 PASS (tests/test_a14_plateau_consistency.py).
+- Smoke §0.8 Nivel A+C diff 0.0000. No-regresión W3/W4/A12 16/16 PASS.
+Referencias: regime_walk_forward.py L1853-1869 (plateau block post-fix) + L1246-1275 (`_get_neighbors` canonical), §13.4 entrada A14 IMPLEMENTADO 2026-04-23.
+Cierre: RESUELTO. Próxima activación en `master.py --recycle`.
 
-**[MEJORA] [EN_ESPERA] regime_walk_forward W2: CUDA vs CPU drift sin engine tag — 2026-04-17**
-Contexto: Ultra review W2. Líneas 487-505: selección CUDA/CPU en runtime sin registrar engine en part files parquet. Si run mezcla engines (crash + resume con engine distinto), heterogeneidad silenciosa en specialists generados. Precisión float32/float64 y orden de reducciones pueden diferir.
-Disparo: pre-reciclaje, o si aparece discrepancia empírica entre corridas del mismo setup.
-Cierre: añadir columna `engine` a DataFrames, validar consistencia en resume. Idealmente: test diferencial CUDA vs CPU sobre preset de referencia para cuantificar drift.
-Referencias: regime_walk_forward.py líneas 487-505.
+**[MEJORA] [RESUELTO] regime_walk_forward W2 (A15): engine tag en parquet + resume consistency — 2026-04-23**
+Contexto: Ultra review W2 (2026-04-17). Bifurcación CUDA↔CPU runtime (L487-505) con `engine_tag` local usado solo para print, NO persistido en parquet. Risk: run mezcla engines tras crash/resume → heterogeneidad silenciosa en specialists (precisión float32/float64 + orden reducciones difieren marginalmente). Fix aplicado 2026-04-23 en rama `feature-a14-a15-wf-polish` (commit 5a7135b, merge cf9d7b6):
+- Módulo añade constantes `_MACHINE_ID` (platform.node()), `_NUMBA_VERSION`.
+- Función `_get_engine_tag()` retorna dict {engine_name ("cuda"|"cpu_numba"), engine_version (numba=x.y.z), machine_id, timestamp_run (ISO UTC)} — timestamp fresh por invocación.
+- Función `_check_resume_engine_consistency(parts_dir)` lee engine_name del primer parquet existente. WARN loud si mismatch con current. Legacy parquets pre-A15 sin columna tolerados con WARN "unknown".
+- `process_symbol` invoca check tras crear `parts_dir`.
+- Parquet output L548-580 extendido con 4 columnas engine (broadcast a todas las rows del DataFrame).
+- Tests 4/4 PASS (tests/test_a15_engine_tag.py): campos válidos + timestamp ISO parseable, parquet round-trip preserva columnas, resume check match → 'consistency OK', legacy → WARN 'pre-A15 unknown' no abort.
+- Smoke §0.8 Nivel A+C diff 0.0000. No-regresión W3/W4/A12/A14 28/28 PASS.
+Impacto retroactivo: parquets actuales (pre-A15) no tienen engine tag. Primera regeneración completa via `master.py --recycle` los reescribe con tag. Resume intermedio sobre parquets mixtos emite WARN pero no bloquea.
+Referencias: regime_walk_forward.py L56-128 (engine tag module) + L460 (resume check call) + L548-585 (parquet write + engine columns), §13.4 entrada A15 IMPLEMENTADO 2026-04-23.
+Cierre: RESUELTO. Observabilidad activada para próximo reciclaje.
 
 **[MEJORA] [RESUELTO] regime_walk_forward W3: bootstrap pf_fwd + selection by ci_low — 2026-04-23**
 Contexto: Ultra review W3 (2026-04-17). specialist_score y pf_fwd eran point estimates sin intervalo de confianza. Configs con N=15-20 y 1-2 outliers inflaban pf_fwd artificialmente. Validado empíricamente 2026-04-22: ONDO C0 walk-forward entregó pf_fwd=7.945 con N=17, real observado PF 1.08 (ratio 0.14). Fase II.C reveló 2 candidatos exclusión adicionales (ONDO C2 + SAND C1). Item 3.5 ranking stability: ranking WF ≠ ranking kernel-actual (config #1 WF 2457036 es rank #4 en régimen actual).
@@ -1843,6 +1856,68 @@ Referencias: §13.3 items funding runtime + observabilidad 2026-04-23; §9.3 v2.
 ---
 
 ### 13.4 RESUELTO
+
+**[MEJORA] [RESUELTO] A14+A15 regime_walk_forward polish — 2026-04-23**
+
+Contexto: dos items pre-reciclaje del ultra review 2026-04-17 (W1 plateau_ratio inconsistency, W2 CUDA/CPU drift sin engine tag) atacados en batch dado scope compartido (mismo archivo `regime_walk_forward.py`). Rama `feature-a14-a15-wf-polish`, commit 5a7135b, merge cf9d7b6.
+
+**A14 (W1) — plateau_ratio consistency**:
+
+Problema: fórmula antigua (L1853-1856 pre-fix) hacía bit-flip sobre los 26 bits del config_id sin distinguir campos bitmask vs discrete. Ejemplo: config con campo MA_period en bits [5-8] — un flip del bit 8 cambiaba period de 12 a 20 (salto grande), no el vecino paramétrico esperado (±1). Resultado: plateau_ratio contaba como "neighbors" configs que NO son paramétricamente adyacentes, diluyendo el significado métrico.
+
+Canonical: `_get_neighbors(config_id)` (L1246-1275) ya implementaba la lógica correcta:
+- Campos bitmask: flip cada bit individual (semántica bitmask preservada).
+- Campos discretos: ±1 dentro del rango válido.
+
+Fix: reemplazar bit-flip loop por llamada única a `_get_neighbors(cid)`. Bloque `Phase 4: Plateau analysis` (L1838-1867 post-fix).
+
+Evidencia empírica del fix (test_2): ONDO C0 cfg 2457036 — canonical genera **25 neighbors**, brute-26 genera **26 neighbors**, symmetric diff **3**. Tres configs considerados "neighbors" por fórmula vieja NO son paramétricamente adyacentes.
+
+Impacto retroactivo: **plateau_ratio NO es filtro de selección** en pipeline canónico (solo metadata informativa: reporte text L1780 + JSON output opcional L2087). `extractor_gemas.py` lo usa como filtro, pero master.py no lo invoca (§13.2 "NO está en pipeline de producción"). Fix cambia SOLO valor metadata en JSONs post-reciclaje; cero impacto operacional hasta próximo `master.py --recycle`.
+
+Tests 4/4 PASS (`tests/test_a14_plateau_consistency.py`):
+1. `_get_neighbors(2457036)` devuelve set no-vacío, cid no incluido.
+2. Canonical (25) ≠ brute-26 (26), symmetric diff 3.
+3. Source code plateau block contiene `_get_neighbors(cid)`, no contiene `for bit in range(26)`.
+4. Degenerate case empty neighbors → ratio=0 via `max(n, 1)` guard, sin crash.
+
+**A15 (W2) — engine tag en parquet**:
+
+Problema: bifurcación runtime CUDA↔CPU (L487-505) con variable local `engine_tag` usada solo para print, no persistida. Si un run se resume tras crash con engine distinto (e.g. máquina con CUDA había fallado, restart en máquina CPU), specialists generados tenían heterogeneidad silenciosa — precisión float32/float64 y orden de reducciones difieren marginalmente entre kernels CUDA y Numba CPU.
+
+Fix arquitectural:
+- Module constants: `_MACHINE_ID = platform.node()`, `_NUMBA_VERSION = numba.__version__`.
+- `_get_engine_tag()` retorna dict con 4 campos (`engine_name`, `engine_version`, `machine_id`, `timestamp_run`). Timestamp fresh per llamada (no static module-load) para capturar momento real de cada parquet write.
+- `_check_resume_engine_consistency(parts_dir)`:
+  - Si no hay parquets existentes → noop (fresh run).
+  - Si existe: lee `engine_name` del primer part. Si matches current → `[A15] resume engine consistency OK`. Si difiere → WARN `A15 RESUME ENGINE MISMATCH`. Legacy parquets sin columna `engine_name` → WARN `parquets pre-A15 sin engine_name — tratando como engine=unknown`. No aborta en ningún caso; decisión de restart queda al operador.
+- `process_symbol` invoca check inmediatamente tras crear `parts_dir`.
+- Parquet write L548-585: 4 columnas `engine_*` broadcast a todas las rows.
+
+Tests 4/4 PASS (`tests/test_a15_engine_tag.py`):
+1. `_get_engine_tag()` retorna 4 campos con formatos válidos (engine_name ∈ {cuda, cpu_numba}, timestamp ISO parseable).
+2. Parquet round-trip preserva las 4 columnas broadcast a todas las rows.
+3. Resume check con engine coincidente → mensaje `consistency OK`, sin WARN.
+4. Resume check parquet legacy (sin `engine_name`) → WARN con 'pre-A15' + 'unknown', sin abort.
+
+Ejemplo detectado en test: engine=cuda, version=numba=0.64.0, machine=Rixip.
+
+Impacto retroactivo: parquets actuales (pre-A15) no tienen engine tag. Primera regeneración completa via `master.py --recycle` los reescribe con tag. Resume intermedio sobre parquets mixtos emite WARN pero proceder OK.
+
+**Smoke test §0.8 post-fix**:
+- Nivel A (BTC N=1000): diff 0.0000 exacto 5 métricas ✓.
+- Nivel C (SEI MR config 45686): 7/7 métricas diff 0.0000 ✓.
+- Nivel B omitido por scope (A14+A15 NO tocan brain/kernel signal logic, solo pipeline lab regime_walk_forward.py).
+
+**Regresión acumulada**: 28/28 PASS (4 A14 + 4 A15 + 8 W3 + 8 W4 + 4 A12).
+
+**Deploy VPS NO requerido**. Bot v2.4.5 operacional. Fidelidad 2 invariante (cambios pipeline lab, no bot ni kernel Numba). Activación A14 (plateau_ratio nuevo) + A15 (engine tag columns) en próximo reciclaje.
+
+Referencias: `regime_walk_forward.py` L56-128 (engine tag module) + L460 (resume check) + L548-585 (parquet write) + L1838-1867 (plateau block), `tests/test_a14_plateau_consistency.py`, `tests/test_a15_engine_tag.py`, §13.3 W1 W2 movidos a RESUELTO.
+
+Cierre: permanente. Siguiente ítem roadmap: A13 (LL2 kernel simplificado selection bias en lab_lite) o continuación Fase 4 pre-reciclaje.
+
+---
 
 **[MEJORA] [RESUELTO] A12 (LL1) MA implementations deduplicadas cross-file — 2026-04-23**
 
