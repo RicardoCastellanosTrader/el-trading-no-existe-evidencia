@@ -1,6 +1,6 @@
 # Sistema de Trading Algorítmico — Contexto Completo del Proyecto
 
-**Última actualización:** 23 Abril 2026 (W3+W4 MERGED main 56d38d4, A12 LL1 MA dedup MERGED main ae5a21a, A14+A15 plateau/engine_tag MERGED main cf9d7b6, A13 LL2 ratio supervivencia RESUELTO documental — todos pre-reciclaje, NO deploy; Bloque 1 roadmap COMPLETADO previamente: A36 log rotation + A35 tz-naive + A38 edge guard + A34 timing_borderline; §0.7 convención sync; §12 L27+L28)  
+**Última actualización:** 23 Abril 2026 (W3+W4 MERGED main 56d38d4, A12 LL1 MA dedup MERGED main ae5a21a, A14+A15 plateau/engine_tag MERGED main cf9d7b6, A13 LL2 RESUELTO documental, A04 Fidelidad 1 TF kernel↔Pine RESUELTO documental scope TF — todos pre-reciclaje, NO deploy; Bloque 1 roadmap COMPLETADO previamente: A36 log rotation + A35 tz-naive + A38 edge guard + A34 timing_borderline; §0.7 convención sync; §12 L27+L28)  
 **Versión actual:** v2.4.4 (sin bump — sesión 100% herramientas offline, sin deploy operacional)  
 **Autor del sistema:** Ricardo  
 **Plataforma:** Binance (datos) + BingX (ejecución), velas 1h  
@@ -1413,26 +1413,31 @@ Referencias:
 - Decisión Ricardo 2026-04-21: optar por solución minimalista tras detectar que v2.5.0 "no resuelve causa raíz, solo la reviste" bajo el marco §0.6.
 Cierre: permanente como referencia. No se re-abre salvo disparador explícito documentado.
 
-**[AUDITORIA] [EN_ESPERA] Auditoría Fidelidad 1 formal (kernel ↔ Pine) — 2026-04-21**
-Contexto: durante auditoría Fidelidad 2 TF cancel_tf de 2026-04-21 emergió comentario literal en kernel TF (lab_historico_numba_v8_3.py l.1560-1562) documentando divergencia consciente con Pine v44 canónico. Esto abre pregunta sistemática: ¿cuántas otras divergencias kernel ≠ Pine existen, cuáles están documentadas como decisión consciente, cuáles son bugs olvidados?
-Scope: auditoría exhaustiva de divergencias en ambas direcciones:
-- Kernel TF ≠ Pine v44 TF.
-- Kernel MR ≠ Pine v7.25 MR.
-Método propuesto:
-1. Citas lado a lado de mecanismos clave: entry logic, exit logic, 4 mecanismos de stop, cancelaciones (cancel_tf en TF; cancel_zona/cancel_tf/cancel_ghost en MR), divergencias, filtros HTF.
-2. Clasificar cada divergencia encontrada en:
-   - DOCUMENTADA (comentario en código o referencia en CONTEXTO): parte del diseño vigente, inventariar sin alarma.
-   - NO DOCUMENTADA PERO INTENCIONAL (evidencia indirecta: tests que validan el comportamiento kernel): parte del diseño, añadir documentación.
-   - NO DOCUMENTADA Y POTENCIALMENTE INVOLUNTARIA: candidata a revisión arquitectural.
-3. Para divergencias del tercer tipo, cuantificar impacto empírico: ¿cuántos trades simulados cambiarían veredicto si se alineara al Pine canónico? Si impacto <X% (threshold a definir, probablemente <2% PnL o <5% trade count) → documentar y aceptar. Si impacto ≥X% → plantear corrección en próximo reciclaje.
-Disparadores:
-- Pre-reciclaje julio: obligatorio como parte del health check del sistema antes de re-entrenar.
-- Orgánico: si aparece divergencia empírica entre bot real y master.py simulado que no se explique por lag/latencia/slippage, puede ser divergencia kernel↔Pine no inventariada.
-Referencias:
-- §0.6 Kernel como verdad operacional (marco conceptual).
-- Comentario literal kernel TF l.1560-1562 ("Fix fidelidad").
-- Auditoría Fidelidad 2 MR (2026-04-21): ya identificó referencias cruzadas Pine↔kernel MR pero no inventarió formalmente divergencias.
-Cierre: al completar inventario con clasificación de cada divergencia + documentación de las DOCUMENTADAS que aún no lo estén + decisión sobre las NO DOCUMENTADAS POTENCIALMENTE INVOLUNTARIAS.
+**[AUDITORIA] [RESUELTO A04 parte TF] Auditoría Fidelidad 1 formal (kernel TF ↔ Pine v44) completada — 2026-04-23**
+Contexto: durante auditoría Fidelidad 2 TF cancel_tf de 2026-04-21 emergió comentario literal en kernel TF (lab_historico_numba_v8_3.py l.1560-1562) documentando divergencia consciente con Pine v44 canónico. Esto abrió pregunta sistemática sobre cuántas otras divergencias existen y cuántas son intencionales vs bugs olvidados.
+
+**Auditoría TF completada 2026-04-23** (A04 scope kernel_TF ↔ Pine_v44_TF, ver §13.4 entrada A04 IMPLEMENTADO). Auditoría MR (A04b kernel MR ↔ Pine v7.25 MR) queda como tarea separada pre-reciclaje.
+
+**Resumen hallazgos A04 TF** (5 divergencias detectadas, veredicto limpio):
+
+| # | Área | Tipo | Impacto | Estado |
+|---|---|---|---|---|
+| 1 | cancel_tf: resolved[t] vs ha_trend_tfN_e[barsSinceEntry] | DOCUMENTADA | medio | §0.6 aceptado |
+| 2 | div_showlimit hardcoded 1 vs Pine 1-8 | NO DOC INTENCIONAL | medio | doc en A04 entry |
+| 3 | kernel no soporta i_div_dontconfirm=true | NO DOC INTENCIONAL | bajo (default Pine coincide) | doc en A04 entry |
+| 4 | kernel pivotes sobre close vs Pine close/HL param | NO DOC INTENCIONAL | bajo (default Pine coincide) | doc en A04 entry |
+| 5 | cooldown diferenciado por tipo exit (emergency/cancel 1 bar fijo, sl/div param) | NO DOC POT INVOLUNTARIA | bajo con cooldown_bars=1 | investigar intención diseño pre-reciclaje |
+
+**Cross-check §13.3 A30 (hidden asimetría TF vs MR)**: confirmado que A30 es asimetría **interna kernel TF ↔ kernel MR** (pre-swap bits 1↔3 en MR), NO divergencia kernel TF ↔ Pine TF. Bit mapping hid_inv=0 (tradicional) coincide con Pine hid_inverted=false.
+
+**Cross-check §13.2 TS fidelity**: Pine L897-903 y kernel L1482-1492 idénticos funcionalmente (TS on-close con `low[1]/high[1]`, `math.max/min` monotónico, 0.5% prev bar). Fidelidad 1 en TS INTACTA — confirmando §13.2 HALLAZGO (el issue estaba en Fidelidad 2 bot live, resuelto v2.4.0).
+
+**Cross-check §13.2 lag estructural 1 bar**: ni Pine ni kernel tenían lag. Era arquitectura bot live (resuelto v2.3.11). Fidelidad 1 no afectada.
+
+**Veredicto**: auditoría TF limpia. Ninguna divergencia categórica que invalide arquitectura. Arquitectura Fidelidad 1 TF es robusta; sólo 1 ítem requiere investigación (Divergencia #5 cooldown).
+
+Cierre: RESUELTO parcial — scope TF completo. Scope MR pendiente como tarea separada (A04b).
+Referencias: §13.4 entrada A04 IMPLEMENTADO 2026-04-23, §0.6 Kernel como verdad operacional, `lab_historico_numba_v8_3.py` L1558-1562 (cancel_tf documentado), L1458-1460 (showlimit), L633 (dontconfirm), L641/653 (source), L1630-1637 (cooldown diferenciado), `indicador_v44_0_smartdiv_v11_0_TF.pine` L134-139 (div params), L897-906 (TS/SL), L912-934 (cancel_tf).
 
 **[MEJORA] [EN_ESPERA] Deuda documental/refactor menores de auditoría Fidelidad 2 — 2026-04-21**
 Contexto: agregado de MENORES emergidos durante auditorías Fidelidad 2 TF y MR del 2026-04-20 y 2026-04-21. Todos sin impacto operacional actual. Candidatos a consolidación en refactor pre-reciclaje julio.
@@ -1886,6 +1891,87 @@ Referencias: §13.3 items funding runtime + observabilidad 2026-04-23; §9.3 v2.
 ---
 
 ### 13.4 RESUELTO
+
+**[AUDITORIA] [RESUELTO scope TF] A04 Fidelidad 1 formal kernel TF ↔ Pine v44 — 2026-04-23**
+
+Contexto: A04 del roadmap pre-reciclaje exige inventario formal de divergencias entre kernel Numba TF (`lab_historico_numba_v8_3.py`, 2678L) y Pine canónico TF (`indicador_v44_0_smartdiv_v11_0_TF.pine`, 1243L) para validar la asunción base del proyecto: kernel es implementación fiel del diseño Pine original. Scope completado para TF hoy; MR queda como A04b separada (Pine `indicador_v7_25_smartdiv_v40_28_MR.pine` ↔ kernel `mean_reversion_kernel.py`).
+
+**Metodología**:
+- Mapping estructural 10 áreas (MAs, zonas, entry, exit, divergencias, stops, cancelaciones, filtros HTF, cooldown, Heikin-Ashi) con delegación a agente Explore para extracción paralela de citas código.
+- Auditoría detallada por área con énfasis en las 3 de mayor riesgo estructural (divergencias, stops, cancelaciones).
+- Clasificación de cada divergencia: DOCUMENTADA / NO DOC INTENCIONAL / NO DOC POT INVOLUNTARIA.
+- Cross-check con hallazgos previos §13.2 (lag, TS fidelity) y §13.3 (A30 hidden asimetría TF vs MR).
+
+**5 divergencias inventariadas**:
+
+**#1 cancel_tf: resolved[t] vs ha_trend_tfN_e[barsSinceEntry]**
+- Kernel L1558-1562: comment literal "Fix fidelidad: usar resolved[t] (barra HTF actual finalizada) en vez de resolved[entry_bar]".
+- Pine L920-934: reindex histórico `ha_trend_tfN_e[barsSinceEntry]`.
+- **Tipo: DOCUMENTADA** ✓ (comment código + §0.6 CONTEXTO).
+- Impacto: medio (trades donde HTF cambia entre entry y current bar sin cruce reciente).
+- Resolución: mantener (decisión madurada §0.6).
+
+**#2 div_showlimit hardcoded `1` vs parametrizable Pine 1-8**
+- Pine L134: `i_div_showlimit = input.int(defval=1, minval=1, maxval=8)`.
+- Kernel L1459: `net_div_score >= 1` hardcoded; comment L1458 "matches Pine default".
+- **Tipo: NO DOC INTENCIONAL** (intencional por comment, limitación paramétrica no documentada en CONTEXTO).
+- Impacto: medio si reciclaje futuro quisiera umbrales más estrictos.
+- Resolución: considerar añadir bit config_id para explorar {1, 2, 3} en próximo reciclaje. Opcional pre-julio.
+
+**#3 kernel no soporta `i_div_dontconfirm=true`**
+- Pine L139: parametrizable (default false).
+- Kernel L633: `startpoint = 1` hardcoded (equivalente a dontconfirm=false).
+- **Tipo: NO DOC INTENCIONAL**.
+- Impacto: bajo (default Pine coincide con kernel).
+- Resolución: aceptar simplificación.
+
+**#4 kernel pivotes sobre close exclusivamente vs Pine Close/High-Low param**
+- Pine L136: `i_div_source = input.string(defval="Close", options=["Close", "High/Low"])`.
+- Pine L512-513 usa `high`/`low` si source="High/Low".
+- Kernel L641, 653: `close_arr` hardcoded.
+- **Tipo: NO DOC INTENCIONAL**.
+- Impacto: bajo (default Pine Close coincide).
+- Resolución: aceptar simplificación.
+
+**#5 cooldown diferenciado por tipo de exit en kernel**
+- Kernel L1630-1637: `sl_emergency_signal` / `cancel_signal` → `cooldown_until = t` (1 bar fijo); `sl_exit_signal` / `div_exit_signal` → `cooldown_until = t + cooldown_bars - 1` (parametrizable).
+- Pine: `last_cancel_bar := bar_index + i_cooldown_bars - 1` uniforme todos los exits.
+- **Tipo: NO DOC POT INVOLUNTARIA**.
+- Impacto: BAJO con default `cooldown_bars=1` (ambos valores colapsan a 1 bar); divergencia solo emerge si `cooldown_bars>1`.
+- Resolución: investigar intención original pre-reciclaje. Si intencional → añadir comment código. Si no → unificar.
+
+**Tabla agregada**:
+
+| Categoría | Count | % del total |
+|---|---|---|
+| DOCUMENTADAS | 1 | 20% |
+| NO DOC INTENCIONALES | 3 | 60% |
+| NO DOC POT INVOLUNTARIAS | 1 | 20% |
+| **Total** | **5** | **100%** |
+
+**Cross-checks** (verificaciones con hallazgos previos):
+
+- **§13.3 A30 hidden asimetría TF vs MR (67/138 configs afectados)**: confirmado que A30 es asimetría INTERNA kernel TF ↔ kernel MR (pre-swap bits 1↔3 en MR), NO divergencia kernel TF ↔ Pine TF. Bit mapping `hid_inv=0` tradicional en kernel coincide con Pine `hid_inverted=false`. A04 no amplifica A30; A30 sigue siendo hallazgo intra-proyecto pre-reciclaje separado.
+- **§13.2 TS fidelity (resuelto v2.4.0)**: Pine L897-903 y kernel L1482-1492 idénticos (TS on-close, `low[1]/high[1]`, monotónico `math.max/min`, 0.5% prev bar). Fidelidad 1 en TS INTACTA. El issue §13.2 era Fidelidad 2 bot live (update_trailing_stop ratchetaba BingX intrabar), resuelto v2.4.0.
+- **§13.2 lag estructural (resuelto v2.3.11)**: ni Pine ni kernel tenían lag. Era arquitectura bot live (sin bar forming); resuelto v2.3.11 restaurando fetch forming. Fidelidad 1 no afectada.
+
+**Veredicto**: auditoría **LIMPIA**. Ninguna divergencia categórica que invalide arquitectura. 4/5 divergencias son paramétricas del tipo "kernel solo simula Pine con parámetros default" — consciente simplificación que reduce espacio de búsqueda del walk-forward. 1 divergencia (cooldown diferenciado) merece investigación menor pre-reciclaje pero impacto bajo con defaults actuales.
+
+**Recomendaciones pre-reciclaje**:
+1. Aceptar #1 (cancel_tf) como diseño madurado §0.6.
+2. Considerar #2 (showlimit en config_id) como enhancement opcional next reciclaje — cost 1 bit, ×2-4 configs, potencial mejora filtro ruido divergencia.
+3. Aceptar #3-#4 (dontconfirm, source) como simplificaciones documentadas.
+4. Investigar #5 (cooldown) pre-reciclaje — decisión entre unificar o documentar asimetría.
+
+**Scope MR (A04b)** queda pendiente. Auditoría MR requerirá esfuerzo similar (~1-2h compute + analysis) sobre `mean_reversion_kernel.py` ↔ Pine v7.25 MR.
+
+Deploy VPS NO requerido. Bot v2.4.5 operacional. Fidelidad 2 invariante. El kernel sigue siendo "verdad operacional" (§0.6) validada empíricamente contra Pine como referencia histórica.
+
+Referencias: `lab_historico_numba_v8_3.py` (kernel TF) y `indicador_v44_0_smartdiv_v11_0_TF.pine` (Pine TF), §0.6 Kernel como verdad operacional, §13.2 HALLAZGOS resueltos, §13.3 A30 pendiente (MR refactor), §13.3 A04 movido a RESUELTO scope TF.
+
+Cierre: permanente para scope TF. Próximo: A04b (MR) como tarea separada.
+
+---
 
 **[MEJORA] [RESUELTO] A13 (LL2) lab_lite ratio supervivencia presets → walk-forward — 2026-04-23**
 
