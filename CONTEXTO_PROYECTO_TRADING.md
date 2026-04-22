@@ -1,6 +1,6 @@
 # Sistema de Trading Algorítmico — Contexto Completo del Proyecto
 
-**Última actualización:** 23 Abril 2026 (W3+W4 MERGED main 56d38d4, A12 LL1 MA dedup MERGED main ae5a21a, A14+A15 plateau/engine_tag MERGED main cf9d7b6, A13 LL2 RESUELTO documental, A04 Fidelidad 1 TF kernel↔Pine RESUELTO documental scope TF, A05 MR docstring + dead fields + zone_bull helper MERGED main ca3bbd6 — todos pre-reciclaje, NO deploy; Bloque 1 roadmap COMPLETADO previamente: A36 log rotation + A35 tz-naive + A38 edge guard + A34 timing_borderline; §0.7 convención sync; §12 L27+L28)  
+**Última actualización:** 23 Abril 2026 (W3+W4 MERGED main 56d38d4, A12 LL1 MA dedup MERGED main ae5a21a, A14+A15 plateau/engine_tag MERGED main cf9d7b6, A13 LL2 RESUELTO documental, A04 + A04b Fidelidad 1 TF+MR kernel↔Pine RESUELTO documental ambos scopes, A05 MR docstring + dead fields + zone_bull helper MERGED main ca3bbd6 — todos pre-reciclaje, NO deploy; Bloque 1 roadmap COMPLETADO previamente: A36 log rotation + A35 tz-naive + A38 edge guard + A34 timing_borderline; §0.7 convención sync; §12 L27+L28)  
 **Versión actual:** v2.4.4 (sin bump — sesión 100% herramientas offline, sin deploy operacional)  
 **Autor del sistema:** Ricardo  
 **Plataforma:** Binance (datos) + BingX (ejecución), velas 1h  
@@ -1413,10 +1413,10 @@ Referencias:
 - Decisión Ricardo 2026-04-21: optar por solución minimalista tras detectar que v2.5.0 "no resuelve causa raíz, solo la reviste" bajo el marco §0.6.
 Cierre: permanente como referencia. No se re-abre salvo disparador explícito documentado.
 
-**[AUDITORIA] [RESUELTO A04 parte TF] Auditoría Fidelidad 1 formal (kernel TF ↔ Pine v44) completada — 2026-04-23**
+**[AUDITORIA] [RESUELTO A04 TF + A04b MR] Auditoría Fidelidad 1 formal (kernel ↔ Pine) completada para ambas ramas — 2026-04-23**
 Contexto: durante auditoría Fidelidad 2 TF cancel_tf de 2026-04-21 emergió comentario literal en kernel TF (lab_historico_numba_v8_3.py l.1560-1562) documentando divergencia consciente con Pine v44 canónico. Esto abrió pregunta sistemática sobre cuántas otras divergencias existen y cuántas son intencionales vs bugs olvidados.
 
-**Auditoría TF completada 2026-04-23** (A04 scope kernel_TF ↔ Pine_v44_TF, ver §13.4 entrada A04 IMPLEMENTADO). Auditoría MR (A04b kernel MR ↔ Pine v7.25 MR) queda como tarea separada pre-reciclaje.
+**Auditoría TF completada 2026-04-23** (A04 scope kernel_TF ↔ Pine_v44_TF, ver §13.4 entrada A04 IMPLEMENTADO). **Auditoría MR A04b también completada mismo día** (kernel MR ↔ Pine v7.25 MR, ver §13.4 entrada A04b IMPLEMENTADO). Ambos scopes RESUELTOS.
 
 **Resumen hallazgos A04 TF** (5 divergencias detectadas, veredicto limpio):
 
@@ -1436,7 +1436,7 @@ Contexto: durante auditoría Fidelidad 2 TF cancel_tf de 2026-04-21 emergió com
 
 **Veredicto**: auditoría TF limpia. Ninguna divergencia categórica que invalide arquitectura. Arquitectura Fidelidad 1 TF es robusta; sólo 1 ítem requiere investigación (Divergencia #5 cooldown).
 
-Cierre: RESUELTO parcial — scope TF completo. Scope MR pendiente como tarea separada (A04b).
+Cierre: RESUELTO completo — scopes TF + MR auditados el mismo día 2026-04-23. Ver §13.4 entradas A04 (TF) y A04b (MR).
 Referencias: §13.4 entrada A04 IMPLEMENTADO 2026-04-23, §0.6 Kernel como verdad operacional, `lab_historico_numba_v8_3.py` L1558-1562 (cancel_tf documentado), L1458-1460 (showlimit), L633 (dontconfirm), L641/653 (source), L1630-1637 (cooldown diferenciado), `indicador_v44_0_smartdiv_v11_0_TF.pine` L134-139 (div params), L897-906 (TS/SL), L912-934 (cancel_tf).
 
 **[MEJORA] [RESUELTO A05] Deuda documental/refactor menores de auditoría Fidelidad 2 MR — 2026-04-23**
@@ -1912,6 +1912,75 @@ Referencias: §13.3 items funding runtime + observabilidad 2026-04-23; §9.3 v2.
 ---
 
 ### 13.4 RESUELTO
+
+**[AUDITORIA] [RESUELTO scope MR] A04b Fidelidad 1 formal kernel MR ↔ Pine v7.25 — 2026-04-23**
+
+Contexto: scope simétrico a A04 TF (commit b620d9f). Caveat arquitectónico crítico (§0.2 + §0.6): Pine v7.25 MR es **versión congelada con faltas conocidas documentadas**; kernel MR moderno incluye **adaptaciones intencionales**. El objetivo de A04b NO era reconciliar kernel con Pine v7.25 sino inventariar + clasificar divergencias, distinguiendo ADAPTACIÓN DOCUMENTADA (esperada) vs POT INVOLUNTARIA (candidata a investigar).
+
+**Metodología**: mapping estructural + auditoría dirigida a las 4 adaptaciones conocidas + verificación empírica §0.2 "4 mecanismos stop idénticos TF y MR en Pine y en kernel".
+
+**Mapping 13 áreas + clasificación**:
+
+| # | Área | Kernel MR | Pine v7.25 MR | Clasificación |
+|---|---|---|---|---|
+| 1 | Zonas fast/slow | `fast<slow=BULL` precomputado | `zonaAlcista_viz=series_fast_line<series_slow_line` L154 | ✓ EQUIVALENTE (semántica MR nativa en ambos) |
+| 2 | HA/Tenkan | `calc_fast_line`+`calc_slow_line` vía mean_reversion_features | `f_tenkan` L126 + `ha_source_base` L134 | ✓ EQUIVALENTE |
+| 3 | Div regular | bits 0/2 en `div_bits_arr` L176-177 | `pos_reg>0 or neg_reg>0` L380-381 | ✓ EQUIVALENTE |
+| 4 | **Div HIDDEN FIX** | bits 12-13 "Hidden corregida"/"Both corregida" L10 + L180-191 | Sin toggle hid_inversion (L380-381 directo) | **ADAPTACIÓN §0.2** |
+| 5 | **Cancel zona** bit 14 | `cancel_zona_bit` L77 + L293-314 | "Zona Inválida" inside `i_use_cancel` unificado L688-700 | **ADAPTACIÓN §0.2** |
+| 6 | **Cancel TF** bit 15 | `cancel_tf_bit` L78 + L315-346 | "TF mismatch" inside `i_use_cancel` L704-732 | **ADAPTACIÓN §0.2** |
+| 7 | **Cancel ghost** bit 16 | `cancel_ghost_bit` L79 + L347-372 | trajectory loop inside `i_use_cancel` L734+ | **ADAPTACIÓN §0.2** |
+| 8 | SL inicial 3% | hardcoded L35 | `i_sl_percent=3.0` L56 | ✓ IDÉNTICO |
+| 9 | SL emergency 5% intrabar | hardcoded L36 + L233-247 | `i_sl_emergency_percent=5.0` L63 + L543-563 | ✓ IDÉNTICO |
+| 10 | TS 0.5% on-close | hardcoded `low[t-1]/high[t-1]` monotónico L222-231 | `i_ts_percent=0.5` `low[1]/high[1]` math.max/min L660-666 | ✓ IDÉNTICO |
+| 11 | Filtros HTF | entry_mask bits 4-8 (TF1-TF5) | `i3_use_tf1/2/3/4/5` L186-196 | ✓ EQUIVALENTE |
+| 12 | Umbral consenso div | hardcoded `>=1` L198 | `i_div_showlimit` 1-8 param L86 | ADAPTACIÓN NO DOC INTENCIONAL (igual div#2 A04 TF) |
+| 13 | Cooldown asimétrico | `emergency/cancel=t` fijo, `sl/div=t+cooldown_bars-1` L408-415 | `i_cooldown_bars` uniforme | **NO DOC POT INVOLUNTARIA** (igual div#5 A04 TF; benigna con defaults) |
+
+**Tabla agregada A04b**:
+
+| Categoría | Count |
+|---|---|
+| ✓ EQUIVALENTE / IDÉNTICO | 8 áreas |
+| **ADAPTACIÓN DOCUMENTADA §0.2** | 4 áreas |
+| ADAPTACIÓN NO DOC INTENCIONAL | 1 área |
+| **NO DOC POT INVOLUNTARIA** | 1 área (compartida con TF) |
+
+**Validación 4 adaptaciones conocidas esperadas**:
+- #1 Hidden divergence fix: ✅ CONFIRMADA (kernel bits 12-13 "corregida"; Pine v7.25 sin fix).
+- #2 Cancelaciones bits 14-16: ✅ CONFIRMADA (kernel separa en 3 bits independientes para walk-forward; Pine unifica en `i_use_cancel`).
+- #3 HA/Tenkan cruce invertido: ✅ CONFIRMADA en ambos (propiedad diseño MR nativa, no adaptación del kernel sobre Pine).
+- #4 Semántica zona invertida: ✅ CONFIRMADA en ambos (Pine v7.25 L154 nativo).
+
+**POT INVOLUNTARIA única**: cooldown asimétrico por tipo de exit (compartido TF+MR). Confirmado como **patrón arquitectónico compartido del proyecto**, no bug aislado MR. Impacto bajo con `cooldown_bars=1` default. Recomendación: investigar intención original pre-reciclaje y unificar o documentar en 1 refactor que toque ambos kernels.
+
+**Cross-checks**:
+
+- **§13.3 A30 hidden asimetría TF vs MR**: **VALIDADA**. Kernel MR usa bit mapping swapped (bits 1/3 "corregidos") vs kernel TF tradicional. Consistente con adaptación §0.2 #1. Los 67/138 configs con hid_inv invertido son naturaleza del diseño MR — no regresión vs Pine (que no tenía fix), sino mejora documentada.
+- **§0.2 afirmación "4 mecanismos stop idénticos TF y MR en Pine y en kernel"**: **VALIDADA EMPÍRICAMENTE**. Kernel MR L222-256 idéntico estructuralmente a kernel TF L1482-1515. Pine MR L543-669 idéntico estructuralmente a Pine TF v44 L786-906. Parámetros (3%/5%/0.5%) coinciden.
+- **§0.6 kernel verdad operacional / Pine referencia histórica**: caveat arquitectónico validado empíricamente. 4/5 divergencias estructurales son ADAPTACIÓN §0.2 consciente (kernel moderno mejora versión Pine congelada).
+
+**Veredicto A04b**: auditoría **LIMPIA con caveat esperado**. Las 4 adaptaciones conocidas están presentes en kernel como documentado. 1 única POT INVOLUNTARIA (cooldown) ya conocida por A04 TF — patrón compartido, impacto bajo. Ninguna regresión arquitectónica detectada. Fidelidad 1 MR confirmada robusta dentro del marco §0.6 (kernel evoluciona sobre Pine congelado).
+
+**Consolidación A04 completo (TF + MR)**:
+
+Ambos scopes completados en mismo día. Totales acumulados ambas ramas:
+- 21 áreas mapeadas (10 TF + 13 MR − 2 compartidas estructurales).
+- 10 equivalencias IDÉNTICAS / EQUIVALENTES.
+- 4 ADAPTACIÓN DOCUMENTADA §0.2 (todas MR).
+- 3 NO DOC INTENCIONALES (div_showlimit shared + 2 solo TF: dontconfirm, source).
+- 1 DOCUMENTADA en código (cancel_tf TF #1).
+- 1 **POT INVOLUNTARIA compartida** (cooldown asimétrico TF+MR) — única candidata real a investigar pre-reciclaje.
+
+**Deploy VPS NO requerido**. Bot v2.4.5 operacional. Fidelidad 2 invariante (A04/A04b son auditorías documentales, no tocan código).
+
+**Siguiente ítem pre-reciclaje**: investigar cooldown asimétrico (único POT INVOLUNTARIA detectado en ambas auditorías) — decidir unificar vs documentar asimetría. Scope pequeño.
+
+Referencias: `mean_reversion_kernel.py` + `indicador_v7_25_smartdiv_v40_28_MR.pine`, §0.2 versión congelada + faltas conocidas, §0.6 kernel verdad operacional, §13.3 A04 scope completo (TF + MR) movido a RESUELTO.
+
+Cierre: permanente ambos scopes TF + MR.
+
+---
 
 **[MEJORA] [RESUELTO] A05 MR audit cleanup (docstring + dead fields + zone_bull helper) — 2026-04-23**
 
