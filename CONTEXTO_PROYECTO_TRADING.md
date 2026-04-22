@@ -1,6 +1,6 @@
 # Sistema de Trading Algorítmico — Contexto Completo del Proyecto
 
-**Última actualización:** 22 Abril 2026 — Bloque 2 **ampliado** con solución definitiva: `funding_observability.py` (entry-only) → borrado; `funding_context.py` (575 líneas, 11 cols + 9-pattern, cache CSV, workflow VPS/local) lo sustituye. Tests 19/19 PASS. Nuevos hallazgos sobre N=50: Section 2 exit (contrarian pierde, p=0.0162); Section 3 patterns dominados por `->same` con 0 crowd flips; Section 4 **Spearman ρ=-0.3172 p=0.0205** correlación n_bars_contrarian vs PnL → más tiempo contrarian = peor PnL. Dos candidatos derivados EN_ESPERA §13.3: **v2.6-inv** entry filter (bloquear contrarian entries, disparo N≥100) + **v2.6-exit** filter (cerrar contrarian losing, disparo N≥150). Analyzer enriquecido definitivo para decisión sin retrabajo. Bloque 2 core previo (refutación §9.3): aligned +0.50% vs contrarian -0.57%, Welch t=+3.58 p=0.0003 trimmed, Mann-Whitney p=0.0052 — dirección OPUESTA hipótesis. Bloque 1 (cooldown unify `9389af9`) cerrado previamente mismo día. Bot v2.4.5 operacional. Sin deploy VPS. Fidelidad 2 invariante. §12 Lección 33 nueva: validación empírica antes de implementar hipótesis literatura. Pipeline pre-reciclaje arquitectónicamente listo. Sesión 2026-04-23 previa: 9 items §13.3 RESUELTOS + runbook reciclaje + §12 L31+L32. §0.7 convención sync. §12 L27+L28+L29+L30+L31+L32+L33.
+**Última actualización:** 22 Abril 2026 CIERRE SESIÓN — 3 bloques + 2 micro-items cerrados en un día. **B1 cooldown unify** (`9389af9`+`f229510`+`a3eca13`): último bloqueante arquitectónico pre-reciclaje resuelto por Opción A Ricardo — kernel TF+MR con expresión Pine uniforme (descubrimiento: COOLDOWN_BARS=1 en 9 módulos → 4 ramas colapsaban matemáticamente). Smoke §0.8 A+B+C PASS. **B2 v2.6 Funding Filter REFUTADO** (`a2379ab`): Opción A §13.3 (observabilidad) antes de implementar; N=50 BingX real reveló dirección OPUESTA a §9.3 (aligned +0.50% vs contrarian -0.57%, Welch p=0.0003 trimmed, Mann-Whitney p=0.0052). Simulación filter original habría degradado PnL factor 2.2×. **§12 Lección 33 nueva**: validar hipótesis roadmap empíricamente, literatura general no sustituye. **B2 ampliado observabilidad bar-a-bar** (`3a7f286`): `funding_observability.py` BORRADO + `funding_context.py` (575 líneas, 11 cols + 9-pattern, cache CSV, CLI dual) + tests 19/19. Descubrimientos N=50: exit context significativo (p=0.0162), Spearman ρ=-0.3172 p=0.0205 correlación n_bars_contrarian vs PnL. 2 candidatos EN_ESPERA: **v2.6-inv** entry filter (disparo N≥100) + **v2.6-exit** filter (disparo N≥150). Analyzer enriquecido definitivo sin retrabajo. **Micro-item 1** deploy_boundaries.json actualizado v2.4.4 (2026-04-21T18:22:02Z) + v2.4.5 (2026-04-22T09:46:10Z); 180/180 tests PASS. **Micro-item 2** engine_state.json investigación: Categoría 1 alternate representation (key real `symbols` no `positions`, 45 entries, 5 positions != 0). Nuevo item §13.3 observación nomenclature cosmético. Bot v2.4.5 operacional VPS. Sin deploy en toda la sesión. Fidelidad 2 invariante. Pipeline pre-reciclaje arquitectónicamente completo. Plan próxima sesión: Bloque 3 A.1 deep-dive cuando N≥40 post-v2.4.4 (~33h, Criterio B) con analyzer enriquecido 11 cols automáticas. Sesión 2026-04-23 previa: 9 items §13.3 RESUELTOS + runbook reciclaje + §12 L31+L32. §0.7 convención sync. §12 L27+L28+L29+L30+L31+L32+L33.
 **Versión actual:** v2.4.4 (sin bump — sesión 100% herramientas offline, sin deploy operacional)  
 **Autor del sistema:** Ricardo  
 **Plataforma:** Binance (datos) + BingX (ejecución), velas 1h  
@@ -1956,6 +1956,24 @@ Contexto (actualizado post-Bloque 2 ampliación): observabilidad funding §13.3 
 
 Referencias: §13.4 entrada "Observabilidad funding per-trade" 2026-04-22 + ampliación bar-a-bar; §9.3 v2.6 (refutado); §12 Lección 33; `funding_context.py` (reemplaza `funding_observability.py` borrado; analyzer enriquecido definitivo).
 
+**[OBSERVACION] [EN_ESPERA] engine_state.json nomenclature — consumers usan `dict.get("positions", {})` con default silencioso — 2026-04-22**
+
+Contexto: durante reconocimiento inicio sesión 2026-04-22 (análisis N trades acumulado), la query `d.get("positions", {})` sobre `engine_state.json` retornó default `{}` y se reportó como "positions vacío pese a 5 posiciones abiertas" (sospecha bug). Diagnóstico Micro-item 2 mismo día reveló: **la key `positions` no existe**. El estado se persiste bajo la key `symbols` (live_engine.py `_save_state` L1159-1211; `_load_state` L1213+). 45 entries en `symbols`, 5 con `position != 0` — consistente con las posiciones reales.
+
+**Clasificación**: CATEGORÍA 1 — alternate representation (no bug). Grep confirmó 0 código lee `state["positions"]`.
+
+**Aprendizaje metodológico**: queries con `dict.get(key, default)` para inspección ad-hoc **confunden ausencia con vacuidad**. Para diagnóstico: usar `key in d` o `d.get(key)` sin default, y distinguir `None` (ausente) de `{}` (vacío presente).
+
+**Cleanup propuesto (cosmético, no urgente)**:
+- Scripts ad-hoc de inspección deberían verificar `"symbols" in d` (correcto) en vez de `d.get("positions")` (confuso).
+- Si hay memoria viva en scripts/agentes sobre "positions" como campo esperado, refrescar con este contexto.
+- Rename-futuro opcional: consolidar terminología "symbols" → "positions" o mantener "symbols" + docstring explícito. Fuera de scope pre-reciclaje; posible en v3.0 refactor.
+
+**Disparo**: si en futuras sesiones alguien vuelve a reportar "positions vacío" → este item clarifica que es mala query, no bug.
+**Cierre**: si al refactor v3.0 se consolida nomenclatura, o permanente si se decide mantener convención actual con docstring mejorado.
+
+Referencias: live_engine.py `_save_state` L1166 (`"symbols": {}` escribe dict), L1178-1199 (bucle populating per símbolo). §13.4 entrada sesión 2026-04-22 Micro-item 2.
+
 **[MEJORA] [EN_ESPERA] v2.6-exit filter candidato (cerrar contrarian losing trades) — validación N≥150 — 2026-04-22**
 
 Contexto: Bloque 2 ampliación (funding_context.py bar-a-bar) reveló evidencia de candidato DISTINTO al v2.6-inv entry filter. Section 4 del reporte muestra **correlación Spearman ρ=-0.3172 p=0.0205** entre `n_bars_contrarian` (bars posicionado contra crowd vigente) y `pnl_pct` — más tiempo contrarian = peor PnL. Direccional y significativo con N=50.
@@ -1996,6 +2014,83 @@ Referencias: §13.3 items funding runtime + observabilidad 2026-04-23; §9.3 v2.
 ---
 
 ### 13.4 RESUELTO
+
+**[SESIÓN] [RESUELTO] Sesión 2026-04-22 — Bloque 1 cooldown + Bloque 2 v2.6 refutado + Bloque 2 ampliado observabilidad + micro-items cierre**
+
+Directiva Ricardo arranque sesión: "ningún reciclaje tiene sentido si no es para mejorar la rentabilidad operativa… deben concluirse todas las mejoras posibles, e identificar todas las causas probables que puedan mejorar el sistema". Plan ajustado: atacar causas raíz + observabilidad definitiva antes del reciclaje, no reciclaje con pipeline de ayer solamente.
+
+**Balance arquitectónico consolidado** (commits cronológicos en main):
+
+| Commit | Bloque | Scope | Impacto |
+|---|---|---|---|
+| `9389af9` | B1 refactor | Kernel TF L1630-1637 + MR L408-415 cooldown unify a expresión Pine canónica | Elimina código muerto bajo cooldown_bars=1 |
+| `f229510` | B1 merge | Merge feature branch a main | Arquitectónico |
+| `a3eca13` | B1 docs | §13.3 cooldown RESUELTO + §2.6 kernel fix | Documental |
+| `a2379ab` | B2 v2.6 refutado | funding_observability.py standalone + §9.3 REFUTADO empíricamente + §12 L33 + §13.3 v2.6-inv candidato | REFUTACIÓN con p=0.0003 trimmed, dirección opuesta a hipótesis §9.3 |
+| `3a7f286` | B2 ampliado | funding_context.py bar-a-bar + 11 cols + 19 tests + funding_observability.py borrado + §13.3 v2.6-exit candidato nuevo | Solución observabilidad definitiva |
+| (este commit) | Cierre | deploy_boundaries.json v2.4.4+v2.4.5 + engine_state.json Categoría 1 + §13.4 consolidación | Cierre documental sesión |
+
+**Bloque 1 — Cooldown unify TF+MR**:
+- Discovery pre-ejecución: `COOLDOWN_BARS=1` constante única en 9 módulos productivos → las 4 ramas del switch colapsaban matemáticamente a `t`.
+- Ricardo confirmó Opción A: cooldown=1 siempre operacional en Pine histórico; diferenciación por tipo exit en kernel era código muerto.
+- Refactor a `if any_exit_signal: cooldown_until = t + cooldown_bars - 1` (expresión Pine canónica).
+- Confirmatorio triple anclaje: Nivel A (BTC N=1000) diff 0.0000 exacto + Nivel C (SEI MR N=1500) diff 0.0000 + Nivel B (ONDO+APT N=10000) bit-idéntico a §13.4 A10 baseline pre-refactor.
+- §13.3 **último ítem bloqueante arquitectónico pre-reciclaje** RESUELTO.
+
+**Bloque 2 — v2.6 Funding Filter contrarian REFUTADO**:
+- Claude Code PAUSÓ con 6 concerns pre-implementación (Fidelidad 2 break, threshold prompt 10× error vs §9.3, etc.).
+- Ricardo escogió Opción A §13.3 (observabilidad prerequisito, no implementar filter directo).
+- `funding_observability.py` standalone + fetch N=50 post-v2.3.11 desde VPS Tokyo BingX real (geo-bloqueo ES §12.24).
+- Hipótesis §9.3 contrarian **REFUTADA con dirección OPUESTA**: aligned +0.5045%, contrarian -0.5692%, Welch trimmed **p=0.0003**, Mann-Whitney p=0.0052. Win rate 62% vs 28%.
+- Simulación del filter original: habría degradado PnL en factor 2.2× (-1.52 USDT adicional sobre 50 trades vs PnL real +0.70).
+- Threshold §9.3 `|rate|>0.001` nunca activa (0/50 trades, p99 real 5× menor).
+- §9.3 v2.6 actualizada con REFUTADO; §12 **Lección 33 nueva**: validar hipótesis roadmap empíricamente (literatura general no sustituye).
+- §13.3 **v2.6-inv entry filter candidato** abierto EN_ESPERA disparo N≥100.
+
+**Bloque 2 ampliado — Observabilidad bar-a-bar definitiva**:
+- `funding_observability.py` BORRADO. `funding_context.py` (575 líneas) lo reemplaza: librería + CLI dual-command (refresh-cache + enrich).
+- Data model 11 columnas: 3 entry (existentes) + 3 exit (nuevas) + 5 evolution (nuevas) + entry_exit_pattern (9 combos derivado).
+- Cache CSV-per-symbol (parquet descartado por ausencia pyarrow VPS).
+- Tests 19/19 PASS.
+- Primera ejecución N=50: Section 1 cross-check Bloque 2 bit-idéntico; Section 2 exit contrarian pierde p=0.0162 (soporta candidato v2.6-exit); Section 3 patterns 0 crowd flips (dominado por `->same`); Section 4 Spearman ρ(n_bars_contrarian, pnl_pct) = -0.3172 **p=0.0205**.
+- §13.3 **v2.6-exit filter candidato** nuevo EN_ESPERA disparo N≥150 (cerrar contrarian losing).
+
+**Micro-item 1 — deploy_boundaries.json actualizado**:
+- Añadidos v2.4.4 (2026-04-21T18:22:02Z, deploy VPS inferido de git commit 4fe5e87 @ 18:40 UTC CEST) y v2.4.5 (2026-04-22T09:46:10Z, ground truth `systemctl Active since`).
+- 180/180 tests PASS (pytest discovery). Cero regresión arquitectónica.
+- Source notes expandidas con origen de cada timestamp.
+
+**Micro-item 2 — engine_state.json investigación preliminar**:
+- Reconocimiento inicio sesión reportó `"positions": {}` vacío pese a 5 posiciones abiertas → sospecha de bug.
+- Diagnóstico: mi query inicial usaba `d.get("positions", {})` que retorna **default vacío cuando la key NO EXISTE**, confundiendo ausencia con vacuidad.
+- Inspección real: engine_state.json tiene keys `{saved_at, cycle_count, start_time, peak_balance, current_balance, dd_multiplier, circuit_breaker_active, symbols, dry_run_positions}`. **No existe** la key `positions`.
+- `symbols` contiene 45 entries (una por símbolo trackeado) con 5 de ellas con `position != 0` — consistente con las 5 posiciones abiertas. Todos los campos relevantes persistidos: position, entry_price, sl_level, stop_order_id, entry_timestamp_ms, bars_since_entry, etc.
+- `_save_state` (live_engine.py L1159-1211) escribe key `symbols`; `_load_state` (L1213+) lee key `symbols`. Zero código lee `state["positions"]` (grep exhaustivo confirmado).
+- **Clasificación: CATEGORÍA 1 — Alternate representation**. Sin bug. Mi query inicial fue ambigua por uso de `dict.get` con default silencioso.
+- Acción correctiva: ninguna operacional. Documental: advertir en §13.3 para que futuras inspecciones usen `key in d` antes de `d.get` con default silencioso.
+
+**Balance items §13.3 sesión**:
+- RESUELTOS: cooldown asimétrico, observabilidad funding entry-only (Bloque 2), observabilidad funding bar-a-bar (Bloque 2 ampliado).
+- REFUTADOS: v2.6 Funding Filter contrarian §9.3 (no "archivado por falta evidencia" — "refutado por evidencia contraria").
+- NUEVOS EN_ESPERA: v2.6-inv entry filter candidato (disparo N≥100), v2.6-exit filter candidato (disparo N≥150), observación engine_state.json nomenclature (cosmética).
+- Items §12 nuevos: L33 "validar hipótesis roadmap empíricamente".
+
+**Estado operacional**:
+- Bot v2.4.5 en VPS Tokyo. 5 posiciones abiertas (ENA SHORT, RENDER LONG, SEI LONG, SAND LONG, THETA LONG).
+- Balance 296.40 USDT; peak 298.39; DD -0.67%.
+- Sin deploy hoy en ninguno de los 3 bloques + 2 micro-items. Fidelidad 2 invariante en toda la sesión.
+- Pipeline pre-reciclaje arquitectónicamente **completo**: todos los items bloqueantes §13.3 resueltos; 3 items candidatos EN_ESPERA con disparadores empíricos claros (N≥50 audit, N≥100 v2.6-inv, N≥150 v2.6-exit).
+
+**Plan próxima sesión**:
+- N post-v2.4.4 proyección: ≥25 en ~12h, ≥40 en ~33h, ≥50 en ~48h (ritmo observado 0.7 trades/h).
+- Trigger natural: N≥40 post-v2.4.4 (Criterio B de A.1 deep-dive) permite análisis direccional sólido.
+- Analyzer enriquecido `funding_context.py` listo para ejecutar sin retrabajo cuando N suficiente.
+- Items candidatos v2.6-inv (~2026-05-01) y v2.6-exit (~2026-05-10) esperables según densidad.
+- Criterio §13.3 "política adelantar reciclaje" sigue EN_ESPERA, ahora evaluable con data más rica.
+
+Cierre: permanente. Sesión 2026-04-22 cerrada con densidad completa documentada.
+
+---
 
 **[MEJORA] [IMPLEMENTADO] Observabilidad funding bar-a-bar — integración permanente + 2 candidatos derivados — 2026-04-22 (post-Bloque 2)**
 
