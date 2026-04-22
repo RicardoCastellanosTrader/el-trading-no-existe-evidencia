@@ -1567,6 +1567,107 @@ Referencias: §13.3 items funding runtime + observabilidad 2026-04-23; §9.3 v2.
 
 ### 13.4 RESUELTO
 
+**[OBSERVACION] [RESUELTO] Evento unattended-upgrades restart automático + mitigación APT window — 2026-04-22**
+
+Contexto: 2026-04-22 06:40:38 UTC, `unattended-upgrades.service` (timer APT diario Ubuntu) aplicó security update `python3.12` (3.12.3-1ubuntu0.12 → 0.13) entre 06:40:31-37 UTC junto con upgrades de `libpython3.12*`, `libcap2*`, `libntfs-3g89t64`, `ntfs-3g`, `linux-aws` (kernel 6.17.0-1012 instalado pero no activo al momento). `needrestart` en modo automático (default APT hook Ubuntu) disparó stop+start de `trading-bot.service` (+ `fail2ban.service`) 1 segundo después del fin del upgrade de Python. Bot respondió con graceful shutdown, 5 posiciones con stops en BingX preservadas, reconcile post-restart 5/5 recuperó idénticas (RENDER/THETA/ONDO/APT/SEI long). Downtime real ~11s dentro de ventana inactiva entre ciclo 201 (06:00) y ciclo 202 (07:00). Cero ciclos perdidos — esta vez por suerte, no por diseño.
+
+Evidencia forense:
+- Journal systemd: `Deactivated successfully` (exit code 0, no crash).
+- engine.log: `Shutdown signal recibida` + `Deteniendo...` + `Bot detenido. 5 posiciones abiertas con stops.` (graceful path).
+- `/var/log/unattended-upgrades/unattended-upgrades.log` línea 06:39:46 UTC lista packages incluyendo `libpython3.12-stdlib` + `libpython3.12t64` + `python3.12*`.
+- `fail2ban.service` recibió mismo trato en misma ventana → patrón restart masivo de servicios Python-dependientes, no aislado al bot.
+
+Análisis de riesgo (motivación de la mitigación):
+- Probabilidad empírica: ~2 eventos/mes según security updates Ubuntu LTS que afectan libs Python compartidas.
+- Ventana de riesgo crítico: xx:59-xx:01 (cycle start). Si security update futuro dispara en esa ventana, bot perdería 1 ciclo — impacto: signals LONG/SHORT no ejecutadas, CLOSE signals no ejecutadas (overshoot stop brain), trailing stop on-close no actualizado.
+- Default Ubuntu: `apt-daily-upgrade.timer` `OnCalendar=*-*-* 6:00` + `RandomizedDelaySec=60m` → ventana nominal 06:00-07:00 UTC. Cycle start 06:59 cae dentro. Riesgo estructural no cero.
+
+Mitigación implementada (Fase 1, 2026-04-22 08:18 UTC): drop-in systemd en `/etc/systemd/system/apt-daily-upgrade.timer.d/override.conf`:
+```
+[Timer]
+OnCalendar=
+OnCalendar=*-*-* 0/1:15:00
+RandomizedDelaySec=30min
+```
+
+Efecto:
+- Schedule cada hora a `:15:00` + dispersión aleatoria 0-30min → disparo real en ventana `xx:15-xx:45 UTC`.
+- Equidistante de cycle starts (`xx:59:54`).
+- Ventana de riesgo crítico xx:59-xx:01 **eliminada por diseño**.
+- Reversible trivialmente con `rm /etc/systemd/system/apt-daily-upgrade.timer.d/override.conf` + `systemctl daemon-reload`.
+
+Observación sobre `Persistent=true` del unit base: tras `daemon-reload` post-drop-in, timer detectó que slot `:15` ya había pasado (08:18 UTC > 08:15 UTC) y disparó catchup inmediato a 08:18:08 UTC. Ejecución benigna (1 segundo, idempotente, sin paquetes pendientes, sin needrestart triggers). Stamp file `/var/lib/systemd/timers/stamp-apt-daily-upgrade.timer` actualizado. Próximos disparos normales en ventana objetivo. Post-reboot Fase 3: next scheduled 2026-04-22 09:36:17 UTC (confirmado dentro de ventana objetivo, drop-in persiste across reboot).
+
+Alternativas consideradas y descartadas:
+- `nrconf{blacklist}` en `/etc/needrestart/conf.d/` para excluir trading-bot del auto-restart: rechazado porque dejaría bot con libs Python viejas hasta reboot manual, riesgo de bugs de compatibilidad (signatures ABI puede cambiar entre patches libpython).
+- Desactivar `unattended-upgrades` global: rechazado por perder security updates automáticos del OS (superficie de ataque creciente sin supervisión humana — menos seguro que auto-restarts beneficiosos).
+- Configurar `Unattended-Upgrade::Automatic-Reboot "true"`: rechazado (reboots automáticos sin coordinación con estado del bot/posiciones, blast radius superior al actual).
+
+Cierre: Fase 1 ✓ completa. Timer recalculado post-catchup + post-reboot muestra NEXT dentro de ventana objetivo. Mitigación persiste across reboots.
+
+Referencias:
+- engine.log 2026-04-22 06:40:38-49 UTC (evento original + restart automático).
+- engine.log 2026-04-22 08:19:43-08:20:32 UTC (stop controlado Fase 3).
+- journalctl `trading-bot.service` en ventana incidente.
+- `/var/log/unattended-upgrades/unattended-upgrades.log` 2026-04-22 06:39-06:41.
+- `/etc/systemd/system/apt-daily-upgrade.timer.d/override.conf` (drop-in persistente).
+- `systemctl list-timers apt-daily-upgrade.timer` post-reboot.
+
+---
+
+**[MEJORA] [RESUELTO] Kernel Linux upgrade 6.17.0-1012-aws aplicado via reboot planificado — 2026-04-22**
+
+Contexto: tras unattended-upgrades del 2026-04-22 06:40 UTC, `/var/run/reboot-required` presente + `/var/run/reboot-required.pkgs` listaba `linux-image-6.17.0-1010-aws` y `linux-image-6.17.0-1012-aws` (dos versiones de kernel instaladas pero no activas; el VPS seguía corriendo `6.17.0-1009-aws` desde boot del 2026-04-08, un kernel upgrade anterior tampoco había sido activado via reboot). Ubuntu no reboota automáticamente (`Automatic-Reboot=false` default); kernel hubiera permanecido pendiente indefinidamente hasta intervención manual o reboot forzado AWS.
+
+Decisión 2026-04-22: aplicar reboot planificado en misma sesión para evitar acumular deuda. Razonamiento: siguientes security updates de kernel añadirían más versiones pendientes; eventualmente reboot forzado (AWS maintenance o evento operacional) activaría múltiples kernels simultáneamente con incremento de riesgo (más potencial regresiones a diagnosticar simultáneamente).
+
+Protocolo ejecutado:
+1. Prerequisito: mitigación APT window Fase 1 aplicada (ver item previo) → futuros upgrades caen en ventana segura.
+2. Verificar hora UTC en ventana xx:15-xx:45 antes de acción (hora inicio: 08:19:34 UTC) ✓.
+3. Graceful stop via `sudo systemctl stop trading-bot.service`: engine.log confirmó `Shutdown signal recibida` + `Bot detenido. 5 posiciones abiertas con stops. 203 ciclos ejecutados.` + `[ALERT] [STOP]` Telegram emitido.
+4. `sudo reboot` ejecutado 2026-04-22 ~08:19:47 UTC.
+5. Poll SSH reconexión: VPS online en 1 iteración (~40s desde reboot command) a 2026-04-22 08:20:25 UTC.
+6. Verificación post-boot:
+   - `uname -r` = `6.17.0-1012-aws` ✓ (kernel nuevo activo).
+   - `/var/run/reboot-required` ausente ✓.
+   - `trading-bot.service` active (running) since 2026-04-22 08:20:21 UTC, Main PID 614 (systemd auto-start via `enabled` preset funcionó como esperado).
+   - APT timer next fire 2026-04-22 09:36:17 UTC (dentro de ventana xx:15-xx:45, drop-in persiste across reboot).
+
+Smoke-A (post-arranque 08:20:27-32 UTC): ✓ PASS.
+- `[ENGINE] Arrancando en modo LIVE con 45 simbolos`.
+- `Balance USDT — total: 296.24` (consistente con pre-reboot 296.25 dentro de 1 cent, discrepancia normal por funding acumulado sub-minuto).
+- `Markets BingX cargados: 2887 simbolos` (vs 2879 pre-reboot; BingX listó 8 símbolos adicionales entre sesiones — cambio normal del exchange).
+- `Modelos cargados: 45 GMM, 45 specialist_configs` en 2.63s.
+- `Estado restaurado: 45 simbolos, ciclo #203` (continúa numeración pre-restart).
+- `5 posiciones sincronizadas desde exchange` (RENDER/THETA/ONDO/APT/SEI long — idénticas pre-stop).
+- Boot time total: 4.2s desde primer log a `[START]` alert.
+- `[ALERT] [START]` Telegram emitido.
+- 0 errores Python, 0 WARNINGs inesperados.
+
+Downtime medido (T_stop_complete=08:19:44 UTC a T_start_complete=08:20:32 UTC): **48 segundos** totales. Dentro de ventana inactiva (entre ciclo 203 cerrado a 08:00:07 y cycle 204 programado a 08:59:54). **Cero ciclos perdidos**.
+
+Smoke-B (primer cycle post-reboot, cycle #203 a 08:59:52-09:00:08 UTC): ✓ PASS.
+- Cycle duration: 15883ms (dentro de rango operacional 14-22s, sin degradación atribuible al kernel 1012 vs 1009).
+- 4 señales evaluadas: 1 ejecutada (SAND/USDT short, partial fill detectado y manejado por v2.3.8 B7 — filled=136.0 vs requested=136.19, stop dimensionado a filled), 3 descartadas por `low_confidence` (BNB/SUI/UNI).
+- 5 TS updates ejecutados como `TS_NOOP_V240` (v2.4.0) sobre las 5 posiciones preservadas (ONDO/APT/RENDER/SEI/THETA) — Fidelidad 2 TS operando normal post-kernel.
+- Balance estable 296.24 USDT.
+- 6 posiciones al cerrar el cycle (las 5 preservadas + SAND nueva).
+- 0 errores Python, 0 WARNINGs inesperados.
+- Comportamiento del bot kernel-agnóstico — ningún cambio observable vs operación pre-reboot. Cero regresiones detectables atribuibles al kernel upgrade.
+
+Nota sobre numeración cycles: el shutdown message pre-stop decía "203 ciclos ejecutados" (contador histórico incluyendo el cycle en progreso) mientras el último cycle completado era #202 a 08:00. El cycle post-reboot a 09:00 tomó #203 (continuación natural — el cycle #203 correspondía al slot horario 09:00 UTC ya fuera con reboot o sin él). Cero cycles perdidos en la sucesión.
+
+Cierre: kernel 6.17.0-1012-aws activo. Sin kernels pendientes. Próximos security updates de kernel entrarán en ciclo normal (aplicar + reboot cuando proceda). Deuda kernel saldada.
+
+Referencias:
+- `uname -r` pre-reboot: 6.17.0-1009-aws.
+- `uname -r` post-reboot: 6.17.0-1012-aws.
+- engine.log 2026-04-22 08:19:43-08:20:32 UTC.
+- `systemctl status trading-bot.service` post-boot.
+- Item previo §13.4 "Evento unattended-upgrades + mitigación APT window — 2026-04-22" (prerequisito).
+
+---
+
 **[RESUELTO] A34: Hipótesis timing_borderline en audit v5.1 + v5.2 — 2026-04-23**
 
 Contexto: §13.3 EN_ESPERA "Hipotesis timing_borderline en audit v5.1 — 2026-04-17". Item original describe añadir tolerancia ±1 vela para reclasificar falsos NONE por desajuste temporal mínimo.
