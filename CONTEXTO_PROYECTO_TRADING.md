@@ -1,6 +1,6 @@
 # Sistema de Trading Algorítmico — Contexto Completo del Proyecto
 
-**Última actualización:** 23 Abril 2026 CIERRE SESIÓN — **A.1 alpha residual deep-dive Criterio B** sobre N=26 post-v2.4.4 (primera ventana arquitectónicamente limpia post-fixes v2.4.4 size_usdt + v2.4.5 entry_timestamp_ms). Hipótesis slippage liberado **CONFIRMADA** (slippage/trade 7× vs Fase II.C contaminada, alpha_residual/trade mejora 19%). 3 hipótesis emergentes N=26 sometidas a stress-test cross-segmento cross-régimen N=98: **H1 short/long asimetría 12:1 REFUTADA** (S1 N=49 dirección opuesta), **H_strategy exits logic/structural 3.4× REFUTADA** (Welch N=98 p=0.086 dominado enteramente por S4), **H_new_3 residual contrarian ratio 24× REFUTADA** (cae a 2.16× con N=19/14 consistente con gap PnL). 3 refutaciones en una sesión evitaron creación de 3 items §13.3 activos con disparadores futuros. **§12 Lección 34 NUEVA**: "Hipótesis emergentes de análisis con ventana N<50 requieren validación multi-segmento antes de elevar a §13.3". Complementaria a L25+L29+L33. Updates §13.3 v2.6-inv + v2.6-exit con matización arquitectónica (efecto Bloque 2 concentrado S2+S3, no S4). 2 items §13.3 nuevos: pnl_recon tolerancia mal calibrada + cache funding extender a origen. Bot v2.4.5 operacional VPS Tokio. Fidelidad 2 invariante (sesión read-only). Pipeline pre-reciclaje: sobrecarga §13.3 REDUCIDA por 3 refutaciones. Disparadores maduros: v2.6-inv N≥100 (~2026-05-01), v2.6-exit N≥150 (~2026-05-10), audit N≥50 (~2026-04-26). **Mejora adicional**: `_run_verify_test` upgrade CLI parametrizable `--n-bars` + tolerance escalada §0.8 Nivel A/B automática (wrappers temporales obsoletos; item §13.3 EN_ESPERA 2026-04-22 RESUELTO). Smokes A/B/C PASS. **Inventario §13.3 Opción E**: 3 items cerrados (L2018 refutado por validación empírica propia aplicando L34 — hipótesis floor mal calibrado contraria a evidencia 42pct→58pct con floor más bajo; L1910 cerrado L27 parcial — analyzer v2.4.1 ya implementa detección `CANDIDATO EXCLUSION RECICLAJE` alert, tracking cross-sesiones integrado en L1398; nuevo item pnl_recon ratio 10pct demasiado estricto creado con hipótesis refinada ratio 25pct pendiente validación multi-segmento). L1916 mantiene EN_ESPERA con context update. 4ª refutación del día por stress-test — L34 consistente. **L1839 batch cp1252 RESUELTO**: 68 líneas runtime-critical en lab_historico (scope real 5x mayor al documentado "14"; pre-reciclaje cleared Windows cp1252). Smokes A+C diff 0.0000 — lógica invariante.
+**Última actualización:** 23 Abril 2026 CIERRE SESIÓN — **A.1 alpha residual deep-dive Criterio B** sobre N=26 post-v2.4.4 (primera ventana arquitectónicamente limpia post-fixes v2.4.4 size_usdt + v2.4.5 entry_timestamp_ms). Hipótesis slippage liberado **CONFIRMADA** (slippage/trade 7× vs Fase II.C contaminada, alpha_residual/trade mejora 19%). 3 hipótesis emergentes N=26 sometidas a stress-test cross-segmento cross-régimen N=98: **H1 short/long asimetría 12:1 REFUTADA** (S1 N=49 dirección opuesta), **H_strategy exits logic/structural 3.4× REFUTADA** (Welch N=98 p=0.086 dominado enteramente por S4), **H_new_3 residual contrarian ratio 24× REFUTADA** (cae a 2.16× con N=19/14 consistente con gap PnL). 3 refutaciones en una sesión evitaron creación de 3 items §13.3 activos con disparadores futuros. **§12 Lección 34 NUEVA**: "Hipótesis emergentes de análisis con ventana N<50 requieren validación multi-segmento antes de elevar a §13.3". Complementaria a L25+L29+L33. Updates §13.3 v2.6-inv + v2.6-exit con matización arquitectónica (efecto Bloque 2 concentrado S2+S3, no S4). 2 items §13.3 nuevos: pnl_recon tolerancia mal calibrada + cache funding extender a origen. Bot v2.4.5 operacional VPS Tokio. Fidelidad 2 invariante (sesión read-only). Pipeline pre-reciclaje: sobrecarga §13.3 REDUCIDA por 3 refutaciones. Disparadores maduros: v2.6-inv N≥100 (~2026-05-01), v2.6-exit N≥150 (~2026-05-10), audit N≥50 (~2026-04-26). **Mejora adicional**: `_run_verify_test` upgrade CLI parametrizable `--n-bars` + tolerance escalada §0.8 Nivel A/B automática (wrappers temporales obsoletos; item §13.3 EN_ESPERA 2026-04-22 RESUELTO). Smokes A/B/C PASS. **Inventario §13.3 Opción E**: 3 items cerrados (L2018 refutado por validación empírica propia aplicando L34 — hipótesis floor mal calibrado contraria a evidencia 42pct→58pct con floor más bajo; L1910 cerrado L27 parcial — analyzer v2.4.1 ya implementa detección `CANDIDATO EXCLUSION RECICLAJE` alert, tracking cross-sesiones integrado en L1398; nuevo item pnl_recon ratio 10pct demasiado estricto creado con hipótesis refinada ratio 25pct pendiente validación multi-segmento). L1916 mantiene EN_ESPERA con context update. 4ª refutación del día por stress-test — L34 consistente. **L1839 batch cp1252 RESUELTO**: 68 líneas runtime-critical en lab_historico (scope real 5x mayor al documentado "14"; pre-reciclaje cleared Windows cp1252). Smokes A+C diff 0.0000 — lógica invariante. **5ª refutación del día por L34 recursiva** aplicada a item propio "ratio 25%" creado en commit ab4f6f6 — prerequisite "validación multi-segmento N=98" inviable (bug histórico size_usdt=0 afecta 138/164 trades pre-v2.4.4). Nuevo item creado: "Investigación causa raíz pnl_recon gap" con scope explícito ~1-2h sesión dedicada (Opción D).
 **Versión actual:** v2.4.4 (sin bump — sesión 100% herramientas offline, sin deploy operacional)  
 **Autor del sistema:** Ricardo  
 **Plataforma:** Binance (datos) + BingX (ejecución), velas 1h  
@@ -1910,7 +1910,7 @@ Disparo: primer reporte v2.4 con WARNINGs de ecuación no cerrando en >5% de tra
 Cierre: causa raíz identificada y corregida, o ratio de WARNING <5% aceptado como ruido de floating point.
 Referencias: analyze_performance_attribution.py verificación al final de attribute_trade()
 
-**Update 2026-04-23**: item vinculado estrechamente con §13.3 "pnl_recon ratio 10pct demasiado estricto" (nuevo 2026-04-23) que identifica la causa raíz del ratio WARN elevado (92% en A.1 N=26). L2018 (merge intendido) fue refutado; este item permanece EN_ESPERA y se cerrará por merge natural cuando el item ratio refinado se implemente con validación multi-segmento. Spec original sin cambio: alert threshold 5% sigue siendo criterio; solo la fórmula tolerance requiere recalibración.
+**Update 2026-04-23 (revisado)**: item vinculado estrechamente con §13.3 "Investigación causa raíz pnl_recon gap analyzer" (nuevo 2026-04-23). El item sucesor "ratio 25%" fue refutado por prerequisite inviable (§13.4). L1916 permanece EN_ESPERA y se cerrará por merge natural cuando el item Opción D (investigación causa raíz) complete Fase D con gap típico reducido a <5% post-fix. Spec original sin cambio: alert threshold 5% sigue siendo criterio; lo que cambia es que el fix correcto no es recalibrar tolerance sino identificar y corregir el componente del gap dominante.
 
 **[MEJORA] [RESUELTO] Observabilidad funding per-trade (bar-a-bar + exit context) — IMPLEMENTADO 2026-04-22**
 
@@ -2014,32 +2014,80 @@ Ver §13.4 entrada "[MEJORA] [REFUTADO] L2018 pnl_recon tolerance hipótesis flo
 
 Resumen: hipótesis original "floor 0.01 USDT mal calibrado con balance bajo" refutada por validación empírica directa. Bajar floor 0.01→0.005 empeora ratio 42%→58%. Causa real: ratio 10% demasiado estricto para gap típico empírico 15-25%. Nuevo item creado con hipótesis refinada ratio 25% (ver §13.3 "[MEJORA] pnl_recon ratio 10pct demasiado estricto — hipótesis refinada post-L2018 — 2026-04-23").
 
-**[MEJORA] [EN_ESPERA] pnl_recon ratio 10pct demasiado estricto — hipótesis refinada post-L2018 — 2026-04-23**
+**[MEJORA] [REFUTADO] pnl_recon ratio 25% — prerequisito validación multi-segmento no-satisfacible — 2026-04-23**
 
-Contexto: L2018 refutado 2026-04-23 (ver §13.4) por hipótesis incorrecta (floor). Causa real identificada: ratio 10% en fórmula actual `max(0.01, 0.10 * abs(pnl_real))` es demasiado estricto para el gap típico empírico de reconstrucción de precios (p50 21%, p75 19%, p90 15% sobre N=26).
+Ver §13.4 entrada "[MEJORA] [REFUTADO] Item pnl_recon ratio 25% refutado por prerequisito inviable + nuevo item Opción D investigación causa raíz — 2026-04-23".
 
-Gap no es bug — proviene de precision rounding CSV (4-6 decimales) + size_usdt BingX notional vs teórico + COMMISSION_RATE estimation vs fees reales. Validación per-componente sigue conceptualmente correcta (§13.2 DECISION ACTIVO preservada) pero el ratio necesita recalibrarse al gap real observado.
+Resumen: prerequisito "validación multi-segmento N=98" del item era inviable por bug histórico size_usdt=0 (§2.4 v2.4.4, afecta ~138/164 trades pre-v2.4.4). Solo S4 N=24 testeable — "multi-segmento" renombrado de single-segment. Aplicación L34 recursiva: item propio refutado al no cumplir criterio elevación multi-segmento de su propia lección invocada. 5ª refutación del día por stress-test. Item reemplazado por nuevo §13.3 "Investigación causa raíz pnl_recon gap" con scope explícito ~1-2h data-independent.
 
-Hipótesis refinada: cambiar ratio 10% → 25% preserva el gate defensivo contra bugs groseros (errores >25% son anomalías reales: signo invertido, componente missing, size × 2) mientras permite trades típicos pasar sin falso positivo.
+**[MEJORA] [EN_ESPERA] Investigación causa raíz pnl_recon gap analyzer — 2026-04-23**
 
-Fórmula propuesta: `tolerance = max(0.005, 0.25 * abs(pnl_usdt))`
+Contexto: síntoma 92% trades con `pnl_recon_gap > tolerance` sobre A.1 N=26 identificado 2026-04-23. Hipótesis "floor mal calibrado" (L2018) refutada empíricamente (bajar floor empeora ratio). Hipótesis "ratio 25% cross-segmento" (item sucesor) refutada por prerequisite inviable (§13.4 2026-04-23). Síntoma persiste.
 
-Caveat crítico — prerequisito antes de implementar: validación multi-segmento (aplicar §12 L34 proactivamente). El ratio 25% calibrado sobre N=26 post-v2.4.4 S4 podría no aplicar a otros segmentos con régimen o características trade distintas. Antes de implementar:
-1. Re-ejecutar distribución gap/|pnl| sobre N=98 multi-segmento (dataset ya enriched de Fase 2 H1 sesión 2026-04-23).
-2. Verificar si p75 gap/|pnl| estabiliza ~19-25% cross-segmento.
-3. Si sí: implementar ratio 25% con confianza.
-4. Si no: ratio cross-segmento-robusto requiere análisis más profundo (posible Opción C investigación causa raíz: rounding precios vs fees vs notional).
+Distribución gap empírica sobre S4 N=24 (única ventana testeable):
+- p50 gap/|pnl| = 21%
+- p75 = 19%
+- p90 = 15%
+- p99 = 11%
 
-Scope implementación (post-validación multi-segmento): ~30 min código + tests en analyze_performance_attribution.py.
+Gap típico 15-25% no es calibrable con tolerance arbitraria de forma robusta. Requiere identificar qué componente lo genera antes de aplicar fix sostenible.
 
-Impacto esperado: ratio fail 42-92% (según fuente medición) → <15% en régimen típico. Alert L1916 threshold 5% se vuelve significativo (no saturado por falsos positivos).
+**Hipótesis candidatas componentes del gap**:
 
-Dependencia:
-- §13.3 L1916 mantenido EN_ESPERA — cuando este item se cierre con fix aplicado, L1916 puede cerrarse por merge natural (mismo síntoma).
+1. **Precision rounding CSV**: entry_price y exit_price redondeados a 4-6 decimales en CSV vs precision BingX mayor. `(exit_price - entry_price) * contracts` amplifica rounding linearmente con contracts. Magnitud estimada: ~0.1-1% sobre notional.
 
-Disparo: próxima sesión con tiempo disponible + validación multi-segmento sobre N=98 dataset existente.
-Cierre: ratio recalibrado + ratio fail <15% post-implementación + L1916 cerrado por merge.
-Referencias: §13.4 L2018 refutación 2026-04-23, §13.3 L1916 2026-04-16, §13.2 DECISION consistency check no tautológico, §12 L34 (aplicada preventivamente a este item).
+2. **Fees estimation divergente**: analyzer usa `COMMISSION_RATE * notional * 2` (round-trip). BingX real:
+   - Taker 0.05%, maker 0.02% — depende tipo orden. Analyzer asume constante.
+   - Funding incluido dentro del PnL reportado o fuera — interpretación ambigua.
+   - BNB discount aplicado o no según configuración cuenta.
+   Magnitud estimada: ~0.05-0.2% sobre notional.
+
+3. **Notional definition mismatch**:
+   - `size_usdt` BingX-reportado = `filled_contracts * mark_price_at_fill`.
+   - Recomputed = `requested_contracts * CSV_entry_price` puede diferir por slippage bid-ask + delta mark vs fill price.
+   Magnitud estimada: ~0.1-5% dependiendo volatilidad fill.
+
+4. **Size_usdt pre-v2.4.4 bug colateral**: aunque v2.4.4 fix aplica size_usdt correcto a trades futuros, tal vez la lógica BingX-reporting interna usaba otro campo del response que también cambió post-v2.4.4. Requiere validación sobre trades v2.4.4 exactos.
+
+**Scope investigación propuesto** (~1-2h sesión dedicada):
+
+1. **Fase A — análisis componente por componente** (~30 min): Sobre S4 N=24 dataset actual, descomponer gap en:
+   - gap_precision: recomputar pnl_recon con precision extendida (decimales originales BingX via API position.info si disponible). Diferencia vs CSV-redondeado estima precision_rounding component.
+   - gap_fees: comparar `COMMISSION_RATE * notional * 2` con BingX fee_schedule por trade (GET /api/v1/account/commission). Diferencia estima fees_divergence.
+   - gap_notional: comparar size_usdt (BingX) con filled_contracts * entry_price (recomputed). Diferencia estima notional_mismatch.
+
+2. **Fase B — raw BingX API verification** (~30 min): Para 3-5 trades S4 muestra, consultar BingX historial completo (GET /api/v1/trade/fills) y verificar:
+   - Precio exacto fill vs CSV.
+   - Commission real vs estimada.
+   - Size/notional tal como BingX lo reporta.
+   Identificar qué campo usar como "ground truth" para pnl_recon.
+
+3. **Fase C — implementación fix** (~30 min): Según findings Fase A+B:
+   - Si gap_precision dominante → leer precision original desde BingX.
+   - Si gap_fees dominante → integrar fee_schedule real.
+   - Si gap_notional dominante → usar size_usdt directamente sin recompute.
+   Fix resuelve fenómeno vs calibrar tolerance arbitraria.
+
+4. **Fase D — validación post-fix** (~15 min): Re-ejecutar analyzer sobre S4 con fix aplicado. Gap típico debe caer a <5% típico, <10% p95. Alert 5% threshold vuelve significativo (no saturado por falso positivo).
+
+**Disparador ejecución**: sesión dedicada ~1-2h. No requiere data nueva. No requiere N≥X trades. Puede ejecutarse en cualquier momento que haya tiempo suficiente contiguo.
+
+**Prerequisito implícito**: acceso BingX API para queries raw (fee_schedule, trade fills). Disponible desde VPS Tokio donde ya está configurado ccxt con keys.
+
+**Scope impacto**:
+- Analyzer offline únicamente. No toca brain/kernel/execution/live_engine.
+- Fidelidad 2 invariante por construcción.
+- Cierra 2 items §13.3 cuando Fase D PASA: este + L1916.
+
+**Cierre**: investigación completada + fix aplicado + gap típico <5% + L1916 cerrado por merge natural. Opcional: si Fase A revela múltiples componentes con magnitud similar, descomponer en sub-items §13.3 por componente para fixes secuenciales.
+
+**Referencias**:
+- §13.4 L2018 refutación 2026-04-23.
+- §13.4 item "ratio 25%" refutación 2026-04-23.
+- §13.3 L1916 2026-04-16 (vinculado, cierre diferido).
+- §13.2 DECISION "Consistency check por reconstrucción no tautológico" (preservada — fix resuelve fenómeno, no tapa síntoma).
+- §2.4 v2.4.4 size_usdt bug origen.
+- §12 L34 (scope del item verifica data soporta análisis a priori).
 
 **[MEJORA] [EN_ESPERA] Cache funding context extender a origen dataset para stress-tests multi-segmento — 2026-04-23**
 
@@ -2059,6 +2107,61 @@ Referencias: §13.4 Fase 3 2026-04-23, funding_context.py CLI refresh-cache, §1
 ---
 
 ### 13.4 RESUELTO
+
+**[MEJORA] [REFUTADO] Item pnl_recon ratio 25% refutado por prerequisito inviable + nuevo item Opción D investigación causa raíz — 2026-04-23**
+
+Contexto: item §13.3 creado esta misma sesión (2026-04-23 commit ab4f6f6) como hipótesis refinada post-refutación L2018. Proponía fix `tolerance = max(0.005, 0.25 * abs(pnl_usdt))` basado en gap distribución p50 21% p75 19% p90 15% sobre N=26 A.1. Prerequisite explícito: "validación multi-segmento N=98 antes de implementar".
+
+Stress-test validación multi-segmento reveló prerequisito inviable:
+
+**Diagnóstico dataset**:
+- CSV N=164 total. 104 analyzable. 26 con pnl_recon_gap populado.
+- **138/164 trades pre-v2.4.4 tienen size_usdt=0** por bug histórico (§2.4 v2.4.4 "134/135 afectados desde origen 2026-04-13").
+- contracts = size_usdt / entry_price = 0 → pnl_recon = 0 → pnl_recon_gap ≈ |pnl_usdt| trivialmente fuera de tolerance, pero por bug histórico, no señal real.
+
+**Distribución segmentos con pnl_recon computable**:
+
+| Segmento | N enriched | N con size_usdt>0 | Validable? |
+|---|---|---|---|
+| S1 pre-v2.3.11 | 49 | ~0 | NO |
+| S2 v2.3.11→v2.4.0 | 7 | ~0 | NO |
+| S3 v2.4.0→v2.4.4 | 18 | ~0 | NO |
+| S4 post-v2.4.4 | 24 | 24 | SÍ |
+
+Solo S4 (N=24) testeable — **subconjunto del mismo segmento origen** del A.1 N=26. "Multi-segmento N=98" del prerequisite era S4 N=24 renombrado, no validación cross-segmento real.
+
+**Aplicación L34 recursiva**: el item propio violaba el criterio de elevación L34 que invocaba como prerequisite. Misma trampa cognitiva que H1/H_strategy/H_new_3/L2018 refutados hoy — asumir viabilidad de validación sin verificar empíricamente que los datos la soporten.
+
+**Alternativas evaluadas**:
+
+1. **Opción A (recomputar contracts desde logs SIGNALS_EXECUTED)**: viable técnicamente pero introduce confounding — el gap sobre trades con contracts inferidos mezcla "gap real" con "ruido de inferencia". S1-S3 no apareables directamente con S4 que usa size_usdt BingX-reportado genuino. L34 aplicada a prerequisite advierte: validación con método que introduce el mismo tipo de ruido que se quiere medir es equivalente a no validar.
+
+2. **Opción B (validación S4 only con caveat)**: viola L34 explícitamente. N=24 single-segment es el patrón exacto prohibido.
+
+3. **Opción C (mantener item EN_ESPERA permanente)**: síntoma persiste saturando analyzer (92% WARN). Item dormido hasta post-reciclaje cuando S5 exista. Costo metodológico bajo, costo operacional medio.
+
+4. **Opción D (investigación causa raíz)**: cambia naturaleza del fix. En lugar de calibrar tolerance más permisiva, identifica qué componente domina el gap típico 19-25% (precision rounding CSV / fees BingX estimación / notional definition). Fix resuelve fenómeno vs tapar síntoma. Scope ~1-2h sesión dedicada data-independent (requiere comparar analyzer output con raw BingX API responses, no nueva data operacional).
+
+**Decisión aplicada**: Opción E (refutar item ratio 25% por prerequisite inviable) + Opción D (crear nuevo item scope explícito).
+
+**Nuevo item creado**: "[MEJORA] [EN_ESPERA] Investigación causa raíz pnl_recon gap analyzer — 2026-04-23" en §13.3 con disparador sesión dedicada ~1-2h.
+
+**L1916 NO cierra por merge**: depende del item refutado. Mantiene EN_ESPERA con context update apuntando a nuevo item Opción D. El merge path queda diferido hasta investigación causa raíz + fix subsecuente.
+
+**Conteo refutaciones día 2026-04-23**: 5 por stress-test L34 aplicado — H1, H_strategy, H_new_3, L2018, ratio 25%. 2 son refutaciones recursivas sobre items creados en la misma sesión (L2018, ratio 25%). Patrón inverso al sesgo confirmatorio: el stress test cuestiona igualmente creaciones propias.
+
+**Meta-observación**: L34 no solo aplica a hipótesis post-hoc N<50. Aplica también a prerequisitos de validación propuestos como specs de items §13.3. Patrón captable: "multi-segmento" como criterio requiere verificar empíricamente que los datos soportan la segmentación antes de escribirlo como requirement.
+
+Referencias:
+- §13.3 item "ratio 25%" (commit ab4f6f6 hoy) movido a REFUTADO.
+- §13.3 nuevo item "Investigación causa raíz pnl_recon gap" creado.
+- §13.3 L1916 2026-04-16 mantiene EN_ESPERA con context update.
+- §12 L34 (aplicada recursivamente 2ª vez hoy).
+- §2.4 v2.4.4 size_usdt fix (origen bug histórico).
+
+Cierre: permanente por prerequisite inviable.
+
+---
 
 **[MEJORA] [RESUELTO] L1839 batch fix cp1252 runtime-critical lab_historico — 2026-04-23**
 
