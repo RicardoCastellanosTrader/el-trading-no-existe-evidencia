@@ -1,6 +1,6 @@
 # Sistema de Trading Algorítmico — Contexto Completo del Proyecto
 
-**Última actualización:** 23 Abril 2026 CIERRE SESIÓN — **A.1 alpha residual deep-dive Criterio B** sobre N=26 post-v2.4.4 (primera ventana arquitectónicamente limpia post-fixes v2.4.4 size_usdt + v2.4.5 entry_timestamp_ms). Hipótesis slippage liberado **CONFIRMADA** (slippage/trade 7× vs Fase II.C contaminada, alpha_residual/trade mejora 19%). 3 hipótesis emergentes N=26 sometidas a stress-test cross-segmento cross-régimen N=98: **H1 short/long asimetría 12:1 REFUTADA** (S1 N=49 dirección opuesta), **H_strategy exits logic/structural 3.4× REFUTADA** (Welch N=98 p=0.086 dominado enteramente por S4), **H_new_3 residual contrarian ratio 24× REFUTADA** (cae a 2.16× con N=19/14 consistente con gap PnL). 3 refutaciones en una sesión evitaron creación de 3 items §13.3 activos con disparadores futuros. **§12 Lección 34 NUEVA**: "Hipótesis emergentes de análisis con ventana N<50 requieren validación multi-segmento antes de elevar a §13.3". Complementaria a L25+L29+L33. Updates §13.3 v2.6-inv + v2.6-exit con matización arquitectónica (efecto Bloque 2 concentrado S2+S3, no S4). 2 items §13.3 nuevos: pnl_recon tolerancia mal calibrada + cache funding extender a origen. Bot v2.4.5 operacional VPS Tokio. Fidelidad 2 invariante (sesión read-only). Pipeline pre-reciclaje: sobrecarga §13.3 REDUCIDA por 3 refutaciones. Disparadores maduros: v2.6-inv N≥100 (~2026-05-01), v2.6-exit N≥150 (~2026-05-10), audit N≥50 (~2026-04-26). **Mejora adicional**: `_run_verify_test` upgrade CLI parametrizable `--n-bars` + tolerance escalada §0.8 Nivel A/B automática (wrappers temporales obsoletos; item §13.3 EN_ESPERA 2026-04-22 RESUELTO). Smokes A/B/C PASS.
+**Última actualización:** 23 Abril 2026 CIERRE SESIÓN — **A.1 alpha residual deep-dive Criterio B** sobre N=26 post-v2.4.4 (primera ventana arquitectónicamente limpia post-fixes v2.4.4 size_usdt + v2.4.5 entry_timestamp_ms). Hipótesis slippage liberado **CONFIRMADA** (slippage/trade 7× vs Fase II.C contaminada, alpha_residual/trade mejora 19%). 3 hipótesis emergentes N=26 sometidas a stress-test cross-segmento cross-régimen N=98: **H1 short/long asimetría 12:1 REFUTADA** (S1 N=49 dirección opuesta), **H_strategy exits logic/structural 3.4× REFUTADA** (Welch N=98 p=0.086 dominado enteramente por S4), **H_new_3 residual contrarian ratio 24× REFUTADA** (cae a 2.16× con N=19/14 consistente con gap PnL). 3 refutaciones en una sesión evitaron creación de 3 items §13.3 activos con disparadores futuros. **§12 Lección 34 NUEVA**: "Hipótesis emergentes de análisis con ventana N<50 requieren validación multi-segmento antes de elevar a §13.3". Complementaria a L25+L29+L33. Updates §13.3 v2.6-inv + v2.6-exit con matización arquitectónica (efecto Bloque 2 concentrado S2+S3, no S4). 2 items §13.3 nuevos: pnl_recon tolerancia mal calibrada + cache funding extender a origen. Bot v2.4.5 operacional VPS Tokio. Fidelidad 2 invariante (sesión read-only). Pipeline pre-reciclaje: sobrecarga §13.3 REDUCIDA por 3 refutaciones. Disparadores maduros: v2.6-inv N≥100 (~2026-05-01), v2.6-exit N≥150 (~2026-05-10), audit N≥50 (~2026-04-26). **Mejora adicional**: `_run_verify_test` upgrade CLI parametrizable `--n-bars` + tolerance escalada §0.8 Nivel A/B automática (wrappers temporales obsoletos; item §13.3 EN_ESPERA 2026-04-22 RESUELTO). Smokes A/B/C PASS. **Inventario §13.3 Opción E**: 3 items cerrados (L2018 refutado por validación empírica propia aplicando L34 — hipótesis floor mal calibrado contraria a evidencia 42pct→58pct con floor más bajo; L1910 cerrado L27 parcial — analyzer v2.4.1 ya implementa detección `CANDIDATO EXCLUSION RECICLAJE` alert, tracking cross-sesiones integrado en L1398; nuevo item pnl_recon ratio 10pct demasiado estricto creado con hipótesis refinada ratio 25pct pendiente validación multi-segmento). L1916 mantiene EN_ESPERA con context update. 4ª refutación del día por stress-test — L34 consistente.
 **Versión actual:** v2.4.4 (sin bump — sesión 100% herramientas offline, sin deploy operacional)  
 **Autor del sistema:** Ricardo  
 **Plataforma:** Binance (datos) + BingX (ejecución), velas 1h  
@@ -1907,17 +1907,19 @@ Disparo: primer reporte v2.4 con flag NO_ESTIMABLE_RATIO_ALTO activo.
 Cierre: v2.3.3 desplegada, o decisión documentada de no instrumentar (ej: si ratio baja orgánicamente por capitalización).
 Referencias: portfolio_manager.py ~511-521 cálculo factores, live_engine.py ~485 log DISCARDED, analyze_performance_attribution.py fallback proxy Q7
 
-**[MEJORA] [EN_ESPERA] Detección automática de edge_erosion por cluster — 2026-04-16**
-Contexto: Analyzer v2.4 flaggea clusters con ratio expectancy_oos/pool <0.5 y N_obs≥3 como "edge_erosion_candidato". Si varios clusters aparecen flaggeados de forma persistente en reportes sucesivos, considerar adelantar reciclaje.
-Disparo: revisar cuando analyzer produzca primer reporte con ≥50 trades. Si no aparecen flags, dormir hasta segundo reporte.
-Cierre: si persisten flags en reportes sucesivos, decisión sobre reciclaje adelantado tomada.
-Referencias: analyze_performance_attribution.py sección por cluster, flag edge_erosion
+**[MEJORA] [RESUELTO L27 parcial] Detección automática de edge_erosion por cluster — 2026-04-16**
+
+Ver §13.4 entrada "[MEJORA] [RESUELTO L27 parcial] L1910 edge_erosion detection ya implementado por analyzer v2.4.1 — 2026-04-23".
+
+Resumen: detección automática ya implementada por analyzer v2.4.1 (alert `CANDIDATO EXCLUSION RECICLAJE`, primer caso empírico Fase II.C 2026-04-22 con ONDO C2 + SAND C1). Tracking cross-sesiones para criterio semi-automático 2+ reportes consecutivos integrado en §13.3 L1398 política adelantar reciclaje. Item cerrado como L27 parcial.
 
 **[MEJORA] [EN_ESPERA] Test de consistencia de ecuación de descomposición — 2026-04-16**
 Contexto: Analyzer v2.4 incluye verificación interna de que pnl_real ≈ suma de componentes con tolerancia 0.01 USDT por trade. Si algún trade falla, loguea WARNING. Si primera ejecución con N≥50 trades muestra WARNINGs frecuentes (>5% de trades), investigar emparejamiento trades↔logs o bugs en fórmulas.
 Disparo: primer reporte v2.4 con WARNINGs de ecuación no cerrando en >5% de trades.
 Cierre: causa raíz identificada y corregida, o ratio de WARNING <5% aceptado como ruido de floating point.
 Referencias: analyze_performance_attribution.py verificación al final de attribute_trade()
+
+**Update 2026-04-23**: item vinculado estrechamente con §13.3 "pnl_recon ratio 10pct demasiado estricto" (nuevo 2026-04-23) que identifica la causa raíz del ratio WARN elevado (92% en A.1 N=26). L2018 (merge intendido) fue refutado; este item permanece EN_ESPERA y se cerrará por merge natural cuando el item ratio refinado se implemente con validación multi-segmento. Spec original sin cambio: alert threshold 5% sigue siendo criterio; solo la fórmula tolerance requiere recalibración.
 
 **[MEJORA] [RESUELTO] Observabilidad funding per-trade (bar-a-bar + exit context) — IMPLEMENTADO 2026-04-22**
 
@@ -2015,21 +2017,38 @@ Disparo: solo reabrir esta decisión si evidencia empírica futura indica que fu
 Cierre: decisión estable. No se implementa funding como feature del GMM en ningún reciclaje (v3.0 o posteriores) salvo que este item explícitamente se reabra.
 Referencias: §13.3 items funding runtime + observabilidad 2026-04-23; §9.3 v2.6 funding rate como filtro (roadmap donde filtro runtime se materializa); §9.4 v3.0 Z_ATR (feature del GMM que SÍ se acepta para BTC, por naturaleza técnica de Z_ATR vs posicional de funding).
 
-**[MEJORA] [EN_ESPERA] Tolerancia pnl_recon analyzer v2.4.1 mal calibrada con balance bajo — 2026-04-23**
+**[MEJORA] [REFUTADO] Tolerancia pnl_recon analyzer — L2018 refutado por validación empírica 2026-04-23**
 
-Contexto: A.1 N=26 post-v2.4.4 (2026-04-23) reportó 24/26 (92%) trades con pnl_recon_gap > tolerance. Causa probable: tolerancia absoluta 0.01 USDT (analyzer v2.4.1 ultra review S3) mal dimensionada para balance ~296 USDT + saturación portfolio, que comprime |PnL/trade| frecuentemente por debajo de esa tolerancia en trades marginales. La fórmula S3 tiene fallback "10% de |pnl|" pero aparentemente no aplica efectivamente (92% failing indica regla dominante es la absoluta).
+Ver §13.4 entrada "[MEJORA] [REFUTADO] L2018 pnl_recon tolerance hipótesis floor mal calibrado — 2026-04-23".
 
-Impacto: falso positivo metodológico. El validador per-componente (no tautológico, §13.2 DECISION ACTIVO "Consistency check por reconstrucción de precios") sigue válido conceptualmente; solo la tolerancia dispara alert espurio en régimen de balance bajo.
+Resumen: hipótesis original "floor 0.01 USDT mal calibrado con balance bajo" refutada por validación empírica directa. Bajar floor 0.01→0.005 empeora ratio 42%→58%. Causa real: ratio 10% demasiado estricto para gap típico empírico 15-25%. Nuevo item creado con hipótesis refinada ratio 25% (ver §13.3 "[MEJORA] pnl_recon ratio 10pct demasiado estricto — hipótesis refinada post-L2018 — 2026-04-23").
 
-Fix propuesto:
-1. Verificar comportamiento fallback "10% de |pnl|" en analyze_performance_attribution.py attribute_trade sección C2.
-2. Ajustar a: max(0.005 USDT, 10% × |pnl_usdt|).
-3. Tolerancia efectiva no menor que ~1bp del notional del trade (aprox 0.005 USDT para notional 5 USDT floor).
+**[MEJORA] [EN_ESPERA] pnl_recon ratio 10pct demasiado estricto — hipótesis refinada post-L2018 — 2026-04-23**
 
-Scope: ~20 min refactor menor analyzer. No toca brain/execution.
-Disparo: próximo análisis A.1 N≥40 si ratio alert persiste ≥80%.
-Cierre: tolerancia recalibrada, ratio baja a <10% en trades normales.
-Referencias: analyze_performance_attribution.py attribute_trade C2, §13.2 DECISION "Consistency check por reconstrucción de precios", A.1 2026-04-23 reporte.
+Contexto: L2018 refutado 2026-04-23 (ver §13.4) por hipótesis incorrecta (floor). Causa real identificada: ratio 10% en fórmula actual `max(0.01, 0.10 * abs(pnl_real))` es demasiado estricto para el gap típico empírico de reconstrucción de precios (p50 21%, p75 19%, p90 15% sobre N=26).
+
+Gap no es bug — proviene de precision rounding CSV (4-6 decimales) + size_usdt BingX notional vs teórico + COMMISSION_RATE estimation vs fees reales. Validación per-componente sigue conceptualmente correcta (§13.2 DECISION ACTIVO preservada) pero el ratio necesita recalibrarse al gap real observado.
+
+Hipótesis refinada: cambiar ratio 10% → 25% preserva el gate defensivo contra bugs groseros (errores >25% son anomalías reales: signo invertido, componente missing, size × 2) mientras permite trades típicos pasar sin falso positivo.
+
+Fórmula propuesta: `tolerance = max(0.005, 0.25 * abs(pnl_usdt))`
+
+Caveat crítico — prerequisito antes de implementar: validación multi-segmento (aplicar §12 L34 proactivamente). El ratio 25% calibrado sobre N=26 post-v2.4.4 S4 podría no aplicar a otros segmentos con régimen o características trade distintas. Antes de implementar:
+1. Re-ejecutar distribución gap/|pnl| sobre N=98 multi-segmento (dataset ya enriched de Fase 2 H1 sesión 2026-04-23).
+2. Verificar si p75 gap/|pnl| estabiliza ~19-25% cross-segmento.
+3. Si sí: implementar ratio 25% con confianza.
+4. Si no: ratio cross-segmento-robusto requiere análisis más profundo (posible Opción C investigación causa raíz: rounding precios vs fees vs notional).
+
+Scope implementación (post-validación multi-segmento): ~30 min código + tests en analyze_performance_attribution.py.
+
+Impacto esperado: ratio fail 42-92% (según fuente medición) → <15% en régimen típico. Alert L1916 threshold 5% se vuelve significativo (no saturado por falsos positivos).
+
+Dependencia:
+- §13.3 L1916 mantenido EN_ESPERA — cuando este item se cierre con fix aplicado, L1916 puede cerrarse por merge natural (mismo síntoma).
+
+Disparo: próxima sesión con tiempo disponible + validación multi-segmento sobre N=98 dataset existente.
+Cierre: ratio recalibrado + ratio fail <15% post-implementación + L1916 cerrado por merge.
+Referencias: §13.4 L2018 refutación 2026-04-23, §13.3 L1916 2026-04-16, §13.2 DECISION consistency check no tautológico, §12 L34 (aplicada preventivamente a este item).
 
 **[MEJORA] [EN_ESPERA] Cache funding context extender a origen dataset para stress-tests multi-segmento — 2026-04-23**
 
@@ -2049,6 +2068,91 @@ Referencias: §13.4 Fase 3 2026-04-23, funding_context.py CLI refresh-cache, §1
 ---
 
 ### 13.4 RESUELTO
+
+**[MEJORA] [REFUTADO] L2018 pnl_recon tolerance hipótesis floor mal calibrado — 2026-04-23**
+
+Contexto: Item §13.3 L2018 creado esta misma sesión (2026-04-23) como consecuencia de A.1 N=26 que reportó 92% trades con `pnl_recon_gap > tolerance`. Hipótesis propuesta: "tolerancia absoluta 0.01 USDT mal dimensionada para balance ~296 USDT". Fix propuesto: `tolerance = max(0.005, 0.10 * abs(pnl_usdt))` (bajar floor de 0.01 a 0.005).
+
+Validación empírica directa (Fase 0-3 sesión 2026-04-23 post-creación del item):
+
+1. **Fórmula actual ya es `max(0.01, 0.10 * abs(pnl_real))`**, no absoluta pura como asumía L2018. Floor 0.01 + ratio 10% coexisten.
+
+2. **Efecto de bajar floor 0.01→0.005 sobre ratio trades failing (N=26 post-v2.4.4)**:
+
+| Variante | Floor 0.01 | Floor 0.005 | Floor 0.001 |
+|---|---|---|---|
+| Sin funding | 42.3% | 57.7% | 61.5% |
+| Con funding | 42.3% | 57.7% | 57.7% |
+
+Bajar el floor **empeora** el ratio. Hipótesis L2018 refutada empíricamente.
+
+3. **Diagnóstico causa raíz** (no documentado en L2018):
+
+Distribución gap / |pnl| (N=26):
+
+| Percentil | gap | |pnl| | gap/|pnl| |
+|---|---|---|---|
+| p50 | 0.022 | 0.104 | 21% |
+| p75 | 0.032 | 0.170 | 19% |
+| p90 | 0.033 | 0.227 | 15% |
+| p99 | 0.042 | 0.388 | 11% |
+
+El gap real es típicamente 15-25% del |pnl|, NO <10%. Causas probables no-bugs:
+- Rounding precios CSV (4-6 decimales vs BingX precision mayor).
+- size_usdt post-v2.4.4 = notional BingX reportado (puede diferir de "size × entry" teórico).
+- COMMISSION_RATE estimation vs fees reales BingX.
+- Funding mínimo no incluido en pnl_recon (N=26 funding casi cero; no es factor).
+
+4. **Nota discrepancia ratios reportados**: analyzer reportó 92% failing, recálculo directo da 42%. Diferencia probable: analyzer aplica tolerance post-funding, o usa handling distinto de entry/exit prices. Dirección cualitativa del efecto consistente: bajar floor NO mejora.
+
+Aplicación §12 L34: stress-test validación hipótesis propia antes de implementar fix. Refutamos L2018 por el mismo criterio que refutamos H1/H_strategy/H_new_3 hoy. Coherencia metodológica.
+
+Acciones derivadas:
+- L2018 cerrado por refutación (este §13.4 entry).
+- Nuevo item §13.3 creado: "pnl_recon ratio 10pct demasiado estricto" con hipótesis refinada ratio 25% basada en evidencia empírica cuantitativa (ver §13.3 entrada específica).
+- L1916 2026-04-16 "Test consistencia ecuación descomposición" MANTIENE estado EN_ESPERA (no se resuelve por merge como originalmente planificado; queda con contexto actualizado en su entrada).
+
+Dataset de referencia: attribution_per_trade_20260423_0827.csv (regenerable via analyzer sobre trade_history post-v2.4.4 N=26).
+
+Referencias:
+- §13.3 L2018 movido a REFUTADO (pointer a esta entrada).
+- §13.3 nuevo item "pnl_recon ratio refinado" creado 2026-04-23.
+- §13.3 L1916 mantiene EN_ESPERA con context update.
+- §13.2 DECISION ACTIVO "Consistency check por reconstrucción no tautológico" (preservada — no se toca).
+- §12 L34 (aplicada a hipótesis propia recién creada — 4ª refutación del día por stress-test).
+
+Cierre: permanente por refutación.
+
+---
+
+**[MEJORA] [RESUELTO L27 parcial] L1910 edge_erosion detection ya implementado por analyzer v2.4.1 — 2026-04-23**
+
+Contexto: §13.3 L1910 2026-04-16 solicitaba "Detección automática de edge_erosion por cluster. Si varios clusters flaggeados de forma persistente en reportes sucesivos, considerar adelantar reciclaje". Verificación inventario 2026-04-23 reveló L27 parcial:
+
+**Parte implementada (fix real ya existe)**:
+- analyzer v2.4.1 (release 2026-04-17 ultra review) emite alert `CANDIDATO EXCLUSION RECICLAJE` por cluster con ratio_oos/pool < 0.5 y N_obs ≥ 3.
+- Primer caso empírico reportado: 2026-04-22 Fase II.C (§13.4) — ONDO C2 + SAND C1 flagged como CANDIDATOS EXCLUSION.
+- 2026-04-23 A.1: 4 clusters flagged (APT C0, ONDO C2, SAND C1, SEI C0). Alert automático funciona.
+
+**Parte pendiente (integrada en otro item)**:
+- Tracking cross-sesiones para criterio semi-automático "persistentes 2+ reportes consecutivos" está integrado en §13.3 L1398 "Política adelantar reciclaje por criterio empírico — 2026-04-22".
+- L1398 establece el disparador semi-automático: "3+ clusters flagged candidato_exclusion sostenido en 2+ reportes consecutivos del analyzer (semanal)" → alerta + decisión Ricardo.
+
+Conclusión: la funcionalidad L1910 original está cubierta por la combinación analyzer v2.4.1 alert + L1398 política. Item cerrado como L27 parcial resuelto.
+
+Patrón de cierre sin código: ilustración de §12 L27 (items §13.3 obsoletos por reviews previos no documentados en §13.4). Update ultra review analyzer v2.4.1 aplicó el fix de detección; documentación §13.4 de 2026-04-17 mencionaba "edge_erosion flag" genéricamente sin cerrar L1910 explícitamente.
+
+Referencias:
+- analyze_performance_attribution.py sección detect_edge_erosion (función existente pre-L1910 close).
+- §13.3 L1398 "Política adelantar reciclaje" (tracking cross-sesiones).
+- §13.4 primer audit empírico 2026-04-21 (primer reporte con flag).
+- §13.4 Fase II.C 2026-04-22 (primer CANDIDATO EXCLUSION ONDO C2 + SAND C1).
+- §13.4 A.1 2026-04-23 (4 clusters flagged confirman robustez).
+- §12 L27 (pattern items §13.3 obsoletos por reviews).
+
+Cierre: permanente por L27 parcial resuelto.
+
+---
 
 **[MEJORA] [RESUELTO] _run_verify_test CLI parametrizable --n-bars + tolerance escalada §0.8 — 2026-04-23**
 
