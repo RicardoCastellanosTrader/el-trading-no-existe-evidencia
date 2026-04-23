@@ -57,3 +57,28 @@ def test_default_n_bars_backward_compat():
     sig = inspect.signature(_run_verify_test)
     assert sig.parameters["n_bars"].default == 1000
     assert sig.parameters["symbol"].default == "BTC/USDT"
+
+
+def test_data_path_default_none_backward_compat():
+    """Signature default data_path=None preserva comportamiento pre-I2 Bloque 2c."""
+    import inspect
+    sig = inspect.signature(_run_verify_test)
+    assert "data_path" in sig.parameters
+    assert sig.parameters["data_path"].default is None
+
+
+def test_data_path_missing_file_returns_failure(capsys):
+    """data_path inexistente retorna exit code 1 con mensaje informativo."""
+    exit_code = _run_verify_test("BTC/USDT", n_bars=100, data_path="/nonexistent/path.parquet")
+    assert exit_code == 1
+    captured = capsys.readouterr()
+    assert "No se encontro" in captured.out
+    assert "/nonexistent/path.parquet" in captured.out
+
+
+def test_data_path_override_print_custom_marker(capsys):
+    """data_path explícito imprime marcador CUSTOM (override activo)."""
+    exit_code = _run_verify_test("BTC/USDT", n_bars=100, data_path="/tmp/nope.parquet")
+    assert exit_code == 1
+    captured = capsys.readouterr()
+    assert "CUSTOM" in captured.out

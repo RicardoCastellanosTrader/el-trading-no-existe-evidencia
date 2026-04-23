@@ -2326,7 +2326,7 @@ _VERIFY_TOLERANCE_PNL_B_PCT = 15.0
 _VERIFY_TOLERANCE_PNL_B_FLOOR_PP = 0.1
 
 
-def _run_verify_test(symbol: str = 'BTC/USDT', n_bars: int = 1000) -> int:
+def _run_verify_test(symbol: str = 'BTC/USDT', n_bars: int = 1000, data_path: str = None) -> int:
     """Test de fidelidad brain↔kernel sobre N barras del símbolo (§0.8 protocolo).
 
     N<2000 → Nivel A (benchmark rápido, gate obligatorio todo deploy).
@@ -2338,6 +2338,10 @@ def _run_verify_test(symbol: str = 'BTC/USDT', n_bars: int = 1000) -> int:
     Args:
         symbol: símbolo a testear.
         n_bars: número de bars a procesar. Default 1000 (Nivel A baseline §0.8).
+        data_path: parquet path override (default data_cache productivo).
+                   Permite cargar data alternativa (ej. Binance Futures
+                   histórico) sin modificar data_cache/{SYMBOL}USDT_1h.parquet
+                   productivo. Tier 0 I2 Bloque 2c 2026-04-23.
 
     Returns:
         Exit code 0 si PASS, 1 si FAIL o datos insuficientes.
@@ -2351,10 +2355,14 @@ def _run_verify_test(symbol: str = 'BTC/USDT', n_bars: int = 1000) -> int:
     print(f"BRAIN ENGINE — Test de fidelidad vs kernel Numba [NIVEL {level}]")
     print("=" * 60)
 
-    sym_key = symbol.replace("/USDT", "").replace("/", "")
-    cache_path = os.path.join(_project_root, "data_cache", f"{sym_key}USDT_1h.parquet")
+    if data_path:
+        cache_path = data_path
+        print(f"  Data source: CUSTOM {cache_path}")
+    else:
+        sym_key = symbol.replace("/USDT", "").replace("/", "")
+        cache_path = os.path.join(_project_root, "data_cache", f"{sym_key}USDT_1h.parquet")
     if not os.path.exists(cache_path):
-        print(f"  No se encontro {cache_path}. Necesitas datos en data_cache/.")
+        print(f"  No se encontro {cache_path}. Necesitas datos en data_cache/ o pasar --data-path.")
         return 1
 
     df_full = pd.read_parquet(cache_path)
@@ -2667,6 +2675,14 @@ def main():
         help="Bars a procesar en --verify. Menor que 2000: Nivel A benchmark rapido. "
              "Mayor o igual que 2000: Nivel B deep smoke (drift baseline 7-9 pct esperable). Default 1000.",
     )
+    parser.add_argument(
+        "--data-path",
+        type=str,
+        default=None,
+        help="Parquet path override para --verify (default data_cache productivo). "
+             "Uso: cargar data alternativa (ej. Binance Futures histórico) sin "
+             "modificar parquet productivo. Tier 0 I2 Bloque 2c.",
+    )
     args = parser.parse_args()
 
     logging.basicConfig(
@@ -2676,7 +2692,7 @@ def main():
     )
 
     if args.verify:
-        exit_code = _run_verify_test(args.symbol, n_bars=args.n_bars)
+        exit_code = _run_verify_test(args.symbol, n_bars=args.n_bars, data_path=args.data_path)
         sys.exit(exit_code if exit_code is not None else 0)
     elif args.classify:
         _run_classify(args.classify)
