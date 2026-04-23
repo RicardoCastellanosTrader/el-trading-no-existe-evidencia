@@ -1,6 +1,6 @@
 # Sistema de Trading Algorítmico — Contexto Completo del Proyecto
 
-**Última actualización:** 23 Abril 2026 CIERRE SESIÓN — **A.1 alpha residual deep-dive Criterio B** sobre N=26 post-v2.4.4 (primera ventana arquitectónicamente limpia post-fixes v2.4.4 size_usdt + v2.4.5 entry_timestamp_ms). Hipótesis slippage liberado **CONFIRMADA** (slippage/trade 7× vs Fase II.C contaminada, alpha_residual/trade mejora 19%). 3 hipótesis emergentes N=26 sometidas a stress-test cross-segmento cross-régimen N=98: **H1 short/long asimetría 12:1 REFUTADA** (S1 N=49 dirección opuesta), **H_strategy exits logic/structural 3.4× REFUTADA** (Welch N=98 p=0.086 dominado enteramente por S4), **H_new_3 residual contrarian ratio 24× REFUTADA** (cae a 2.16× con N=19/14 consistente con gap PnL). 3 refutaciones en una sesión evitaron creación de 3 items §13.3 activos con disparadores futuros. **§12 Lección 34 NUEVA**: "Hipótesis emergentes de análisis con ventana N<50 requieren validación multi-segmento antes de elevar a §13.3". Complementaria a L25+L29+L33. Updates §13.3 v2.6-inv + v2.6-exit con matización arquitectónica (efecto Bloque 2 concentrado S2+S3, no S4). 2 items §13.3 nuevos: pnl_recon tolerancia mal calibrada + cache funding extender a origen. Bot v2.4.5 operacional VPS Tokio. Fidelidad 2 invariante (sesión read-only). Pipeline pre-reciclaje: sobrecarga §13.3 REDUCIDA por 3 refutaciones. Disparadores maduros: v2.6-inv N≥100 (~2026-05-01), v2.6-exit N≥150 (~2026-05-10), audit N≥50 (~2026-04-26). **Mejora adicional**: `_run_verify_test` upgrade CLI parametrizable `--n-bars` + tolerance escalada §0.8 Nivel A/B automática (wrappers temporales obsoletos; item §13.3 EN_ESPERA 2026-04-22 RESUELTO). Smokes A/B/C PASS. **Inventario §13.3 Opción E**: 3 items cerrados (L2018 refutado por validación empírica propia aplicando L34 — hipótesis floor mal calibrado contraria a evidencia 42pct→58pct con floor más bajo; L1910 cerrado L27 parcial — analyzer v2.4.1 ya implementa detección `CANDIDATO EXCLUSION RECICLAJE` alert, tracking cross-sesiones integrado en L1398; nuevo item pnl_recon ratio 10pct demasiado estricto creado con hipótesis refinada ratio 25pct pendiente validación multi-segmento). L1916 mantiene EN_ESPERA con context update. 4ª refutación del día por stress-test — L34 consistente.
+**Última actualización:** 23 Abril 2026 CIERRE SESIÓN — **A.1 alpha residual deep-dive Criterio B** sobre N=26 post-v2.4.4 (primera ventana arquitectónicamente limpia post-fixes v2.4.4 size_usdt + v2.4.5 entry_timestamp_ms). Hipótesis slippage liberado **CONFIRMADA** (slippage/trade 7× vs Fase II.C contaminada, alpha_residual/trade mejora 19%). 3 hipótesis emergentes N=26 sometidas a stress-test cross-segmento cross-régimen N=98: **H1 short/long asimetría 12:1 REFUTADA** (S1 N=49 dirección opuesta), **H_strategy exits logic/structural 3.4× REFUTADA** (Welch N=98 p=0.086 dominado enteramente por S4), **H_new_3 residual contrarian ratio 24× REFUTADA** (cae a 2.16× con N=19/14 consistente con gap PnL). 3 refutaciones en una sesión evitaron creación de 3 items §13.3 activos con disparadores futuros. **§12 Lección 34 NUEVA**: "Hipótesis emergentes de análisis con ventana N<50 requieren validación multi-segmento antes de elevar a §13.3". Complementaria a L25+L29+L33. Updates §13.3 v2.6-inv + v2.6-exit con matización arquitectónica (efecto Bloque 2 concentrado S2+S3, no S4). 2 items §13.3 nuevos: pnl_recon tolerancia mal calibrada + cache funding extender a origen. Bot v2.4.5 operacional VPS Tokio. Fidelidad 2 invariante (sesión read-only). Pipeline pre-reciclaje: sobrecarga §13.3 REDUCIDA por 3 refutaciones. Disparadores maduros: v2.6-inv N≥100 (~2026-05-01), v2.6-exit N≥150 (~2026-05-10), audit N≥50 (~2026-04-26). **Mejora adicional**: `_run_verify_test` upgrade CLI parametrizable `--n-bars` + tolerance escalada §0.8 Nivel A/B automática (wrappers temporales obsoletos; item §13.3 EN_ESPERA 2026-04-22 RESUELTO). Smokes A/B/C PASS. **Inventario §13.3 Opción E**: 3 items cerrados (L2018 refutado por validación empírica propia aplicando L34 — hipótesis floor mal calibrado contraria a evidencia 42pct→58pct con floor más bajo; L1910 cerrado L27 parcial — analyzer v2.4.1 ya implementa detección `CANDIDATO EXCLUSION RECICLAJE` alert, tracking cross-sesiones integrado en L1398; nuevo item pnl_recon ratio 10pct demasiado estricto creado con hipótesis refinada ratio 25pct pendiente validación multi-segmento). L1916 mantiene EN_ESPERA con context update. 4ª refutación del día por stress-test — L34 consistente. **L1839 batch cp1252 RESUELTO**: 68 líneas runtime-critical en lab_historico (scope real 5x mayor al documentado "14"; pre-reciclaje cleared Windows cp1252). Smokes A+C diff 0.0000 — lógica invariante.
 **Versión actual:** v2.4.4 (sin bump — sesión 100% herramientas offline, sin deploy operacional)  
 **Autor del sistema:** Ricardo  
 **Plataforma:** Binance (datos) + BingX (ejecución), velas 1h  
@@ -1836,20 +1836,11 @@ Disparo: al reciclaje julio con test diferencial completo pre/post, o si aparece
 Cierre: refactor aplicado con test diferencial verde, o decision documentada de mantener asimetria.
 Referencias: brain_engine.py compute_divergences linea 1171-1266, _evaluate_bar TF locals lineas 689-930 y 1031-1032, _evaluate_bar_mr MR directo lineas 1803-1823 y 1984-1992, Fase I v2.3.9 del 2026-04-19.
 
-**[MEJORA] [EN_ESPERA] Batch fix emojis cp1252 restantes en lab_historico_numba_v8_3.py — 2026-04-22**
-Contexto: durante aplicación de A27 (fix línea 996, sesión 2026-04-22) se detectaron 14 ocurrencias adicionales de emojis no-ASCII en `lab_historico_numba_v8_3.py` en paths que `_run_verify_test` NO ejecuta (pipeline master.py de procesamiento por símbolo + walk-forward).
-Líneas afectadas:
-- Error markers ❌: 482, 488, 1946, 1987, 2656, 2666.
-- Warning markers ⚠️: 484, 1891, 1897, 1933, 1951, 2073, 2269, 2296, 2302.
-- Completion markers ✅: 498, 1041, 1087, 1130, 2053, 2118, 2143, 2665, 2674.
-- Header markers 📊: 1002, 1118, 1941, 2275, 2292, 2293, 2299, 2663.
-- Calc markers ⚙️ restantes: 1042, 1089.
-- Fase start markers 🚀: 2045, 2108, 2135.
-- Comparison ✓/✗: 2515, 2527, 2538, 2623.
-Impacto operacional: cero (no afecta bot en producción ni `_run_verify_test`). Impacto latente: si se ejecuta master.py --recycle en Windows cp1252 sin redirección UTF-8, crash en alguna de estas líneas. Ricardo opera en Windows local.
-Disparo: cuando se ejecute un reciclaje desde Windows local, o si se añade CI Windows, o batch consolidación pre-reciclaje.
-Cierre: reemplazo ASCII (`[X]`, `[WARN]`, `[OK]`, `[CHART]`, `[CALC]`, `[START]`, `V`/`X`) en todas las líneas. Diff localizado, sin cambio funcional.
-Referencias: §13.4 entrada A27 2026-04-22.
+**[MEJORA] [RESUELTO] Batch fix emojis cp1252 restantes en lab_historico_numba_v8_3.py — 2026-04-22 → RESUELTO 2026-04-23**
+
+Ver §13.4 entrada "[MEJORA] [RESUELTO] L1839 batch fix cp1252 runtime-critical lab_historico — 2026-04-23".
+
+Resumen: scope real revelado por grep Python (420 chars no-ASCII en 188 líneas vs "14" documentado en §13.4 A27 por subestimación). Análisis separó runtime-critical (print/logger/f.write) de comments/docstrings. Aplicado fix solo en 68 líneas runtime-critical (mapping ASCII estándar brackets + flechas `->` + box drawings `-`). Comments/docstrings preservados (UTF-8 seguro Python 3). Smoke §0.8 Nivel A+C diff 0.0000 exacto — lógica invariante. master.py --recycle habilitado Windows cp1252.
 
 **[MEJORA] [EN_ESPERA] brain_engine: hidden divergence asimetría TF vs MR — 2026-04-17**
 Contexto: Ultra review S8. TF relee hid_inv del config_id para decidir interpretación (confía en WF haber seleccionado hid_inv=1 para compensar bug histórico). MR aplica pre-swap de bits 1↔3 antes de evaluar. Ambos producen resultado correcto SI los configs TF tienen hid_inv=1. VERIFICADO 2026-04-19 (C3 de Fase 1): 67 de 138 configs activos (48.5%) usan interpretación invertida (hid_inv=0 con div_type∈{2,3}): 9 configs pure HIDDEN only (BCH C2, IMX C2, LTC C2, TRX C0+C1, UNI C0, VET C1, XLM C2, XRP C2) + 58 configs BOTH mode. Símbolos con 3/3 clusters afectados: SOL, NEAR, AAVE, SUI. Escáner verificado: `div_type = (config_id >> 12) & 0x3`, `hid_inv = (config_id >> 25) & 0x1`.
@@ -2068,6 +2059,65 @@ Referencias: §13.4 Fase 3 2026-04-23, funding_context.py CLI refresh-cache, §1
 ---
 
 ### 13.4 RESUELTO
+
+**[MEJORA] [RESUELTO] L1839 batch fix cp1252 runtime-critical lab_historico — 2026-04-23**
+
+Contexto: §13.3 L1839 2026-04-22 solicitaba batch fix de "14 ocurrencias no-ASCII" en `lab_historico_numba_v8_3.py` en paths que `_run_verify_test` NO ejecuta (master.py pipeline + walk-forward). Prerequisito pre-reciclaje para habilitar `master.py --recycle` Windows cp1252 sin UnicodeEncodeError.
+
+Verificación empírica 2026-04-23 reveló **cifra real muy superior a documentada**: 420 chars no-ASCII en 188 líneas totales (incluyendo box drawings `─` 153, flechas `→` 45, em-dash `—` 22, emojis 66, acentos españoles 119, variation selectors 12). La cifra "14" del A27 era subestimación sustancial.
+
+**Sub-análisis por contexto runtime**:
+- print/log (critical): **70 chars cp1252-unsafe en 59 líneas**.
+- f.write + string assignments consumidas (critical): ~9 líneas adicionales.
+- comments/docstrings (no runtime): 30 chars en 20 líneas (preservados — Python 3 default UTF-8 reading).
+- "other" (inline trailing comments): 178 chars mostly `→` en comments de lógica bitwise (preservados).
+
+**Scope aplicado**: 68 líneas runtime-critical. Comments/docstrings/acentos españoles preservados. Chars cp1252-unsafe post-fix en runtime lines: **0**.
+
+**Mapping ASCII aplicado** (tabla estándar):
+- ⚙️ → [CALC]
+- ✅ → [OK]
+- ❌ → [ERROR]
+- ⚠️ → [WARN]
+- 📊 → [STATS]
+- 📈 → [CHART]
+- 📥 → [DOWN]
+- 📋 → [LIST]
+- 📅 → [DATE]
+- 📝 → [EDIT]
+- 💾 → [SAVE]
+- 🚀 → [START]
+- 🔬 → [RESEARCH]
+- 🔄 → [REFRESH]
+- 🏆 → [TOP]
+- 🧪 → [LAB]
+- 🛑 → [STOP]
+- 🆕 → [NEW]
+- ⬆️ → [UP]
+- → (U+2192) → ->
+- ─ (U+2500) → -
+- ✓ → V
+- ✗ → X
+
+Validación (Fidelidad 2 invariante por construcción — solo strings, sin lógica):
+- Smoke §0.8 Nivel A (BTC N=1000): diff 0.0000 exacto ✓ PASS.
+- Smoke §0.8 Nivel C (audit_mr_fidelity_sei): diff 0.0000 en 7 métricas ✓ PASS.
+- Nivel B no re-ejecutado (lab_historico no cambió lógica; redundante post-Nivel A).
+- Syntax check: `python -m py_compile lab_historico_numba_v8_3.py` → SYNTAX OK.
+
+Impacto: desbloquea `master.py --recycle` + pipeline pre-reciclaje en Windows cp1252 local (Ricardo). Prerequisito pre-reciclaje (julio o adelantado) cleared.
+
+Meta-observación: scope real 5× mayor al documentado en A27 (68 líneas vs 14). §12 L27-compatible ("documentación inventario inicial puede subestimar scope real"). Grep Python exhaustivo pre-fix identificó correctamente el scope antes de aplicar — evitó trabajo parcial que dejaría problema residual.
+
+Referencias:
+- §13.4 A27 2026-04-22 (fix ⚙️ L996 original + descubrimiento colateral).
+- §13.3 L1839 movido a RESUELTO (pointer a esta entrada).
+- lab_historico_numba_v8_3.py: 68 líneas runtime-critical modificadas.
+- §12 L30 (baseline drift arquitectónico — smoke Nivel A confirma lógica invariante).
+
+Cierre: permanente.
+
+---
 
 **[MEJORA] [REFUTADO] L2018 pnl_recon tolerance hipótesis floor mal calibrado — 2026-04-23**
 

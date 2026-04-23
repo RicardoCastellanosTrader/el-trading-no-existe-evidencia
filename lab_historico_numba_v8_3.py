@@ -454,7 +454,7 @@ exchange = ccxt.binance({'enableRateLimit': True})
 # ============================================
 
 def fetch_all_candles(symbol, timeframe, total_candles, max_retries=3):
-    print(f"   📥 Descargando {total_candles} velas de {symbol} ({timeframe})...")
+    print(f"   [DOWN] Descargando {total_candles} velas de {symbol} ({timeframe})...")
     
     all_candles = []
     limit_per_request = 1000
@@ -479,13 +479,13 @@ def fetch_all_candles(symbol, timeframe, total_candles, max_retries=3):
         except Exception as e:
             consecutive_errors += 1
             if consecutive_errors >= max_retries:
-                print(f"   ❌ Error tras {max_retries} reintentos: {e}")
+                print(f"   [ERROR] Error tras {max_retries} reintentos: {e}")
                 return None
-            print(f"   ⚠️ Error (reintento {consecutive_errors}/{max_retries}): {e}")
+            print(f"   [WARN] Error (reintento {consecutive_errors}/{max_retries}): {e}")
             time.sleep(2 * consecutive_errors)
     
     if len(all_candles) < 100:
-        print(f"   ❌ Solo se obtuvieron {len(all_candles)} velas")
+        print(f"   [ERROR] Solo se obtuvieron {len(all_candles)} velas")
         return None
     
     df = pd.DataFrame(all_candles, columns=['timestamp', 'open', 'high', 'low', 'close', 'volume'])
@@ -495,7 +495,7 @@ def fetch_all_candles(symbol, timeframe, total_candles, max_retries=3):
     if len(df) > total_candles:
         df = df.tail(total_candles).reset_index(drop=True)
     
-    print(f"   ✅ {len(df)} velas descargadas ({requests_made} requests)")
+    print(f"   [OK] {len(df)} velas descargadas ({requests_made} requests)")
     return df
 
 # ============================================
@@ -999,7 +999,7 @@ def precalculate_all_data(df_1h, preset=None, hyst_mult=0.0, symbol=None):
     slow_type, slow_len, slow_p1, slow_p2 = preset[4], preset[5], preset[6], preset[7]
     trend_type, trend_len, trend_p1, trend_p2 = preset[8], preset[9], preset[10], preset[11]
     
-    print(f"   📊 Fase 1: MAs")
+    print(f"   [STATS] Fase 1: MAs")
     print(f"      Fast: {fast_type}({fast_len}) | Slow: {slow_type}({slow_len}) | Trend: {trend_type}({trend_len}) | Hyst: {hyst_mult}×ATR({HYST_ATR_LEN})")
     
     df_1h_indexed = df_1h.set_index('timestamp')
@@ -1038,8 +1038,8 @@ def precalculate_all_data(df_1h, preset=None, hyst_mult=0.0, symbol=None):
     tf5_bull_resolved = np.where(np.isnan(ma_trend_arr), False, close_arr > ma_trend_arr)
     tf5_bear_resolved = np.where(np.isnan(ma_trend_arr), False, close_arr < ma_trend_arr)
     
-    print(f"   ✅ Fase 1 completada")
-    print(f"   ⚙️ Fase 2: Simulando forward testing (forming para TF2/TF3)...")
+    print(f"   [OK] Fase 1 completada")
+    print(f"   [CALC] Fase 2: Simulando forward testing (forming para TF2/TF3)...")
     
     filters_forming_arr = np.zeros(n, dtype=np.uint32)
     filters_resolved_arr = np.zeros(n, dtype=np.uint32)
@@ -1084,9 +1084,9 @@ def precalculate_all_data(df_1h, preset=None, hyst_mult=0.0, symbol=None):
         if bar_idx % 500 == 0:
             print(f"      Vela {bar_idx}/{n} pre-calculada...")
     
-    print(f"   ✅ Fase 2 completada")
+    print(f"   [OK] Fase 2 completada")
     
-    print(f"   ⚙️ Fase 3: Calculando divergencias (Pine-faithful)...")
+    print(f"   [CALC] Fase 3: Calculando divergencias (Pine-faithful)...")
     
     rsi_full = calc_rsi(df_1h['close'], DIV_RSI_LEN).values
     macd_line_full, macd_hist_full = calc_macd(df_1h['close'], DIV_MACD_FAST, DIV_MACD_SLOW, DIV_MACD_SIGNAL)
@@ -1115,7 +1115,7 @@ def precalculate_all_data(df_1h, preset=None, hyst_mult=0.0, symbol=None):
     )
     
     ind_names = ["RSI", "MACD_H", "MACD_L", "STOCH", "VWMACD", "CMF", "CCI", "MOM"]
-    print(f"   📊 Divergencias detectadas:")
+    print(f"   [STATS] Divergencias detectadas:")
     print(f"      {'Ind':<8} {'BullR':>6} {'BullH':>6} {'BearR':>6} {'BearH':>6}")
     total_hidden = 0
     for ii, name in enumerate(ind_names):
@@ -1127,7 +1127,7 @@ def precalculate_all_data(df_1h, preset=None, hyst_mult=0.0, symbol=None):
         print(f"      {name:<8} {br:>6} {bh:>6} {ber:>6} {beh:>6}")
     print(f"      Total hidden: {total_hidden}")
     
-    print(f"   ✅ Fase 3 completada")
+    print(f"   [OK] Fase 3 completada")
     
     return {
         'close': close_arr,
@@ -1888,13 +1888,13 @@ def _load_cluster_labels(symbol, df):
         from regime_features import compute_regime_features
         import joblib as _joblib
     except ImportError as e:
-        print(f"   ⚠️ Cannot load regime model: {e}")
+        print(f"   [WARN] Cannot load regime model: {e}")
         return None, 1
 
     sym_key = symbol.replace("/USDT", "").replace("/", "")
     model_path = os.path.join("regime_models", f"{sym_key}_regime.joblib")
     if not os.path.exists(model_path):
-        print(f"   ⚠️ Regime model not found: {model_path}")
+        print(f"   [WARN] Regime model not found: {model_path}")
         return None, 1
 
     try:
@@ -1926,11 +1926,11 @@ def _load_cluster_labels(symbol, df):
                 labels[idx] = pred[i]
 
         n_valid = int(np.sum(labels >= 0))
-        print(f"   🔬 Regime model loaded: k={n_clusters}, {n_valid}/{n_bars} bars labeled")
+        print(f"   [RESEARCH] Regime model loaded: k={n_clusters}, {n_valid}/{n_bars} bars labeled")
         return labels, n_clusters
 
     except Exception as e:
-        print(f"   ⚠️ Error loading regime model: {e}")
+        print(f"   [WARN] Error loading regime model: {e}")
         import traceback
         traceback.print_exc()
         return None, 1
@@ -1938,17 +1938,17 @@ def _load_cluster_labels(symbol, df):
 
 def process_symbol(symbol):
     print(f"\n{'='*70}")
-    print(f"📊 Procesando {symbol}")
+    print(f"[STATS] Procesando {symbol}")
     print(f"{'='*70}")
     
     df = fetch_all_candles(symbol, TIMEFRAME, TOTAL_CANDLES)
     if df is None or len(df) < 1000:
-        print(f"   ❌ Datos insuficientes para {symbol}")
+        print(f"   [ERROR] Datos insuficientes para {symbol}")
         return None
     
     zone_presets = SYMBOL_ZONE_PRESETS.get(symbol, [])
     if not zone_presets:
-        print(f"   ⚠️ Sin presets para {symbol}, saltando")
+        print(f"   [WARN] Sin presets para {symbol}, saltando")
         return None
     
     n_variants = len(zone_presets) * len(HYST_VALUES)
@@ -1961,7 +1961,7 @@ def process_symbol(symbol):
     if has_cluster_presets:
         cluster_labels, n_clusters_actual = _load_cluster_labels(symbol, df)
 
-    print(f"\n   🔄 {len(zone_presets)} presets × {len(HYST_VALUES)} histéresis = {n_variants} variantes")
+    print(f"\n   [REFRESH] {len(zone_presets)} presets × {len(HYST_VALUES)} histéresis = {n_variants} variantes")
 
     variant_idx = 0
     for p_idx, preset in enumerate(zone_presets):
@@ -1975,7 +1975,7 @@ def process_symbol(symbol):
         variant_label = f"{fast_type}({fast_len})/{slow_type}({slow_len})/{trend_type}_{hyst_tag}"
 
         print(f"\n   {'='*60}")
-        print(f"   🔄 Variante {variant_idx}/{n_variants}: {variant_label} (C{cluster_id})")
+        print(f"   [REFRESH] Variante {variant_idx}/{n_variants}: {variant_label} (C{cluster_id})")
         print(f"   {'='*60}")
 
         try:
@@ -1984,7 +1984,7 @@ def process_symbol(symbol):
                                           cluster_labels=cluster_labels if cluster_id >= 0 else None,
                                           n_clusters=n_clusters_actual)
         except Exception as e:
-            print(f"   ❌ Error en variante {variant_label}: {e}")
+            print(f"   [ERROR] Error en variante {variant_label}: {e}")
             import traceback
             traceback.print_exc()
             continue
@@ -2013,10 +2013,10 @@ def _process_one_variant(df, symbol, preset, hyst_mult, variant_idx, variant_lab
     bnh_pnl = (close_end - close_start) / close_start * 100
     bnh_years = (n_bars - 100) / 8760.0
     bnh_annual = bnh_pnl / bnh_years
-    print(f"\n   📈 Buy & Hold: {bnh_pnl:+.1f}% total ({bnh_annual:+.1f}%/año)")
+    print(f"\n   [CHART] Buy & Hold: {bnh_pnl:+.1f}% total ({bnh_annual:+.1f}%/año)")
     
     configs = generate_valid_configs()
-    print(f"   📋 {len(configs):,} configuraciones a evaluar")
+    print(f"   [LIST] {len(configs):,} configuraciones a evaluar")
     
     # SPLIT TEMPORAL
     split_bar = int(n_bars * TRAIN_RATIO)
@@ -2033,16 +2033,16 @@ def _process_one_variant(df, symbol, preset, hyst_mult, variant_idx, variant_lab
     bnh_train_annual = bnh_train / (train_bars / 8760.0)
     bnh_test_annual = bnh_test / (test_bars / 8760.0)
     
-    print(f"\n   📅 Split temporal:")
+    print(f"\n   [DATE] Split temporal:")
     print(f"      TRAIN: {train_bars} velas ({train_bars//24:.0f} días) | B&H: {bnh_train:+.1f}% ({bnh_train_annual:+.1f}%/año)")
-    print(f"             {train_start_ts.strftime('%Y-%m-%d')} → {split_ts.strftime('%Y-%m-%d')}")
+    print(f"             {train_start_ts.strftime('%Y-%m-%d')} -> {split_ts.strftime('%Y-%m-%d')}")
     print(f"      TEST:  {test_bars} velas ({test_bars//24:.0f} días) | B&H: {bnh_test:+.1f}% ({bnh_test_annual:+.1f}%/año)")
-    print(f"             {split_ts.strftime('%Y-%m-%d')} → {end_ts.strftime('%Y-%m-%d')}")
+    print(f"             {split_ts.strftime('%Y-%m-%d')} -> {end_ts.strftime('%Y-%m-%d')}")
     
     # ============================================
     # FASE 1: SIMULACIÓN TRAIN
     # ============================================
-    print(f"\n   🚀 Fase 1: Simulación TRAIN ({train_bars} velas)...")
+    print(f"\n   [START] Fase 1: Simulación TRAIN ({train_bars} velas)...")
     t0 = time.time()
     results_train, cl_pnl_tr, cl_trades_tr, cl_wins_tr, cl_maxdd_tr, cl_gp_tr, cl_gl_tr = \
         run_on_slice(configs, data, 0, split_bar,
@@ -2050,7 +2050,7 @@ def _process_one_variant(df, symbol, preset, hyst_mult, variant_idx, variant_lab
                      COMMISSION_ROUND_TRIP,
                      cluster_labels=cluster_labels, n_clusters=n_clusters)
     t_train = time.time() - t0
-    print(f"   ✅ Train completado en {t_train:.1f}s")
+    print(f"   [OK] Train completado en {t_train:.1f}s")
 
     pnl_tr = results_train[:, 0]
     trades_tr = results_train[:, 1]
@@ -2067,10 +2067,10 @@ def _process_one_variant(df, symbol, preset, hyst_mult, variant_idx, variant_lab
     # Filtrar: trades >= MIN, PnL > 0, PnL anualizado > B&H del train
     valid_train = (trades_tr >= MIN_TRADES_TRAIN) & (pnl_tr > 0) & (pnl_ann_tr > 0)
     n_valid_train = int(np.sum(valid_train))
-    print(f"   📊 Configs rentables con >= {MIN_TRADES_TRAIN} trades en train: {n_valid_train:,}")
+    print(f"   [STATS] Configs rentables con >= {MIN_TRADES_TRAIN} trades en train: {n_valid_train:,}")
     
     if n_valid_train == 0:
-        print(f"   ⚠️ Ninguna config supera filtros en train")
+        print(f"   [WARN] Ninguna config supera filtros en train")
         return None
     
     # Top N del train — SELECCIÓN MIXTA: score + cupo PF
@@ -2100,12 +2100,12 @@ def _process_one_variant(df, symbol, preset, hyst_mult, variant_idx, variant_lab
         sorted_by_score[:TOP_TRAIN].tolist() + pf_extras, dtype=np.int64)
     
     n_pf_extras = len(pf_extras)
-    print(f"   🏆 Top {TOP_TRAIN} por score + {n_pf_extras} cupo PF = {len(top_train_indices)} para validación test")
+    print(f"   [TOP] Top {TOP_TRAIN} por score + {n_pf_extras} cupo PF = {len(top_train_indices)} para validación test")
     
     # ============================================
     # FASE 2: SIMULACIÓN TEST
     # ============================================
-    print(f"\n   🚀 Fase 2: Simulación TEST ({test_bars} velas, {len(top_train_indices)} configs)...")
+    print(f"\n   [START] Fase 2: Simulación TEST ({test_bars} velas, {len(top_train_indices)} configs)...")
     t0 = time.time()
     
     top_configs = configs[top_train_indices]
@@ -2115,7 +2115,7 @@ def _process_one_variant(df, symbol, preset, hyst_mult, variant_idx, variant_lab
                      COMMISSION_ROUND_TRIP,
                      cluster_labels=cluster_labels, n_clusters=n_clusters)
     t_test = time.time() - t0
-    print(f"   ✅ Test completado en {t_test:.1f}s")
+    print(f"   [OK] Test completado en {t_test:.1f}s")
 
     pnl_te = results_test[:, 0]
     trades_te = results_test[:, 1]
@@ -2132,7 +2132,7 @@ def _process_one_variant(df, symbol, preset, hyst_mult, variant_idx, variant_lab
     # ============================================
     # FASE 3: SIMULACIÓN FULL
     # ============================================
-    print(f"\n   🚀 Fase 3: Simulación FULL ({n_bars} velas, {len(top_train_indices)} configs)...")
+    print(f"\n   [START] Fase 3: Simulación FULL ({n_bars} velas, {len(top_train_indices)} configs)...")
     t0 = time.time()
     results_full, cl_pnl_fu_all, cl_trades_fu_all, cl_wins_fu_all, cl_maxdd_fu_all, cl_gp_fu_all, cl_gl_fu_all = \
         run_on_slice(top_configs, data, 0, n_bars,
@@ -2140,7 +2140,7 @@ def _process_one_variant(df, symbol, preset, hyst_mult, variant_idx, variant_lab
                      COMMISSION_ROUND_TRIP,
                      cluster_labels=cluster_labels, n_clusters=n_clusters)
     t_full = time.time() - t0
-    print(f"   ✅ Full completado en {t_full:.1f}s")
+    print(f"   [OK] Full completado en {t_full:.1f}s")
 
     pnl_fu = results_full[:, 0]
     trades_fu = results_full[:, 1]
@@ -2160,7 +2160,7 @@ def _process_one_variant(df, symbol, preset, hyst_mult, variant_idx, variant_lab
     has_cl_metrics = cluster_id >= 0 and cluster_labels is not None and cluster_id < n_clusters
     if has_cl_metrics:
         k = cluster_id
-        print(f"   🔬 Specialist C{k}: using cluster-specific metrics for scoring")
+        print(f"   [RESEARCH] Specialist C{k}: using cluster-specific metrics for scoring")
 
         # Train (all configs)
         cl_pnl_tr_k = cl_pnl_tr[:, k]
@@ -2181,7 +2181,7 @@ def _process_one_variant(df, symbol, preset, hyst_mult, variant_idx, variant_lab
         # Recompute valid_train with cluster metrics
         valid_train = (cl_trades_tr_k >= MIN_TRADES_TRAIN) & (cl_pnl_tr_k > 0) & (cl_pnl_ann_tr > 0)
         n_valid_train_cl = int(np.sum(valid_train))
-        print(f"   🔬 C{k} train: {n_valid_train_cl} configs rentables (cluster metrics)")
+        print(f"   [RESEARCH] C{k} train: {n_valid_train_cl} configs rentables (cluster metrics)")
 
         # Rebuild top_train_indices with cluster scoring
         valid_indices_train = np.where(valid_train)[0]
@@ -2201,7 +2201,7 @@ def _process_one_variant(df, symbol, preset, hyst_mult, variant_idx, variant_lab
                         break
             top_train_indices = np.array(
                 sorted_by_score[:TOP_TRAIN].tolist() + pf_extras, dtype=np.int64)
-            print(f"   🔬 C{k}: {len(top_train_indices)} configs for test phase")
+            print(f"   [RESEARCH] C{k}: {len(top_train_indices)} configs for test phase")
 
             # Re-run test and full with new top_train_indices
             top_configs = configs[top_train_indices]
@@ -2266,13 +2266,13 @@ def _process_one_variant(df, symbol, preset, hyst_mult, variant_idx, variant_lab
             pf_fu = cl_pf_fu
             wr_fu = cl_wr_fu
         else:
-            print(f"   ⚠️ C{k}: no configs pass cluster train filter")
+            print(f"   [WARN] C{k}: no configs pass cluster train filter")
             return None
 
     # ============================================
     # FASE 4: RANKING v6.1
     # ============================================
-    print(f"\n   📊 Generando ranking v6.1...")
+    print(f"\n   [STATS] Generando ranking v6.1...")
     
     # Filtros duros en test
     test_years = test_bars / 8760.0
@@ -2289,17 +2289,17 @@ def _process_one_variant(df, symbol, preset, hyst_mult, variant_idx, variant_lab
         (maxdd_te <= MAX_DD_TEST)
     )
     n_valid_test = int(np.sum(valid_test))
-    print(f"   📊 Filtros test: trades>={MIN_TRADES_TEST}, PnL/año>={min_pnl_annual_test:.1f}% (dinámico), PF>={MIN_PF_TEST}, MaxDD<={MAX_DD_TEST}%")
-    print(f"   📊 Validadas en test: {n_valid_test} / {len(top_train_indices)}")
+    print(f"   [STATS] Filtros test: trades>={MIN_TRADES_TEST}, PnL/año>={min_pnl_annual_test:.1f}% (dinámico), PF>={MIN_PF_TEST}, MaxDD<={MAX_DD_TEST}%")
+    print(f"   [STATS] Validadas en test: {n_valid_test} / {len(top_train_indices)}")
     
     if n_valid_test == 0:
-        print(f"   ⚠️ Ninguna config supera filtros duros — relajando PnL a >0 y PF a >1.1")
+        print(f"   [WARN] Ninguna config supera filtros duros — relajando PnL a >0 y PF a >1.1")
         valid_test = (trades_te >= MIN_TRADES_TEST) & (pnl_te > 0) & (pf_te >= 1.1)
         n_valid_test = int(np.sum(valid_test))
-        print(f"   📊 Configs con filtros relajados: {n_valid_test}")
+        print(f"   [STATS] Configs con filtros relajados: {n_valid_test}")
     
     if n_valid_test == 0:
-        print(f"   ⚠️ Ninguna config rentable en test")
+        print(f"   [WARN] Ninguna config rentable en test")
         combined_score = score_tr[top_train_indices]
         valid_combined = np.ones(len(top_train_indices), dtype=bool)
         robustness = np.zeros(len(top_train_indices))
@@ -2363,7 +2363,7 @@ def _process_one_variant(df, symbol, preset, hyst_mult, variant_idx, variant_lab
     
     n_deduped = len(sorted_final) - len(deduped_final) 
     if n_deduped > 0:
-        print(f"   🔄 Dedup: {n_deduped} configs duplicadas eliminadas (cancel_tf sin efecto)")
+        print(f"   [REFRESH] Dedup: {n_deduped} configs duplicadas eliminadas (cancel_tf sin efecto)")
     top_final = deduped_final
     
     # ============================================
@@ -2378,7 +2378,7 @@ def _process_one_variant(df, symbol, preset, hyst_mult, variant_idx, variant_lab
     
     csv_file = f"{output_dir}/full_{symbol_clean}_v{variant_idx:02d}_{hyst_tag}_C{cluster_id}.csv"
 
-    print(f"   📝 Escribiendo CSV con {len(top_train_indices)} configs...")
+    print(f"   [EDIT] Escribiendo CSV con {len(top_train_indices)} configs...")
 
     with open(csv_file, 'w', encoding='utf-8') as f:
         header = ("config_id,entry_tfs,n_entry_tfs,exit_tfs,cancel,sl_type,"
@@ -2443,7 +2443,7 @@ def _process_one_variant(df, symbol, preset, hyst_mult, variant_idx, variant_lab
                         f",{cl_pnl_fu_all[i, k]:.2f},{int(cl_trades_fu_all[i, k])},{cl_pf_fu_i:.3f},{cl_maxdd_fu_all[i, k]:.2f},{cl_wr_fu_i:.1f}")
             f.write("\n")
     
-    print(f"   💾 CSV exhaustivo guardado: {csv_file}")
+    print(f"   [SAVE] CSV exhaustivo guardado: {csv_file}")
     
     # ============================================
     # ESCRIBIR RANKING
@@ -2462,8 +2462,8 @@ def _process_one_variant(df, symbol, preset, hyst_mult, variant_idx, variant_lab
         f.write(f"Buy & Hold: {bnh_pnl:+.1f}% total ({bnh_annual:+.1f}%/año)\n")
         f.write(f"Split: TRAIN {train_bars} velas ({train_bars//24:.0f}d) | TEST {test_bars} velas ({test_bars//24:.0f}d)\n")
         f.write(f"B&H Train: {bnh_train:+.1f}% ({bnh_train_annual:+.1f}%/año) | B&H Test: {bnh_test:+.1f}% ({bnh_test_annual:+.1f}%/año)\n")
-        f.write(f"Período TRAIN: {train_start_ts.strftime('%Y-%m-%d')} → {split_ts.strftime('%Y-%m-%d')}\n")
-        f.write(f"Período TEST:  {split_ts.strftime('%Y-%m-%d')} → {end_ts.strftime('%Y-%m-%d')}\n")
+        f.write(f"Período TRAIN: {train_start_ts.strftime('%Y-%m-%d')} -> {split_ts.strftime('%Y-%m-%d')}\n")
+        f.write(f"Período TEST:  {split_ts.strftime('%Y-%m-%d')} -> {end_ts.strftime('%Y-%m-%d')}\n")
         f.write(f"Configs evaluadas: {len(configs):,}\n")
         f.write(f"Rentables en train (>= {MIN_TRADES_TRAIN} trades): {n_valid_train:,}\n")
         f.write(f"Validadas en test: {n_valid_test}\n")
@@ -2503,7 +2503,7 @@ def _process_one_variant(df, symbol, preset, hyst_mult, variant_idx, variant_lab
                 f.write(f" | Inds: {'+'.join(decoded['div_indicators'])}")
             f.write(f"\n")
             
-            f.write(f"      ─── TRAIN ({train_bars//24}d) ───────────────────────────────────────────────\n")
+            f.write(f"      --- TRAIN ({train_bars//24}d) -----------------------------------------------\n")
             f.write(f"      PnL: {pnl_tr[global_idx]:+.1f}% ({pnl_ann_tr[global_idx]:+.1f}%/año)")
             f.write(f" | Trades: {int(trades_tr[global_idx])} ({tpy_tr:.0f}/año)")
             f.write(f" | WR: {wr_tr[global_idx]:.0f}%")
@@ -2512,10 +2512,10 @@ def _process_one_variant(df, symbol, preset, hyst_mult, variant_idx, variant_lab
             f.write(f" | Activity: {act_f_tr[global_idx]:.2f}")
             f.write(f" | Cancels: {int(cancels_tr[global_idx])} ({cr_tr[global_idx]*100:.0f}%)")
             f.write(f" | Score: {score_tr[global_idx]:.1f}")
-            beats_tr = "✓ SUPERA B&H" if pnl_ann_tr[global_idx] > bnh_train_annual else "✗ NO supera B&H"
+            beats_tr = "V SUPERA B&H" if pnl_ann_tr[global_idx] > bnh_train_annual else "X NO supera B&H"
             f.write(f" | {beats_tr}\n")
             
-            f.write(f"      ─── TEST ({test_bars//24}d) ────────────────────────────────────────────────\n")
+            f.write(f"      --- TEST ({test_bars//24}d) ------------------------------------------------\n")
             f.write(f"      PnL: {pnl_te[local_idx]:+.1f}% ({pnl_ann_te[local_idx]:+.1f}%/año)")
             f.write(f" | Trades: {int(trades_te[local_idx])} ({tpy_te:.0f}/año)")
             f.write(f" | WR: {wr_te[local_idx]:.0f}%")
@@ -2524,10 +2524,10 @@ def _process_one_variant(df, symbol, preset, hyst_mult, variant_idx, variant_lab
             f.write(f" | Activity: {act_f_te[local_idx]:.2f}")
             f.write(f" | Cancels: {int(cancels_te[local_idx])} ({cr_te[local_idx]*100:.0f}%)")
             f.write(f" | Score: {score_te[local_idx]:.1f}")
-            beats_te = "✓ SUPERA B&H" if pnl_ann_te[local_idx] > bnh_test_annual else "✗ NO supera B&H"
+            beats_te = "V SUPERA B&H" if pnl_ann_te[local_idx] > bnh_test_annual else "X NO supera B&H"
             f.write(f" | {beats_te}\n")
             
-            f.write(f"      ─── FULL ({n_bars//24}d) ─────────────────────────────────────────────────\n")
+            f.write(f"      --- FULL ({n_bars//24}d) -------------------------------------------------\n")
             f.write(f"      PnL: {pnl_fu[local_idx]:+.1f}% ({pnl_ann_fu[local_idx]:+.1f}%/año)")
             f.write(f" | Trades: {int(trades_fu[local_idx])} ({tpy_fu:.0f}/año)")
             f.write(f" | WR: {wr_fu[local_idx]:.0f}%")
@@ -2535,7 +2535,7 @@ def _process_one_variant(df, symbol, preset, hyst_mult, variant_idx, variant_lab
             f.write(f"      PF: {pf_fu[local_idx]:.2f}")
             f.write(f" | Activity: {act_f_fu[local_idx]:.2f}")
             f.write(f" | Cancels: {int(cancels_fu[local_idx])} ({cr_fu[local_idx]*100:.0f}%)")
-            beats_fu = "✓ SUPERA B&H" if pnl_ann_fu[local_idx] > bnh_annual else "✗ NO supera B&H"
+            beats_fu = "V SUPERA B&H" if pnl_ann_fu[local_idx] > bnh_annual else "X NO supera B&H"
             f.write(f" | {beats_fu}\n")
             f.write(f"\n")
         
@@ -2603,11 +2603,11 @@ def _process_one_variant(df, symbol, preset, hyst_mult, variant_idx, variant_lab
                 f.write(f" | PF neto={pf_fu[local_idx]:.2f}")
                 f.write(f" | Robust={robustness[local_idx]:.2f}\n\n")
     
-    print(f"   💾 Ranking guardado: {ranking_file}")
+    print(f"   [SAVE] Ranking guardado: {ranking_file}")
     
     # Resumen en consola
-    print(f"\n   📈 B&H referencia: Train={bnh_train_annual:+.0f}%/año | Test={bnh_test_annual:+.0f}%/año | Full={bnh_annual:+.0f}%/año")
-    print(f"\n   🏆 TOP 5:")
+    print(f"\n   [CHART] B&H referencia: Train={bnh_train_annual:+.0f}%/año | Test={bnh_test_annual:+.0f}%/año | Full={bnh_annual:+.0f}%/año")
+    print(f"\n   [TOP] TOP 5:")
     for rank, local_idx in enumerate(top_final[:5], 1):
         global_idx = top_train_indices[local_idx]
         cfg = configs[global_idx]
@@ -2620,7 +2620,7 @@ def _process_one_variant(df, symbol, preset, hyst_mult, variant_idx, variant_lab
         tpy = tr_count / (n_bars / 8760.0)
         
         entry_str = '+'.join(decoded['entry_tfs']) if decoded['entry_tfs'] else 'ZONA'
-        consistent = "✓" if pnl_tr[global_idx] > 0 and pnl_te[local_idx] > 0 else "✗"
+        consistent = "V" if pnl_tr[global_idx] > 0 and pnl_te[local_idx] > 0 else "X"
         
         print(f"      #{rank} {entry_str:<15s} | Train={ann_tr:+.0f}%/yr Test={ann_te:+.0f}%/yr Full={ann_fu:+.0f}%/yr"
               f" | {tr_count}t ({tpy:.0f}/yr) | Score={combined_score[local_idx]:.0f} [{consistent}]")
@@ -2629,7 +2629,7 @@ def _process_one_variant(df, symbol, preset, hyst_mult, variant_idx, variant_lab
 
 def main():
     print("="*70)
-    print("🧪 LABORATORIO HISTÓRICO v8.3 - MULTI-PRESET + HISTÉRESIS (10k/50-50)")
+    print("[LAB] LABORATORIO HISTÓRICO v8.3 - MULTI-PRESET + HISTÉRESIS (10k/50-50)")
     print(f"   Comisiones: {COMMISSION_ROUND_TRIP}% round-trip por trade")
     print("   Score = PnL_net/año * DD_factor * PF^0.5 * Activity(log) * CancelFactor")
     print(f"   Presets: top 5 + agresivo por Lab LITE v5c")
@@ -2650,20 +2650,20 @@ def main():
             else:
                 failed.append((symbol, "Sin configs válidas"))
         except KeyboardInterrupt:
-            print("\n\n🛑 Detenido por usuario")
+            print("\n\n[STOP] Detenido por usuario")
             break
         except Exception as e:
-            print(f"\n❌ Error procesando {symbol}: {e}")
+            print(f"\n[ERROR] Error procesando {symbol}: {e}")
             failed.append((symbol, str(e)))
             import traceback
             traceback.print_exc()
             continue
     
     print(f"\n{'='*70}")
-    print("📊 RESUMEN FINAL")
+    print("[STATS] RESUMEN FINAL")
     print(f"{'='*70}")
-    print(f"   ✅ Procesados: {len(successful)}")
-    print(f"   ❌ Fallidos: {len(failed)}")
+    print(f"   [OK] Procesados: {len(successful)}")
+    print(f"   [ERROR] Fallidos: {len(failed)}")
     
     if failed:
         print(f"\n   Errores:")
@@ -2671,7 +2671,7 @@ def main():
             print(f"      - {sym}: {err[:50]}...")
     
     print(f"\n{'='*70}")
-    print("✅ COMPLETADO")
+    print("[OK] COMPLETADO")
     print(f"{'='*70}")
 
 if __name__ == "__main__":
