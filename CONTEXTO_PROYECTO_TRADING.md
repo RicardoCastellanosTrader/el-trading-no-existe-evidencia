@@ -2244,7 +2244,77 @@ Cierre: Análisis B ejecutado con N_trades ≥15 per config + veredicto cross-cl
 
 ### 13.4 RESUELTO
 
+**[AUDITORÍA] [RESUELTO] Harness bloque2c vs pipeline productivo — aclaración interpretativa Q1+W1+A+B.1 — 2026-04-23**
+
+Contexto: Ricardo planteó observaciones metodológicas fundamentales post-Fase B.1. Auditoría directa del harness versus pipeline productivo reveló setup simplificado en dimensiones materiales.
+
+**Fase 1 — Inspección match harness vs pipeline**:
+
+| Aspect | Harness Q1+W1+A+B.1 | Pipeline productivo `regime_walk_forward` | Match? |
+|---|---|---|---|
+| Kernel function | `run_on_slice` | `run_on_slice` | ✓ |
+| `precalculate_all_data` | Productivo | Productivo | ✓ |
+| Config decoding (bit-packed) | Internal kernel | Internal kernel | ✓ |
+| TF filters / zones / divergencias | Internal kernel | Internal kernel | ✓ |
+| Regime_change exits | Internal kernel | Internal kernel | ✓ |
+| Funding context | NO en kernel | NO en kernel | ✓ |
+| `start_bar` | 500 (Q1+W1+A) | 0 | DIFIERE |
+| `warmup` | 100 (default) | 100 (default) | ✓ |
+| `cluster_labels` Q1/W1/A | None (no clustering) | **Doubled 0-5** (train/fwd split) | **DIFIERE MATERIAL** |
+| `cluster_labels` Fase B.1 | 0-2 (single-clustering GMM match) | **Doubled 0-5** | DIFIERE |
+| `n_clusters` | 1 (Q1+W1+A) o 3 (B.1) | **6** (doubled) | DIFIERE |
+
+**Fase 2 — Smoke validation** BTC C2 pf_combined=4.679 JSON contra `data_cache/BTCUSDT_1h.parquet` (75.273 bars, 8.5 años — parquet usado por walk-forward):
+
+| Setup | PF obtenido | trades | Delta vs pf_combined=4.679 |
+|---|---:|---:|---:|
+| Pipeline-match (`start_bar=0, no cluster_labels`) | **0.992** | 1943 | **−78.8%** |
+| Harness-match (`start_bar=500, no cluster_labels`) | **0.993** | 1936 | **−78.8%** |
+
+**Hallazgo interpretativo crítico**:
+
+`pf_combined` del JSON NO es aggregate full dataset. Es **cluster-filtered + train/fwd-split aggregate**:
+- Pipeline productivo usa `cluster_labels=doubled` (0-5): labels 0-2 = train bars cluster k, labels 3-5 = fwd bars cluster k.
+- `pf_combined = weighted_mean(pf_tr, pf_fwd)` donde `pf_tr = cl_gp[cfg, k]/cl_gl[cfg, k]` (train), `pf_fwd = cl_gp[cfg, k+n]/cl_gl[cfg, k+n]` (fwd).
+- Ejecutar kernel sin cluster_labels sobre full dataset produce PF aggregate sobre TODOS los régimenes + TODAS las ventanas temporales → esperable ~1.0 porque specialists C2 están diseñados para operar SOLO en régimen C2 en ventana específica.
+
+**Delta −78.8% es TAUTOLÓGICO por diseño specialist**, NO defect del harness.
+
+**Consecuencia interpretativa sobre Q1+W1+A+B.1**:
+
+| Análisis | Medición válida | Sobre-generalización corregida |
+|---|---|---|
+| **Q1** "10/10 flagged PF_3y<1.5 sin filter" | Mide PF aggregate cross-régimen sin filter | NO evidencia "edge bajo operacional". Es tautológico — specialists diseñados para cluster-matched bars, aggregate sin filter esperado bajo. |
+| **W1** "INFLACIÓN UNIVERSAL 20/20 PF<1.5" | Mide mismo aggregate en control | NO evidencia "universal bias". Cross-universe sin filter productivo → PF~1 esperable por diseño. |
+| **Fase A** "rank no discrimina" | Mide rank vs PF aggregate sin filter | NO evidencia "walk-forward selection es noise puro". Rank no discrimina aggregate sin filter productivo — pero nunca fue diseñado para discriminar EN ESE SETUP. |
+| **Fase B.1** "caveat 28% filter restaura" | Mide con cluster filter simple (no doubled) | Parcial — cluster filter importa pero single-clustering ≠ pipeline doubled scheme. Subestima edge productivo. |
+
+**NO retracción commits** (397b3c7, affb8c0, d3b3703, 9459ebe) — documentan análisis válido en lo que mide. **SÍ aclaración interpretativa fundamental**: quantities medidas ≠ edge productivo.
+
+**§12 L34 14ª aplicación meta-extendida**:
+
+Previas 1-13: "validación empírica requiere scope estadísticamente viable".
+
+**Ampliación 14ª**: "validación empírica requiere **setup de testing que matches la arquitectura operacional del sistema** antes de conclusiones fuertes". Ejecutar harness con semantics distintas del pipeline productivo puede medir quantities legítimas pero NO evidencia del sistema operacional.
+
+**Ricardo identificó correctamente** la preocupación. "INFLACIÓN UNIVERSAL" era sobre-generalización. Sistema productivo puede tener edge real que harness simplificado oculta por medir "sin filter cross-régimen sin split".
+
+**Parte B pendiente**: smoke replicating pipeline productivo exacto con doubled_labels + train/fwd split sobre Binance 3y → responder metodológicamente la pregunta original.
+
+Referencias:
+- §13.4 Q1 (397b3c7), W1 (affb8c0), Fase A (d3b3703), Fase B.1 (9459ebe) — análisis con setup simplificado.
+- `lab_historico_numba_v8_3.py` L1849 `run_on_slice` signature.
+- `regime_walk_forward.py` L571-575 pipeline invocation con `cluster_labels=regime_labels, n_clusters=n_doubled`.
+- Parquet productivo `data_cache/BTCUSDT_1h.parquet` (75,273 bars, referencia smoke).
+- §12 L34 14ª aplicación.
+
+Cierre: permanente. Anotación interpretativa fundamental. NO retracción hard.
+
+---
+
 **[INVESTIGACION] [RESUELTO] Bloque 2c Fase B.1 cluster filter post-hoc — CASO PARCIAL (caveat metodológico explica ~28% de Fase A) — 2026-04-23**
+
+**[NOTA INTERPRETATIVA 2026-04-23]**: PF_filtered medido usa cluster_labels single-clustering (0-2), NO pipeline productivo doubled scheme (0-5 con train/fwd split). Mide quantity legítima pero NO equivale a edge productivo del sistema. Ver §13.4 "Auditoría harness bloque2c 2026-04-23" para aclaración completa.
 
 Contexto: Post Fase A "CASO γ INTERMEDIO" (commit d3b3703), hipótesis caveat metodológico propuesta: specialists productivos diseñados operar solo en cluster GMM específico, ejecutar sobre 3y aggregate sin filter dilute PF_3y. Verificación directa via kernel `run_on_slice` con `cluster_labels` parameter (expone per-cluster aggregates nativamente).
 
@@ -2326,6 +2396,8 @@ Cierre Fase B.1: permanente. Caveat metodológico explica ~28% de Fase A. Contin
 
 **[INVESTIGACION] [RESUELTO] Bloque 2c Fase A caracterización sesgo walk-forward — CASO γ INTERMEDIO (tendente β) — 2026-04-23**
 
+**[NOTA INTERPRETATIVA 2026-04-23]**: PF_3y medido usa kernel sin cluster_labels (no filter productivo). Measured quantity es aggregate cross-régimen 3y — NO equivale a edge productivo. "CASO γ tendente β" aplica SOBRE esa quantity, no sobre edge operacional. Ver §13.4 "Auditoría harness bloque2c 2026-04-23" aclaración.
+
 Contexto: Post Opción W1 INFLACIÓN UNIVERSAL (commit affb8c0), Fase A caracteriza cuantitativamente el sesgo mediante sampling 3 groups × 20 configs. Objetivo: determinar si top-1 correlaciona con PF_3y (Caso α noise aditivo, fix implementation) o si noise es puro (Caso β, fix espacio búsqueda) o combinado (Caso γ).
 
 **Dataset**:
@@ -2401,6 +2473,8 @@ Cierre Fase A: permanente. Fase B re-orientada documentada. Proceder Fase B en s
 ---
 
 **[VALIDACIÓN] [RESUELTO] Bloque 2c Opción W1 — control group flagged vs unflagged → INFLACIÓN UNIVERSAL — 2026-04-23**
+
+**[NOTA INTERPRETATIVA 2026-04-23]**: "INFLACIÓN UNIVERSAL" declarada aplica sobre PF aggregate cross-régimen sin filter productivo. NO equivale a "sistema sin edge" — quantity medida tautológicamente ~1 por diseño specialist. Ver §13.4 "Auditoría harness bloque2c 2026-04-23" para interpretación correcta.
 
 Contexto: Extensión Opción Q1 (commit 397b3c7) con control group matched-by-pf_fwd distribution para discriminar entre "filter discrimina edge decay" vs "inflación universal walk-forward".
 
@@ -2502,6 +2576,8 @@ Cierre: permanente. Inflación universal confirmed. Investigación methodology w
 ---
 
 **[VALIDACIÓN] [RESUELTO] Bloque 2c Opción Q1 — W3 divergencia validation cuantitativa cross-3y Binance Futures — 2026-04-23**
+
+**[NOTA INTERPRETATIVA 2026-04-23]**: "VALIDA cuantitativamente" aplica sobre PF aggregate cross-régimen sin filter productivo. Filter W3+CANDIDATO detecta clusters con PF aggregate bajo — pero bajo es esperable por diseño specialist, no evidencia edge operacional bajo. Ver §13.4 "Auditoría harness bloque2c 2026-04-23" para interpretación correcta.
 
 Contexto: Post 8-9 aplicaciones §12 L34 sesión 2026-04-23, scope Bloque 2c realista converged a Opción Q1: solo W3 divergencia validation viable con kernel aggregates actuales. H1+H_funding+H_strategy diferidos proyecto I1 post-reciclaje (item §13.3 ampliado commit).
 
