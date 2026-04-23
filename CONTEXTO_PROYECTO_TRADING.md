@@ -1,6 +1,6 @@
 # Sistema de Trading Algorítmico — Contexto Completo del Proyecto
 
-**Última actualización:** 23 Abril 2026 CIERRE SESIÓN — **A.1 alpha residual deep-dive Criterio B** sobre N=26 post-v2.4.4 (primera ventana arquitectónicamente limpia post-fixes v2.4.4 size_usdt + v2.4.5 entry_timestamp_ms). Hipótesis slippage liberado **CONFIRMADA** (slippage/trade 7× vs Fase II.C contaminada, alpha_residual/trade mejora 19%). 3 hipótesis emergentes N=26 sometidas a stress-test cross-segmento cross-régimen N=98: **H1 short/long asimetría 12:1 REFUTADA** (S1 N=49 dirección opuesta), **H_strategy exits logic/structural 3.4× REFUTADA** (Welch N=98 p=0.086 dominado enteramente por S4), **H_new_3 residual contrarian ratio 24× REFUTADA** (cae a 2.16× con N=19/14 consistente con gap PnL). 3 refutaciones en una sesión evitaron creación de 3 items §13.3 activos con disparadores futuros. **§12 Lección 34 NUEVA**: "Hipótesis emergentes de análisis con ventana N<50 requieren validación multi-segmento antes de elevar a §13.3". Complementaria a L25+L29+L33. Updates §13.3 v2.6-inv + v2.6-exit con matización arquitectónica (efecto Bloque 2 concentrado S2+S3, no S4). 2 items §13.3 nuevos: pnl_recon tolerancia mal calibrada + cache funding extender a origen. Bot v2.4.5 operacional VPS Tokio. Fidelidad 2 invariante (sesión read-only). Pipeline pre-reciclaje: sobrecarga §13.3 REDUCIDA por 3 refutaciones. Disparadores maduros: v2.6-inv N≥100 (~2026-05-01), v2.6-exit N≥150 (~2026-05-10), audit N≥50 (~2026-04-26). **Mejora adicional**: `_run_verify_test` upgrade CLI parametrizable `--n-bars` + tolerance escalada §0.8 Nivel A/B automática (wrappers temporales obsoletos; item §13.3 EN_ESPERA 2026-04-22 RESUELTO). Smokes A/B/C PASS. **Inventario §13.3 Opción E**: 3 items cerrados (L2018 refutado por validación empírica propia aplicando L34 — hipótesis floor mal calibrado contraria a evidencia 42pct→58pct con floor más bajo; L1910 cerrado L27 parcial — analyzer v2.4.1 ya implementa detección `CANDIDATO EXCLUSION RECICLAJE` alert, tracking cross-sesiones integrado en L1398; nuevo item pnl_recon ratio 10pct demasiado estricto creado con hipótesis refinada ratio 25pct pendiente validación multi-segmento). L1916 mantiene EN_ESPERA con context update. 4ª refutación del día por stress-test — L34 consistente. **L1839 batch cp1252 RESUELTO**: 68 líneas runtime-critical en lab_historico (scope real 5x mayor al documentado "14"; pre-reciclaje cleared Windows cp1252). Smokes A+C diff 0.0000 — lógica invariante. **5ª refutación del día por L34 recursiva** aplicada a item propio "ratio 25%" creado en commit ab4f6f6 — prerequisite "validación multi-segmento N=98" inviable (bug histórico size_usdt=0 afecta 138/164 trades pre-v2.4.4). Nuevo item creado: "Investigación causa raíz pnl_recon gap" con scope explícito ~1-2h sesión dedicada (Opción D).
+**Última actualización:** 23 Abril 2026 CIERRE SESIÓN — **A.1 alpha residual deep-dive Criterio B** sobre N=26 post-v2.4.4 (primera ventana arquitectónicamente limpia post-fixes v2.4.4 size_usdt + v2.4.5 entry_timestamp_ms). Hipótesis slippage liberado **CONFIRMADA** (slippage/trade 7× vs Fase II.C contaminada, alpha_residual/trade mejora 19%). 3 hipótesis emergentes N=26 sometidas a stress-test cross-segmento cross-régimen N=98: **H1 short/long asimetría 12:1 REFUTADA** (S1 N=49 dirección opuesta), **H_strategy exits logic/structural 3.4× REFUTADA** (Welch N=98 p=0.086 dominado enteramente por S4), **H_new_3 residual contrarian ratio 24× REFUTADA** (cae a 2.16× con N=19/14 consistente con gap PnL). 3 refutaciones en una sesión evitaron creación de 3 items §13.3 activos con disparadores futuros. **§12 Lección 34 NUEVA**: "Hipótesis emergentes de análisis con ventana N<50 requieren validación multi-segmento antes de elevar a §13.3". Complementaria a L25+L29+L33. Updates §13.3 v2.6-inv + v2.6-exit con matización arquitectónica (efecto Bloque 2 concentrado S2+S3, no S4). 2 items §13.3 nuevos: pnl_recon tolerancia mal calibrada + cache funding extender a origen. Bot v2.4.5 operacional VPS Tokio. Fidelidad 2 invariante (sesión read-only). Pipeline pre-reciclaje: sobrecarga §13.3 REDUCIDA por 3 refutaciones. Disparadores maduros: v2.6-inv N≥100 (~2026-05-01), v2.6-exit N≥150 (~2026-05-10), audit N≥50 (~2026-04-26). **Mejora adicional**: `_run_verify_test` upgrade CLI parametrizable `--n-bars` + tolerance escalada §0.8 Nivel A/B automática (wrappers temporales obsoletos; item §13.3 EN_ESPERA 2026-04-22 RESUELTO). Smokes A/B/C PASS. **Inventario §13.3 Opción E**: 3 items cerrados (L2018 refutado por validación empírica propia aplicando L34 — hipótesis floor mal calibrado contraria a evidencia 42pct→58pct con floor más bajo; L1910 cerrado L27 parcial — analyzer v2.4.1 ya implementa detección `CANDIDATO EXCLUSION RECICLAJE` alert, tracking cross-sesiones integrado en L1398; nuevo item pnl_recon ratio 10pct demasiado estricto creado con hipótesis refinada ratio 25pct pendiente validación multi-segmento). L1916 mantiene EN_ESPERA con context update. 4ª refutación del día por stress-test — L34 consistente. **L1839 batch cp1252 RESUELTO**: 68 líneas runtime-critical en lab_historico (scope real 5x mayor al documentado "14"; pre-reciclaje cleared Windows cp1252). Smokes A+C diff 0.0000 — lógica invariante. **5ª refutación del día por L34 recursiva** aplicada a item propio "ratio 25%" creado en commit ab4f6f6 — prerequisite "validación multi-segmento N=98" inviable (bug histórico size_usdt=0 afecta 138/164 trades pre-v2.4.4). Nuevo item creado: "Investigación causa raíz pnl_recon gap" con scope explícito ~1-2h sesión dedicada (Opción D). **6ª pausa L34 del día — Bloque 2 Análisis B edge decay cross-cluster WF→kernel pausado** por inviabilidad estadística (JSONs generated 2026-03-27 a 2026-04-07 → ventana post-training 16-27 días → N_trades/config 1-3 insuficiente para Spearman ρ). Diferido a §13.3 con disparador generated_date ≥60 días (~2026-06-01). **Opción D validación cruzada W3 flag vs evidencia operacional cross-sesión ejecutada interim**: patrón **DIVERGENTE** (0/6 Fuerte, 1/6 Moderada ONDO C0, 2/6 Débil TRX+BTC C2, 3/6 Ausente LTC+GRT+MANA). 4 clusters CANDIDATO EXCLUSION (APT C0, ONDO C2, SAND C1, SEI C0) no W3 flagged → W3 filter necesario pero no suficiente. Recomendación: mantener calendario julio + monitorear N≥50 reporte ~2026-04-26.
 **Versión actual:** v2.4.4 (sin bump — sesión 100% herramientas offline, sin deploy operacional)  
 **Autor del sistema:** Ricardo  
 **Plataforma:** Binance (datos) + BingX (ejecución), velas 1h  
@@ -2104,9 +2104,112 @@ Disparo: próximo stress-test de v2.6-inv (disparador N≥100) O v2.6-exit (disp
 Cierre: cache extendida + re-ejecución stress-test completado.
 Referencias: §13.4 Fase 3 2026-04-23, funding_context.py CLI refresh-cache, §13.3 v2.6-inv + v2.6-exit.
 
+**[VALIDACIÓN] [EN_ESPERA] Análisis B edge decay cross-cluster JSON WF → kernel-actual — diferido por viabilidad estadística — 2026-04-23**
+
+Contexto: Bloque 2 Tier 1 sesión 2026-04-23 intentó ejecutar Análisis B (ranking WF vs kernel-actual con Spearman ρ top-5 por cluster) sobre 6 clusters flagged W3. Pause stress-test detectó inviabilidad estadística (6ª aplicación §12 L34 del día):
+
+- JSONs generated 2026-03-27 a 2026-04-07.
+- Ventana post-training efectiva: 16-27 días.
+- N_trades estimado per config: 1-3.
+- Top-5 Spearman ρ con N=2-3 dominado por ruido puro.
+
+Diferimiento obligatorio: Análisis B robusto requiere ventana post-training ≥2 meses para N_trades ≥15 per config.
+
+Disparador: JSONs walk-forward con generated_date ≥60 días (proxy training_end ≥60 días). Para JSONs actuales, proyección ~2026-06-01 (BTC C2 oldest generated 2026-03-27) a ~2026-06-10 (GRT C2 newest generated 2026-04-07). Alternativamente, post-reciclaje (cuando JSONs regeneren + esperar 2 meses más).
+
+Scope ejecución (cuando disparador cumpla):
+- 6 clusters × top-5 configs × kernel sobre ventana post-training.
+- Spearman ρ top-5 per cluster.
+- Tabla agregada cross-cluster.
+- Veredicto Caso Alpha Preservado / Decay Parcial / Decay Generalizado.
+- Cross-checks TRX C2 orphan + BTC C2 régimen.
+
+Esperable tiempo ejecución: ~60-90 min (kernel 30 configs + docs).
+
+Scope implícito: validación complementaria W3 implementation (corrige futuro, mide decay actual).
+
+**Evidencia interim 2026-04-23 (Opción D validación cruzada)**: validación cruzada W3 flag vs evidencia operacional cross-sesión realizada hoy (§13.4 2026-04-23) provee signal cualitativo. Resultado: **patrón DIVERGENTE** — 0/6 Fuerte, 1/6 Moderada (ONDO C0), 2/6 Débil (TRX C2, BTC C2), 3/6 Ausente (LTC C2, GRT C2, MANA C0). W3 flag correlaciona débilmente con edge decay operacional. 4 clusters CANDIDATO EXCLUSION (APT C0, ONDO C2, SAND C1, SEI C0) no W3 flagged → W3 falsos negativos. Complemento cualitativo que no sustituye Análisis B cuantitativo diferido.
+
+Referencias:
+- §13.4 Bloque 2 Pause 2026-04-23 (blocker estadístico detectado).
+- §13.4 Opción D validación cruzada W3 2026-04-23 (evidencia interim).
+- §13.4 Fase 3 W3 bootstrap 2026-04-23 (implementation que este análisis valida).
+- §12 L34 (preventiva 6ª vez — "scope item verifica viabilidad estadística a priori").
+
+Cierre: Análisis B ejecutado con N_trades ≥15 per config + veredicto cross-cluster + W3 validación empírica completada.
+
 ---
 
 ### 13.4 RESUELTO
+
+**[VALIDACIÓN] [RESUELTO interim] Bloque 2 Análisis B pausado + Opción D validación cruzada W3 flag — 2026-04-23**
+
+Contexto: Bloque 2 Tier 1 planificó Análisis B (ranking WF vs kernel-actual) cross-cluster 6 clusters flagged W3 bootstrap. Pause empírico Fase 0 detectó blocker.
+
+**Blocker estadístico (6ª aplicación §12 L34 preventiva del día)**: JSONs walk-forward generated 2026-03-27 a 2026-04-07 → ventana post-training 16-27 días → N_trades per config 1-3 → top-5 Spearman ρ estadísticamente inerte. Robustez requiere ventana post-training ≥2 meses.
+
+Acciones aplicadas:
+1. Análisis B diferido: §13.3 item nuevo con disparador generated_date ≥60 días proxy (~2026-06-01 BTC C2 oldest).
+2. **Opción D refinada ejecutada** — validación cruzada W3 flag vs evidencia operacional cross-sesión ya disponible. Analíticamente distinta de Análisis B (cualitativa vs cuantitativa), pero responde aproximadamente la pregunta motivacional.
+
+**Resultados Opción D (validación cruzada)**:
+
+| Cluster W3 | E1 CANDIDATO persistente (2+ sesiones) | E2 WARN_neg_res (symbol Fase II.C) | E3 health_monitor | Convergencia |
+|---|---|---|---|---|
+| ONDO C0 | NO (ONDO C2 persistente, no C0) | SÍ (ONDO) | SÍ (ONDO C0) | **Moderada 2/3** |
+| LTC C2 | NO | NO | NO | Ausente 0/3 |
+| GRT C2 | NO | NO | NO | Ausente 0/3 |
+| TRX C2 | NO | SÍ (TRX) | NO | Débil 1/3 |
+| BTC C2 | NO | SÍ (BTC) | NO | Débil 1/3 |
+| MANA C0 | NO | NO | NO | Ausente 0/3 |
+
+Indicadores:
+- **E1 CANDIDATO EXCLUSION cross-sesión**: persistentes 2+ sesiones = [ONDO C2, SAND C1]. Fase II.C 2026-04-22 flagged ONDO C2 + SAND C1; A.1 2026-04-23 flagged APT C0 + ONDO C2 + SAND C1 + SEI C0. Intersección 2 clusters. **Ningún W3 flagged aparece en E1 persistente**.
+- **E2 WARN_neg_res Fase II.C**: 17 símbolos = {APT, SOL, LINK, ENA, RENDER, OP, TAO, XLM, BTC, SUI, ALGO, ADA, INJ, ONDO, ICP, SAND, TRX}. Caveat: per-symbol no per-cluster. 3/6 W3 symbols aparecen (ONDO, BTC, TRX).
+- **E3 health_monitor**: 1 cluster flagged = ONDO C0 (§13.4 2026-04-22).
+
+**Cross-check inverso**:
+Clusters flagged CANDIDATO EXCLUSION pero **NO W3 flagged**: [APT C0, ONDO C2, SAND C1, SEI C0]. **Implica W3 tiene 4 falsos negativos** — clusters con edge decay operacional real no capturados por bootstrap ci_low/ci_width.
+
+**Patrón observado**: DIVERGENTE (0/6 Fuerte, 1/6 Moderada, 2/6 Débil, 3/6 Ausente). W3 flag **ortogonal** a edge decay operacional.
+
+**Implicaciones operacionales**:
+
+**a) W3 implementation status pre-reciclaje**:
+- W3 captura **bias estadístico de construcción** (ci_low/ci_width por N pequeño OOS, multiple-testing amplifica noise).
+- CANDIDATO EXCLUSION captura **edge decay observable** (expectancy OOS/pool < 0.5).
+- Las dos detecciones son **ortogonales**, no redundantes.
+- W3 es filter necesario pero **no suficiente** para pre-reciclaje.
+
+**b) Decisión adelantar reciclaje**:
+- E1 persistentes 2+ sesiones: 2 clusters (ONDO C2, SAND C1).
+- Criterio §13.3 L1398 semi-automático: "3+ clusters flagged candidato_exclusion sostenido en 2+ reportes consecutivos". **2 no cumple threshold de 3**.
+- Recomendación: **mantener calendario julio** pero monitorear próximos reportes N≥50 (~2026-04-26) y N≥100 (~2026-05-01). Si APT C0 y/o SEI C0 (nuevos A.1) persisten en próximo reporte → criterio semi-automático se cumpliría.
+
+**c) Filters pre-reciclaje expandidos propuestos**:
+Si Opción D revela que analyzer CANDIDATO EXCLUSION es evidencia operacional más temprana que W3 → considerar filter completo pre-reciclaje:
+- `flagged W3 OR (CANDIDATO EXCLUSION persistente 2+ sesiones) OR (WARN_neg_res severo per symbol+cluster breakdown)`.
+- Unión de 3 indicadores → cobertura estadística + operacional + volumen residual.
+
+**Cross-checks específicos**:
+- **TRX C2 (W3 flagged + W4 orphan)**: Débil en E2 (TRX en WARN_neg_res), ausente E1+E3. No doble evidencia pro-orphan — W4 puede ser overly conservative para este cluster específico.
+- **BTC C2 (W3 flagged, máximo score productivo 17.21)**: Débil en E2 (BTC en WARN_neg_res); ventana A.1 dominada por régimen C1 (71%) no C2. Sensibilidad esperable — falta de específicos flags ausentes refuerza robustez arquitectónica cross-régimen.
+
+**Meta-observación**: esta pausa extiende §12 L34 recurrentemente. Cuenta refutaciones/pausas día 2026-04-23: **6 total** (H1, H_strategy, H_new_3, L2018, ratio 25%, Análisis B viabilidad). 3 recursivas sobre creaciones de la sesión misma (L2018, ratio 25%, Análisis B prompt).
+
+Consistencia metodológica: el criterio L34 no prefiere ningún lado — refuta igualmente creaciones externas, creaciones propias, y scope de análisis propuestos. Cada stress-test previene consumo de recursos en análisis N-insuficiente.
+
+Referencias:
+- §13.3 nuevo item "Análisis B cross-cluster diferido" (este commit).
+- §13.4 Fase 3 W3 bootstrap 2026-04-23 (flagged 6 clusters).
+- §13.4 Fase II.C 2026-04-22 (analyzer flags + 17 WARN_neg_res).
+- §13.4 A.1 2026-04-23 (analyzer flags recientes: APT C0, ONDO C2, SAND C1, SEI C0).
+- §13.3 L1398 política adelantar reciclaje (criterio 3+ clusters persistentes).
+- §12 L34 (6ª aplicación sesión).
+
+Cierre: Opción D interim completada. Análisis B cuantitativo diferido a §13.3 con disparador generated_date ≥60 días.
+
+---
 
 **[MEJORA] [REFUTADO] Item pnl_recon ratio 25% refutado por prerequisito inviable + nuevo item Opción D investigación causa raíz — 2026-04-23**
 
