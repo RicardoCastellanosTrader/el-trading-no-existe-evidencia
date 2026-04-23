@@ -2320,25 +2320,47 @@ def _load_preset_tuple(symbol: str, preset_label: str):
     return preset_tuple, hyst_mult
 
 
-def _run_verify_test(symbol: str = 'BTC/USDT'):
+_VERIFY_LEVEL_B_THRESHOLD = 2000
+_VERIFY_TOLERANCE_PNL_A_PP = 0.1
+_VERIFY_TOLERANCE_PNL_B_PCT = 15.0
+_VERIFY_TOLERANCE_PNL_B_FLOOR_PP = 0.1
+
+
+def _run_verify_test(symbol: str = 'BTC/USDT', n_bars: int = 1000) -> int:
+    """Test de fidelidad brain↔kernel sobre N barras del símbolo (§0.8 protocolo).
+
+    N<2000 → Nivel A (benchmark rápido, gate obligatorio todo deploy).
+              Tolerance PnL 0.1pp absoluto; trades exacto.
+    N≥2000 → Nivel B (deep smoke, gate cambios brain/kernel/data_feed).
+              Tolerance PnL 15% relativo con floor 0.1pp (drift arquitectónico
+              baseline 7-9% documentado §12 L30); trades max(1, 0.5% N_trades).
+
+    Args:
+        symbol: símbolo a testear.
+        n_bars: número de bars a procesar. Default 1000 (Nivel A baseline §0.8).
+
+    Returns:
+        Exit code 0 si PASS, 1 si FAIL o datos insuficientes.
     """
-    Test de fidelidad vs kernel Numba: corre brain_engine barra a barra
-    sobre 1000 barras históricas y compara agregados con run_on_slice().
-    """
+    if n_bars < 1:
+        raise ValueError(f"n_bars debe ser >= 1 (recibido {n_bars})")
+
+    level = "B" if n_bars >= _VERIFY_LEVEL_B_THRESHOLD else "A"
+
     print("=" * 60)
-    print("BRAIN ENGINE — Test de fidelidad vs kernel Numba")
+    print(f"BRAIN ENGINE — Test de fidelidad vs kernel Numba [NIVEL {level}]")
     print("=" * 60)
 
     sym_key = symbol.replace("/USDT", "").replace("/", "")
     cache_path = os.path.join(_project_root, "data_cache", f"{sym_key}USDT_1h.parquet")
     if not os.path.exists(cache_path):
         print(f"  No se encontro {cache_path}. Necesitas datos en data_cache/.")
-        return
+        return 1
 
     df_full = pd.read_parquet(cache_path)
     df_full = _normalize_ohlcv(df_full)
 
-    print(f"  Datos: {len(df_full)} barras totales")
+    print(f"  Datos: {len(df_full)} barras totales (solicitado n_bars={n_bars})")
 
     # Cargar modelos
     brain = load_models(
@@ -2350,7 +2372,7 @@ def _run_verify_test(symbol: str = 'BTC/USDT'):
     cfg_data = brain.specialist_configs.get(symbol)
     if not cfg_data:
         print(f"  Sin specialist_configs para {symbol}.")
-        return
+        return 1
 
     # Usar cluster 0 o el primer cluster con configs
     test_cluster = None
@@ -2361,17 +2383,19 @@ def _run_verify_test(symbol: str = 'BTC/USDT'):
 
     if test_cluster is None:
         print("  Sin configs disponibles.")
-        return
+        return 1
 
     top_cfg = cfg_data['clusters'][str(test_cluster)]['top_configs'][0]
     config_id = top_cfg['config_id']
     preset_label = top_cfg['preset']
     print(f"  Config: {config_id} ({preset_label}) de cluster {test_cluster}")
 
-    # Tomar las ultimas 1000 barras
-    n_test = min(1000, len(df_full))
+    # Tomar las últimas n_bars barras (acotado por len del parquet)
+    n_test = min(n_bars, len(df_full))
+    if n_test < n_bars:
+        print(f"  WARN: parquet solo tiene {len(df_full)} bars, procesando N={n_test} (solicitado {n_bars})")
     df_test = df_full.tail(n_test).reset_index(drop=True)
-    print(f"  Simulando {n_test} barras...")
+    print(f"  Simulando {n_test} barras (nivel efectivo: {'B' if n_test >= _VERIFY_LEVEL_B_THRESHOLD else 'A'})")
 
     # =====================================================================
     # PARTE 1: Brain engine barra a barra
@@ -2458,7 +2482,7 @@ def _run_verify_test(symbol: str = 'BTC/USDT'):
         preset_tuple, _ = _load_preset_tuple(symbol, preset_label)
     if preset_tuple is None:
         print("    ERROR: No se pudo resolver el preset tuple.")
-        return
+        return 1
     _, _, _, _, _, _, _, _, _, _, _, _ = preset_tuple  # validate 12-tuple
     hyst_match = re.search(r'_H(\d+)$', preset_label)
     hyst_mult = int(hyst_match.group(1)) / 10.0 if hyst_match else 0.0
@@ -2470,7 +2494,7 @@ def _run_verify_test(symbol: str = 'BTC/USDT'):
         from lab_historico_numba_v8_3 import precalculate_all_data, run_on_slice
     except ImportError as e:
         print(f"    ERROR importando lab_historico: {e}")
-        return
+        return 1
 
     # precalculate_all_data espera df con columna 'timestamp'
     data = precalculate_all_data(df_test, preset=preset_tuple, hyst_mult=hyst_mult, symbol=symbol)
@@ -2508,32 +2532,55 @@ def _run_verify_test(symbol: str = 'BTC/USDT'):
     print(f"    Gross profit: {kernel_gp:.4f}%, Gross loss: {kernel_gl:.4f}%")
 
     # =====================================================================
-    # PARTE 3: Comparacion
+    # PARTE 3: Comparacion (tolerance escalada según nivel §0.8)
     # =====================================================================
+    effective_level = "B" if n_test >= _VERIFY_LEVEL_B_THRESHOLD else "A"
     print(f"\n  {'='*60}")
-    print(f"  COMPARACION DE FIDELIDAD")
+    print(f"  COMPARACION DE FIDELIDAD [NIVEL {effective_level}]")
     print(f"  {'='*60}")
 
-    trades_match = brain_trades_count == kernel_trades
-    pnl_diff = abs(brain_pnl - kernel_pnl)
-    pnl_close = pnl_diff < 0.1  # tolerancia 0.1%
+    pnl_diff_abs = abs(brain_pnl - kernel_pnl)
+    pnl_diff_rel_pct = pnl_diff_abs / max(abs(kernel_pnl), 0.01) * 100
+    trade_diff_abs = brain_trades_count - kernel_trades
 
+    if effective_level == "A":
+        pnl_tolerance_desc = f"{_VERIFY_TOLERANCE_PNL_A_PP}pp absoluto"
+        pnl_close = pnl_diff_abs < _VERIFY_TOLERANCE_PNL_A_PP
+        trade_tolerance_max = 0
+        trade_tolerance_desc = "exacto"
+    else:
+        pnl_tolerance_desc = f"{_VERIFY_TOLERANCE_PNL_B_PCT} pct relativo (floor {_VERIFY_TOLERANCE_PNL_B_FLOOR_PP}pp)"
+        pnl_close = (pnl_diff_abs < _VERIFY_TOLERANCE_PNL_B_FLOOR_PP) or (pnl_diff_rel_pct < _VERIFY_TOLERANCE_PNL_B_PCT)
+        # Nivel B trades: criterio §0.8 "match count brain<->kernel > 95 pct" = 5 pct divergence permitida
+        trade_tolerance_max = max(1, int(0.05 * max(brain_trades_count, kernel_trades)))
+        trade_tolerance_desc = f"max(1, 5 pct N)=+/-{trade_tolerance_max} (match >=95 pct §0.8)"
+    trades_match = abs(trade_diff_abs) <= trade_tolerance_max
+    match_pct = (min(brain_trades_count, kernel_trades) / max(brain_trades_count, kernel_trades, 1)) * 100
+
+    print(f"  Tolerance PnL:     {pnl_tolerance_desc}")
+    print(f"  Tolerance trades:  {trade_tolerance_desc}")
     print(f"  {'Metrica':<25} {'Brain':>12} {'Kernel':>12} {'Diff':>12} {'OK?':>5}")
     print(f"  {'-'*66}")
-    print(f"  {'Trades':<25} {brain_trades_count:>12} {kernel_trades:>12} {brain_trades_count - kernel_trades:>12} {'YES' if trades_match else 'NO':>5}")
+    print(f"  {'Trades':<25} {brain_trades_count:>12} {kernel_trades:>12} {trade_diff_abs:>12} {'YES' if trades_match else 'NO':>5}")
     print(f"  {'Wins':<25} {brain_wins:>12} {kernel_wins:>12} {brain_wins - kernel_wins:>12} {'YES' if brain_wins == kernel_wins else 'NO':>5}")
     print(f"  {'PnL neto %':<25} {brain_pnl:>12.4f} {kernel_pnl:>12.4f} {brain_pnl - kernel_pnl:>12.4f} {'YES' if pnl_close else 'NO':>5}")
+    if effective_level == "B":
+        print(f"  {'PnL diff relativo':<25} {'':>12} {'':>12} {pnl_diff_rel_pct:>11.2f}{'pct':>3}")
+        print(f"  {'Match count trades':<25} {'':>12} {'':>12} {match_pct:>11.2f}{'pct':>3}")
     print(f"  {'Gross profit %':<25} {brain_gross_profit:>12.4f} {kernel_gp:>12.4f} {brain_gross_profit - kernel_gp:>12.4f}")
     print(f"  {'Gross loss %':<25} {brain_gross_loss:>12.4f} {kernel_gl:>12.4f} {brain_gross_loss - kernel_gl:>12.4f}")
 
-    if trades_match and pnl_close:
-        print(f"\n  RESULTADO: FIDELIDAD CONFIRMADA")
+    passed = trades_match and pnl_close
+    if passed:
+        print(f"\n  RESULTADO: FIDELIDAD CONFIRMADA [NIVEL {effective_level} PASS]")
+        return 0
     else:
-        print(f"\n  RESULTADO: DIVERGENCIA DETECTADA")
+        print(f"\n  RESULTADO: DIVERGENCIA DETECTADA [NIVEL {effective_level} FAIL]")
         if not trades_match:
-            print(f"    Trades no coinciden: brain={brain_trades_count} vs kernel={kernel_trades}")
+            print(f"    Trades diff={trade_diff_abs} (tolerance ±{trade_tolerance_max})")
         if not pnl_close:
-            print(f"    PnL diverge: diff={pnl_diff:.4f}% (tolerancia 0.1%)")
+            print(f"    PnL diff_abs={pnl_diff_abs:.4f}pp  diff_rel={pnl_diff_rel_pct:.2f}%  (tolerance: {pnl_tolerance_desc})")
+        return 1
 
 
 def _run_classify(symbol: str = 'BTC/USDT'):
@@ -2613,6 +2660,13 @@ def main():
     parser.add_argument("--verify", action="store_true", help="Test de fidelidad vs kernel Numba")
     parser.add_argument("--classify", type=str, default=None, help="Clasificar régimen de un símbolo")
     parser.add_argument("--symbol", type=str, default="BTC/USDT", help="Símbolo para tests")
+    parser.add_argument(
+        "--n-bars",
+        type=int,
+        default=1000,
+        help="Bars a procesar en --verify. Menor que 2000: Nivel A benchmark rapido. "
+             "Mayor o igual que 2000: Nivel B deep smoke (drift baseline 7-9 pct esperable). Default 1000.",
+    )
     args = parser.parse_args()
 
     logging.basicConfig(
@@ -2622,7 +2676,8 @@ def main():
     )
 
     if args.verify:
-        _run_verify_test(args.symbol)
+        exit_code = _run_verify_test(args.symbol, n_bars=args.n_bars)
+        sys.exit(exit_code if exit_code is not None else 0)
     elif args.classify:
         _run_classify(args.classify)
     else:

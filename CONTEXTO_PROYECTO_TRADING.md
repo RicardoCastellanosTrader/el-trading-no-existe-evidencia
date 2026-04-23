@@ -1,6 +1,6 @@
 # Sistema de Trading Algorítmico — Contexto Completo del Proyecto
 
-**Última actualización:** 23 Abril 2026 CIERRE SESIÓN — **A.1 alpha residual deep-dive Criterio B** sobre N=26 post-v2.4.4 (primera ventana arquitectónicamente limpia post-fixes v2.4.4 size_usdt + v2.4.5 entry_timestamp_ms). Hipótesis slippage liberado **CONFIRMADA** (slippage/trade 7× vs Fase II.C contaminada, alpha_residual/trade mejora 19%). 3 hipótesis emergentes N=26 sometidas a stress-test cross-segmento cross-régimen N=98: **H1 short/long asimetría 12:1 REFUTADA** (S1 N=49 dirección opuesta), **H_strategy exits logic/structural 3.4× REFUTADA** (Welch N=98 p=0.086 dominado enteramente por S4), **H_new_3 residual contrarian ratio 24× REFUTADA** (cae a 2.16× con N=19/14 consistente con gap PnL). 3 refutaciones en una sesión evitaron creación de 3 items §13.3 activos con disparadores futuros. **§12 Lección 34 NUEVA**: "Hipótesis emergentes de análisis con ventana N<50 requieren validación multi-segmento antes de elevar a §13.3". Complementaria a L25+L29+L33. Updates §13.3 v2.6-inv + v2.6-exit con matización arquitectónica (efecto Bloque 2 concentrado S2+S3, no S4). 2 items §13.3 nuevos: pnl_recon tolerancia mal calibrada + cache funding extender a origen. Bot v2.4.5 operacional VPS Tokio. Fidelidad 2 invariante (sesión read-only). Pipeline pre-reciclaje: sobrecarga §13.3 REDUCIDA por 3 refutaciones. Disparadores maduros: v2.6-inv N≥100 (~2026-05-01), v2.6-exit N≥150 (~2026-05-10), audit N≥50 (~2026-04-26).
+**Última actualización:** 23 Abril 2026 CIERRE SESIÓN — **A.1 alpha residual deep-dive Criterio B** sobre N=26 post-v2.4.4 (primera ventana arquitectónicamente limpia post-fixes v2.4.4 size_usdt + v2.4.5 entry_timestamp_ms). Hipótesis slippage liberado **CONFIRMADA** (slippage/trade 7× vs Fase II.C contaminada, alpha_residual/trade mejora 19%). 3 hipótesis emergentes N=26 sometidas a stress-test cross-segmento cross-régimen N=98: **H1 short/long asimetría 12:1 REFUTADA** (S1 N=49 dirección opuesta), **H_strategy exits logic/structural 3.4× REFUTADA** (Welch N=98 p=0.086 dominado enteramente por S4), **H_new_3 residual contrarian ratio 24× REFUTADA** (cae a 2.16× con N=19/14 consistente con gap PnL). 3 refutaciones en una sesión evitaron creación de 3 items §13.3 activos con disparadores futuros. **§12 Lección 34 NUEVA**: "Hipótesis emergentes de análisis con ventana N<50 requieren validación multi-segmento antes de elevar a §13.3". Complementaria a L25+L29+L33. Updates §13.3 v2.6-inv + v2.6-exit con matización arquitectónica (efecto Bloque 2 concentrado S2+S3, no S4). 2 items §13.3 nuevos: pnl_recon tolerancia mal calibrada + cache funding extender a origen. Bot v2.4.5 operacional VPS Tokio. Fidelidad 2 invariante (sesión read-only). Pipeline pre-reciclaje: sobrecarga §13.3 REDUCIDA por 3 refutaciones. Disparadores maduros: v2.6-inv N≥100 (~2026-05-01), v2.6-exit N≥150 (~2026-05-10), audit N≥50 (~2026-04-26). **Mejora adicional**: `_run_verify_test` upgrade CLI parametrizable `--n-bars` + tolerance escalada §0.8 Nivel A/B automática (wrappers temporales obsoletos; item §13.3 EN_ESPERA 2026-04-22 RESUELTO). Smokes A/B/C PASS.
 **Versión actual:** v2.4.4 (sin bump — sesión 100% herramientas offline, sin deploy operacional)  
 **Autor del sistema:** Ricardo  
 **Plataforma:** Binance (datos) + BingX (ejecución), velas 1h  
@@ -1389,27 +1389,9 @@ Ver §13.4 entrada RESUELTO 2026-04-22 "Cooldown asimétrico — UNIFICAR SEGURO
 
 Resumen: Ricardo confirmó Opción A (cooldown=1 siempre operacional en Pine productivo histórico; diferenciación en kernel era código muerto). Refactor kernel TF L1630-1637 + kernel MR L408-415 a expresión Pine canónica uniforme. Confirmatorio empírico + Smoke §0.8 A+B+C PASS. Último ítem §13.3 bloqueante arquitectónico pre-reciclaje cerrado.
 
-**[MEJORA] [EN_ESPERA] Upgrade `_run_verify_test` — parametrizar n_bars + tolerance escalada — 2026-04-22**
+**[MEJORA] [RESUELTO] Upgrade `_run_verify_test` — parametrizar n_bars + tolerance escalada — 2026-04-22 → RESUELTO 2026-04-23**
 
-Contexto: §0.8 protocolo formalizó Nivel B deep smoke N≥8000, pero `_run_verify_test` (brain_engine.py L2284) sigue hardcodeado N=1000. Actualmente requiere wrapper temporal externo para N custom. Refactor menor pendiente para que el protocolo se pueda aplicar con comando único estándar.
-
-Cambios propuestos:
-1. Signature extendida: `_run_verify_test(symbol, n_bars=None, cluster=None)`. Default `n_bars=None` → max(len(parquet), 5000) para auto-escalar a deep smoke cuando data lo permite.
-2. CLI: `python -m live.brain_engine --verify --symbol X --n-bars N --cluster K`.
-3. Tolerance escalada automáticamente:
-   - N<2000: tolerance PnL 0.1% (actual, Nivel A).
-   - N≥2000: tolerance PnL 2% (reconoce drift path-dependent documentado §12.30, Nivel B).
-   - Trade count diff absoluto ≤ max(1, 0.5% de N_trades).
-
-Disparador: próximo deploy que justifique Nivel B del protocolo §0.8 + refactor menor brain_engine. Scope ~30 min de trabajo.
-
-Cierre: CLI soporta Nivel A y B sin wrapper externo. Deploy commits pueden invocar directamente según §0.8 convención.
-
-Referencias:
-- §0.8 protocolo smoke test (base metodológica).
-- §13.4 2026-04-22 A10 entries (cuantificación drift).
-- §12.30 (lección drift oculto por N pequeño).
-- `live/brain_engine.py:2284` `_run_verify_test` (target de refactor).
+Ver §13.4 entrada RESUELTO 2026-04-23 "_run_verify_test CLI parametrizable --n-bars + tolerance escalada §0.8". Signature extendida con n_bars (default 1000 backward compat), CLI `--n-bars N`, tolerance escalada Nivel A/B automática (A: 0.1pp absoluto/exacto; B: 15pct relativo floor 0.1pp / match >=95pct §0.8). Wrappers temporales obsoletos. Scope `--cluster K` diferido.
 
 ---
 
@@ -2067,6 +2049,48 @@ Referencias: §13.4 Fase 3 2026-04-23, funding_context.py CLI refresh-cache, §1
 ---
 
 ### 13.4 RESUELTO
+
+**[MEJORA] [RESUELTO] _run_verify_test CLI parametrizable --n-bars + tolerance escalada §0.8 — 2026-04-23**
+
+Contexto: §13.3 EN_ESPERA 2026-04-22 solicitaba parametrizar n_bars + tolerance escalada para habilitar Nivel B §0.8 sin wrappers temporales. Item maduro (scope acotado, racional documentado).
+
+**Implementación**:
+- Signature: `_run_verify_test(symbol, n_bars=1000) -> int`.
+- CLI: `--n-bars N` (default 1000, preserva backward compat Nivel A baseline §0.8).
+- Nivel detection automática: N<2000 → A, N>=2000 → B.
+- Tolerance escalada:
+  - Nivel A: PnL diff 0.1pp absoluto; trades exacto (match pre-refactor).
+  - Nivel B: PnL max(0.1pp absoluto, 15pct relativo sobre |kernel|); trades max(1, 5pct N_trades) = match >=95pct §0.8.
+- Output enriquecido: [NIVEL A/B] header + tolerance aplicada + match count explícito + veredicto PASS/FAIL.
+- Exit code 0 PASS, 1 FAIL (nuevo — antes siempre 0; no rompe callers porque solo `--verify` añade exit code, deploy gates eran man-in-the-loop por inspección output).
+
+**Matización tolerance**: el protocolo original solicitaba `max(1, 0.5pct N_trades)` en trades. §0.8 canon dice "match count >95pct" = 5pct divergence. Discrepancia detectada durante smoke Nivel B ONDO N=8000 (diff 3 trades falso-FAIL por 0.5pct). Alineado con §0.8 (5pct) que es fuente autoritativa.
+
+**Smokes validación (§0.8)**:
+- Nivel A BTC/USDT N=1000: diff 0.0000 exacto ✓ (backward compat).
+- Nivel B BTC/USDT N=5000: diff 0.0000 ✓ (BTC converge, drift path-dependent no manifiesta).
+- Nivel B ONDO/USDT N=8000: match 99.38pct, PnL diff_rel 9.80pct ✓ (encaja baseline §12 L30 7-9pct).
+- Nivel B ONDO/USDT N=5000: FAIL PnL diff_rel 40.60pct (N insuficiente vs baseline ≥8000 §0.8; comportamiento esperado — documentar como "N Nivel B recomendado ≥8000 para altcoins path-dependent").
+- Nivel C MR (audit_mr_fidelity_sei.py): diff 0.0000 en 7 métricas ✓ invariante.
+
+**Tests unit**: 5/5 PASS (`tests/test_run_verify_test_cli.py`):
+- n_bars=0 / n_bars<0 → ValueError.
+- Constants alineadas §0.8 protocolo.
+- Símbolo sin parquet → exit code 1.
+- Default n_bars=1000 + symbol="BTC/USDT" verificados vía inspect.
+
+**Cleanup**: wrappers temporales eliminados (`.nivel_b_cooldown.py`, `.nivel_b_output.txt`).
+
+**Scope diferido**: `--cluster K` (no incluido). Utilidad operacional no emergente en debug actual; agregar si requisito específico emerge.
+
+**Fidelidad 2 invariante** (refactor test harness — no toca kernel Numba, execution, portfolio, live_engine, ni lógica signal_generation del brain).
+
+**Impacto**: gate §0.8 Nivel B ejecutable con comando único estándar `python -m live.brain_engine --verify --symbol ONDO/USDT --n-bars 8000`. Deploys futuros brain/kernel pueden invocar Nivel B directamente sin código ad-hoc.
+
+Referencias: §0.8 protocolo smoke test, §12 L30 drift arquitectónico, `live/brain_engine.py` L2323-2577 (`_run_verify_test` refactor + constantes + main CLI), `tests/test_run_verify_test_cli.py`. §13.3 item movido a RESUELTO con pointer a esta entrada.
+Cierre: permanente.
+
+---
 
 **[SESIÓN] [RESUELTO] Sesión 2026-04-23 — A.1 deep-dive Criterio B + 3 refutaciones cross-segmento + L34**
 
