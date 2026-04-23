@@ -1,6 +1,6 @@
 # Sistema de Trading Algorítmico — Contexto Completo del Proyecto
 
-**Última actualización:** 22 Abril 2026 CIERRE SESIÓN — 3 bloques + 2 micro-items cerrados en un día. **B1 cooldown unify** (`9389af9`+`f229510`+`a3eca13`): último bloqueante arquitectónico pre-reciclaje resuelto por Opción A Ricardo — kernel TF+MR con expresión Pine uniforme (descubrimiento: COOLDOWN_BARS=1 en 9 módulos → 4 ramas colapsaban matemáticamente). Smoke §0.8 A+B+C PASS. **B2 v2.6 Funding Filter REFUTADO** (`a2379ab`): Opción A §13.3 (observabilidad) antes de implementar; N=50 BingX real reveló dirección OPUESTA a §9.3 (aligned +0.50% vs contrarian -0.57%, Welch p=0.0003 trimmed, Mann-Whitney p=0.0052). Simulación filter original habría degradado PnL factor 2.2×. **§12 Lección 33 nueva**: validar hipótesis roadmap empíricamente, literatura general no sustituye. **B2 ampliado observabilidad bar-a-bar** (`3a7f286`): `funding_observability.py` BORRADO + `funding_context.py` (575 líneas, 11 cols + 9-pattern, cache CSV, CLI dual) + tests 19/19. Descubrimientos N=50: exit context significativo (p=0.0162), Spearman ρ=-0.3172 p=0.0205 correlación n_bars_contrarian vs PnL. 2 candidatos EN_ESPERA: **v2.6-inv** entry filter (disparo N≥100) + **v2.6-exit** filter (disparo N≥150). Analyzer enriquecido definitivo sin retrabajo. **Micro-item 1** deploy_boundaries.json actualizado v2.4.4 (2026-04-21T18:22:02Z) + v2.4.5 (2026-04-22T09:46:10Z); 180/180 tests PASS. **Micro-item 2** engine_state.json investigación: Categoría 1 alternate representation (key real `symbols` no `positions`, 45 entries, 5 positions != 0). Nuevo item §13.3 observación nomenclature cosmético. Bot v2.4.5 operacional VPS. Sin deploy en toda la sesión. Fidelidad 2 invariante. Pipeline pre-reciclaje arquitectónicamente completo. Plan próxima sesión: Bloque 3 A.1 deep-dive cuando N≥40 post-v2.4.4 (~33h, Criterio B) con analyzer enriquecido 11 cols automáticas. Sesión 2026-04-23 previa: 9 items §13.3 RESUELTOS + runbook reciclaje + §12 L31+L32. §0.7 convención sync. §12 L27+L28+L29+L30+L31+L32+L33.
+**Última actualización:** 23 Abril 2026 CIERRE SESIÓN — **A.1 alpha residual deep-dive Criterio B** sobre N=26 post-v2.4.4 (primera ventana arquitectónicamente limpia post-fixes v2.4.4 size_usdt + v2.4.5 entry_timestamp_ms). Hipótesis slippage liberado **CONFIRMADA** (slippage/trade 7× vs Fase II.C contaminada, alpha_residual/trade mejora 19%). 3 hipótesis emergentes N=26 sometidas a stress-test cross-segmento cross-régimen N=98: **H1 short/long asimetría 12:1 REFUTADA** (S1 N=49 dirección opuesta), **H_strategy exits logic/structural 3.4× REFUTADA** (Welch N=98 p=0.086 dominado enteramente por S4), **H_new_3 residual contrarian ratio 24× REFUTADA** (cae a 2.16× con N=19/14 consistente con gap PnL). 3 refutaciones en una sesión evitaron creación de 3 items §13.3 activos con disparadores futuros. **§12 Lección 34 NUEVA**: "Hipótesis emergentes de análisis con ventana N<50 requieren validación multi-segmento antes de elevar a §13.3". Complementaria a L25+L29+L33. Updates §13.3 v2.6-inv + v2.6-exit con matización arquitectónica (efecto Bloque 2 concentrado S2+S3, no S4). 2 items §13.3 nuevos: pnl_recon tolerancia mal calibrada + cache funding extender a origen. Bot v2.4.5 operacional VPS Tokio. Fidelidad 2 invariante (sesión read-only). Pipeline pre-reciclaje: sobrecarga §13.3 REDUCIDA por 3 refutaciones. Disparadores maduros: v2.6-inv N≥100 (~2026-05-01), v2.6-exit N≥150 (~2026-05-10), audit N≥50 (~2026-04-26).
 **Versión actual:** v2.4.4 (sin bump — sesión 100% herramientas offline, sin deploy operacional)  
 **Autor del sistema:** Ricardo  
 **Plataforma:** Binance (datos) + BingX (ejecución), velas 1h  
@@ -898,6 +898,24 @@ Sin esto, el auditor produce falsos positivos masivos y la auditoría pierde val
 **Escalabilidad**: cualquier sistema con hipótesis heredadas (de literatura, de diseño original, de consenso genérico) que se propongan implementar mecánicamente. La asunción "esto es conocido, funciona así" se verifica antes de invertir compute o tocar producción. Conecta con Lecciones 31 (verificar diseño documentado antes de diagnosticar) y 32 (auditorías requieren inventario adaptaciones esperadas) — patrón común: **no asumir, verificar empíricamente en el contexto específico**.
 
 **Caso origen completo**: §9.3 v2.6 Funding Filter propuso threshold `|rate| > 0.001` (0.1%/8h) como "crowding extremo" contrarian. Opción A observabilidad reveló: (a) ese threshold nunca se activa (0/50 trades; p99 empírica 5× menor); (b) la dirección del efecto crowd-vs-signal es opuesta a la hipótesis. Resultado: filter archivado por refutación empírica, item candidato inverso ("v2.6-inv momentum filter") abierto pendiente N≥100 para validación temporal. Ver §13.4 entrada "Observabilidad funding per-trade" 2026-04-22.
+
+34. **Hipótesis emergentes de análisis con ventana N<50 requieren validación multi-segmento antes de elevar a §13.3 — 2026-04-23**. Caso origen sesión A.1: N=26 post-v2.4.4 generó 3 hipótesis emergentes con magnitudes aparentes dramáticas (H1 asimetría short vs long 12:1, H_strategy exits logic vs structural 3.4×, H_new_3 residual contrarian vs PnL 24×). Stress-test Fase 3 multi-segmento cross-arquitectónico N=98 refutó las tres: H1 mostró dirección opuesta en S1 pre-v2.3.11 (N=49 con Cohen d +0.55 longs peor); H_strategy concentrado enteramente en S4 (S1+S2 dirección opuesta, Welch global p=0.086 dominado por S4 p<0.001); H_new_3 ratio 24× cae a 2.16× con N=19/14 consistente con gap PnL relativo. Las tres hipótesis eran artefactos de ventana estrecha S4.
+
+**Patrón problemático**: análisis limitado a la ventana arquitectónicamente más limpia (S4 post-v2.4.4 con size_usdt y entry_timestamp_ms correctos) parece metodológicamente óptimo — data sin contaminación de bugs pre-fix — pero sacrifica el poder discriminador que da la variación cross-segmento. Hipótesis con ratios 3×-24× en N=26 pueden ser ruido muestral que multi-segmento N=98 disuelve o invierte. La "calidad arquitectónica" de la data no sustituye al "poder estadístico" del dataset completo cuando se busca efecto estructural.
+
+**Mitigación protocolaria**: antes de crear un item §13.3 EN_ESPERA (con spec, disparador, cierre) a partir de hipótesis emergente de ventana N<50:
+1. Replicar cross-segmento arquitectónico sobre dataset completo (S1/S2/S3/S4 del proyecto). Los segmentos tienen régimen y fixes distintos, pero la persistencia direccional es más informativa que la magnitud local.
+2. Aplicar criterio de elevación:
+  - Persiste direccionalmente en ≥2 segmentos con N≥20 cada uno Y no invierte signo en ningún segmento con N≥20 → elevar a §13.3 HIPOTESIS con disparador N mayor.
+  - Persiste en 1 segmento o signos mixtos cross-segmento → mantener como OBSERVACION en notas del análisis, NO crear item §13.3 activo.
+  - Invierte signo en ≥1 segmento con N≥20 → archivar como artefacto muestral, documentar en §13.4 con refutación.
+3. Segmentos con N<10 se excluyen del análisis vinculante (ni como evidencia ni como contra-evidencia).
+
+**Escalabilidad**: aplica a cualquier proyecto con historial segmentado arquitectónicamente (deploy boundaries, régimen de mercado, versiones). La tentación de analizar solo la ventana más limpia es fuerte; el coste de hacerlo sin cross-check es crear backlog de hipótesis espurias que consumen validación incremental prolongada (espera N≥100 cuando el efecto es artefacto de N=26).
+
+**Relación con lecciones previas**: complementaria a L25 (agregados sobre ventanas heterogéneas engañan — aquí lo contrario: segmento único también engaña); complementaria a L29 (walk-forward N_fwd inflado en selección — aquí análogo para hipótesis post-hoc en atribución); complementaria a L33 (hipótesis heredadas de literatura externa requieren validación empírica — aquí hipótesis emergentes internas requieren validación multi-segmento).
+
+**Caso origen completo**: sesión 2026-04-23 A.1 deep-dive + Fase 2 H1 + Fase 3 stress-test. 3 refutaciones en una sesión aplicando el protocolo por iniciativa del operador (Ricardo) que solicitó stress-test antes de escribir borradores §13.3. Sin el protocolo se habrían creado 3 items §13.3 activos con disparadores N≥40/50/100 que habrían consumido 3-4 sesiones de validación incremental para concluir refutación. Con el protocolo se resuelven en 1 sesión.
 
 ---
 
@@ -1937,6 +1955,8 @@ Contexto (actualizado post-Bloque 2 ampliación): observabilidad funding §13.3 
 
 **Ampliación datos post-bar-a-bar** (funding_context.py primera ejecución): en 50 trades, 0 crowd flips observados (crowd stable en ventana 4d); `entry_exit_pattern` dominado por `aligned->aligned` (16) + `contrarian->contrarian` (17) + `neutral->neutral` (15). Correlación Spearman ρ=-0.3172 p=0.0205 entre n_bars_contrarian y PnL confirma la hipótesis inversa con perspectiva temporal (más tiempo contrarian = peor PnL).
 
+**Update Fase 3 stress-test 2026-04-23**: replicación N=98 multi-segmento (N=49 con funding cache, S1 no testeable por cache arrancando 2026-04-15) reveló que el efecto Bloque 2 (p=0.0003 trimmed) estaba concentrado en S2+S3 (trades 2026-04-19→21). Aislando S4 post-v2.4.4 (A.1 N=26): p=0.77. En N=49 multi-segmento (S2+S3+S4): gap +0.49pp p=0.35, dirección correcta sin significancia. Bloque 2 magnitud inflada por concentración ventana-específica. Disparador N≥100 MANTENIDO con prerequisito reforzado: replicación Welch p<0.05 sobre ventana S4 homogénea (no solo N≥100 cualquier dirección). Cache funding extender a origen dataset es prerequisito para testear S1 retrospectivo cuando disparador activo (ver §13.3 [MEJORA] cache funding extender). Si N≥100 S4 homogéneo no recupera p<0.10, archivar análogo a v2.6 contrarian original.
+
 **Caveats a validar**:
 - N=50 en 4 días (2026-04-19 a 2026-04-22) — suficiente para dirección estadística pero no para magnitud estable. Régimen observado (lateral-alcista, funding mayoritariamente positivo ligero) puede no representar bearish ni tail-risk crowded.
 - Rompe Fidelidad 2 igual que versión contrarian original — cualquier trade runtime bloqueado diverge del kernel post-hoc. Requiere implementación simétrica en kernel lab (Numba TF + MR) para preservar §0.3 → ~2-3 sesiones extras si opción 1. Opción 2 (filter sin lab, Fidelidad 2 rota conscientemente) aceptable si trades bloqueados quedan documentados y fracción pequeña. Opción 3 (no implementar) si al llegar a N≥100 el efecto revirtió.
@@ -1986,6 +2006,8 @@ Contexto: Bloque 2 ampliación (funding_context.py bar-a-bar) reveló evidencia 
 - N=150 requerido para power estadístico en 9-pattern breakdown + duración correlación robusta con CI estrecho.
 - Rompe Fidelidad 2 **MÁS** que v2.6-inv entry (v2.6-exit altera múltiples exits potenciales, no solo algunas entradas). Implementación kernel lab-side más invasiva.
 
+**Update Fase 3 stress-test 2026-04-23**: Spearman ρ(n_bars_contrarian, pnl_pct) en N=49 multi-segmento = -0.145 p=0.31 (vs -0.32 p=0.02 Bloque 2 N=50, vs +0.02 p=0.93 A.1 N=26 S4-only). Signo correcto recuperado a magnitud 0.5× del Bloque 2, no significativo. Disparador N≥150 MANTENIDO con flag adicional: requerir cache funding extendida S1 + replicación cross-segmento + significancia Welch p<0.10 antes de implementar.
+
 **Metodología de validación**:
 1. Acumular N≥150 post-v2.3.11 (~2026-05-10 al ritmo actual).
 2. Re-ejecutar `funding_context.py enrich` (cache sirve data fresca automáticamente).
@@ -2011,9 +2033,153 @@ Disparo: solo reabrir esta decisión si evidencia empírica futura indica que fu
 Cierre: decisión estable. No se implementa funding como feature del GMM en ningún reciclaje (v3.0 o posteriores) salvo que este item explícitamente se reabra.
 Referencias: §13.3 items funding runtime + observabilidad 2026-04-23; §9.3 v2.6 funding rate como filtro (roadmap donde filtro runtime se materializa); §9.4 v3.0 Z_ATR (feature del GMM que SÍ se acepta para BTC, por naturaleza técnica de Z_ATR vs posicional de funding).
 
+**[MEJORA] [EN_ESPERA] Tolerancia pnl_recon analyzer v2.4.1 mal calibrada con balance bajo — 2026-04-23**
+
+Contexto: A.1 N=26 post-v2.4.4 (2026-04-23) reportó 24/26 (92%) trades con pnl_recon_gap > tolerance. Causa probable: tolerancia absoluta 0.01 USDT (analyzer v2.4.1 ultra review S3) mal dimensionada para balance ~296 USDT + saturación portfolio, que comprime |PnL/trade| frecuentemente por debajo de esa tolerancia en trades marginales. La fórmula S3 tiene fallback "10% de |pnl|" pero aparentemente no aplica efectivamente (92% failing indica regla dominante es la absoluta).
+
+Impacto: falso positivo metodológico. El validador per-componente (no tautológico, §13.2 DECISION ACTIVO "Consistency check por reconstrucción de precios") sigue válido conceptualmente; solo la tolerancia dispara alert espurio en régimen de balance bajo.
+
+Fix propuesto:
+1. Verificar comportamiento fallback "10% de |pnl|" en analyze_performance_attribution.py attribute_trade sección C2.
+2. Ajustar a: max(0.005 USDT, 10% × |pnl_usdt|).
+3. Tolerancia efectiva no menor que ~1bp del notional del trade (aprox 0.005 USDT para notional 5 USDT floor).
+
+Scope: ~20 min refactor menor analyzer. No toca brain/execution.
+Disparo: próximo análisis A.1 N≥40 si ratio alert persiste ≥80%.
+Cierre: tolerancia recalibrada, ratio baja a <10% en trades normales.
+Referencias: analyze_performance_attribution.py attribute_trade C2, §13.2 DECISION "Consistency check por reconstrucción de precios", A.1 2026-04-23 reporte.
+
+**[MEJORA] [EN_ESPERA] Cache funding context extender a origen dataset para stress-tests multi-segmento — 2026-04-23**
+
+Contexto: Fase 3 stress-test 2026-04-23 reveló que el efecto funding aligned/contrarian Bloque 2 no pudo testearse en S1 pre-v2.3.11 (N=49 trades del dataset total) por cache funding arrancando 2026-04-15; dataset arranca 2026-04-13 con S1 terminando en 2026-04-19 17:51. Gap infra limitó rigor del stress-test a S2+S3+S4 (N=49 de 98 total). El veredicto "signo correcto sin significancia N=49" se beneficiaría de S1 retrospectivo para tener cross-segmento completo N≥98.
+
+Acción:
+- VPS refresh cache desde 2026-04-10 (margen seguridad):
+  ssh trader@vps "cd combolab && python funding_context.py refresh-cache --csv trade_history.csv --cache-dir .funding_cache --since 2026-04-10"
+- Sync cache local.
+- Re-ejecutar Fase 3 Section 2 sobre N=98 completo.
+
+Scope: ~15 min operacional. No toca código.
+Disparo: próximo stress-test de v2.6-inv (disparador N≥100) O v2.6-exit (disparador N≥150) O cualquier análisis cross-segmento funding.
+Cierre: cache extendida + re-ejecución stress-test completado.
+Referencias: §13.4 Fase 3 2026-04-23, funding_context.py CLI refresh-cache, §13.3 v2.6-inv + v2.6-exit.
+
 ---
 
 ### 13.4 RESUELTO
+
+**[SESIÓN] [RESUELTO] Sesión 2026-04-23 — A.1 deep-dive Criterio B + 3 refutaciones cross-segmento + L34**
+
+Directiva Ricardo arranque: continuar Bloque 3 A.1 alpha residual deep-dive con analyzer enriquecido automáticamente (11 cols funding context). Criterio empírico de scope según N post-v2.4.4.
+
+**Reconocimiento inicial**: N=26 post-v2.4.4, ritmo 0.69 trades/h, ventana 37.76h desde deploy v2.4.4. **Criterio B** (25≤N<40). Bot sano, sin restarts desde v2.4.5, 7 posiciones, balance 296.55 USDT, DD -0.62%.
+
+**A.1 deep-dive N=26 Criterio B — descomposición primera ejecución end-to-end post-fixes v2.4.4+v2.4.5**:
+
+Primera ventana con dataset arquitectónicamente limpio (size_usdt válido + entry_timestamp_ms válido). Descomposición alpha_residual:
+
+| Campo (USDT) | post-v2.4.4 N=26 | post-v2.4.5 N=13 | Fase II.C N=47 ref |
+|---|---|---|---|
+| PnL real | +0.22 | +0.45 | +0.48 |
+| Alpha nominal | +2.87 | +1.21 | +5.64 |
+| Factor portfolio | -0.64 | -0.30 | -1.17 |
+| Slippage TOTAL | -0.30 | -0.21 | -0.08 |
+| Funding | +0.01 | -0.00 | -0.06 |
+| Alpha residual | -1.72 | -0.25 | -3.84 |
+| Ratio res/nom | -0.60 | -0.21 | -0.68 |
+
+**Hipótesis slippage liberado CONFIRMADA**: slippage/trade pasó de -0.0017 (Fase II.C contaminado size_usdt=0) a -0.0115 (post-v2.4.4), 7× aumento. Correlativamente alpha_residual/trade mejora 19%. Parte del "residual" previo era slippage no computable absorbido (§12 L26 caso adicional).
+
+**3 hipótesis emergentes de A.1 N=26**:
+- H1: asimetría short vs long en alpha_residual ratio 12:1 (Σα_res -1.58 shorts vs -0.13 longs, sample balanceado 13/13).
+- H_strategy: strategy-logic exits (tf/div/cancel_tf N=17) vs estructurales (zone/not_operable/regime_change N=9) ratio 3.4× residual.
+- H_new_3: aligned→aligned residual mean -0.005 vs contrarian→contrarian -0.094, ratio 19× en residual a pesar de gap PnL no significativo (p=0.77).
+
+**Fase 2 — H1 stress-test cross-régimen + cross-segmento N=98**:
+
+Régimen BTC ventana (2026-04-21 19:00→2026-04-23 08:00): retorno +3.67% alcista material, GMM dominante C1 (71%) + C2 (29%), 0% C0 (high-vol). BTC specialists: C2 score 17.21 best.
+
+Tabla cross-segmento:
+
+| Segmento | Ns | Σα_res_s | Nl | Σα_res_l | mean_s | mean_l | Ratio |
+|---|---|---|---|---|---|---|---|
+| S1 pre-v2.3.11 | 17 | -0.62 | 32 | -3.69 | -0.036 | -0.115 | +0.17 |
+| S2 v2.3.11→v2.4.0 | 5 | +0.09 | 2 | -0.19 | +0.018 | -0.094 | -0.48 |
+| S3 v2.4.0→v2.4.4 | 4 | -0.33 | 14 | -1.12 | -0.082 | -0.080 | +0.29 |
+| S4 post-v2.4.4 | 11 | -1.35 | 13 | -0.13 | -0.122 | -0.010 | +10.11 |
+
+S1 (N=49 mayor sample) dirección opuesta (longs peor, Cohen d +0.55). Solo S4 muestra 12:1. OLS α_res ~ side + BTC_delta_pct: side_short coef +0.028 p=0.39 NO significativo.
+
+**H1 REFUTADA** como hipótesis estructural. Caso E2 — artefacto de ventana S4 específica + régimen BTC alcista localizado.
+
+**Fase 3 — Stress-test H_strategy + H_funding + H_new_3 N=98**:
+
+**H_strategy cross-segmento**:
+
+| Segmento | N_strat | mean α | N_struct | mean α | Welch p |
+|---|---|---|---|---|---|
+| S1 | 32 | -0.084 | 16 | -0.102 | 0.735 |
+| S2 | 5 | -0.003 | 2 | -0.040 | 0.769 |
+| S3 | 13 | -0.092 | 5 | -0.050 | 0.339 |
+| S4 | 16 | -0.152 | 8 | +0.120 | 0.000 |
+
+Welch global N=98 p=0.086 marginal DOMINADO por S4. Sin S4 efecto desaparece. S1 dirección opuesta. **H_strategy REFUTADA** Caso F3.
+
+**H_funding efecto Bloque 2**:
+
+| Métrica | Bloque 2 N=50 | A.1 N=26 | N=49 multi-seg |
+|---|---|---|---|
+| Gap aligned-contrarian | +1.07pp | +0.26pp | +0.49pp |
+| Welch p (entry) | 0.0113 | 0.7654 | 0.3516 |
+| Spearman ρ(n_bars, PnL) | -0.32 p=0.02 | +0.02 p=0.93 | -0.145 p=0.31 |
+
+Signo direccional correcto en N=49 pero ninguna significancia. Bloque 2 magnitud inflada por muestra. S1 no testeable por cache limit (arranca 2026-04-15, dataset desde 2026-04-13). Caso G2 atenuado — dirección plausible, significancia pendiente N≥100 con cache extendida.
+
+**H_new_3 ratio residual contrarian**:
+
+N=49 ratio al→al residual -0.048 vs con→con -0.103 = 2.16× (vs 24× A.1). Consistente con gap PnL relativo (0.6×). No hay "insight residual adicional" — es la misma señal. **H_new_3 REFUTADA preliminar** Caso M2.
+
+**3 refutaciones en una sesión**: H1 + H_strategy + H_new_3. Todas artefactos de ventana S4 estrecha. Paralelo exacto a §12 L33 (v2.6 contrarian refutado 2026-04-22) pero aplicado a hipótesis emergentes internas vs externas.
+
+**Balance arquitectónico del día**:
+
+| Item | Estado | Ubicación |
+|---|---|---|
+| H1 short/long 12:1 | REFUTADO | esta entrada §13.4 |
+| H_strategy exits 3.4× | REFUTADO | esta entrada §13.4 |
+| H_new_3 residual 24× | REFUTADO prelim | esta entrada §13.4 |
+| v2.6-inv entry filter | UPDATE triple ref | §13.3 existente actualizado |
+| v2.6-exit filter | UPDATE triple ref | §13.3 existente actualizado |
+| pnl_recon tolerance mal calibrada | NUEVO [MEJORA] | §13.3 nuevo |
+| Cache funding extender S1 | NUEVO [MEJORA] | §13.3 nuevo |
+| §12 Lección 34 meta-validación | NUEVO | §12 |
+
+**Updates §13.3 v2.6-inv + v2.6-exit — matización arquitectónica**:
+
+El efecto Bloque 2 p=0.0003 trimmed en N=50 mezcla trades S2 (N=7) + S3 (N=18) + S4 parcial. La A.1 N=26 aisló S4 exclusivamente y reveló p=0.77. La Fase 3 N=49 multi-segmento recupera p=0.35 direccional. Implicación: el efecto Bloque 2 estaba concentrado en S2+S3 ventana 2026-04-19→21 (régimen + fase fix específica), no en S4 post-v2.4.4. Disparadores N≥100/N≥150 preservados pero con prerequisito reforzado: replicación significativa ventana S4 homogénea, no solo "N mayor cualquiera".
+
+**§12 Lección 34 NUEVA**: "Hipótesis emergentes de análisis con ventana N<50 requieren validación multi-segmento antes de elevar a §13.3". Caso origen esta sesión — 3 refutaciones cross-segmento evitaron crear 3 items §13.3 activos con disparadores incrementales que habrían consumido 3-4 sesiones de validación para llegar a la misma conclusión.
+
+**Estado operacional al cierre**:
+- Bot v2.4.5 operacional VPS Tokio, sin restarts desde v2.4.5 deploy.
+- Fidelidad 2 invariante (sesión read-only, 0 cambios código/deploy).
+- Pipeline pre-reciclaje: sin items bloqueantes nuevos. Sobrecarga §13.3 REDUCIDA por 3 refutaciones.
+- Próxima acción natural: N≥40 post-v2.4.4 (~2026-04-24 04:00 UTC) para replicación incremental A.1 si Ricardo decide. Disparadores maduros: v2.6-inv N≥100 (~2026-05-01), v2.6-exit N≥150 (~2026-05-10), audit definitivo N≥50 post-v2.3.11 (~2026-04-26).
+
+**Meta-observación de la sesión**: el flujo Ricardo-dirigido hacia stress-test multi-segmento (Fase 2 + Fase 3) antes de escribir borradores §13.3 fue la decisión metodológica crítica. Sin ese paso, 3 artefactos se habrían consolidado como hipótesis activas con disparadores futuros. La Lección 34 captura el aprendizaje para futuras sesiones.
+
+Referencias:
+- §12 Lección 34 (nueva esta sesión).
+- §12 Lección 25 (métricas agregadas heterogéneas — complementaria).
+- §12 Lección 29 (walk-forward N_fwd inflado — complementaria).
+- §12 Lección 33 (hipótesis externas sin validación — complementaria).
+- §13.3 updates v2.6-inv + v2.6-exit + 2 items nuevos.
+- §13.4 Fase II.C 2026-04-22 (datos base del analyzer N=47 contaminado).
+- Archivos locales /tmp/* (no commiteados): attribution_summary + funding_context_post-v244 + Fase 2 + Fase 3 outputs.
+
+Cierre: permanente. Sesión 2026-04-23 cerrada con 3 refutaciones + 1 lección nueva + 2 items §13.3 nuevos + 2 updates §13.3.
+
+---
 
 **[SESIÓN] [RESUELTO] Sesión 2026-04-22 — Bloque 1 cooldown + Bloque 2 v2.6 refutado + Bloque 2 ampliado observabilidad + micro-items cierre**
 
