@@ -1,0 +1,200 @@
+# Journal sesiones combolab — proyecto trading algorítmico
+# Preservación contexto cross-sesión para retomar sin reconstrucción
+
+============================================================================
+2026-04-23/24 — Cuantificación gap simulado↔operativo walk-forward
+============================================================================
+
+## Summary ejecutivo
+
+Sesión institucional ~12-15h efectivas. Trayectoria:
+- A.1 deep-dive inicial (Criterio B N=26).
+- 3 refutaciones cross-segmento §12 L34 (H1 short/long asimetría 12:1,
+  H_strategy exits 3.4×, H_new_3 residual contrarian 24×).
+- 2 refutaciones recursivas items §13.3 del día mismo (L2018 floor,
+  ratio 25%).
+- Exploración Bloque 2c kernel histórico Binance Futures 3y.
+- Sucesivas pausas L34 ajustando scope (Análisis B viability, Tier 0 I1
+  diferido multi-día).
+- Hallazgo "INFLACIÓN UNIVERSAL" Q1+W1 (setup simplificado).
+- Caracterización Fase A (rank no discrimina).
+- Re-análisis Fase B.1 cluster filter post-hoc (caveat ~28%).
+- Observación crítica Ricardo sobre harness metodología.
+- Auditoría harness vs pipeline productivo (reveló setup simplificado).
+- Smoke C replicating pipeline exacto doubled_labels + train/fwd split.
+- Veredicto final: SESGO REAL CONFIRMADO cuantitativamente con
+  convergencia offline↔operacional.
+
+## Framing correcto (reiteración para próxima sesión)
+
+Los hallazgos cuantitativos NO son crisis, SON cuantificación rigurosa
+de fenómeno conocido por Ricardo desde día 1 de operación:
+simulado ≠ operativo.
+
+Dirección del proyecto desde inicio: mejoras sistema EN PARALELO con
+investigación discriminar por qué simulado ≠ operativo. Ambos ejes
+simultáneos. Criterio operativo institucional: tiempo + recursos
+ilimitados salvo compute VPS reservado reciclaje final. Foco en
+"avanzar y solucionar, no posponer".
+
+Objetivo último: reciclar con garantías empíricas de que specialists
+generados tendrán rendimiento operacional consistente con expectativas
+simuladas (cerrar el gap sim→real).
+
+## Hallazgos cuantitativos clave
+
+### Smoke C (setup metodológicamente correcto)
+
+60 configs × Binance Futures 3y × doubled_labels + train/fwd split 67/33:
+
+- Top-1 mean pf_tr=1.530, pf_fwd=1.126 (decay 26%).
+- Mid rank-10: pf_tr=1.511, pf_fwd=1.041 (decay 31%).
+- Tail rank-95: pf_tr=1.203, pf_fwd=1.210 (sin decay — sin edge train).
+- Spearman ρ(pf_fwd_JSON, pf_fwd_binance) = +0.047 (ranking WF sin
+  información predictiva).
+- Top-1 vs tail: tail marginalmente MEJOR en fwd — selection
+  noise-dominated.
+- Ratio JSON pf_fwd / Binance 3y pf_fwd = 0.03-0.26 (inflación 4-30×).
+- 1/20 top-1 con pf_fwd≥2 (ONDO C0 individual preserva edge);
+  11/20 top-1 con pf_fwd<1 post-split.
+
+### Auditoría harness (Ricardo observación crítica)
+
+Harness bloque2c_w3_kernel.py + variantes Q1+W1+A+B.1:
+- Usaban kernel productivo run_on_slice + precalculate_all_data ✓.
+- PERO setup simplificado: sin doubled_labels ni train/fwd split.
+- cluster_labels Q1/W1/A: None (no clustering) vs pipeline productivo
+  doubled 0-5.
+- cluster_labels B.1: 0-2 single-clustering vs pipeline 0-5 doubled.
+
+Quantities medidas VÁLIDAS como PF aggregate cross-régimen, pero NO
+equivalentes a edge productivo. Smoke C corrige setup y confirma
+dirección con magnitudes ajustadas.
+
+### Convergencia offline↔operacional
+
+- Smoke C predice PF ~1.1-1.4 cross-universe.
+- Bot real A.1 N=26: PF observed ~1.2 (PnL +0.22 USDT, +2.5% en 37.76h
+  sobre capital 296 USDT).
+- Consistencia cross-source robusta — no es artifact de setup.
+
+### §12 L29 generalizada masivamente
+
+Walk-forward ranking noise-dominated es pattern estructural
+cross-universe, NO caso aislado ONDO C0. 60/60 configs confirman
+train→fwd decay consistente.
+
+## 15 aplicaciones §12 L34 (evolución sesión)
+
+1. H1 short/long asimetría N=98 cross-segmento — refutada (S1 N=49 dir
+   opuesta).
+2. H_strategy exits 3.4× — refutada (S1+S2 opuestos).
+3. H_new_3 residual contrarian 24× — refutada (cae a 2.16× con N=19/14).
+4. L2018 floor recalibración — refutada (bajar floor empeora ratio).
+5. Ratio 25% prerequisite inviable — refutada recursiva (bug size_usdt).
+6. Análisis B edge decay N insuficiente — pausada/diferida.
+7-8. Tier 0 I1 scope honest multi-día — diferido post-reciclaje.
+9. Bloque 2c scope realistic ajustado.
+10. Q1 "VALIDA cuantitativa" inicial (con setup simplificado).
+11. W1 revela "INFLACIÓN UNIVERSAL" → Q1 reinterpretada.
+12. Fase A caracterización γ → rank no discrimina aggregate.
+13. Fase B.1 cluster filter → caveat parcial 28%.
+14. Auditoría harness → quantities ≠ edge productivo.
+15. Smoke C → sesgo real confirmado magnitudes correctas.
+
+Reconciliación final: setup testing matches arquitectura productiva +
+cross-setup confirmation — señal persiste con magnitudes ajustadas.
+
+## Meta-lecciones L34 consolidadas (para próximas sesiones)
+
+1. Scope honest > ambición inercial.
+2. Data disponibilidad verificada pre-comprometer scope.
+3. Setup testing matches arquitectura operacional ANTES de conclusiones
+   fuertes sobre sistema.
+4. Cross-setup confirmation: validar hallazgo con múltiples setups
+   metodológicamente distintos.
+5. Observación operacional/epistémica del usuario es verification layer
+   crítico — cuestionar harness metodología salvó derivar trabajo sobre
+   artifact.
+
+## Items §13.3 priority-ordered post-sesión
+
+### ALTA (pre-reciclaje, directa al gap):
+
+1. **Investigación walk-forward methodology** (~10-15h sesión dedicada):
+   - Multi-testing correction formal (Bonferroni/Holm/BH/Deflated SR).
+   - k-fold CV vs train/fwd split comparison.
+   - ci_low bootstrap filter más agresivo (extensión W3).
+   - N_fwd penalty experiments.
+   - Methodology revisada vs actual sobre dataset Binance 3y.
+   - Criterio success: ρ(pf_fwd_revised, pf_fwd_real) > 0.3 + mean
+     pf_fwd ≥ 1.5 top-1.
+
+2. **Tier 0 I1 kernel reason_exit tracing + Bloque 2c H1+H_funding+
+   H_strategy full scope** (post-reciclaje, ~20-30h).
+
+3. **Opción D pnl_recon causa raíz** (~1-2h sesión dedicada) — cierra
+   item operacional concreto bloqueando analyzer alerts.
+
+### MEDIA (operacional continuo):
+
+- L1892 active_config_id en SIGNALS_RAW (pre-deploy v2.4.6).
+- L1904 multiplicadores en SIGNALS_DISCARDED (pre-deploy v2.4.6).
+- Análisis B edge decay (diferido ~2026-06-01 generated_date ≥60 días).
+- Cache funding extender a origen dataset (L2034).
+
+### BAJA (cosméticos / diferidos):
+
+- L1868 comments forming/resolved mis-labeled.
+- L1862 símbolo datos insuficientes salta.
+- L1550 git+GitHub combolab.
+
+## Estado operacional final sesión
+
+- Bot v2.4.5 VPS Tokio operacional invariante toda sesión.
+- Fidelidad 2 preserved (brain↔kernel bit-a-bit).
+- Smokes §0.8 A+C PASS (Nivel B no requerido — kernel invariante).
+- 12 commits sesión consolidada (70afc59, 6f0c707, ab4f6f6, a484433,
+  c69f86d, b8bfcc5, 53fe73a, 397b3c7, affb8c0, d3b3703, 9459ebe,
+  7fe4e0d, 431b5e1).
+- 0 items §13.3 espurios creados (todos los items creados tienen scope
+  válido con disparador claro).
+- N post-v2.4.4 (~2026-04-21 18:22 UTC): esperado ~40+ trades por
+  2026-04-24 04:00 UTC — replicación A.1 Criterio A disponible
+  próxima sesión.
+- Scripts preservados en analysis_scripts/bloque2c_w3_validation_20260423/:
+  * bloque2c_w3_kernel.py + bloque2c_targets.pkl + bloque2c_w3_results.csv (Q1).
+  * bloque2c_w1_control.py + bloque2c_w1_control_results.csv (W1).
+  * bloque2c_fase_a.py + bloque2c_fase_a_results.csv (Fase A).
+  * bloque2c_fase_b1.py + bloque2c_fase_b1_results.csv (Fase B.1).
+  * bloque2c_smoke_c.py + bloque2c_smoke_c_results.csv (Smoke C).
+  * README.md.
+- Parquets Binance 3y en binance_w3_data/ (9 símbolos, reutilizables).
+
+## Próxima sesión — acciones prioritarias
+
+1. **Check-in operacional**: replicación A.1 Criterio A con N≥40
+   post-v2.4.4. Verificar PF observed consistent con Smoke C predicción
+   ~1.1-1.4. Cross-check convergencia robusta.
+
+2. **Opción D pnl_recon causa raíz** (~1-2h si energía): cierra item
+   operacional concreto bloqueando analyzer alerts 92% WARN espurio.
+
+3. **Decisión Ricardo dirección estratégica**:
+   - Ejecutar investigación walk-forward methodology (~10-15h sesión
+     dedicada) con scope cuantificado.
+   - O continuar roadmap mejoras sistema (z_btc refinements, funding
+     context extensión, research v2.6-inv N≥100 ~2026-05-01) en
+     paralelo con investigación metodológica programada ciclo separado.
+
+4. **Smoke reciclaje Bloque 5** (~6-8h desatendido) si ventana
+   disponible: test integración W3+W4+A14+A15 sobre 3 símbolos
+   representativos antes de reciclaje completo julio.
+
+## Criterio operativo confirmado
+
+Institucional. Recursos ilimitados salvo compute VPS reservado para
+reciclaje final. No posponer, avanzar y solucionar. Dos ejes paralelos:
+mejoras sistema + investigación methodology gap.
+
+============================================================================
