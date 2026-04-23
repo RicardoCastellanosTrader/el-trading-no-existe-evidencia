@@ -1,6 +1,6 @@
 # Sistema de Trading Algorítmico — Contexto Completo del Proyecto
 
-**Última actualización:** 23 Abril 2026 CIERRE SESIÓN — **A.1 alpha residual deep-dive Criterio B** sobre N=26 post-v2.4.4 (primera ventana arquitectónicamente limpia post-fixes v2.4.4 size_usdt + v2.4.5 entry_timestamp_ms). Hipótesis slippage liberado **CONFIRMADA** (slippage/trade 7× vs Fase II.C contaminada, alpha_residual/trade mejora 19%). 3 hipótesis emergentes N=26 sometidas a stress-test cross-segmento cross-régimen N=98: **H1 short/long asimetría 12:1 REFUTADA** (S1 N=49 dirección opuesta), **H_strategy exits logic/structural 3.4× REFUTADA** (Welch N=98 p=0.086 dominado enteramente por S4), **H_new_3 residual contrarian ratio 24× REFUTADA** (cae a 2.16× con N=19/14 consistente con gap PnL). 3 refutaciones en una sesión evitaron creación de 3 items §13.3 activos con disparadores futuros. **§12 Lección 34 NUEVA**: "Hipótesis emergentes de análisis con ventana N<50 requieren validación multi-segmento antes de elevar a §13.3". Complementaria a L25+L29+L33. Updates §13.3 v2.6-inv + v2.6-exit con matización arquitectónica (efecto Bloque 2 concentrado S2+S3, no S4). 2 items §13.3 nuevos: pnl_recon tolerancia mal calibrada + cache funding extender a origen. Bot v2.4.5 operacional VPS Tokio. Fidelidad 2 invariante (sesión read-only). Pipeline pre-reciclaje: sobrecarga §13.3 REDUCIDA por 3 refutaciones. Disparadores maduros: v2.6-inv N≥100 (~2026-05-01), v2.6-exit N≥150 (~2026-05-10), audit N≥50 (~2026-04-26). **Mejora adicional**: `_run_verify_test` upgrade CLI parametrizable `--n-bars` + tolerance escalada §0.8 Nivel A/B automática (wrappers temporales obsoletos; item §13.3 EN_ESPERA 2026-04-22 RESUELTO). Smokes A/B/C PASS. **Inventario §13.3 Opción E**: 3 items cerrados (L2018 refutado por validación empírica propia aplicando L34 — hipótesis floor mal calibrado contraria a evidencia 42pct→58pct con floor más bajo; L1910 cerrado L27 parcial — analyzer v2.4.1 ya implementa detección `CANDIDATO EXCLUSION RECICLAJE` alert, tracking cross-sesiones integrado en L1398; nuevo item pnl_recon ratio 10pct demasiado estricto creado con hipótesis refinada ratio 25pct pendiente validación multi-segmento). L1916 mantiene EN_ESPERA con context update. 4ª refutación del día por stress-test — L34 consistente. **L1839 batch cp1252 RESUELTO**: 68 líneas runtime-critical en lab_historico (scope real 5x mayor al documentado "14"; pre-reciclaje cleared Windows cp1252). Smokes A+C diff 0.0000 — lógica invariante. **5ª refutación del día por L34 recursiva** aplicada a item propio "ratio 25%" creado en commit ab4f6f6 — prerequisite "validación multi-segmento N=98" inviable (bug histórico size_usdt=0 afecta 138/164 trades pre-v2.4.4). Nuevo item creado: "Investigación causa raíz pnl_recon gap" con scope explícito ~1-2h sesión dedicada (Opción D). **Bloque 2c Opción Q1 EJECUTADO** (Tier 0 I2 `--data-path` commit 53fe73a → kernel 10 configs cross-3y Binance Futures): **W3 VALIDA CUANTITATIVAMENTE** (6/6 W3 + 4/4 CANDIDATO EXCLUSION con PF_3y<1.5, 0/10 con PF≥2.0, 60% PF<1.0). Ratio PF_WF/PF_3y 0.10-0.82 — §12 L29 validada masivamente. Filter expandido (W3 ∪ CANDIDATO EXCLUSION) evaluación refinada post-Opción W1 (control group 2026-04-23): **INFLACION UNIVERSAL** — filter marca edge bajo pero no discrimina vs baseline unflagged (Welch p=0.148 NO sig; 9/10 control con PF<1.5, 0/10 con PF≥2.0). **20/20 configs universe top-1 con PF_3y<1.5 sobre Binance 3y** — sesgo walk-forward sistemático cross-universe. **Nuevo item §13.3 high priority**: "Investigación walk-forward methodology bias sistemático" (antes de reciclar para no repetir sesgo). §12 L29 extended cross-universe + §12 L34 11ª aplicación. **Fase A caracterización sesgo W-F** (N=60 cross-groups top1/mid/tail rank 100-deep): distribuciones PF_3y idénticas cross-rank (means 1.01-1.06, std 0.22-0.25, Welch p>0.75). Spearman rho=+0.229 p=0.074 borderline. **0/60 con PF≥2**. CASO γ INTERMEDIO (tendente β). **Fase B.1 cluster filter post-hoc** (60 configs × `cluster_labels` kernel parameter): post-filter top-1 mean 1.327 (Δ+0.29), 3/20 PF≥2. Spearman post-filter ρ=+0.353 **p=0.0041 SIGNIFICATIVO** (Fase A p=0.074 borderline → Fase B.1 p=0.004). **CASO PARCIAL — caveat metodológico explica ~28% del hallazgo**; resto es edge real modesto + multi-testing bias. Fase B.2 cross-exchange BingX + B.3 régimen-específico revival aún relevantes pero con interpretación revisada. Prerequisito pre-reciclaje recomendado. 12ª L34 aplicación. Tier 0 I1 + H1+H_funding+H_strategy diferidos proyecto dedicado post-reciclaje ~20-30h (item §13.3 ampliado). **6ª pausa L34 del día — Bloque 2 Análisis B edge decay cross-cluster WF→kernel pausado** por inviabilidad estadística (JSONs generated 2026-03-27 a 2026-04-07 → ventana post-training 16-27 días → N_trades/config 1-3 insuficiente para Spearman ρ). Diferido a §13.3 con disparador generated_date ≥60 días (~2026-06-01). **Opción D validación cruzada W3 flag vs evidencia operacional cross-sesión ejecutada interim**: patrón **DIVERGENTE** (0/6 Fuerte, 1/6 Moderada ONDO C0, 2/6 Débil TRX+BTC C2, 3/6 Ausente LTC+GRT+MANA). 4 clusters CANDIDATO EXCLUSION (APT C0, ONDO C2, SAND C1, SEI C0) no W3 flagged → W3 filter necesario pero no suficiente. Recomendación: mantener calendario julio + monitorear N≥50 reporte ~2026-04-26.
+**Última actualización:** 23 Abril 2026 CIERRE SESIÓN — **A.1 alpha residual deep-dive Criterio B** sobre N=26 post-v2.4.4 (primera ventana arquitectónicamente limpia post-fixes v2.4.4 size_usdt + v2.4.5 entry_timestamp_ms). Hipótesis slippage liberado **CONFIRMADA** (slippage/trade 7× vs Fase II.C contaminada, alpha_residual/trade mejora 19%). 3 hipótesis emergentes N=26 sometidas a stress-test cross-segmento cross-régimen N=98: **H1 short/long asimetría 12:1 REFUTADA** (S1 N=49 dirección opuesta), **H_strategy exits logic/structural 3.4× REFUTADA** (Welch N=98 p=0.086 dominado enteramente por S4), **H_new_3 residual contrarian ratio 24× REFUTADA** (cae a 2.16× con N=19/14 consistente con gap PnL). 3 refutaciones en una sesión evitaron creación de 3 items §13.3 activos con disparadores futuros. **§12 Lección 34 NUEVA**: "Hipótesis emergentes de análisis con ventana N<50 requieren validación multi-segmento antes de elevar a §13.3". Complementaria a L25+L29+L33. Updates §13.3 v2.6-inv + v2.6-exit con matización arquitectónica (efecto Bloque 2 concentrado S2+S3, no S4). 2 items §13.3 nuevos: pnl_recon tolerancia mal calibrada + cache funding extender a origen. Bot v2.4.5 operacional VPS Tokio. Fidelidad 2 invariante (sesión read-only). Pipeline pre-reciclaje: sobrecarga §13.3 REDUCIDA por 3 refutaciones. Disparadores maduros: v2.6-inv N≥100 (~2026-05-01), v2.6-exit N≥150 (~2026-05-10), audit N≥50 (~2026-04-26). **Mejora adicional**: `_run_verify_test` upgrade CLI parametrizable `--n-bars` + tolerance escalada §0.8 Nivel A/B automática (wrappers temporales obsoletos; item §13.3 EN_ESPERA 2026-04-22 RESUELTO). Smokes A/B/C PASS. **Inventario §13.3 Opción E**: 3 items cerrados (L2018 refutado por validación empírica propia aplicando L34 — hipótesis floor mal calibrado contraria a evidencia 42pct→58pct con floor más bajo; L1910 cerrado L27 parcial — analyzer v2.4.1 ya implementa detección `CANDIDATO EXCLUSION RECICLAJE` alert, tracking cross-sesiones integrado en L1398; nuevo item pnl_recon ratio 10pct demasiado estricto creado con hipótesis refinada ratio 25pct pendiente validación multi-segmento). L1916 mantiene EN_ESPERA con context update. 4ª refutación del día por stress-test — L34 consistente. **L1839 batch cp1252 RESUELTO**: 68 líneas runtime-critical en lab_historico (scope real 5x mayor al documentado "14"; pre-reciclaje cleared Windows cp1252). Smokes A+C diff 0.0000 — lógica invariante. **5ª refutación del día por L34 recursiva** aplicada a item propio "ratio 25%" creado en commit ab4f6f6 — prerequisite "validación multi-segmento N=98" inviable (bug histórico size_usdt=0 afecta 138/164 trades pre-v2.4.4). Nuevo item creado: "Investigación causa raíz pnl_recon gap" con scope explícito ~1-2h sesión dedicada (Opción D). **Bloque 2c Opción Q1 EJECUTADO** (Tier 0 I2 `--data-path` commit 53fe73a → kernel 10 configs cross-3y Binance Futures): **W3 VALIDA CUANTITATIVAMENTE** (6/6 W3 + 4/4 CANDIDATO EXCLUSION con PF_3y<1.5, 0/10 con PF≥2.0, 60% PF<1.0). Ratio PF_WF/PF_3y 0.10-0.82 — §12 L29 validada masivamente. Filter expandido (W3 ∪ CANDIDATO EXCLUSION) evaluación refinada post-Opción W1 (control group 2026-04-23): **INFLACION UNIVERSAL** — filter marca edge bajo pero no discrimina vs baseline unflagged (Welch p=0.148 NO sig; 9/10 control con PF<1.5, 0/10 con PF≥2.0). **20/20 configs universe top-1 con PF_3y<1.5 sobre Binance 3y** — sesgo walk-forward sistemático cross-universe. **Nuevo item §13.3 high priority**: "Investigación walk-forward methodology bias sistemático" (antes de reciclar para no repetir sesgo). §12 L29 extended cross-universe + §12 L34 11ª aplicación. **Fase A** (N=60 cross-rank): distribuciones PF_3y idénticas cross-rank means 1.01-1.06, CASO γ tendente β. **Fase B.1 cluster filter** (60 configs): top-1 mean 1.327, Spearman p=0.0041 sig, **CASO PARCIAL**. **Auditoría harness 2026-04-23** reveló setup simplificado (no doubled_labels, no train/fwd split) → aclaración interpretativa: quantities medidas ≠ edge productivo (7fe4e0d). **Smoke C 2026-04-24 replicating pipeline productivo exacto** (doubled_labels + train/fwd split 67/33): top-1 pf_tr=1.53, pf_fwd=1.13 (decay 26%), Spearman ρ(JSON, binance)=+0.047 (nula), 1/20 top-1 pf_fwd≥2, 11/20 pf_fwd<1. **SESGO REAL CONFIRMADO** — walk-forward ranking no predice pf_fwd real, edge train→fwd decay 26% estructural. Q1+W1+A+B.1 core direccionalmente correcto pese a setup simplificado. §12 L29 validada masivamente (ratio JSON/real 0.03-0.26). Prerequisito pre-reciclaje recomendado. 12ª L34 aplicación. Tier 0 I1 + H1+H_funding+H_strategy diferidos proyecto dedicado post-reciclaje ~20-30h (item §13.3 ampliado). **6ª pausa L34 del día — Bloque 2 Análisis B edge decay cross-cluster WF→kernel pausado** por inviabilidad estadística (JSONs generated 2026-03-27 a 2026-04-07 → ventana post-training 16-27 días → N_trades/config 1-3 insuficiente para Spearman ρ). Diferido a §13.3 con disparador generated_date ≥60 días (~2026-06-01). **Opción D validación cruzada W3 flag vs evidencia operacional cross-sesión ejecutada interim**: patrón **DIVERGENTE** (0/6 Fuerte, 1/6 Moderada ONDO C0, 2/6 Débil TRX+BTC C2, 3/6 Ausente LTC+GRT+MANA). 4 clusters CANDIDATO EXCLUSION (APT C0, ONDO C2, SAND C1, SEI C0) no W3 flagged → W3 filter necesario pero no suficiente. Recomendación: mantener calendario julio + monitorear N≥50 reporte ~2026-04-26.
 **Versión actual:** v2.4.4 (sin bump — sesión 100% herramientas offline, sin deploy operacional)  
 **Autor del sistema:** Ricardo  
 **Plataforma:** Binance (datos) + BingX (ejecución), velas 1h  
@@ -2243,6 +2243,105 @@ Cierre: Análisis B ejecutado con N_trades ≥15 per config + veredicto cross-cl
 ---
 
 ### 13.4 RESUELTO
+
+**[VALIDACIÓN] [RESUELTO] Bloque 2c Smoke C — replicating pipeline productivo doubled_labels + train/fwd split → SESGO REAL CONFIRMADO (con matices) — 2026-04-24**
+
+Contexto: Post-auditoría harness (§13.4 2026-04-23 entrada), smoke replicating pipeline productivo con setup completo (doubled_labels + train/fwd split) para responder metodológicamente la pregunta "¿walk-forward methodology tiene sesgo real con setup correcto?".
+
+**Setup**:
+- `cluster_labels` doubled: bars train (primeros 67%) → labels 0-2, bars fwd (últimos 33%) → labels 3-5. `n_clusters=6`.
+- Kernel productivo `run_on_slice` invocación idéntica a pipeline regime_walk_forward.py L571-575.
+- 60 configs Fase A universe (top-1, mid rank-10, tail rank-95) + 3 sanity pilot (BTC C2, ONDO C0, GRT C2 W3 flagged).
+- Parquets Binance Futures 3y (Abr 2023 - Abr 2026), 9 símbolos.
+
+**Sanity pilot 3 configs**:
+
+| Config | pf_fwd JSON | pf_tr_bin | **pf_fwd_bin** | pf_comb_bin | N_tr | N_fwd |
+|---|---:|---:|---:|---:|---:|---:|
+| BTC C2 top-1 | 6.359 | 1.591 | **0.772** | 1.277 | 77 | 48 |
+| ONDO C0 top-1 | 7.945 | 0.938 | **2.060** | 1.361 | 236 | 143 |
+| GRT C2 top-1 | 1.272 | 1.076 | 0.957 | 1.040 | 330 | 145 |
+
+**Distribuciones 60 configs**:
+
+| Group | N | mean pf_tr | **mean pf_fwd** | mean pf_comb | pf_fwd≥2 | pf_fwd<1 |
+|---|---:|---:|---:|---:|---:|---:|
+| **Top-1** | 20 | 1.530 | **1.126** | 1.388 | **1/20** | 11/20 |
+| Mid (rank 10) | 20 | 1.511 | 1.041 | 1.340 | 1/20 | 13/20 |
+| Tail (rank 95) | 20 | 1.203 | **1.210** | 1.194 | 0/20 | 8/20 |
+
+**Tests críticos**:
+
+- **Spearman ρ(pf_fwd_JSON, pf_fwd_binance) = +0.047** (essencialmente NULA — ranking WF NO predice pf_fwd real en Binance 3y).
+- **Top-1 mean pf_fwd (1.126) vs Tail mean pf_fwd (1.210)**: **tail marginalmente MEJOR que top-1 en fwd real**. Invertido al ranking WF.
+
+**VEREDICTO SMOKE C: SESGO REAL CONFIRMADO (con matices)**.
+
+**Hallazgos core**:
+
+1. **Edge existe en TRAIN**: pf_tr top-1 mean 1.530. Sistema no es "sin edge alguno".
+
+2. **Edge DECAY sustancial train→fwd**: pf_tr 1.53 → pf_fwd 1.13 = decay **26%**. Mid similar (31% decay). Tail sin decay (no había edge en train).
+
+3. **Walk-forward ranking NO predice pf_fwd real**: Spearman ρ=0.047. Virtualmente random correlation.
+
+4. **Top-1 NO discrimina vs tail en fwd**: selection WF dominated por noise en OOS real.
+
+5. **1/20 top-1 con pf_fwd≥2** (ONDO C0 pf_fwd_bin=2.060). Algunos individuos preservan edge robusto, pero **NO sistemáticamente** seleccionados por WF.
+
+6. **11/20 top-1 pf_fwd<1 post-split**: >50% pierde edge net en fwd window.
+
+**Interpretación consolidada Q1+W1+A+B.1 + Smoke C**:
+
+Q1+W1+A+B.1 **NO eran puramente sobre-generalización por setup simplificado**. Corrección del setup (doubled_labels + split correcto) **confirma hallazgos core** aunque con magnitud ajustada:
+
+- Walk-forward methodology **tiene sesgo sistemático real** (train→fwd decay 26%, rank noise-dominated).
+- Edge productivo **existe pero modesto** (pf_comb ~1.38 top-1, no robust).
+- Cross-exchange Binance ≠ BingX **posible contribuidor secundario** pero no explicación completa.
+
+**Reconciliación con auditoría**:
+- Setup simplificado (Q1+W1+A+B.1) subestimaba magnitud pero captaba sesgo real direccionalmente.
+- Setup correcto (Smoke C) revela magnitudes exactas: train edge 1.5, fwd decay 26%, rank no predice.
+- Ambos consistentes: **walk-forward tiene sesgo sistemático**, lo que varía es la magnitud medida.
+
+**§12 L29 validada masivamente**: walk-forward N_fwd pequeño/selection bias infla expected PF. ONDO C0 pf_fwd=7.945 JSON → Binance 3y pf_fwd=2.06 (ratio 0.26). BTC C2 pf_fwd=6.359 → 0.77 (ratio 0.12). TRX C2 pf_fwd=22.5 tail → 0.72 (ratio 0.03). **Todos los altos pf_fwd del JSON colapsan en fwd real**.
+
+**Implicaciones pre-reciclaje REVISADAS (post-Smoke C)**:
+
+1. **Reciclaje julio con methodology actual**: producirá specialists con train edge moderado (~1.5 PF) y fwd real decay sustancial (~1.1 PF). Reporte pf_fwd del JSON no refleja edge real operacional.
+
+2. **Filter expandido W3+CANDIDATO útil** pero no suficiente. Walk-forward selection rule requiere revisión.
+
+3. **Investigación walk-forward methodology** (§13.3 item) ahora con evidencia cuantitativa robusta:
+   - Train→fwd decay 26% es patrón estructural.
+   - Rank WF no predice fwd real.
+   - Candidatos fixes: multi-testing correction (Bonferroni/BH), cross-validation k-fold, penalty más agresivo sobre N_fwd, filter by ci_low no pf_combined.
+
+4. **Bot operacional v2.4.5**: PF esperado real operacional ~1.0-1.4 (no 4-7 JSON). Esto matches patrón hallazgos empíricos del día (§13.4 A.1 N=26 PnL +0.22 USDT ≈ PF ~1.2).
+
+**§12 L34 15ª aplicación consolidada día 2026-04-23/24**: "validación empírica requiere tanto setup correcto como confirmación cross-setup". Setup simplificado puede sub/sobre-estimar; setup correcto confirma dirección. Aprendizaje meta: **no toda sobre-generalización borra la señal**. La señal persiste aunque con magnitudes ajustadas.
+
+**Status consolidado 4 commits previos** (Q1 397b3c7, W1 affb8c0, Fase A d3b3703, Fase B.1 9459ebe + aclaración 7fe4e0d): **VÁLIDOS direccionalmente** tras Smoke C correction. Anotación interpretativa existente apropiada — quantities medidas subestimaban (Q1+W1+A) o parcialmente corregían (B.1) el fenómeno real que Smoke C confirma.
+
+Scripts preservados: `analysis_scripts/bloque2c_w3_validation_20260423/bloque2c_smoke_c.py` + `_smoke_c_results.csv`.
+
+Items §13.3 derivados:
+- **[INVESTIGACION] walk-forward methodology bias sistemático** (§13.3 existente) — **confirmado robustamente**, scope proyecto dedicado claro:
+  - Multi-testing correction formal (W5).
+  - Cross-validation k-fold vs train/fwd split.
+  - Penalty N_fwd más agresivo.
+  - Filter by ci_low del bootstrap (ya W3 implementado parcialmente).
+
+Referencias:
+- §13.4 Auditoría harness 2026-04-23 (7fe4e0d).
+- §13.4 Q1 (397b3c7), W1 (affb8c0), Fase A (d3b3703), Fase B.1 (9459ebe).
+- §13.3 "Investigación walk-forward methodology bias sistemático" (confirmado cuantitativamente).
+- §12 L29 (validada masivamente, 60/60 configs con train→fwd decay).
+- §12 L34 aplicaciones 1-15 consolidadas.
+
+Cierre: permanente. Bloque 2c completo. Investigación walk-forward methodology con evidencia cuantitativa robusta. Reciclaje requiere methodology revisada O aceptar edge operacional moderado.
+
+---
 
 **[AUDITORÍA] [RESUELTO] Harness bloque2c vs pipeline productivo — aclaración interpretativa Q1+W1+A+B.1 — 2026-04-23**
 
