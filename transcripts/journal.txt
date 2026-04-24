@@ -198,3 +198,57 @@ reciclaje final. No posponer, avanzar y solucionar. Dos ejes paralelos:
 mejoras sistema + investigación methodology gap.
 
 ============================================================================
+
+
+============================================================================
+2026-04-24 post-cierre — smoke reciclaje Bloque 5 PASS + refinamiento §13.2
+============================================================================
+
+## Contexto
+
+Tras smoke reciclaje Bloque 5 PASS (15h 47m, 3/3 símbolos BTC/ONDO/SEI,
+exit 0), conversación Ricardo + Claude 2026-04-24 identificó que framing
+§13.2 original "walk-forward selection noise-dominated" era
+categóricamente incorrecto. Marco mecánico preciso desarrollado:
+2 mecanismos específicos con fix identificado.
+
+## Actualización clave
+
+§13.2 HALLAZGO ESTRUCTURAL actualizada con bloque REFINAMIENTO
+canónico. Sesiones futuras DEBEN referenciar ese bloque antes de
+re-interpretar Smoke C / r=0.087 / walk-forward bias. Scope
+investigación walk-forward methodology recortado a 8-12h (2 mecanismos
+acotados + 3-4 refinamientos menores) vs 10-15h "revisión fundamental"
+original.
+
+## Análisis comparativo JSONs smoke 2026-04-24 vs backup pre-smoke
+
+9 (symbol, cluster) top-1 analizados:
+- pf_fwd mean: 4.630 → 2.864 (-38%).
+- N_fwd mean: 44.2 → 88.6 (+100%).
+- N_fwd < 25: 4/9 → 0/9 (Mecanismo 1 eliminado).
+- flag_sospechoso_outlier: 0/9 en smoke.
+- 9/9 top-1 cambió entre backup y smoke (W3+W4 re-rankean activo).
+- 0 orphan clusters.
+- ratio pf_fwd/pf_tr smoke: 1.05-2.47 mean 1.61 (todos ≥1.0, ningún
+  caso de dilución clásica pero sesgo persistente redirigido).
+
+## Veredicto
+
+- Mecanismo 1 fuertemente atacado ✓.
+- Mecanismo 2 atenuado no eliminado (fix completo pendiente: re-orden
+  por pf_fwd_ci_low directo).
+- Pipeline W3+W4+A14+A15 validated integración end-to-end ✓.
+
+## Próxima sesión puede retomar
+
+1. Check-in operacional A.1 Criterio A con N≥40-50 post-v2.4.4
+   (probablemente ya disponible).
+2. Considerar ejecutar Opción D pnl_recon causa raíz (~1-2h).
+3. Decisión investigación walk-forward methodology scope recortado
+   (Mecanismo 2 fix + 3-4 refinamientos menores) — ya con base
+   empírica smoke.
+4. Considerar lanzar reciclaje completo 45 símbolos (extrapolación
+   ~180-225h compute).
+
+============================================================================
