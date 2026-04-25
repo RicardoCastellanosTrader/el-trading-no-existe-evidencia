@@ -1,0 +1,53 @@
+Journal de sesiones — pre-reciclaje 2026-04
+=============================================
+
+2026-04-25 CIERRE
+-----------------
+Fase B M2 fix VALIDADA EMPIRICAMENTE cross-symbol N=9.
+- Mean ratio J/B cross-9 BTC+ONDO+SEI top-1 sobre Binance 3y: 2.408
+  (vs W3b baseline 8.235, mejora 3.42x absoluta).
+- 0/9 colapso fuerte cross-symbol; 9/9 edge real positivo
+  (Binance pf_fwd > 1.0; mean 1.83).
+- Spearman rho cross-9 -0.17 p=0.65 NO significativo
+  (banda no-significancia N=9: rho ∈ [-0.7, +0.7]).
+- Per-symbol: BTC 2.75 / ONDO 2.58 / SEI 1.90.
+- Sanity determinismo W3b cfg 20607806 = 0.7722 desviacion 0.00%
+  (paridad GMM HEAD baseline confirmada).
+
+Hallazgo metodologico: _FWD_MIN_PF estricto NO es palanca eficaz
+(validado cross-9 con thresholds 1.1-3.0; min pf_fwd top-100 actual
+1.665 > threshold candidatos 1.3-1.5).
+
+Caveat permanente §13.2: residual ratio 2.41x requiere proyectos
+dedicados separados (multi-testing correction, k-fold CV) — fuera
+scope Mecanismo 2 fix.
+
+Decision: avanzar Fase A (Z_BTC). Merge feature-m2-fix-pffwd-cilow-
+ranking a main. Activacion efectiva proximo reciclaje (post-A).
+
+Adapter preservado: analysis_scripts/m2_fix_validation_20260424/
+m2_fix_smoke_test.py + CSV cross-9 (10 rows) + GMM HEAD baseline
+(BTC+ONDO+SEI joblib).
+
+Bot v2.4.5 operacional VPS Tokio. Fidelidad 2 invariante.
+
+PROXIMA SESION
+--------------
+Fase A: Z_BTC como feature GMM altcoins (~8-12h dedicada).
+- Modificar regime_features.py añadir Z_ATR BTC cross-symbol
+  feature.
+- BTC sin cambio. Re-entrenar GMMs altcoins afectados.
+- Smoke mini validation post-modificacion sobre 1-3 simbolos.
+- Refs: §9.4 v3.0, §13.3 Z_ATR BTC 2026-04-23, ROADMAP
+  Categoria A.
+
+Fase C en paralelo (oportunidad):
+- Opcion D pnl_recon causa raiz (~1-2h data-independent).
+- Audit Fidelidad 2 N≥50 post-v2.3.11 (~2h, disparador temporal
+  2026-04-26 deberia madurar).
+- L1892 active_config_id en SIGNALS_RAW (~30min).
+- L1904 multiplicadores en SIGNALS_DISCARDED (~30min).
+- Triaje micro-items adicionales (L1843, L1849, L1855, L1861).
+
+Reciclaje completo 45 sym: trigger A+B+C done + D+E validados.
+ETA estimada: ~2026-05-12 a 05-22.

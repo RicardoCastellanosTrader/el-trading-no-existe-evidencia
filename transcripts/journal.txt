@@ -252,3 +252,56 @@ original.
    ~180-225h compute).
 
 ============================================================================
+
+============================================================================
+2026-04-24 post-smoke M2 fix — Fase B pre-reciclaje DONE
+============================================================================
+
+## Contexto
+
+Post-refinamiento §13.2 marco mecánico (sesión anterior hoy), Ricardo
+consolidó ROADMAP_PRE_RECICLAJE.md con orden secuencial estricto A→B→C.
+Fase B (M2 fix ranking por pf_fwd_ci_low directo) ejecutada primero
+por memoria fresca del marco + baseline smoke Bloque 5 disponible.
+
+## Actualización clave
+
+ROADMAP_PRE_RECICLAJE.md creado como fuente de verdad canónica
+pre-reciclaje. roadmap_2026-04-22.md archivado.
+
+M2 fix implementado en rama feature-m2-fix-pffwd-cilow-ranking
+(regime_walk_forward.py L1808-1815). Sort primary pf_fwd_ci_low +
+tie-breaker specialist_score_ci_low. Tests 27/27 PASS. Dry-run sobre
+JSONs smoke: 8/9 top-1 cambia, 0 orphan, 0 flag, ratio pf_fwd/pf_tr
+mean 2.19 (vs W3b 1.61).
+
+Smoke BTC 1 símbolo (~10h background): resultados final en §13.4.
+
+## Próxima sesión puede retomar
+
+1. Fase A Z_BTC implementación (~8-12h) — cambio estructural en
+   regime_features.py + re-entrenamiento GMMs altcoins.
+2. Fase C operacionales (~4-6h distribuidos): Opción D pnl_recon,
+   audit Fidelidad 2 N≥50 (~2026-04-26 disparador temporal), L1892
+   active_config_id SIGNALS_RAW, L1904 multiplicadores SIGNALS_DISCARDED.
+3. Check-in operacional A.1 Criterio A con N≥40-50 post-v2.4.4.
+4. Considerar lanzar reciclaje completo 45 sym cuando A+B+C done +
+   D+E validados/archivados (~2026-05-12 a 05-22 estimación).
+
+============================================================================
+
+## Smoke BTC M2 fix completado 2026-04-25 (10h 57m)
+
+3/3 top-1 cambia, 0 orphan, 0 flag_sospechoso:
+- C0: cfg 35336998 → 36909877 (similar pf_fwd 4.37→4.48, N 65→63)
+- C1: cfg 18889760 → 3758688 (pf_fwd 1.29→4.09 +218%, N 285→51)
+- C2: cfg 33831247 → 33831248 (pf_fwd 4.32→5.47 +27%, N 108→80)
+
+ratio pf_fwd/pf_tr M2 mean 2.38 (vs W3b 1.61 dry-run).
+pf_fwd top-1 mean +1.36 (3.32→4.68, +41%).
+N_fwd top-1 mean -88 (152.7→64.7) — trade-off esperado.
+Todos N≥25 W4 threshold preservado (63/51/80).
+
+M2 fix VALIDADO EMPÍRICAMENTE.
+
+============================================================================

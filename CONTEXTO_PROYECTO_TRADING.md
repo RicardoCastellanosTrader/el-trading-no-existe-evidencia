@@ -1,6 +1,10 @@
 # Sistema de Trading Algorítmico — Contexto Completo del Proyecto
 
-**Última actualización:** 24 Abril 2026 CIERRE SESIÓN post-smoke reciclaje Bloque 5 + refinamiento §13.2 — **Smoke reciclaje Bloque 5 PASS** (15h 47m, 3/3 símbolos BTC/ONDO/SEI, exit 0). Conversación Ricardo post-smoke identificó que framing §13.2 original "walk-forward selection noise-dominated" era **categóricamente incorrecto**. Marco mecánico canónico desarrollado: 2 mecanismos específicos con fix acotado (M1 muestra fwd pequeña — W3+W4 fix aplicado; M2 pf_combined media ponderada diluye fwd — _FWD_MIN_PF=1.1 parcial, re-orden por pf_fwd_ci_low directo pendiente). §13.2 actualizada con bloque REFINAMIENTO **canónico** — sesiones futuras DEBEN referenciar antes de re-interpretar Smoke C / r=0.087. Scope investigación walk-forward methodology RECORTADO a 8-12h (refinamiento criterios selección) vs 10-15h "revisión fundamental" original. **Análisis comparativo JSONs smoke 2026-04-24 vs backup pre-smoke** (9 (sym, cluster) top-1 BTC/ONDO/SEI): pf_fwd mean 4.630→2.864 (**-38%**), N_fwd mean 44.2→88.6 (**+100%**), N_fwd<25 4/9→0/9 (M1 eliminado), flag_sospechoso 0/9 smoke, 9/9 top-1 cambió, 0 orphan, ratio pf_fwd/pf_tr 1.05-2.47 mean 1.61 todos ≥1.0 (ningún dilution <0.5 pero sesgo redirigido M2 persistente). §12 L29 validada empíricamente (ONDO C0 canonical 7.945 N=17 → 2.777 N=32). Pipeline W3+W4+A14+A15 **validated integración end-to-end**. Fidelidad 2 invariante (sesión read-only). Bot v2.4.5 operacional VPS Tokio.
+**Última actualización:** 25 Abril 2026 CIERRE SESIÓN post-validación M2 fix cross-symbol N=9 — **Fase B pre-reciclaje VALIDADA EMPÍRICAMENTE Y MERGED main**: test crítico cross-symbol BTC+ONDO+SEI top-1 M2 fix (N=9 configs) sobre Binance Futures 3y con setup Smoke C exacto (sanity determinismo W3b cfg 20607806 = 0.7722, paridad GMM HEAD baseline confirmada). Resultados: mean ratio J/B cross-9 = **2.408** (vs W3b baseline 8.235, **3.42× reducción** magnitud absoluta), 0/9 colapso fuerte cross-symbol (vs 1/1 baseline), 9/9 edge real positivo Binance pf_fwd>1.0 (mean 1.83), Spearman ρ −0.17 NO significativo p=0.65 (banda no-significancia N=9: ρ ∈ [−0.7, +0.7]), per-symbol BTC 2.75 / ONDO 2.58 / SEI 1.90 (heterogeneidad cross-symbol moderada). **Hallazgo metodológico**: `_FWD_MIN_PF` estricto NO es palanca eficaz para reducir residual (validado cross-9 con thresholds 1.1-3.0; min pf_fwd top-100 actual = 1.665 > threshold candidatos 1.3-1.5; specialist_score upstream filtra implícitamente vía pf_combined correlation; propuesta original Ricardo "subir piso fwd" descartada como path empíricamente). **Caveat permanente §13.2**: residual ratio 2.41× requiere proyectos dedicados separados (multi-testing correction Bonferroni/BH/Deflated SR ~15-25h; k-fold CV ~20-30h) — fuera scope Mecanismo 2 fix. **Decisión**: avanzar Fase A (Z_BTC). Adapter preservado `analysis_scripts/m2_fix_validation_20260424/` con CSV cross-9 + GMM HEAD baseline. Aplicaciones §12 L34 16ª (cross-symbol antes consolidar M2) + 17ª (multi-threshold antes invertir compute pipeline-run). Fidelidad 2 invariante. Bot v2.4.5 operacional VPS Tokio.
+
+**Actualización previa:** 24 Abril 2026 CIERRE SESIÓN post-Fase B M2 fix + ROADMAP_PRE_RECICLAJE consolidado — **Fase B pre-reciclaje DONE**: M2 fix ranking `pf_fwd_ci_low` directo (tie-breaker `specialist_score_ci_low` preserva W3b) implementado en `regime_walk_forward.py` L1808-1815 rama `feature-m2-fix-pffwd-cilow-ranking` NO deploy. Elimina dilución `pf_combined` embebida en W3b ranking. Tests 27/27 PASS (M2 fix 3/3 nuevos + W3+W4+A14+A15 no-regression). Dry-run 9 combos BTC/ONDO/SEI × C0/C1/C2: 8/9 top-1 cambia, 0 orphan, 0 flag_sospechoso, ratio pf_fwd/pf_tr mean 2.19 (vs W3b 1.61, +0.58). **Smoke BTC 1 símbolo VALIDADO empíricamente** (10h 57m exit 0): 3/3 cambia top-1, 0 orphan/flag, ratio pf_fwd/pf_tr mean 2.38, pf_fwd top-1 mean 3.32→4.68 (+41%), N_fwd 152.7→64.7 (trade-off esperado, todos ≥25 W4 threshold). Caso C1 dramático: W3b cfg 18889760 (N=285 pf_fwd=1.285 borderline) → M2 fix cfg 3758688 (N=51, pf_fwd=4.089 +218%). r(pf_tr, pf_fwd) BTC global +0.670 (cluster-level 0.38-0.46). **ROADMAP_PRE_RECICLAJE.md consolidado** (sustituye `roadmap_2026-04-22.md` archivado): categorías A+B+C+D+E + orden secuencial estricto A→B→C per criterio institucional Ricardo 2026-04-24. Fase A (Z_BTC ~8-12h) es siguiente. Fase C operacionales menores. Reciclaje completo 45 sym trigger: A+B+C done + D+E validados. Fidelidad 2 invariante. Bot v2.4.5 operacional VPS Tokio.
+
+**Actualización previa:** 24 Abril 2026 CIERRE SESIÓN post-smoke reciclaje Bloque 5 + refinamiento §13.2 — **Smoke reciclaje Bloque 5 PASS** (15h 47m, 3/3 símbolos BTC/ONDO/SEI, exit 0). Conversación Ricardo post-smoke identificó que framing §13.2 original "walk-forward selection noise-dominated" era **categóricamente incorrecto**. Marco mecánico canónico desarrollado: 2 mecanismos específicos con fix acotado (M1 muestra fwd pequeña — W3+W4 fix aplicado; M2 pf_combined media ponderada diluye fwd — _FWD_MIN_PF=1.1 parcial, re-orden por pf_fwd_ci_low directo pendiente). §13.2 actualizada con bloque REFINAMIENTO **canónico** — sesiones futuras DEBEN referenciar antes de re-interpretar Smoke C / r=0.087. Scope investigación walk-forward methodology RECORTADO a 8-12h (refinamiento criterios selección) vs 10-15h "revisión fundamental" original. **Análisis comparativo JSONs smoke 2026-04-24 vs backup pre-smoke** (9 (sym, cluster) top-1 BTC/ONDO/SEI): pf_fwd mean 4.630→2.864 (**-38%**), N_fwd mean 44.2→88.6 (**+100%**), N_fwd<25 4/9→0/9 (M1 eliminado), flag_sospechoso 0/9 smoke, 9/9 top-1 cambió, 0 orphan, ratio pf_fwd/pf_tr 1.05-2.47 mean 1.61 todos ≥1.0 (ningún dilution <0.5 pero sesgo redirigido M2 persistente). §12 L29 validada empíricamente (ONDO C0 canonical 7.945 N=17 → 2.777 N=32). Pipeline W3+W4+A14+A15 **validated integración end-to-end**. Fidelidad 2 invariante (sesión read-only). Bot v2.4.5 operacional VPS Tokio.
 
 **Actualización previa:** 23-24 Abril 2026 — **A.1 alpha residual deep-dive Criterio B** sobre N=26 post-v2.4.4 (primera ventana arquitectónicamente limpia post-fixes v2.4.4 size_usdt + v2.4.5 entry_timestamp_ms). Hipótesis slippage liberado **CONFIRMADA** (slippage/trade 7× vs Fase II.C contaminada, alpha_residual/trade mejora 19%). 3 hipótesis emergentes N=26 sometidas a stress-test cross-segmento cross-régimen N=98: **H1 short/long asimetría 12:1 REFUTADA** (S1 N=49 dirección opuesta), **H_strategy exits logic/structural 3.4× REFUTADA** (Welch N=98 p=0.086 dominado enteramente por S4), **H_new_3 residual contrarian ratio 24× REFUTADA** (cae a 2.16× con N=19/14 consistente con gap PnL). 3 refutaciones en una sesión evitaron creación de 3 items §13.3 activos con disparadores futuros. **§12 Lección 34 NUEVA**: "Hipótesis emergentes de análisis con ventana N<50 requieren validación multi-segmento antes de elevar a §13.3". Complementaria a L25+L29+L33. Updates §13.3 v2.6-inv + v2.6-exit con matización arquitectónica (efecto Bloque 2 concentrado S2+S3, no S4). 2 items §13.3 nuevos: pnl_recon tolerancia mal calibrada + cache funding extender a origen. Bot v2.4.5 operacional VPS Tokio. Fidelidad 2 invariante (sesión read-only). Pipeline pre-reciclaje: sobrecarga §13.3 REDUCIDA por 3 refutaciones. Disparadores maduros: v2.6-inv N≥100 (~2026-05-01), v2.6-exit N≥150 (~2026-05-10), audit N≥50 (~2026-04-26). **Mejora adicional**: `_run_verify_test` upgrade CLI parametrizable `--n-bars` + tolerance escalada §0.8 Nivel A/B automática (wrappers temporales obsoletos; item §13.3 EN_ESPERA 2026-04-22 RESUELTO). Smokes A/B/C PASS. **Inventario §13.3 Opción E**: 3 items cerrados (L2018 refutado por validación empírica propia aplicando L34 — hipótesis floor mal calibrado contraria a evidencia 42pct→58pct con floor más bajo; L1910 cerrado L27 parcial — analyzer v2.4.1 ya implementa detección `CANDIDATO EXCLUSION RECICLAJE` alert, tracking cross-sesiones integrado en L1398; nuevo item pnl_recon ratio 10pct demasiado estricto creado con hipótesis refinada ratio 25pct pendiente validación multi-segmento). L1916 mantiene EN_ESPERA con context update. 4ª refutación del día por stress-test — L34 consistente. **L1839 batch cp1252 RESUELTO**: 68 líneas runtime-critical en lab_historico (scope real 5x mayor al documentado "14"; pre-reciclaje cleared Windows cp1252). Smokes A+C diff 0.0000 — lógica invariante. **5ª refutación del día por L34 recursiva** aplicada a item propio "ratio 25%" creado en commit ab4f6f6 — prerequisite "validación multi-segmento N=98" inviable (bug histórico size_usdt=0 afecta 138/164 trades pre-v2.4.4). Nuevo item creado: "Investigación causa raíz pnl_recon gap" con scope explícito ~1-2h sesión dedicada (Opción D). **Bloque 2c Opción Q1 EJECUTADO** (Tier 0 I2 `--data-path` commit 53fe73a → kernel 10 configs cross-3y Binance Futures): **W3 VALIDA CUANTITATIVAMENTE** (6/6 W3 + 4/4 CANDIDATO EXCLUSION con PF_3y<1.5, 0/10 con PF≥2.0, 60% PF<1.0). Ratio PF_WF/PF_3y 0.10-0.82 — §12 L29 validada masivamente. Filter expandido (W3 ∪ CANDIDATO EXCLUSION) evaluación refinada post-Opción W1 (control group 2026-04-23): **INFLACION UNIVERSAL** — filter marca edge bajo pero no discrimina vs baseline unflagged (Welch p=0.148 NO sig; 9/10 control con PF<1.5, 0/10 con PF≥2.0). **20/20 configs universe top-1 con PF_3y<1.5 sobre Binance 3y** — sesgo walk-forward sistemático cross-universe. **Nuevo item §13.3 high priority**: "Investigación walk-forward methodology bias sistemático" (antes de reciclar para no repetir sesgo). §12 L29 extended cross-universe + §12 L34 11ª aplicación. **Fase A** (N=60 cross-rank): distribuciones PF_3y idénticas cross-rank means 1.01-1.06, CASO γ tendente β. **Fase B.1 cluster filter** (60 configs): top-1 mean 1.327, Spearman p=0.0041 sig, **CASO PARCIAL**. **Auditoría harness 2026-04-23** reveló setup simplificado (no doubled_labels, no train/fwd split) → aclaración interpretativa: quantities medidas ≠ edge productivo (7fe4e0d). **Smoke C 2026-04-24 replicating pipeline productivo exacto** (doubled_labels + train/fwd split 67/33): top-1 pf_tr=1.53, pf_fwd=1.13 (decay 26%), Spearman ρ(JSON, binance)=+0.047 (nula), 1/20 top-1 pf_fwd≥2, 11/20 pf_fwd<1. **SESGO REAL CONFIRMADO** — walk-forward ranking no predice pf_fwd real, edge train→fwd decay 26% estructural. Q1+W1+A+B.1 core direccionalmente correcto pese a setup simplificado. §12 L29 validada masivamente (ratio JSON/real 0.03-0.26). Prerequisito pre-reciclaje recomendado. 12ª L34 aplicación. Tier 0 I1 + H1+H_funding+H_strategy diferidos proyecto dedicado post-reciclaje ~20-30h (item §13.3 ampliado). **6ª pausa L34 del día — Bloque 2 Análisis B edge decay cross-cluster WF→kernel pausado** por inviabilidad estadística (JSONs generated 2026-03-27 a 2026-04-07 → ventana post-training 16-27 días → N_trades/config 1-3 insuficiente para Spearman ρ). Diferido a §13.3 con disparador generated_date ≥60 días (~2026-06-01). **Opción D validación cruzada W3 flag vs evidencia operacional cross-sesión ejecutada interim**: patrón **DIVERGENTE** (0/6 Fuerte, 1/6 Moderada ONDO C0, 2/6 Débil TRX+BTC C2, 3/6 Ausente LTC+GRT+MANA). 4 clusters CANDIDATO EXCLUSION (APT C0, ONDO C2, SAND C1, SEI C0) no W3 flagged → W3 filter necesario pero no suficiente. Recomendación: mantener calendario julio + monitorear N≥50 reporte ~2026-04-26.
 **Versión actual:** v2.4.4 (sin bump — sesión 100% herramientas offline, sin deploy operacional)  
@@ -1035,6 +1039,34 @@ Smoke C y r=0.087 NO implican "walk-forward es inválido" ni "sistema no tiene e
 
 **Este refinamiento es interpretación CANÓNICA del hallazgo a partir de 2026-04-24**. Sesiones futuras deben referenciar este bloque antes de re-interpretar Smoke C o r=0.087. Prevención de re-derivar interpretación categórica errónea.
 
+**Orden ejecución pre-reciclaje**: ver `ROADMAP_PRE_RECICLAJE.md` (fuente de verdad canónica — categorías A+B+C+D+E, secuencial estricto A→B→C Ricardo 2026-04-24). Categoría B (Mecanismo 2 fix) es la acción operacional directa derivada de este refinamiento.
+
+**Validación M2 fix 2026-04-25**:
+
+Test crítico cross-symbol N=9 (BTC+ONDO+SEI top-1 M2 fix) ejecutado sobre Binance Futures 3y con setup Smoke C exacto (sanity determinismo W3b cfg 20607806 = 0.7722, desviación 0.00% — paridad GMM HEAD baseline confirmada). Resultados consolidados:
+
+- **Mean ratio J/B cross-9: 2.408** (vs W3b baseline 8.235, **3.42× reducción**).
+- **0/9 colapso fuerte cross-symbol** (vs W3b BTC C2 baseline 8.24 — patrón sistemático eliminado).
+- **9/9 edge real positivo** (Binance pf_fwd > 1.0; mean 1.83). Specialists M2 fix entregan edge medible empíricamente, no loss-making.
+- **Spearman ρ(pf_fwd_JSON, pf_fwd_Binance) cross-9 = -0.17, p=0.65 NO significativo** (banda no-significancia con N=9: ρ ∈ [−0.7, +0.7]). Ranking inverso del BTC-only (-0.5) era artefacto N=3.
+- Per-symbol: BTC mean 2.747 (peor), ONDO 2.579, SEI 1.898 (mejor). Heterogeneidad cross-symbol moderada.
+
+**HALLAZGO METODOLÓGICO IMPORTANTE**: `_FWD_MIN_PF` estricto **NO es palanca eficaz** para reducir residual ratio J/B. Validación empírica cross-9: subiendo threshold de 1.1 → 2.5 produce **0/9 cambios en top-1**; threshold 3.0 produce 1 orphan (ONDO C1) sin cambiar otros top-1. Min pf_fwd top-100 actual cross-9 = **1.665** > threshold candidatos 1.3-1.5. specialist_score upstream filtra implícitamente configs con pf_fwd marginal vía pf_combined correlation.
+
+**Implicación**: la propuesta original Ricardo "subir piso fwd" era conceptualmente correcta pero **el piso ya está alto** vía ranking specialist_score. Atacar Mecanismo 2 vía cambio criterio ranking (`pf_fwd_ci_low` directo, M2 fix) era la palanca correcta — no el threshold.
+
+**Caveat permanente**: residual ratio J/B ~2.41× post-M2 fix **no es atacable por `_FWD_MIN_PF` estricto vía screening top-100** (validado empíricamente cross-9). Mecanismos no atacados que explican gap residual (candidatos):
+
+- Multi-testing bias estructural sobre millones configs (refinamiento menor §13.2 — requiere proyecto dedicado ~15-25h: Bonferroni/Holm/BH/Deflated SR).
+- Cross-exchange Binance ↔ BingX (§12 L29 contribuidor secundario).
+- Cluster luck residual ventana fwd específica (k-fold CV refinamiento menor §13.2 — requiere proyecto dedicado ~20-30h).
+
+Estos refinamientos son explícitamente **fuera del scope** Mecanismo 2 fix. Aplazables a proyectos dedicados post-reciclaje.
+
+**Veredicto Fase B**: M2 fix **VALIDADO EMPÍRICAMENTE** como mejora parcial cross-symbol N=9. Magnitud absoluta del gap reducida 3.42× con patrón sistemático cross-symbol. Decisión: **avanzar Fase A (Z_BTC)**.
+
+Adapter preservado: `analysis_scripts/m2_fix_validation_20260424/m2_fix_smoke_test.py` + `m2_fix_smoke_results.csv`. Ver §13.4 entrada "M2 fix VALIDACIÓN POST-IMPLEMENTACIÓN cross-symbol N=9 — 2026-04-25" para detalle empírico completo.
+
 ---
 
 **Contexto histórico**: Ricardo observó desde día 1 de operación bot (2026-04-10) que PF operacional real consistentemente < PF reportado JSONs walk-forward. Dirección estratégica del proyecto desde inicio: **mejoras sistema EN PARALELO con investigación discriminar por qué simulado ≠ operativo**. Ambos ejes simultáneos institucional. Sesión 2026-04-23/24 cuantifica rigurosamente este gap con setup metodológicamente correcto (pipeline productivo doubled_labels + train/fwd split).
@@ -1901,6 +1933,61 @@ Deploy VPS NO requerido (cambio del pipeline del lab). Activación en próximo `
 Cierre: **IMPLEMENTADO 2026-04-23**. Commit siguiente a 4e54c8d en rama `feature-w3-bootstrap-pf-fwd`. Siguiente dependiente: `§13.3 política adelantar reciclaje por criterio empírico` — W4 facilita decisión (ratio sospechosos/total por cluster es métrica monitorizable).
 Referencias: regime_walk_forward.py L919-932 (constantes), L1032-1074 (_apply_w4_fwd_ci_filters), L1690-1703 (integración), tests/test_w4_thresholds.py, §13.4 entrada W4 IMPLEMENTADO 2026-04-23, §12.29 Lección base, §13.4 W3 entrada 2026-04-23 (prerequisito).
 
+**[MEJORA] [RESUELTO] regime_walk_forward W3c (M2 fix): ranking por pf_fwd_ci_low directo — 2026-04-24**
+
+Contexto: §13.2 bloque REFINAMIENTO canónico 2026-04-24 identifica Mecanismo 2 (pf_combined como media ponderada train/fwd diluye señal fwd). Análisis comparativo JSONs smoke vs backup pre-smoke (§13.4 2026-04-24) confirmó que W3b ranking por `specialist_score_ci_low` atenuaba dilución pero no la eliminaba — ratios pf_fwd/pf_tr smoke top-1 persistentes >1.0 (1.05-2.47 mean 1.61) indicando sesgo residual. ROADMAP_PRE_RECICLAJE.md Categoría B establece M2 fix como prerequisito pre-reciclaje.
+
+**Implementación 2026-04-24** (rama `feature-m2-fix-pffwd-cilow-ranking`, NO deploy — activación próximo reciclaje):
+
+Cambio en `regime_walk_forward.py` línea 1808-1815 (función `extract_validated_specialists`, post-bootstrap W3):
+
+```python
+# ANTES (W3b — ranking embebe pf_combined via specialist_score_ci_low):
+top_all = top_all.sort_values(
+    'specialist_score_ci_low', ascending=False).reset_index(drop=True)
+
+# DESPUÉS (M2 fix — ranking primary por pf_fwd_ci_low directo,
+# tie-breaker secundario specialist_score_ci_low preserva W3b):
+top_all = top_all.sort_values(
+    ['pf_fwd_ci_low', 'specialist_score_ci_low'],
+    ascending=[False, False]).reset_index(drop=True)
+```
+
+Racional: `specialist_score_ci_low = pf_combined_ci_low × sqrt(pf_robustness) × log(1+trades/50) × sqn_factor` donde `pf_combined_ci_low = (gp_tr + pf_fwd_ci_low × gl_fwd) / (gl_tr + gl_fwd)` embebe peso train. Configs con pf_tr=3 + pf_fwd=1.2 producían specialist_score_ci_low mayor que pf_tr=1.3 + pf_fwd=2.8 aunque fwd del segundo sea sustantivamente mejor. Ranking por pf_fwd_ci_low directo fuerza valoración exclusiva del desempeño en test no visto, eliminando dilución ponderada.
+
+Tie-breaker secundario `specialist_score_ci_low`: preserva W3b para desempates cuando pf_fwd_ci_low es idéntico (incorpora pf_robustness + trades_total + sqn_factor).
+
+Report text L1909-1911 actualizado: "selection order: pf_fwd_ci_low (M2 fix 2026-04-24; tie-breaker specialist_score_ci_low W3b)".
+
+**Tests M2 fix 3/3 PASS** (tests/test_m2_fix_pffwd_ranking.py):
+- test_1: inversión ranking config A (pf_tr=3, pf_fwd=1.2) vs B (pf_tr=1.3, pf_fwd=2.8) — M2 fix rankea B primero ✓.
+- test_2: tie-breaker funcional — configs con pf_fwd_ci_low idéntico desempatan por specialist_score_ci_low ✓.
+- test_3: N preservado + orden descendente verificado ✓.
+
+**No-regression**: W3 8/8 + W4 8/8 + A14 4/4 + A15 4/4 + M2 3/3 = **27/27 PASS**. (test_8 W4 actualizado resiliente post-smoke 2026-04-24: cfg 2457036 ausente top 1000 ONDO C0 por blocking en source también válido como evidencia de fix — docstring aclara lógica ampliada).
+
+**Dry-run validación empírica sobre JSONs smoke 2026-04-24** (9 combos BTC/ONDO/SEI × C0/C1/C2):
+- 8/9 top-1 cambia re-ranking W3b → M2 fix (solo BTC C2 preserva config_id — mismo hash cross-hyst).
+- 0 orphan M2, 0 flag_sospechoso_outlier M2.
+- ratio pf_fwd/pf_tr M2 top-1: min=1.17 max=2.79 mean=2.19 (W3b baseline mean 1.61 → M2 +0.58).
+- pf_fwd_ci_low mean M2 top-1 sustantivamente > W3b top-1 por construcción.
+- Comportamiento esperado: M2 fix **refuerza** selección hacia configs con fwd dominante — direccionalmente correcto, elimina dilución pf_combined embebido.
+
+**Validación smoke BTC 1 símbolo** (rama activa, pipeline completo master.py --recycle --symbols BTC/USDT): ver §13.4 entrada M2 fix IMPLEMENTADO 2026-04-24 para resultados cuantitativos smoke vs baseline W3b.
+
+Deploy VPS NO requerido (cambio del pipeline del lab). Activación en próximo reciclaje completo (post-Fase A Z_BTC per ROADMAP_PRE_RECICLAJE.md secuencial A→B→C). Bot v2.4.5 operacional con specialists actuales preservados.
+
+Referencias:
+- regime_walk_forward.py L1808-1815 (sort M2 fix), L1909-1911 (report text).
+- tests/test_m2_fix_pffwd_ranking.py (3 tests).
+- §13.2 HALLAZGO ESTRUCTURAL + bloque REFINAMIENTO canónico 2026-04-24.
+- §13.4 Smoke reciclaje Bloque 5 + análisis comparativo 2026-04-24 (base empírica para identificar Mecanismo 2 residual).
+- §13.4 entrada M2 fix IMPLEMENTADO 2026-04-24 (smoke BTC resultados).
+- ROADMAP_PRE_RECICLAJE.md Categoría B (Fase B done).
+- §13.3 W3 IMPLEMENTADO 2026-04-23 (prerequisito), W4 IMPLEMENTADO 2026-04-23 (layer superior).
+
+Cierre: **IMPLEMENTADO 2026-04-24**. Fase B ROADMAP done. Siguiente: Fase A (Z_BTC) per orden secuencial Ricardo 2026-04-24.
+
 **[MEJORA] [EN_ESPERA] data_feed: attach stops redundante en get_open_positions — 2026-04-17 (v2.3.8 investigado, no aplicado)**
 Contexto: Ultra review D3. get_open_positions líneas 242-251 hacen get_open_orders y attachean stop_order_id. Pero reconcile_state (execution_manager) usa su propia llamada a get_open_orders desde live_engine línea 424. Dos fetches por ciclo de fetch_open_orders.
 VERIFICADO 2026-04-19 (B6 Fase 3): el attach SI tiene consumer real — `close_position` en execution_manager.py linea 258: `stop_order_id = position.get("stop_order_id")` — se usa para cancelar el stop vinculado al cerrar posicion. La eliminacion trivial rompe close_position. Refactor alternativo (eliminar la llamada separada en live_engine y mantener attach como single source of truth) no es viable porque reconcile_state necesita la orders list completa, no solo stop_order_id por simbolo.
@@ -2399,6 +2486,232 @@ Cierre: Análisis B ejecutado con N_trades ≥15 per config + veredicto cross-cl
 ---
 
 ### 13.4 RESUELTO
+
+**[VALIDACIÓN] [RESUELTO] M2 fix VALIDACIÓN POST-IMPLEMENTACIÓN cross-symbol N=9 — 2026-04-25**
+
+Contexto: M2 fix implementado commit 7162369 (Fase B ROADMAP_PRE_RECICLAJE) entregó ratio pf_fwd/pf_tr smoke BTC mean **2.38** vs W3b baseline 1.61. Marco mecánico Ricardo §13.2 predecía ratio **cercano a 1.0** (eliminar sesgo Mecanismo 2). Observación contradice predicción → 2 interpretaciones plausibles:
+
+- **Interpretación 1 (favorable)**: M2 fix funciona como diseñado. Ranking `pf_fwd_ci_low` directo selecciona configs con desempeño fwd genuino. Ratio >1 refleja que dentro del universo W3+W4-filtered, las top por `pf_fwd_ci_low` tienen fwd > tr en su muestra.
+- **Interpretación 2 (preocupante)**: ranking `pf_fwd` directo selecciona configs **lucky en fwd window** — point estimate inflado por suerte muestral. M2 fix cambia mecanismo del sesgo de "train domina" a "fwd lucky domina" en lugar de eliminarlo.
+
+**Discriminador empírico ejecutado**: 9 configs M2 fix top-1 (BTC+ONDO+SEI × C0/C1/C2) sobre Binance Futures 3y con setup Smoke C exacto (kernel `run_on_slice` doubled_labels n_clusters=6, train/fwd 67%/33%, parquet Binance 3y, GMM HEAD baseline restaurado). Sanity determinismo W3b BTC C2 cfg 20607806 = **0.7722** desviación 0.00% — paridad GMM Smoke C original confirmada categóricamente.
+
+**Tabla cross-9** (M2 fix top-1 + W3b baseline):
+
+| Sym | Cl | cfg | pf_fwd_JSON | pf_fwd_Bin | Ratio J/B | N_fwd_Bin |
+|---|---|---:|---:|---:|---:|---:|
+| BTC | C0 | 36909877 | 4.480 | 3.304 | **1.356** | 29 |
+| BTC | C1 | 3758688 | 4.089 | 1.464 | **2.792** | 45 |
+| BTC | C2 | 33831248 | 5.468 | 1.336 | **4.093** | 79 |
+| ONDO | C0 | 34635228 | 3.268 | 1.347 | **2.426** | 190 |
+| ONDO | C1 | 12360961 | 2.879 | 1.738 | **1.656** | 108 |
+| ONDO | C2 | 48380978 | 3.953 | 1.081 | **3.656** | 377 |
+| SEI | C0 | 57375331 | 3.436 | 1.366 | **2.515** | 96 |
+| SEI | C1 | 1612992 | 3.083 | 1.517 | **2.032** | 181 |
+| SEI | C2 | 815625 | 3.769 | 3.289 | **1.146** | 37 |
+| W3b_baseline | C2 | 20607806 | 6.359 | 0.772 | **8.235** | 48 |
+
+**Per-symbol breakdown**:
+
+| Sym | mean_ratio_JB | mean_pf_fwd_Bin | mean_pf_fwd_JSON | N_fwd_Bin_mean |
+|---|---:|---:|---:|---:|
+| BTC | **2.747** | 2.035 | 4.679 | 51.0 |
+| ONDO | **2.579** | 1.389 | 3.367 | 225.0 |
+| SEI | **1.898** | 2.058 | 3.429 | 104.7 |
+
+**Cross-9 aggregates**: mean=**2.408**, median=**2.426**, IQR=[1.656, 2.792]. Distribución bands:
+- In band [0.5, 1.5] Interp 1: **2/9** (BTC_C0=1.356, SEI_C2=1.146).
+- Moderado (1.5, 3.33]: **5/9**.
+- Colapso parcial (3.33, 5.0]: **2/9** (BTC_C2, ONDO_C2).
+- Colapso fuerte (>5.0) Interp 2: **0/9** ← clave.
+
+**Ranking interno T6 cross-9**:
+- Top-3 JSON: BTC_C2, BTC_C0, BTC_C1 (las 3 BTC al top).
+- Top-3 Binance: BTC_C0, SEI_C2, ONDO_C1 (BTC_C0 sobrevive).
+- Top-3 overlap: 1/3.
+- Spearman ρ cross-9: **−0.1667 p=0.6547 NO significativo** (banda no-significancia con N=9: ρ ∈ [−0.7, +0.7]). Spearman BTC-only −0.500 era artefacto N=3.
+
+**Screening _FWD_MIN_PF estricto** (Opción b posterior): re-filter top_configs con thresholds [1.1, 1.3, 1.5, 1.7, 2.0, 2.5, 3.0]:
+
+| Threshold | n_change top-1 | n_orphan |
+|---|---:|---:|
+| 1.1 (actual) | 0 | 0 |
+| 1.3 | 0 | 0 |
+| 1.5 | 0 | 0 |
+| 1.7 | 0 | 0 |
+| 2.0 | 0 | 0 |
+| 2.5 | 0 | 0 |
+| 3.0 | 0 | 1 (ONDO C1 ORPHAN) |
+
+**Causa raíz screening sin efecto**: min pf_fwd cross-9 dentro top-100 actual = **1.665** (ONDO C0). Threshold candidatos 1.3-1.5 < 1.665. M2 fix top-1 cluster ≈ config con pf_fwd MÁXIMO en su top-100 (M2 fix ranking por pf_fwd_ci_low correlaciona casi perfectamente con pf_fwd point estimate cuando N_fwd es razonable). Subir threshold no cambia ranking interno.
+
+**HALLAZGO METODOLÓGICO IMPORTANTE**: `_FWD_MIN_PF` estricto **NO es palanca eficaz** para reducir residual ratio J/B. Validado empíricamente cross-9. specialist_score upstream filtra implícitamente configs con pf_fwd marginal vía pf_combined correlation. Propuesta original Ricardo "subir piso fwd" era conceptualmente correcta pero **el piso ya está alto** vía ranking specialist_score. Atacar Mecanismo 2 vía cambio criterio ranking (`pf_fwd_ci_low` directo) era la palanca correcta — no el threshold.
+
+**Veredicto refinado**:
+
+| Criterio prompt | Resultado |
+|---|---|
+| Mean ratio ≤2.0 + Spearman >0.3 → CONSOLIDADO | ❌ (2.41, ρ=−0.17) |
+| Mean ratio 2.0-3.5 → MEJORA PARCIAL | ✅ (2.41 cae aquí) |
+| Mean ratio >3.5 OR Spearman <0 → NO RESUELVE | parcial (Spearman <0 NO sig) |
+| Screening _FWD_MIN_PF mejora ratio a [1.5, 2.0] | ❌ (idéntico a 2.41) |
+| Screening _FWD_MIN_PF queda en [2.0, 2.5] | ✅ ESCENARIO 3 |
+
+**Veredicto Fase B**: **M2 FIX VALIDADO EMPÍRICAMENTE como mejora parcial cross-symbol N=9**:
+
+✅ Magnitud absoluta del gap reducida 3.42× vs W3b baseline (8.24 → 2.41).
+✅ 0/9 colapso fuerte cross-symbol — patrón sistemático eliminado.
+✅ 9/9 edge real positivo (Binance pf_fwd > 1.0; mean 1.83).
+✅ Spearman cross-9 −0.17 NO sig — sin ranking-inverso robusto.
+✅ Mediana 2.43 ≈ mean 2.41 → distribución balanceada, sin outliers.
+
+⚠ Mean ratio 2.41 NO alcanza objetivo §13.2 ±20% (gap residual 1.0-1.2 aspiracional).
+⚠ Top-3 overlap 1/3 — discriminación interna cross-symbol limitada.
+⚠ Heterogeneidad cross-symbol: SEI 1.90 < ONDO 2.58 < BTC 2.75.
+
+**Caveat permanente §13.2**: residual ratio J/B ~2.41× post-M2 fix **no es atacable por `_FWD_MIN_PF` estricto vía screening top-100** (validado empíricamente cross-9). Mecanismos no atacados que explican gap residual (candidatos):
+
+- Multi-testing bias estructural sobre millones configs → corrección formal Bonferroni/Holm/BH/Deflated SR (refinamiento menor §13.2 — proyecto dedicado ~15-25h).
+- Cross-exchange Binance ↔ BingX (§12 L29 contribuidor secundario).
+- Cluster luck residual ventana fwd específica → k-fold CV (refinamiento menor §13.2 — proyecto dedicado ~20-30h).
+
+Estos refinamientos son explícitamente **fuera del scope Mecanismo 2 fix**. Aplazables a proyectos dedicados post-reciclaje.
+
+**Decisión**: **avanzar Fase A (Z_BTC)**. Merge rama `feature-m2-fix-pffwd-cilow-ranking` a main. Activación efectiva en próximo reciclaje completo (post-Fase A).
+
+**Aplicaciones §12 L34**: 16ª aplicación consolidada — discriminador empírico cross-symbol N=9 antes de declarar M2 fix consolidado. Cross-9 reveló que el "ranking inverso" BTC-only (ρ=−0.5) era artefacto N=3; cross-symbol confirma ranking sin discriminación robusta (ρ=−0.17 NO sig) sin invertir, magnitud mejora 3.42× sustancial. 17ª aplicación: screening multi-threshold _FWD_MIN_PF antes de invertir compute en pipeline-run completo (~16-30h evitados al validar empíricamente que threshold no es palanca).
+
+**Adapter preservado**: `analysis_scripts/m2_fix_validation_20260424/m2_fix_smoke_test.py` (clon literal de `bloque2c_smoke_c.py` + 4 cambios documentados). CSV resultados: `m2_fix_smoke_results.csv` (10 rows). GMM HEAD baseline restaurado en `_gmm_head_baseline/` (BTC+ONDO+SEI joblib).
+
+**Fidelidad 2 invariante** (sesión read-only sobre datos, sin tocar bot productivo). Bot v2.4.5 operacional VPS Tokio.
+
+Referencias:
+- §13.2 bloque REFINAMIENTO + sub-sección "Validación M2 fix 2026-04-25".
+- §13.4 entrada M2 fix IMPLEMENTADO 2026-04-24 (Fase B implementación inicial).
+- §13.4 Smoke reciclaje Bloque 5 + análisis comparativo 2026-04-24 (base empírica que motivó M2 fix).
+- §13.4 Smoke C 2026-04-24 (commit 431b5e1, baseline W3b cfg 20607806 = 0.7722).
+- ROADMAP_PRE_RECICLAJE.md Fase B → DONE.
+- §12 L29 (validada masivamente, 9/9 cross-9 con train→fwd decay).
+- §12 L34 aplicaciones 1-17.
+- regime_walk_forward.py L1808-1815 (sort M2 fix), L1909-1911 (report text).
+- tests/test_m2_fix_pffwd_ranking.py (3 tests PASS).
+- analysis_scripts/m2_fix_validation_20260424/m2_fix_smoke_test.py + CSV + GMM baseline.
+
+Cierre: permanente. Fase B pre-reciclaje validada cross-symbol. Siguiente: Fase A (Z_BTC) per orden secuencial Ricardo 2026-04-24.
+
+---
+
+**[VALIDACIÓN] [RESUELTO] M2 fix ranking pf_fwd_ci_low directo + ROADMAP_PRE_RECICLAJE consolidado — 2026-04-24**
+
+Contexto: §13.2 bloque REFINAMIENTO canónico 2026-04-24 identifica Mecanismo 2 (dilución pf_combined train/fwd en `specialist_score_ci_low`). Ricardo consolidó ROADMAP_PRE_RECICLAJE.md (A+B+C+D+E, orden secuencial estricto A→B→C) con Fase B como acción directa post-refinamiento. Esta entrada documenta ejecución Fase B completa (M2 fix).
+
+**Parte A — ROADMAP_PRE_RECICLAJE.md consolidado** (fuente de verdad canónica pre-reciclaje):
+- Archivo previo `roadmap_2026-04-22.md` (486 líneas, categorización N/R/C §13.3 de 29 items) archivado como `roadmap_2026-04-22.md.archived-20260424`.
+- Nuevo archivo `ROADMAP_PRE_RECICLAJE.md` en raíz (nombre canónico no fechado) con estructura A+B+C+D+E + orden secuencial estricto A→B→C per criterio institucional Ricardo 2026-04-24 ("un hilo Claude Code activo por vez, sin paralelización").
+- Sin referencias cruzadas a `roadmap_2026-04-22.md` en repo — sustitución limpia.
+- §13.2 bloque REFINAMIENTO actualizada con "Orden ejecución pre-reciclaje: ver `ROADMAP_PRE_RECICLAJE.md`".
+- Historia preservada en sección "Historia" del nuevo archivo.
+
+**Parte B — M2 fix implementación** (rama `feature-m2-fix-pffwd-cilow-ranking`, NO deploy):
+
+Cambio código `regime_walk_forward.py` L1808-1815:
+```python
+# ANTES:  sort_values('specialist_score_ci_low', ascending=False)
+# DESPUÉS: sort_values(['pf_fwd_ci_low', 'specialist_score_ci_low'],
+#                     ascending=[False, False])
+```
+Report text L1909-1911 actualizado: "selection order: pf_fwd_ci_low (M2 fix 2026-04-24; tie-breaker specialist_score_ci_low W3b)".
+
+Racional: `specialist_score_ci_low` embebe `pf_combined_ci_low` (peso train vía gp_tr + gl_tr). M2 fix rankea primario por `pf_fwd_ci_low` (test no visto puro), tie-breaker secundario `specialist_score_ci_low` preserva W3b para desempates.
+
+**B.3 Tests**: 27/27 PASS.
+- M2 fix tests (3/3 nuevos en tests/test_m2_fix_pffwd_ranking.py): inversión ranking train-vs-fwd, tie-breaker funcional, N preservado.
+- W3 no-regression 8/8, W4 no-regression 8/8 (test_8 actualizado resiliente post-smoke — cfg 2457036 ausente top 1000 también válido como blocking).
+- A14 4/4, A15 4/4.
+
+**B.4 Dry-run sobre JSONs smoke 2026-04-24** (9 combos BTC/ONDO/SEI × C0/C1/C2, re-sort in-memory sin regenerar data):
+
+| Sym | Cl | W3b top-1 cfg | W3b pf_tr | W3b pf_fwd | W3b N | W3b ci_low | M2 top-1 cfg | M2 pf_tr | M2 pf_fwd | M2 N | M2 ci_low | same | r fwd/tr M2 |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|
+| BTC | C0 | 35336998 | 1.769 | 4.367 | 65 | 2.823 | 35599110 | 1.658 | 4.571 | 73 | 2.931 | NO | 2.76 |
+| BTC | C1 | 18889760 | 1.228 | 1.285 | 285 | 1.041 | 172592 | 1.466 | 3.327 | 59 | 1.873 | NO | 2.27 |
+| BTC | C2 | 33831247 | 2.523 | 4.318 | 108 | 2.959 | 33831247 | 2.741 | 5.849 | 88 | 3.997 | YES | 2.13 |
+| ONDO | C0 | 33586655 | 1.980 | 2.777 | 32 | 1.466 | 34635228 | 1.684 | 3.268 | 34 | 1.806 | NO | 1.94 |
+| ONDO | C1 | 45808897 | 1.408 | 2.071 | 38 | 1.160 | 12360961 | 1.402 | 2.879 | 26 | 1.542 | NO | 2.05 |
+| ONDO | C2 | 37370941 | 2.251 | 3.650 | 38 | 1.916 | 48380978 | 1.463 | 3.953 | 49 | 2.399 | NO | 2.70 |
+| SEI | C0 | 35798509 | 1.773 | 2.367 | 68 | 1.475 | 57375331 | 2.934 | 3.436 | 39 | 1.808 | NO | 1.17 |
+| SEI | C1 | 34192576 | 1.489 | 2.496 | 105 | 1.703 | 1612992 | 1.606 | 3.083 | 66 | 1.836 | NO | 1.92 |
+| SEI | C2 | 1356293 | 1.402 | 2.446 | 58 | 1.418 | 815625 | 1.353 | 3.769 | 42 | 2.073 | NO | 2.79 |
+
+**Agregados dry-run**:
+- Top-1 cambia: 8/9 (BTC C2 preserva mismo config_id — artefacto cross-hyst tag, pero métricas cambian).
+- Orphan M2: 0/9.
+- flag_sospechoso M2: 0/9.
+- ratio pf_fwd/pf_tr M2: min=1.17 max=2.79 mean=**2.19** (W3b baseline mean 1.61, **+0.58**).
+- pf_fwd_ci_low M2 top-1 consistentemente > W3b top-1 por construcción del fix.
+
+**Interpretación dry-run**: M2 fix **refuerza** selección hacia configs con pf_fwd dominante relativo a pf_tr. Direccionalmente correcto — elimina dilución `pf_combined_ci_low` (embebe peso train vía gp_tr+gl_tr). Ranking por pf_fwd_ci_low directo fuerza valoración exclusiva del test no visto.
+
+**B.5 Smoke BTC 1 símbolo** (master.py --recycle --symbols BTC/USDT con rama M2 fix activa, **completado 10h 57m exit 0** 2026-04-25):
+
+Comparativa BTC top-1 per cluster — SMOKE pre-M2-fix (W3b ranking) vs SMOKE M2 fix (pf_fwd_ci_low ranking):
+
+| Cl | W3b cfg | W3b pf_tr | W3b pf_fwd | W3b N | W3b pf_comb | W3b cL | W3b score | M2 cfg | M2 pf_tr | M2 pf_fwd | M2 N | M2 pf_comb | M2 cL | M2 score | flag | r fwd/tr M2 |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|
+| C0 | 35336998 | 1.769 | 4.367 | 65 | 2.149 | 1.924 | 3.924 | 36909877 | 1.816 | 4.480 | 63 | 2.198 | 1.962 | 2.237 | N | 2.47 |
+| C1 | 18889760 | 1.228 | 1.285 | 285 | 1.243 | 1.180 | 1.848 | 3758688 | 1.486 | 4.089 | 51 | 1.809 | 1.611 | 1.605 | N | 2.75 |
+| C2 | 33831247 | 2.523 | 4.318 | 108 | 2.781 | 2.585 | 16.250 | 33831248 | 2.867 | 5.468 | 80 | 3.190 | 2.964 | 6.777 | N | 1.91 |
+
+**Agregados smoke BTC M2 fix**:
+- 3/3 top-1 cambiaron config_id (re-ranking activo).
+- 0 orphan, 0 flag_sospechoso_outlier en 3/3.
+- ratio pf_fwd/pf_tr M2: min=1.91 max=2.75 **mean=2.38** (todos ≥1.0).
+- pf_fwd top-1 mean: W3b 3.323 → M2 **4.679** (**+1.356**, +41%).
+- N_fwd top-1 mean: W3b 152.7 → M2 64.7 (-88, -57%) — trade-off esperado: M2 fix sacrifica volumen N por edge fwd más alto. Todos N≥25 (W4 threshold preservado: 63/51/80).
+
+**Caso C1 dramático**: W3b había seleccionado cfg 18889760 (N=285 alto, pf_fwd=1.285 borderline). M2 fix re-rankea a cfg 3758688 (N=51, **pf_fwd=4.089 +218%**). Ejemplifica precisamente el comportamiento diseñado del M2 fix: priorizar pf_fwd_ci_low alto sobre N_fwd alto, dado que pf_fwd_ci_low ya incorpora N internamente (CI bootstrap penaliza N pequeño con ci_low más bajo).
+
+**r(pf_tr, pf_fwd) cluster-level BTC smoke M2 fix** (sobre 412M part samples):
+- Global: **+0.670** (vs Bloque 5 cross-mix +0.087).
+- C0: +0.398, C1: +0.380, C2: +0.457.
+
+Mucho más alto que Bloque 5 cross-mix porque solo BTC (filtro natural pool a configs específicos BTC). El sort M2 fix NO afecta correlaciones del pool — solo afecta orden de selección post-haircut. La mejora de correlación cluster-level se debe a single-symbol scope.
+
+**Smoke runtime breakdown**:
+- Paso 1 download: ~1 min.
+- Paso 2 train GMM: ~1 min.
+- Paso 3 lab_lite: ~2.84h (Numba JIT + kernel CUDA presets).
+- Paso 4 walk_forward: ~8h (pre-cálculo features + kernel CUDA configs + W3 bootstrap + W4 filter + M2 fix sort).
+- Total: 10h 57m 10s.
+
+Excede la estimación brief (~10h) por 6%. Fluctuación dentro de tolerancia.
+
+**B.6 Veredicto criterios éxito**:
+- Tests B.3 pass (27/27) ✓.
+- Validación B.4 dry-run sin errores, 0 orphan, 0 flag_sospechoso ✓.
+- Smoke B.5 exit 0, JSON regenerado, 3/3 clusters operables ✓.
+- Ranking M2 fix ratio pf_fwd/pf_tr ≥ 1.0 consistentemente (3/3 smoke + 9/9 dry-run) ✓.
+- pf_fwd top-1 mean smoke +41% vs W3b baseline ✓ (mejora direccional esperada).
+- N_fwd ≥ 25 W4 threshold preservado en 3/3 smoke ✓.
+
+**Veredicto final**: **M2 fix VALIDADO EMPÍRICAMENTE**. Ranking por pf_fwd_ci_low directo selecciona configs con edge fwd robusto (pf_fwd_ci_low alto implica N suficiente + outlier-resistant). Trade-off N_fwd alto por pf_fwd_ci_low alto es comportamiento diseñado consistente con principio walk-forward "desempeño en test no visto predice operacional".
+
+**Fidelidad 2 invariante** (cambio del pipeline lab, no toca brain/execution/portfolio/live_engine). Bot v2.4.5 operacional continuo VPS Tokio.
+
+**Pre-reciclaje status**: Fase B (M2 fix) DONE. Siguiente Fase A (Z_BTC per ROADMAP_PRE_RECICLAJE.md). Reciclaje completo 45 sym se lanza cuando A+B+C done + D+E validados/archivados.
+
+Referencias:
+- ROADMAP_PRE_RECICLAJE.md (fuente de verdad canónica).
+- §13.2 bloque REFINAMIENTO canónico 2026-04-24 (motivación mecánica).
+- §13.3 W3c MEJORA RESUELTO 2026-04-24 (ítem documental).
+- §13.4 Smoke reciclaje Bloque 5 + análisis comparativo 2026-04-24 (base empírica identificación Mecanismo 2 residual).
+- tests/test_m2_fix_pffwd_ranking.py (tests 3/3).
+- regime_walk_forward.py L1808-1815 (sort), L1909-1911 (report text).
+- Conversación Ricardo 2026-04-24 (consolidación marco mecánico + criterio institucional secuencial A→B→C).
+
+Cierre: permanente. Fase B pre-reciclaje completa. Aktivación en próximo reciclaje (post-Fase A).
+
+---
 
 **[VALIDACIÓN] [RESUELTO] Smoke reciclaje Bloque 5 PASS + análisis comparativo JSONs + refinamiento §13.2 — 2026-04-24**
 

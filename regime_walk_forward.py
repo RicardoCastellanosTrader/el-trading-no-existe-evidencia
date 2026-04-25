@@ -1806,9 +1806,15 @@ def extract_validated_specialists(sym_result, output_dir):
         if len(top_all) > 0:
             t_boot = time.time()
             top_all = _apply_bootstrap_pf_fwd(top_all)
-            # W3b: reorder by ci_low score for final selection
+            # M2 fix 2026-04-24: ranking primary por pf_fwd_ci_low directo
+            # (elimina dilución train/fwd embebida en specialist_score_ci_low via
+            # pf_combined_ci_low). Tie-breaker secundario specialist_score_ci_low
+            # preserva criterio W3b para desempates (incluye pf_robustness,
+            # trades_total, sqn_factor). Ver §13.2 bloque REFINAMIENTO canónico
+            # 2026-04-24 (Mecanismo 2) y ROADMAP_PRE_RECICLAJE.md Categoría B.
             top_all = top_all.sort_values(
-                'specialist_score_ci_low', ascending=False).reset_index(drop=True)
+                ['pf_fwd_ci_low', 'specialist_score_ci_low'],
+                ascending=[False, False]).reset_index(drop=True)
             n_flagged = int(top_all['flag_sospechoso_outlier'].sum())
             print(f"      Bootstrap pf_fwd done: {n_flagged}/{len(top_all)}"
                   f" flagged (ci_low<{_FLAG_CI_LOW_THRESHOLD} | ci_width>"
@@ -1906,8 +1912,9 @@ def extract_validated_specialists(sym_result, output_dir):
                 rpt.append(f"    flagged suspicious: {n_flag}/{len(top_all)}"
                            f"  (ci_low<{_FLAG_CI_LOW_THRESHOLD} or"
                            f" ci_width>{_FLAG_CI_WIDTH_THRESHOLD})")
-                rpt.append(f"    selection order: specialist_score_ci_low"
-                           f" (W3b: replaces point-estimate ranking)")
+                rpt.append(f"    selection order: pf_fwd_ci_low"
+                           f" (M2 fix 2026-04-24; tie-breaker"
+                           f" specialist_score_ci_low W3b)")
 
             # Write top 1000 to CSV (overwrite, not append)
             _CSV_TOP_N = 1000
