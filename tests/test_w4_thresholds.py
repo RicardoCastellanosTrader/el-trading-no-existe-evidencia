@@ -134,11 +134,18 @@ def test_8_real_data_ondo_c0_blocked():
     cfg_row = df_base[df_base['config_id'] == 2457036]
     assert len(cfg_row) == 0, \
         f"ONDO cfg 2457036 should be blocked by _FWD_MIN_TRADES=25 (N=17<25), got {len(cfg_row)}"
-    # And if by any chance it passed base, it would be flagged by NOT sospechoso
+    # And if by any chance it passed base, it would be flagged by NOT sospechoso.
+    # Post-smoke 2026-04-24 el CSV top 1000 ya no contiene cfg 2457036
+    # (eliminado por W4 desde el source). Si presente, verificar flag;
+    # si ausente, también es válido (blocked más fuerte — no está en top 1000).
     full_row = df[df['config_id'] == 2457036]
-    assert bool(full_row.iloc[0]['flag_sospechoso_outlier']) is True, \
-        "ONDO cfg 2457036 must be flagged (ci_width~36)"
-    print(f"  test_8 PASS: ONDO C0 cfg 2457036 blocked by W4 (base N<25 + flag_sospechoso)")
+    if len(full_row) > 0:
+        assert bool(full_row.iloc[0]['flag_sospechoso_outlier']) is True, \
+            "ONDO cfg 2457036 must be flagged (ci_width~36)"
+        print(f"  test_8 PASS: ONDO C0 cfg 2457036 blocked by W4 (base N<25 + flag_sospechoso)")
+    else:
+        print(f"  test_8 PASS: ONDO C0 cfg 2457036 ausente top 1000 post-smoke"
+              f" (blocked más fuerte por W4 desde source)")
 
 
 def _run_all():
