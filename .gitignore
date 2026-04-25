@@ -49,3 +49,6 @@ env/
 
 # Claude Code local state (per-user, per-machine)
 .claude/
+
+# GMM HEAD baselines restaurados (regenerables con git show HEAD:)
+analysis_scripts/*/_gmm_head_baseline/

@@ -9,10 +9,21 @@ Scope: ~8-12h sesión dedicada.
 Modifica `regime_features.py` para añadir Z_ATR BTC como feature cross-símbolo del GMM de altcoins. BTC sin cambio. Re-entrena GMMs altcoins afectados. Smoke mini validation post-modificación.
 Referencias: §9.4 v3.0, §13.3 Z_ATR BTC 2026-04-23.
 
-### Categoría B — Metodología walk-forward Mecanismo 2 fix (refinamiento ranking)
-Scope: ~4-6h sesión dedicada. **Fase actual**.
+### Categoría B — Metodología walk-forward Mecanismo 2 fix (refinamiento ranking) — **DONE 2026-04-25**
+Scope: ~4-6h sesión dedicada. Implementado commit 7162369 + validado empíricamente cross-symbol N=9 commit pendiente.
 Re-ordena selección specialists por `pf_fwd_ci_low` directo en lugar de `specialist_score_ci_low` (que embebe pf_combined con dilución train/fwd). Elimina sesgo Mecanismo 2 identificado por Ricardo 2026-04-24.
-Referencias: §13.2 bloque REFINAMIENTO canónico 2026-04-24, §13.3 W3 implementation 2026-04-23.
+
+**Validación empírica cross-symbol N=9 (2026-04-25)**:
+- Mean ratio J/B cross-9 (BTC+ONDO+SEI top-1 M2 fix sobre Binance 3y): **2.408** (vs W3b baseline 8.235, **3.42× reducción**).
+- 0/9 colapso fuerte cross-symbol; 9/9 edge real positivo Binance pf_fwd>1.0.
+- Spearman ρ cross-9: −0.17 (p=0.65, NO significativo).
+- Veredicto: **VALIDADO EMPÍRICAMENTE como mejora parcial**.
+
+**Hallazgo metodológico**: `_FWD_MIN_PF` estricto **NO es palanca eficaz** (validado empíricamente cross-9 con thresholds 1.1-3.0; min pf_fwd top-100 actual = 1.665 > threshold candidatos 1.3-1.5). Atacar Mecanismo 2 vía cambio criterio ranking era la palanca correcta.
+
+**Caveat permanente §13.2**: residual ratio 2.41× requiere proyectos dedicados separados (multi-testing correction, k-fold CV) — fuera del scope Mecanismo 2 fix.
+
+Referencias: §13.2 bloque REFINAMIENTO canónico 2026-04-24 + sub-sección "Validación M2 fix 2026-04-25", §13.3 W3 implementation 2026-04-23, §13.4 entrada "M2 fix VALIDACIÓN POST-IMPLEMENTACIÓN cross-symbol N=9 — 2026-04-25".
 
 ### Categoría C — Operacionales menores (micro-fixes + audit)
 Scope: ~4-6h total distribuido.
@@ -26,11 +37,10 @@ Scope: ~4-6h total distribuido.
 
 **Secuencial estricto** (Ricardo 2026-04-24): un hilo Claude Code activo por vez. Sin paralelización.
 
-1. **Fase B primero**: Mecanismo 2 fix.
-   Razón: marco mecánico recién consolidado (memoria fresca), baseline comparativo limpio para validar fix, scope acotado.
-2. **Fase A segundo**: Z_BTC implementación + re-entrenamiento GMMs altcoins.
-   Razón: Z_BTC es cambio estructural mayor; con B ya consolidado, smoke Z_BTC valida pipeline completo W3+W4+A14+A15+M2fix+Z_BTC. Si A entrara antes de B, no sabríamos atribución mejoras en smoke.
-3. **Fase C en paralelo** (entre A y B o después de A, según oportunidad): micro-fixes sin bloquear cadena principal. Audit Fidelidad 2 cuando disparador temporal ~2026-04-26 madure.
+1. ~~**Fase B primero**: Mecanismo 2 fix.~~ **DONE 2026-04-25** (M2 fix VALIDADO empíricamente cross-symbol N=9; mean ratio 2.41×, mejora 3.42× vs W3b baseline; merge a main).
+2. **Fase A** (siguiente): Z_BTC implementación + re-entrenamiento GMMs altcoins.
+   Razón: Z_BTC es cambio estructural mayor; con B ya consolidado, smoke Z_BTC valida pipeline completo W3+W4+A14+A15+M2fix+Z_BTC.
+3. **Fase C en paralelo** (entre A o después de A, según oportunidad): micro-fixes sin bloquear cadena principal. Audit Fidelidad 2 cuando disparador temporal ~2026-04-26 madure.
 
 ## Dependencias y post-reciclaje
 
@@ -79,3 +89,4 @@ Documento vivo. Se actualiza con:
 
 - **2026-04-22** (`roadmap_2026-04-22.md.archived-20260424`): roadmap original categorización §13.3 N/R/C (29 items). Sustituido por criterio institucional 2026-04-24 "todas mejoras A+B+C pre-reciclaje".
 - **2026-04-24**: roadmap consolidado A+B+C+D+E post-smoke reciclaje Bloque 5 + refinamiento §13.2 marco mecánico canónico.
+- **2026-04-25**: Fase B DONE (M2 fix validado empíricamente cross-symbol N=9, mejora 3.42× vs W3b baseline, hallazgo metodológico `_FWD_MIN_PF` no eficaz documentado). Avanzar Fase A (Z_BTC).
