@@ -1,6 +1,6 @@
 # Sistema de Trading Algorítmico — Contexto Completo del Proyecto
 
-**Última actualización:** 26 Abril 2026 SESIÓN 2 — **Cache funding refresh forward + cierre §13.3 L2317 §12 L27 + 5ª aplicación §12 L36 cuádruple guardrail validada profilácticamente cross-3 puntos (service mismatch trading-bot vs combolab-bot + cache parcialmente cubre + cobertura 100% por construcción)**. Operación VPS pura ~42s: cache local pre-existing 2026-03-01 → 2026-04-23 08:00 (43 días margen sobre arranque trade_history 2026-04-13, cubre S1 categóricamente desde refresh previo no documentado en sesión hoy ~13:15 UTC); refresh forward gap real 2026-04-23 → 2026-04-26T16:00 (~306 entradas + apareció THETAUSDT.csv símbolo nuevo). Sync local tar+scp workflow §11 canónico. Validación coverage **78/78 trades duration>1h con entry_ms válido al 100%**. Item §13.3 L2317 RESUELTO §12 L27 con caveat (parcialmente obsoleto pre-operación). Stress-tests v2.6-inv N≥100 disparador (~2026-05-01) NO bloqueados. Bot v2.4.5 invariante. Sin tocar `live/*`. Próximo natural sin cambios: esperar disparadores D+E madurando.
+**Última actualización:** 26 Abril 2026 SESIÓN 2 — **(a) Cache funding refresh forward + cierre §13.3 L2317 §12 L27** + **(b) Item §13.3 nuevo OPERACIONAL EN_ESPERA Deploy L1892+L1904 diferido con disparador temporal explícito**. **(a)** 5ª aplicación §12 L36 cuádruple guardrail validada profilácticamente cross-3 puntos (service mismatch trading-bot vs combolab-bot + cache parcialmente cubre + cobertura 100% por construcción). Operación VPS pura ~42s: cache local pre-existing 2026-03-01 → 2026-04-23 08:00 (43 días margen sobre arranque trade_history 2026-04-13, cubre S1 categóricamente desde refresh previo no documentado en sesión hoy ~13:15 UTC); refresh forward gap real 2026-04-23 → 2026-04-26T16:00 (~306 entradas + apareció THETAUSDT.csv símbolo nuevo). Sync local tar+scp workflow §11 canónico. Validación coverage **78/78 trades duration>1h con entry_ms válido al 100%**. Item §13.3 L2317 RESUELTO §12 L27 con caveat (parcialmente obsoleto pre-operación). Stress-tests v2.6-inv N≥100 disparador (~2026-05-01) NO bloqueados. **(b)** Decisión Ricardo Opción C: diferir deploy L1892+L1904 (commit `3727366`) hasta agrupar con próximo deploy operacional natural (Fase D v2.6-inv ~2026-05-01 si emerge fix, Fase E v2.6-exit ~2026-05-10, o pre-reciclaje aislado fecha límite ~2026-05-10 si no). Mitigación §12 L27 conscientemente prevenida con disparador temporal explícito + fecha límite + 3 entry points docs (Header L3 + §13.3 item + ROADMAP pre-trigger). Bot v2.4.5 invariante uptime 4d+. Sin tocar `live/*`. Próximo natural sin cambios: esperar disparadores D+E madurando con item L1892+L1904 trackeado pre-reciclaje.
 
 **Actualización previa:** 26 Abril 2026 CIERRE SESIÓN NOCHE-5 CONSOLIDADO — **Fase 2 secundaria pnl_recon RESUELTA Opción C → Fase C COMPLETA 7/7 + §12 L36 NUEVA + estado pre-reciclaje MADURO INSTITUCIONAL**. Corrección reporte previo erróneo que afirmaba "Próximo: Fase A" — Fase A YA estaba DONE_ARCHIVED 2026-04-26 (Z_BTC refutado empíricamente cross-5 altcoins, BIC sweep ESCENARIO A unanimidad V0 commit `63de84c` mismo día). Estado real: A done_archived + B done merged + C 7/7 done; pendientes solo D+E disparadores temporales (D N≥100 ~2026-05-01, E N≥150 ~2026-05-10). **§12 Lección 36 NUEVA**: "Predicción ultrathink profiláctica antes de implementación invasiva — variante constructive de §12 L35". Cuando investigación o implementación tiene scope >2-3h y outcome incierto, hacer predicción cualitativa explícita ANTES de comenzar. Casos origen 2026-04-26 (3 aplicaciones mismo día): (a) Multi-testing correction Caso B confirmed predicción mismatch conceptual classical multi-test vs selection bias structural; (b) Fase 2 secundaria pnl_recon causa raíz convenciones BingX `unrealizedPnl@fetch` mark+bruto vs analyzer realized@fill matched predicción signed mean -0.0123 USDT exact; (c) audit v5_2 falsa alarma test diagnóstico L35 confirmed predicción auditor diverge no bot real. Patrón: predicción cualitativa pre-implementación es brújula metodológica reduciendo varianza outcomes — validada acelera cierre, refutada redirige antes invertir compute. **L36 es proactiva (pre-implementación) vs L35 reactiva (post-alarma)**. Cuarto pilar metodológico institucional: L25 (segmentación arquitectural) + L26 (validación per-componente) + L35 (test diagnóstico discriminatorio reactivo) + L36 (predicción ultrathink proactiva). Sesión consolidada 8 commits main: aa8bb2d audit Def A+B + 662ff00 §12 L35 + c8cc999 pnl_recon causa raíz + 195be1a fix v1 -37% + 3727366 L1892+L1904 observability + d28cc93 triaje §12 L27 + 0eb843c Multi-testing CASO B archivado + 5312ed5 Fase 2 secundaria Opción C. Sub-fase A.0/A.1/A.2 commits previos sesión: db55617 caveat §0.6.1 + 20b5773 Z_BTC V1 + 63de84c BIC sweep cross-5 altcoins ESCENARIO A. Bot v2.4.5 operacional VPS Tokio invariante uptime 4d+. Fidelidad 2 invariante (todas modificaciones offline tools o backwards-compat). Próximo natural: esperar disparadores temporales D+E madurando o continuación sesión institucional según oportunidad.
 
@@ -2684,6 +2684,57 @@ Referencias:
 - §12 L34 (preventiva 6ª vez — "scope item verifica viabilidad estadística a priori").
 
 Cierre: Análisis B ejecutado con N_trades ≥15 per config + veredicto cross-cluster + W3 validación empírica completada.
+
+---
+
+**[OPERACIONAL] [EN_ESPERA] Deploy L1892 active_config_id + L1904 multipliers SIGNALS_DISCARDED — 2026-04-26 sesión 2**
+
+Contexto: cambios `live/live_engine.py` L565-577 (campo `cfg` en SIGNALS_RAW) + L607-625 (campos `vw/bf/br/dd` en SIGNALS_DISCARDED) implementados commit `3727366` (sesión NOCHE 2026-04-26). Sanity §0.8 Nivel A `_run_verify_test BTC/USDT --n-bars 1000` post-cambios: diff **0.0000 EXACTO** en 5 métricas (Trades 11, Wins 3, PnL -0.6215, GP 2.1589, GL 2.7804). Fidelidad 2 invariante por construcción (cambios solo enriquecen logs diagnóstico, NO tocan lógica generación signals brain ni portfolio allocation logic). Bot v2.4.5 operacional VPS Tokio invariante hasta restart (cambios pendientes activación al próximo deploy/restart).
+
+**Decisión Ricardo sesión 2 2026-04-26 — Opción C diferir deploy**: agrupar L1892+L1904 con próximo deploy operacional natural (ventana mantenimiento o pre-reciclaje) en lugar de deploy aislado ahora. Razones:
+- Bot v2.4.5 estable 4d+ uptime (since 2026-04-22 09:46:10 UTC).
+- Items observability menor (NO afectan análisis Fase D v2.6-inv ~2026-05-01 que usa heuristic analyzer fallback). Fase D análisis puede ejecutarse pre-deploy sin degradación.
+- Mejor agrupar con próximo deploy operacional natural si emerge en Fase D+E (reduce downtime acumulado).
+- Riesgo overhead deploy aislado (~20-47s downtime análogo v2.4.4/v2.4.5) injustificado para observability extensions backwards-compat.
+
+**Disparo (cualquiera de los 3)**:
+- (a) **Fix crítico emerge en Fase D análisis v2.6-inv** (~2026-05-01) → agrupar L1892+L1904 con ese deploy operacional.
+- (b) **Fix crítico emerge en Fase E análisis v2.6-exit** (~2026-05-10) → agrupar L1892+L1904 con ese deploy operacional.
+- (c) **Fecha límite ~2026-05-10** (D+E madurados sin fixes urgentes) → deploy aislado L1892+L1904 inmediato pre-reciclaje (~5-12 días antes del reciclaje completo 45 sym ~2026-05-12 a 05-22).
+
+**Procedure standard** (validada 2 veces sin issues v2.4.4/v2.4.5):
+1. Smoke §0.8 Nivel A pre-deploy: `python -m live.brain_engine --verify --symbol BTC/USDT --n-bars 1000` → diff 0.0000 esperado.
+2. `sudo systemctl stop trading-bot.service` (graceful, ~5s).
+3. `scp -i ~/.ssh/trading_vps live/live_engine.py trader@IP_VPS_TOKIO_REDACTADA:/home/trader/combolab/live/live_engine.py.new`.
+4. SSH VPS: backup `cp live/live_engine.py live/live_engine.py.bak-pre-l1892l1904-$(date +%Y%m%d-%H%M%S)` + `mv live/live_engine.py.new live/live_engine.py` + `chown trader:trader live/live_engine.py`.
+5. MD5 3-way sync verify (combolab + comboclaude + VPS).
+6. `sudo systemctl start trading-bot.service`.
+7. Smoke-A boot verify (~5s post-start): 45 GMM + specialists + posiciones sincronizadas + `[ALERT] [START]` Telegram.
+8. Smoke-B cycle verify (próximo cycle xx:59:50): 0 errores Python, 0 WARNINGs inesperados, presencia campos `cfg/vw/bf/br/dd` en logs SIGNALS_RAW + SIGNALS_DISCARDED.
+
+Downtime esperado: ~20-47s (análogo deploys previos sesión 2026-04-22).
+
+**Cierre**: deploy ejecutado VPS + Smoke-A + Smoke-B PASS + MD5 3-way sync confirmado. Beneficio post-deploy: trades futuros registran `cfg` directo (analyzer NO requiere heuristic match config_id), `vw/bf/br/dd` directos (analyzer atribuye descartes per saturación/DD/balance sin proxy 5-ciclos). Útil para análisis post-reciclaje N≥150-200 sobre specialists nuevos.
+
+**Estado pre-deploy** (sin reset bot):
+- Cambios commit `3727366` en main + comboclaude paridad MD5 confirmada.
+- VPS sigue v2.4.5 sin cambios L1892+L1904 hasta restart.
+- Backwards-compat: campos opcionales, ausencia no rompe parsers downstream (analyzer/audit ignoran keys desconocidas).
+
+**Mitigación §12 L27 obsolescencia backlog** (conscientemente prevenida con disparador temporal explícito):
+- Disparador (c) fecha límite ~2026-05-10 INMEDIATO pre-reciclaje evita drift indefinido.
+- Item §13.3 con fecha explícita en spec (no solo "próximo deploy operacional").
+- Header L3 + ROADMAP pre-reciclaje line + journal próxima sesión documentan pendiente operacional.
+- Si Fase D ó E producen fix → deploy agrupado (cierre opción a/b).
+- Si Fase D ó E archivados sin fix → deploy aislado pre-reciclaje (cierre opción c).
+- En cualquier caso item NO debe sobrevivir reciclaje completo 45 sym sin cierre.
+
+Referencias:
+- §13.4 entrada "L1892 active_config_id + L1904 multipliers SIGNALS_DISCARDED — 2026-04-26" RESUELTO Fase C items 3+4 (commit `3727366`).
+- §0.8 protocolo smoke pre-deploy (Nivel A obligatorio TODO deploy brain/kernel; cambios live_engine.py observability menor solo requieren Nivel A — NO tocan brain signal logic ni kernel).
+- §2.4 deploys v2.4.4 (2026-04-22 18:22 UTC, downtime ~20s) + v2.4.5 (2026-04-22 09:46 UTC, downtime ~47s) — procedure standard validado.
+- ROADMAP_PRE_RECICLAJE.md trigger reciclaje completo 45 sym ~2026-05-12 a 05-22.
+- §12 L27 patrón obsolescencia items §13.3 — prevenido conscientemente con disparador temporal explícito + fecha límite + 3 entry points docs.
 
 ---
 

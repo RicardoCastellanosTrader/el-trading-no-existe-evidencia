@@ -72,6 +72,8 @@ Trigger: A+B+C done + D+E validados o archivados. **Estado 2026-04-26**: A done 
 Scope compute: ~180-225h VPS (8-10 días).
 Estimación fecha: ~2026-05-12 a 05-22.
 
+**Pre-reciclaje deploy pendiente** (item §13.3 EN_ESPERA 2026-04-26 sesión 2): L1892 active_config_id + L1904 multipliers SIGNALS_DISCARDED observability extensions (commit `3727366`) — agrupar con próximo deploy operacional Fase D/E si emerge, o aislado fecha límite ~2026-05-10 inmediato pre-reciclaje. Disparador temporal explícito conscientemente prevenido §12 L27 (item NO debe sobrevivir reciclaje sin cierre). Procedure standard validada v2.4.4/v2.4.5 (~20-47s downtime, Smoke §0.8 Nivel A único requerido).
+
 ## Invariantes durante A+B+C
 
 - Fidelidad 2 invariante (bot v2.4.5 operacional continuo).
