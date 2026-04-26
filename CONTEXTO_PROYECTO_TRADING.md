@@ -136,6 +136,24 @@ Cuando Claude (o Claude Code, o Ricardo en persona) conduzca auditoría, el eje 
 
 No confundir prioridades: bot que replica fielmente un kernel con "Fix fidelidad" intencional es estado sano. Bot que no replica al kernel pero coincide con Pine canónico es estado roto.
 
+### 0.6.1 Cross-exchange dependency en features cross-símbolo — 2026-04-26
+
+A partir de Fase A pre-reciclaje (Z_BTC implementación), el GMM de altcoins recibe Z_ATR_BTC como feature cross-símbolo. Esto introduce dependencia cross-exchange Binance↔BingX en el cómputo de cluster_label live, no presente en GMMs anteriores (que solo usaban features locales del símbolo activo).
+
+**Mecánica**:
+- Training (offline `master.py --recycle`): Z_ATR_BTC computado desde `data_cache/BTCUSDT_1h.parquet` (Binance Futures) — pre-cómputo por `precompute_btc_features.py` → `data_cache/BTC_features.parquet`.
+- Live inference (bot VPS Tokio): Z_ATR_BTC computado on-the-fly por `brain_engine.classify_regimes` desde `market_data['BTC/USDT']` (BingX OHLCV reciente vía `data_feed.download_all_ohlcv`).
+
+**Diferencia esperada cross-exchange**: ~0.113% en valores OHLC absolutos (documentado §1.1). Para Z_ATR (z-score con std~1), la diferencia es marginal en magnitud absoluta pero **puede desplazar bars borderline en histéresis P≥0.75 cluster confidence threshold**.
+
+**Status**: caveat aceptado como propiedad operacional sistema. Análogo al caveat cross-exchange ya existente para features locales del símbolo activo (training Binance, live BingX). Mitigación: histéresis P≥0.75 filtra borderline ambiguity en la mayoría de bars.
+
+**Monitoreo post-implementación**: si auditoría empírica post-reciclaje muestra incremento NONE divergentes vs baseline v2.4.5 actual (audit clustering_divergente §13.4 2026-04-21), considerar mitigación adicional (ej. mantener `apply_btc_override` como segunda red de seguridad indefinidamente, o forzar refresh de BTC parquet pre-fetched al BingX live data en cada reciclaje para alinear fuentes).
+
+**Decisión NO implementar mitigación adicional pre-implementación**: sobre-engineering sin evidencia empírica que justifique la complejidad. Proceder con monitoreo + reactivo si surge problema.
+
+**Implicación operacional Sub-fase A.1+**: la implementación de Z_BTC asegura por construcción que el cómputo es **bit-idéntico** training↔live cuando ambos usan la MISMA fuente (Binance parquet o BingX live). El factor cross-exchange es una propiedad del DATA, no del cálculo. Tests parity training↔live (`tests/test_zbtc_parity_training_live.py`) usan misma fuente Binance para aislar bugs de cómputo del factor cross-exchange (que no es testeable sin live BingX en CI).
+
 ### 0.7 Convención de sincronización combolab ↔ comboclaude — 2026-04-23
 
 `combolab/` es directorio de ejecución: bot productivo (live/), scripts de análisis ejecutados localmente, kernel lab, repositorio git versionado. `comboclaude/` es directorio de fuente Claude Code donde Claude Code lee/modifica código en sesiones de desarrollo.
