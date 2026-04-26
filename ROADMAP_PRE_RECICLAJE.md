@@ -55,7 +55,7 @@ Scope: ~4-6h total distribuido. Estado actualizado:
 
 ### Categoría D — Espera datos operacionales N≥100 (~2026-05-01)
 - v2.6-inv entry filter candidato — validación Welch p<0.05 S4 homogéneo obligatorio (§13.3 actualizado Fase 3 stress-test).
-- Cache funding extender a origen dataset (prerequisito VPS ~30 min).
+- ~~Cache funding extender a origen dataset (prerequisito VPS ~30 min).~~ **DONE 2026-04-26 sesión 2 §12 L27** — cache local ya cubría 2026-03-01 → 2026-04-23 08:00 desde refresh previo no documentado; sesión 2 ejecutó refresh forward gap real 2026-04-23 → 2026-04-26T16:00 (~42s VPS, 78/78 trades duration>1h cobertura 100%). Stress-tests v2.6-inv NO bloqueados por gap cache. Ver §13.4 entrada cache funding refresh 2026-04-26 sesión 2.
 
 ### Categoría E — Espera datos operacionales N≥150 (~2026-05-10)
 - v2.6-exit filter candidato (cerrar contrarian losing trades).
@@ -101,3 +101,4 @@ Documento vivo. Se actualiza con:
 - **2026-04-25**: Fase B DONE (M2 fix validado empíricamente cross-symbol N=9, mejora 3.42× vs W3b baseline, hallazgo metodológico `_FWD_MIN_PF` no eficaz documentado). Avanzar Fase A (Z_BTC).
 - **2026-04-26**: Fase C COMPLETA 7/7 DONE — audit Fid2 + investigación pnl_recon causa raíz + fix v1 + L1892/L1904 logs + triaje 4 micro-items + Fase 2 secundaria Opción C (causa raíz convenciones BingX vs analyzer identificada por code review). Multi-testing correction Holm/BH CASO B archivado empíricamente paralelo. **Fase A DONE_ARCHIVED mismo día** (Z_BTC refutado empíricamente cross-5 altcoins BIC sweep, commit `63de84c`).
 - **2026-04-26 cierre estado pre-reciclaje maduro institucional**: Fase A DONE_ARCHIVED + Fase B DONE merged + Fase C 7/7 DONE + D+E ESPERA disparadores temporales (D N≥100 ~2026-05-01, E N≥150 ~2026-05-10). Refinamiento metodológico walk-forward: Multi-testing correction CASO B archivado empírico; tools selection-bias-specific (Deflated SR, k-fold CV) pendientes proyectos dedicados separados post-reciclaje. Próximo natural: esperar disparadores temporales D+E madurando o continuación sesión institucional según oportunidad.
+- **2026-04-26 sesión 2**: Cache funding refresh forward + cierre §13.3 L2317 §12 L27. Predicción ultrathink §12 L36 5ª aplicación validada profilácticamente cross-3 puntos (service mismatch trading-bot vs combolab-bot + cache parcialmente cubre + cobertura 100% por construcción). Operación efectiva: refresh forward gap real 2026-04-23 → 2026-04-26T16:00 (~42s VPS, ~306 entradas, 35 símbolos, apareció THETAUSDT.csv nuevo). Coverage 78/78 trades duration>1h con entry_ms válido 100%. Item §13.3 L2317 RESUELTO con caveat parcialmente obsoleto pre-operación. Stress-tests v2.6-inv N≥100 disparador (~2026-05-01) NO bloqueados por gap cache. Bot v2.4.5 invariante.

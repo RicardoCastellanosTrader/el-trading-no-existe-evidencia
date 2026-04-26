@@ -1,6 +1,8 @@
 # Sistema de Trading Algorítmico — Contexto Completo del Proyecto
 
-**Última actualización:** 26 Abril 2026 CIERRE SESIÓN NOCHE-5 CONSOLIDADO — **Fase 2 secundaria pnl_recon RESUELTA Opción C → Fase C COMPLETA 7/7 + §12 L36 NUEVA + estado pre-reciclaje MADURO INSTITUCIONAL**. Corrección reporte previo erróneo que afirmaba "Próximo: Fase A" — Fase A YA estaba DONE_ARCHIVED 2026-04-26 (Z_BTC refutado empíricamente cross-5 altcoins, BIC sweep ESCENARIO A unanimidad V0 commit `63de84c` mismo día). Estado real: A done_archived + B done merged + C 7/7 done; pendientes solo D+E disparadores temporales (D N≥100 ~2026-05-01, E N≥150 ~2026-05-10). **§12 Lección 36 NUEVA**: "Predicción ultrathink profiláctica antes de implementación invasiva — variante constructive de §12 L35". Cuando investigación o implementación tiene scope >2-3h y outcome incierto, hacer predicción cualitativa explícita ANTES de comenzar. Casos origen 2026-04-26 (3 aplicaciones mismo día): (a) Multi-testing correction Caso B confirmed predicción mismatch conceptual classical multi-test vs selection bias structural; (b) Fase 2 secundaria pnl_recon causa raíz convenciones BingX `unrealizedPnl@fetch` mark+bruto vs analyzer realized@fill matched predicción signed mean -0.0123 USDT exact; (c) audit v5_2 falsa alarma test diagnóstico L35 confirmed predicción auditor diverge no bot real. Patrón: predicción cualitativa pre-implementación es brújula metodológica reduciendo varianza outcomes — validada acelera cierre, refutada redirige antes invertir compute. **L36 es proactiva (pre-implementación) vs L35 reactiva (post-alarma)**. Cuarto pilar metodológico institucional: L25 (segmentación arquitectural) + L26 (validación per-componente) + L35 (test diagnóstico discriminatorio reactivo) + L36 (predicción ultrathink proactiva). Sesión consolidada 8 commits main: aa8bb2d audit Def A+B + 662ff00 §12 L35 + c8cc999 pnl_recon causa raíz + 195be1a fix v1 -37% + 3727366 L1892+L1904 observability + d28cc93 triaje §12 L27 + 0eb843c Multi-testing CASO B archivado + 5312ed5 Fase 2 secundaria Opción C. Sub-fase A.0/A.1/A.2 commits previos sesión: db55617 caveat §0.6.1 + 20b5773 Z_BTC V1 + 63de84c BIC sweep cross-5 altcoins ESCENARIO A. Bot v2.4.5 operacional VPS Tokio invariante uptime 4d+. Fidelidad 2 invariante (todas modificaciones offline tools o backwards-compat). Próximo natural: esperar disparadores temporales D+E madurando o continuación sesión institucional según oportunidad.
+**Última actualización:** 26 Abril 2026 SESIÓN 2 — **Cache funding refresh forward + cierre §13.3 L2317 §12 L27 + 5ª aplicación §12 L36 cuádruple guardrail validada profilácticamente cross-3 puntos (service mismatch trading-bot vs combolab-bot + cache parcialmente cubre + cobertura 100% por construcción)**. Operación VPS pura ~42s: cache local pre-existing 2026-03-01 → 2026-04-23 08:00 (43 días margen sobre arranque trade_history 2026-04-13, cubre S1 categóricamente desde refresh previo no documentado en sesión hoy ~13:15 UTC); refresh forward gap real 2026-04-23 → 2026-04-26T16:00 (~306 entradas + apareció THETAUSDT.csv símbolo nuevo). Sync local tar+scp workflow §11 canónico. Validación coverage **78/78 trades duration>1h con entry_ms válido al 100%**. Item §13.3 L2317 RESUELTO §12 L27 con caveat (parcialmente obsoleto pre-operación). Stress-tests v2.6-inv N≥100 disparador (~2026-05-01) NO bloqueados. Bot v2.4.5 invariante. Sin tocar `live/*`. Próximo natural sin cambios: esperar disparadores D+E madurando.
+
+**Actualización previa:** 26 Abril 2026 CIERRE SESIÓN NOCHE-5 CONSOLIDADO — **Fase 2 secundaria pnl_recon RESUELTA Opción C → Fase C COMPLETA 7/7 + §12 L36 NUEVA + estado pre-reciclaje MADURO INSTITUCIONAL**. Corrección reporte previo erróneo que afirmaba "Próximo: Fase A" — Fase A YA estaba DONE_ARCHIVED 2026-04-26 (Z_BTC refutado empíricamente cross-5 altcoins, BIC sweep ESCENARIO A unanimidad V0 commit `63de84c` mismo día). Estado real: A done_archived + B done merged + C 7/7 done; pendientes solo D+E disparadores temporales (D N≥100 ~2026-05-01, E N≥150 ~2026-05-10). **§12 Lección 36 NUEVA**: "Predicción ultrathink profiláctica antes de implementación invasiva — variante constructive de §12 L35". Cuando investigación o implementación tiene scope >2-3h y outcome incierto, hacer predicción cualitativa explícita ANTES de comenzar. Casos origen 2026-04-26 (3 aplicaciones mismo día): (a) Multi-testing correction Caso B confirmed predicción mismatch conceptual classical multi-test vs selection bias structural; (b) Fase 2 secundaria pnl_recon causa raíz convenciones BingX `unrealizedPnl@fetch` mark+bruto vs analyzer realized@fill matched predicción signed mean -0.0123 USDT exact; (c) audit v5_2 falsa alarma test diagnóstico L35 confirmed predicción auditor diverge no bot real. Patrón: predicción cualitativa pre-implementación es brújula metodológica reduciendo varianza outcomes — validada acelera cierre, refutada redirige antes invertir compute. **L36 es proactiva (pre-implementación) vs L35 reactiva (post-alarma)**. Cuarto pilar metodológico institucional: L25 (segmentación arquitectural) + L26 (validación per-componente) + L35 (test diagnóstico discriminatorio reactivo) + L36 (predicción ultrathink proactiva). Sesión consolidada 8 commits main: aa8bb2d audit Def A+B + 662ff00 §12 L35 + c8cc999 pnl_recon causa raíz + 195be1a fix v1 -37% + 3727366 L1892+L1904 observability + d28cc93 triaje §12 L27 + 0eb843c Multi-testing CASO B archivado + 5312ed5 Fase 2 secundaria Opción C. Sub-fase A.0/A.1/A.2 commits previos sesión: db55617 caveat §0.6.1 + 20b5773 Z_BTC V1 + 63de84c BIC sweep cross-5 altcoins ESCENARIO A. Bot v2.4.5 operacional VPS Tokio invariante uptime 4d+. Fidelidad 2 invariante (todas modificaciones offline tools o backwards-compat). Próximo natural: esperar disparadores temporales D+E madurando o continuación sesión institucional según oportunidad.
 
 **Actualización previa:** 26 Abril 2026 CIERRE SESIÓN NOCHE-5 — **Fase 2 secundaria pnl_recon RESUELTA Opción C — Fase C COMPLETA 7/7 DONE**. Causa raíz IDENTIFICADA por code review sin compute adicional: `pnl_usdt` CSV proviene de `live/execution_manager.py:378` que retorna `position["unrealized_pnl"]` capturado en `fetch_positions()` previo al close, fuente BingX `unrealizedPnl` (`live/data_feed.py:351`) usa **mark_price + bruto sin fees**; analyzer reconstruye realized neto fill-based. **Divergencia estructural de convenciones BingX vs analyzer**, NO bug componente — hipótesis A/B/C/D originales (precision/fees/notional/size_usdt) refutadas individualmente como block instructivo donde 4 hipótesis razonables atacaban componente equivocado del problema (causa real conceptual, no numérica). **Decisión Opción C** per §13.2 DECISION canónica ("fix resuelve fenómeno, no tapa síntoma"): redefinir métrica analyzer en lugar de fix bot-side (Opción A descartada por costo deploy + rompe semántica histórica reports) o fix analyzer convención BingX (Opción B descartada por mark_price@fetch no almacenado). **Implementación analyzer ~50 LOC** (`analyze_performance_attribution.py`): rename `pnl_recon` → `pnl_estimate_offline` con docstring expandido convenciones BingX vs analyzer, gap signed (no abs) preservando dirección drift, alert mecánico WARN/NOTA saturado eliminado, reporte descriptivo distribución (signed mean / |abs| mean / p50 / p95) con convenciones inline, `BALANCE_NOT_CLOSING_RATIO_ALERT` + `BALANCE_EQN_TOLERANCE_USDT` marcadas DEPRECATED compat ABI. **Validación empírica end-to-end N=63**: signed mean **-0.0123 USDT** (predicción NEGATIVO consistente ✓), |abs| mean **0.0133 USDT** (predicción 0.010-0.015 ✓ exacta), p95 **0.0290 USDT** (predicción 0.025-0.035 ✓), CSV nuevas columnas + reporte nueva sección descriptiva, 0 menciones WARN/NOTA legacy. Drift `(fill - mark@fetch) ≈ -0.0005×notional` + fees parciales `unrealizedPnl` BingX explica gap_signed estructuralmente. **Items §13.3 cerrados**: L2400 → RESUELTO Opción C; L2284 L1916 → RESUELTO por merge natural (métrica subyacente rediseñada). **Status Fase C COMPLETA 7/7**: audit Fid2 + investigación pnl_recon causa raíz + fix v1 + L1892/L1904 logs + triaje 4 micro-items + Fase 2 secundaria Opción C. **Sistema pre-reciclaje en estado MADURO INSTITUCIONAL**: Fase A DONE_ARCHIVED 2026-04-26 (Z_BTC refutado empíricamente cross-5 altcoins commit `63de84c`) + Fase B DONE merged + Fase C 7/7 DONE; pendientes solo D+E disparadores temporales (D N≥100 ~2026-05-01, E N≥150 ~2026-05-10). Próximo natural: esperar D+E o continuación institucional según oportunidad. **Hallazgos metodológicos**: §12 L25+L27 sinergia (segmentación arquitectural identifica capas "convención CSV bot-side" vs "convención analyzer offline-side" + verify code-side antes de implementar reflexivamente — observable directo en 2 líneas), §13.2 DECISION aplicada en caso límite (fenómeno = divergencia conceptual, fix = separar convenciones), predicción ultrathink validada profilácticamente (variante constructive §12 L35), pattern hipótesis A/B/C/D atacando componente equivocado por assumption framework no validado pre-investigación. Bot v2.4.5 invariante (sin deploy, sin tocar `live/*`). Fidelidad 2 invariante por construcción. Documentación: `docs/pnl_recon_phase2_root_cause_20260426.md`. Bot operacional VPS Tokio uptime 4d+.
 
@@ -2508,8 +2510,14 @@ Gap típico 15-25% no es calibrable con tolerance arbitraria de forma robusta. R
 - §2.4 v2.4.4 size_usdt bug origen.
 - §12 L34 (scope del item verifica data soporta análisis a priori).
 
-**[MEJORA] [EN_ESPERA] Cache funding context extender a origen dataset para stress-tests multi-segmento — 2026-04-23**
+**[MEJORA] [RESUELTO 2026-04-26 sesión 2 §12 L27] Cache funding context extender a origen dataset para stress-tests multi-segmento — 2026-04-23**
 
+Ver §13.4 entrada "[OPERACIONAL] [DONE] Cache funding context refresh forward + cierre §12 L27 — 2026-04-26 sesión 2".
+
+Resumen: item parcialmente OBSOLETO al verificar estado real cache local. Spec original 2026-04-23 documentaba "cache arranca 2026-04-15"; verificación 2026-04-26 sesión 2 reveló que cache YA arrancaba 2026-03-01 (43 días margen sobre trade_history 2026-04-13) por refresh previo no documentado en §13.3. S1 pre-v2.3.11 (N=49 trades) ya estaba cubierto pre-operación. Sesión 2 ejecutó refresh forward gap real (2026-04-23 → 2026-04-26, ~306 entradas, ~42s VPS) + sync local + cierre formal item. Predicción ultrathink §12 L36 validada profilácticamente cross-3 puntos (service mismatch trading-bot vs combolab-bot, cache parcialmente cubre, cobertura 100% por construcción). Coverage post-sync: 78/78 trades duration>1h con entry_ms válido cubiertos al 100%; 21 trades duration≤1h no cruzan funding boundary; 64 trades legacy pre-v2.3.5/v2.4.5 entry_ms=0 mitigados por fallback analyzer/audit a SIGNALS_EXECUTED.
+
+(Bloque histórico original preservado abajo para trazabilidad)
+---
 Contexto: Fase 3 stress-test 2026-04-23 reveló que el efecto funding aligned/contrarian Bloque 2 no pudo testearse en S1 pre-v2.3.11 (N=49 trades del dataset total) por cache funding arrancando 2026-04-15; dataset arranca 2026-04-13 con S1 terminando en 2026-04-19 17:51. Gap infra limitó rigor del stress-test a S2+S3+S4 (N=49 de 98 total). El veredicto "signo correcto sin significancia N=49" se beneficiaría de S1 retrospectivo para tener cross-segmento completo N≥98.
 
 Acción:
@@ -2680,6 +2688,84 @@ Cierre: Análisis B ejecutado con N_trades ≥15 per config + veredicto cross-cl
 ---
 
 ### 13.4 RESUELTO
+
+**[OPERACIONAL] [DONE] Cache funding context refresh forward + cierre item §13.3 L2317 §12 L27 — 2026-04-26 sesión 2**
+
+Contexto: Item §13.3 línea 2511 (alias L2317 por convención histórica) "[MEJORA] [EN_ESPERA] Cache funding context extender a origen dataset para stress-tests multi-segmento — 2026-04-23" documentaba "cache funding actual arranca 2026-04-15; dataset trade_history arranca 2026-04-13. Gap infra ha bloqueado stress-test cross-segmento S1 N=49 trades pre-v2.3.11". Disparo declarado: prerequisito v2.6-inv análisis N≥100 (~2026-05-01).
+
+**Hallazgo §12 L27** (verificación pre-flight pre-refresh): cache local ya cubría **2026-03-01T00:00:00Z** uniformemente cross-34-símbolos, NO 2026-04-15 documentado. Margen efectivo pre-operación: 43 días sobre arranque trade_history 2026-04-13 (cubre S1 categóricamente). mtime archivos `.funding_cache/*.csv` = 2026-04-26 13:15 UTC sugiere refresh previo en sesión hoy ~13:15 sin actualización §13.3 L2317. Patrón clásico §12 L27 (items §13.3 obsoletos por reviews previos no documentados).
+
+**Predicción ultrathink §12 L36 pre-refresh** (validada profilácticamente cross-3 puntos):
+1. Service mismatch: spec usuario decía `combolab-bot.service`, real (CONTEXTO §2.3) es `trading-bot.service`. Predicción 90% probabilidad → confirmada.
+2. Cache parcialmente cubre rango pedido: predicción → confirmada (cache local arranca 2026-03-01 vs spec 2026-04-15).
+3. Cobertura 100% post-refresh por construcción: predicción → confirmada (cache ya cubría origen + ~3 días gap forward solamente pendiente).
+
+**Operación efectiva sesión 2** (Opción C combinada: refresh forward scope acotado + documentación honesta L27):
+
+```bash
+ssh trader@vps "cd combolab && /home/trader/venv/bin/python funding_context.py \
+  refresh-cache --csv trade_history.csv --cache-dir .funding_cache --since 2026-04-23"
+```
+
+Output VPS:
+- 35 símbolos procesados (vs 34 local pre-refresh — apareció `THETAUSDT.csv` nuevo, símbolo recientemente activo en trades).
+- 6846 total rates en cache post-refresh (entries TOTALES post-refresh, no solo nuevas).
+- Tiempo: **42.1s** (mucho menos que ~5-10 min spec original — consistente con gap forward 3 días, no 16 días desde 2026-04-10).
+- Latest entry post-refresh: **2026-04-26T16:00:00Z** (consistente cross-símbolos).
+- Símbolos con cobertura 4h (no 8h) BingX: ENA, IMX, ONDO, POL, RENDER, TAO (341 entries c/u vs 171 baseline).
+
+**Sync local** (workflow §11 línea 4580-4582 tar+scp documentado canónicamente):
+
+```bash
+ssh trader@vps "cd combolab && tar czf /tmp/fc.tgz .funding_cache/"
+scp trader@vps:/tmp/fc.tgz ./fc.tgz
+rm -rf .funding_cache && tar xzf fc.tgz && rm fc.tgz
+```
+
+Backup pre-sync preservado: `.funding_cache.backup-20260426-183955/`. Cleanup tarball VPS-side + local post-sync.
+
+**Validación coverage 215 trades** (script Python ad-hoc):
+
+| Categoría | N | Status |
+|---|---:|---|
+| Total trades CSV | 215 | — |
+| Trades parseables (schema 12 cols post-v2.3.5) | 163 | — |
+| duration ≤ 1h (no cruza funding boundary) | 21 | no requiere cobertura |
+| duration > 1h con entry_ms válido | **78** | **78/78 = 100% covered** ✓ |
+| entry_ms=0 legacy pre-v2.3.5/v2.4.5 | 64 | mitigado fallback analyzer/audit a SIGNALS_EXECUTED |
+| Schema legacy 10 cols (pre-v2.3.3) | 52 | excluidos parser, fuera scope v2.6-inv (post-v2.3.11) |
+
+**78/78 cobertura cross-segmento**: incluye trades S1 (pre-v2.3.11), S2 (v2.3.11→v2.4.0), S3 (v2.4.0→v2.4.4), S4 (post-v2.4.4) con entry_ms válido. Stress-tests v2.6-inv N≥100 disparador (~2026-05-01) NO bloqueados por gap cache.
+
+**Items §13.3 cerrados**:
+- Línea 2511 "Cache funding context extender" → **RESUELTO 2026-04-26 sesión 2 §12 L27**.
+
+**Hallazgos colaterales / aprendizajes**:
+
+1. **§12 L27 patrón confirmado nuevamente**: 2do caso patrón "items §13.3 obsoletos por reviews/operaciones previas no documentadas" en sesión NOCHE-5 / sesión 2 (precedente: triaje 4 micro-items 2026-04-26 con 1/4 ARCHIVADO obsoleto E4 cancel-place ventana). Sin pre-flight verification §12 L36, refresh ciego habría sido operación parcialmente redundante. Predicción ultrathink ahorra compute + da decisión informada (Opción C scope acotado vs Opción A spec literal).
+
+2. **§12 L36 cuádruple guardrail aplicada**: predicción cualitativa ANTES de invertir compute en SSH operación. Validada cross-3 puntos (service mismatch + cache parcialmente cubre + cobertura 100% por construcción). Reduce ambigüedad investigación + facilita Opción C escogida. Variante constructive de §12 L35 (test diagnóstico antes de investigar causa raíz).
+
+3. **VPS python no en PATH global**: `python` no encontrado en shell SSH default; venv `/home/trader/venv/bin/python` requerido. Hallazgo menor operacional — comando spec usuario no incluía path completo; ajuste sin documentar previamente.
+
+4. **Coverage real per trade segmentación**:
+   - S1 pre-v2.3.11 (N=49 dataset): 100% trades con entry_ms cubiertos por extensión cache 2026-03-01.
+   - Schema 10 cols legacy: 52 trades pre-v2.3.3 sin entry_timestamp_ms — fuera scope v2.6-inv análisis (que se centra en post-v2.3.11).
+   - Trades hold > 1h post-v2.4.5 (con entry_ms válido): subset operacional para v2.6-inv análisis disparador.
+
+**Bot v2.4.5 invariante**. Sin tocar código. Sin tocar `live/*`. Operación read-only sobre data productiva (refresh fetcha BingX API funding rates, escribe solo a `.funding_cache/`). Fidelidad 2 invariante por construcción.
+
+Referencias:
+- §13.3 línea 2511 (cerrada con caveat L27).
+- `funding_context.py` L155-238 (`fetch_funding_rates` + `refresh_cache` con skip-if-covered línea 234).
+- `.funding_cache/` 35 símbolos × ~171-341 entries cubriendo 2026-03-01 → 2026-04-26T16:00.
+- §12 L25 (segmentación) + L26 (validación per-componente) + L27 (items §13.3 obsoletos) + L35 (test diagnóstico reactivo) + L36 (predicción ultrathink proactiva) — quíntuple guardrail aplicada secuencialmente.
+- §0.7 Convención sync combolab ↔ comboclaude (`.funding_cache/` excepto regenerable + pesado per categoría análoga datos pesados).
+- ROADMAP_PRE_RECICLAJE.md Categoría D pre-requisitos: cache funding refresh DONE 2026-04-26 sesión 2.
+
+Cierre item §13.3 L2317: permanente. Sistema pre-reciclaje en estado MADURO INSTITUCIONAL invariante post-operación. Próximo natural: esperar disparadores temporales D+E madurando (v2.6-inv N≥100 ~2026-05-01, v2.6-exit N≥150 ~2026-05-10).
+
+---
 
 **[INVESTIGACIÓN] [RESUELTO Opción C — Fase C item 7] Fase 2 secundaria pnl_recon — causa raíz convenciones BingX vs analyzer + redefinir métrica — 2026-04-26**
 
