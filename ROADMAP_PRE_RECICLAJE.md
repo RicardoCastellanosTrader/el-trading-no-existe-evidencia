@@ -28,12 +28,14 @@ Referencias: §13.2 bloque REFINAMIENTO canónico 2026-04-24 + sub-sección "Val
 ### Categoría C — Operacionales menores (micro-fixes + audit) — **EN_PROGRESO 2026-04-26**
 Scope: ~4-6h total distribuido. Estado actualizado:
 - ~~**Audit Fidelidad 2 N≥50 post-v2.3.11**~~ **DONE 2026-04-26** (audit institucional doble Def A+B; Fidelidad 2 CONFIRMADA via `_run_verify_test` 76 trades diff 0.0000; audit_v5_2 reportó 48% pero es divergencia herramienta auditor no bug bot; alpha residual edge erosion confirmado cuantitativamente N=60).
-- **Opción D pnl_recon causa raíz** (~1-2h data-independent) — pnl_recon_gap 93% confirmado masivamente N=60 (vs 92% N=26 A.1). Síntoma robusto. SIGUIENTE.
-- **L1892 active_config_id en SIGNALS_RAW** (~30min).
+- ~~**Opción D pnl_recon causa raíz**~~ **investigación DONE 2026-04-26** — causa raíz primaria identificada: double-counting `*2.0` en `analyze_performance_attribution.py` L1001 (`COMMISSION_RATE * notional * 2.0` = 0.20% mientras comment dice "0.10% round-trip"). Fix v1 sugerido (1 línea) reduciría gap mean -37%. Causas secundarias (H_real_fees_below_taker, H_decimal) requieren Fase 2 opcional ~30-45 min.
+- **L1892 active_config_id en SIGNALS_RAW** (~30min) — SIGUIENTE.
 - **L1904 multiplicadores en SIGNALS_DISCARDED** (~30min).
 - Triaje micro-items adicionales (L1843, L1849, L1855, L1861) — muchos son de ultra-review 2026-04-17, pueden ser obsoletos tras v2.4.x. Decidir individualmente pre-implementación.
 
-**Item §13.3 nuevo (post-audit 2026-04-26)**: "Refactor audit_v5.x herramienta auditor + reconciliación con kernel productivo Numba" — proyecto dedicado post-reciclaje, NO bloqueante. audit_v5_2 reporta 48% match rate pero verify_test reporta 100% bit-a-bit; herramienta auditor diverge del kernel productivo (§13.2 "opción C").
+**Items §13.3 nuevos (post-Fase C 2026-04-26)**:
+1. "Refactor audit_v5.x herramienta auditor + reconciliación con kernel productivo Numba" — proyecto dedicado post-reciclaje, NO bloqueante. audit_v5_2 reporta 48% match rate pero verify_test reporta 100% bit-a-bit; herramienta auditor diverge del kernel productivo (§13.2 "opción C").
+2. "Aplicar fix v1 pnl_recon double-counting + investigación Fase 2 secundaria" — fix de 1 línea identificado (eliminar `*2.0` en analyze_performance_attribution.py L1001), pendiente aplicar + verificar empíricamente. Item §13.3 original "pnl_recon causa raíz" sigue ABIERTO hasta cierre tras fix.
 
 ## Orden de ejecución
 

@@ -2568,6 +2568,83 @@ Cierre: Análisis B ejecutado con N_trades ≥15 per config + veredicto cross-cl
 
 ### 13.4 RESUELTO
 
+**[INVESTIGACIÓN] [RESUELTO Fase C item 2 — Opción D pnl_recon causa raíz] Double-counting fees identificado — 2026-04-26**
+
+Contexto: Item §13.3 "Investigación causa raíz pnl_recon gap analyzer" (commit ab4f6f6 2026-04-23, scope ~1-2h dedicada Opción D). Síntoma persistente: pnl_recon_gap > tolerance 92% N=26 (A.1 sesión 2026-04-23) → 93% N=60 (audit C1 2026-04-26).
+
+**Datos investigación**: attribution_per_trade_20260426_1113.csv N=60 post-v2.4.5. Distribución gap: mean abs 0.0218 USDT, median 0.0201, p99 0.0433. Como % de \|pnl_real\|: p50 34%, p90 172% (trades pnl pequeño tienen ratio enorme).
+
+**Hipótesis discriminadas**:
+
+| Hipótesis | Test | Veredicto |
+|-----------|------|-----------|
+| H_fees double-counting `*2.0` | corr(gap, size_usdt)=-0.56, ratio gap/predicted_H_fees ≈2.5 | **CONFIRMADA causa primaria** |
+| H_funding (pnl_real CSV incluye funding) | corr(gap, funding_paid)=-0.244, magnitud funding 0.0004/trade | REFUTADA (funding es columna separada) |
+| H_decimal precision rounding | residual post-fix v1 mean -0.013 con corr contracts +0.15 | parcial secundaria |
+| H_real_fees_below_taker (BNB discount) | residual signed post-fix v1 -0.013 mean consistente | PROBABLE secundaria |
+| H_size_usdt_drift | top 5 residuals mix signs no-sistemático | menor contribución |
+
+**Causa raíz primaria identificada**: `analyze_performance_attribution.py` L1001:
+
+```python
+# CURRENT (BUG):
+est_fees = COMMISSION_RATE * notional_entry * 2.0  # round-trip
+# COMMISSION_RATE = 0.001 — comment dice "0.10% round-trip approx (entry+exit)"
+# El * 2.0 DUPLICA el round-trip ya implícito en la constante.
+```
+
+Comment en L106: `COMMISSION_RATE = 0.001 # 0.10% round-trip approx (entry+exit)`. El operador `* 2.0` aplica un round-trip ADICIONAL → analyzer asume **0.20% notional fees vs los 0.10% intended** (factor 2× over-estimate).
+
+BingX taker real: 0.05% per side × 2 = 0.10% round-trip (ya consistente con la constante intended). Con BNB discount probablemente <0.10%.
+
+**Fix sugerido** (1 línea, recomendado):
+
+```python
+# AFTER:
+est_fees = COMMISSION_RATE * notional_entry  # round-trip (already includes entry+exit)
+```
+
+**Predicción post-fix**:
+
+| Métrica | Pre-fix | Post-fix v1 |
+|---------|--------:|------------:|
+| gap mean abs | 0.0218 | 0.0137 (-37%) |
+| gap median | 0.0201 | 0.0127 (-37%) |
+| % trades >0.01 absoluto | 93% | 65% |
+| % trades >tolerance | 90% | 57% |
+
+**Causas secundarias post-fix** (residual mean -0.013 signed, NEGATIVO consistente):
+- H_real_fees_below_taker (BNB discount, taker rate <0.10% round-trip): magnitud 0.005-0.013 USDT/trade.
+- H_decimal precision rounding: magnitud 0.001-0.005 USDT/trade.
+
+Spec Fase D criterio (gap típico <5%, p95 <10%) NO se alcanza solo con fix v1 (57% > tolerance vs target 5%). Requiere fix v1 + investigación Fase 2 secundaria + posible tolerance ajuste.
+
+**Plan recomendado**:
+1. **Fix v1 inmediato** (1 línea código): elimina causa primaria. Reduce gap 37%.
+2. **Investigación Fase 2 opcional** (~30-45 min): verificar BingX fees reales bot account (BNB discount, VIP tier), precision drift size_usdt BingX vs CSV, posible inclusión funding implícito en pnl_usdt.
+3. **Tolerance ajuste opcional** (~5 min): si residual ~0.013 USDT inevitable, floor 0.01 → 0.015 USDT.
+
+**Status item §13.3 sigue ABIERTO**: causa raíz primaria identificada y fix dispuesto. Cierre se completará tras (a) fix v1 implementado en analyze_performance_attribution.py, (b) re-ejecución analyzer N=60 confirma gap mean ~0.0137, (c) investigación Fase 2 secundaria si se prioriza scope adicional.
+
+**Hallazgos meta**:
+- §12 L26 aplicada: H_funding refutada por correlación débil + magnitud insignificante. Sin validación per-componente, ecuación cierre matemático (max diff 0.0000) hubiera ocultado el bug `*2.0` (pnl_recon es check separado de alpha_residual).
+- Item §13.3 evolucionó por L34 recursiva: L2018 floor → "ratio 25%" → "Investigación causa raíz" Opción D. Tres iteraciones para llegar al fix de 1 línea.
+
+**Sin modificar código productivo aún** — fix v1 sugerido pero no aplicado (proyecto Fase 2 dedicado o aplicar inmediato según decisión Ricardo). Bot v2.4.5 invariante. analyze_performance_attribution.py es tool offline observabilidad, NO afecta operación crítica del bot.
+
+Referencias:
+- `docs/pnl_recon_root_cause_20260426.md` (análisis completo).
+- `attribution_per_trade_20260426_1113.csv` (dataset N=60).
+- `analyze_performance_attribution.py` L996-1007 (función pnl_recon), L106 (COMMISSION_RATE constante).
+- §13.3 item "Investigación causa raíz pnl_recon gap" 2026-04-23 (commit ab4f6f6).
+- §13.2 "Consistency check por reconstrucción no tautológico" 2026-04-17.
+- §13.4 audit C1 institucional 2026-04-26 (pnl_recon_gap 93% N=60 confirmado).
+- §12 L26 (validación per-componente) + L34 (refutaciones recursivas) + L35 (test discriminatorio).
+
+**Status Fase C item 2**: **investigación DONE**, fix v1 sugerido pendiente implementación. Item §13.3 sigue abierto hasta fix aplicado + verificación post-fix. Próximo Fase C: L1892 active_config_id en SIGNALS_RAW (~30min) o L1904 multiplicadores (~30min).
+
+---
+
 **[AUDITORÍA] [RESUELTO Fase C item 1 — audit institucional N≥50 doble Def A+B] Fidelidad 2 confirmada empíricamente + alpha residual edge erosion — 2026-04-26**
 
 Contexto: Item §13.3 línea 1626 EN_ESPERA "Audit definitivo Fidelidad 2 N≥50 post-v2.3.11" 2026-04-21 + continuación A.1 deep-dive N=26 → N≥50 post-v2.4.5. Spec institucional Ricardo: doble definición (A=match rate, B=alpha residual) con segmentación obligatoria §12 L25 + validación per-componente L26.

@@ -1,6 +1,82 @@
 Journal de sesiones — pre-reciclaje 2026-04
 =============================================
 
+2026-04-26 CIERRE NOCHE (Fase C item 2 + L35 + audit C1 a main)
+----------------------------------------------------------------
+Tres acciones:
+
+A) Re-apply audit C1 institucional a main (Opción c Ricardo).
+   Commit aa8bb2d en main. docs/audit_n50_post_v2_4_5_20260426.md +
+   reports + §13.4 audit entry + §13.3 reformulaciones (línea 1626
+   reformulado, línea 1633 cerrado, item nuevo "Refactor audit_v5.x").
+   Header L3 + ROADMAP + journal updated SIN arrastrar Fase A
+   archivada.
+
+B) §12 Lección 35 NUEVA registrada (commit 662ff00 en main):
+   "Test diagnóstico discriminatorio contra ground truth antes de
+   investigar causa raíz cuando herramienta auditor reporta alarma".
+   Triple guardrail metodológico institucional con L25+L26.
+
+C) Fase C item 2 — Opción D pnl_recon causa raíz DONE
+   (investigación; fix pendiente implementación).
+
+   CAUSA RAÍZ PRIMARIA IDENTIFICADA:
+   analyze_performance_attribution.py L1001:
+     est_fees = COMMISSION_RATE * notional_entry * 2.0  # round-trip
+   donde COMMISSION_RATE=0.001 con comment "0.10% round-trip approx
+   (entry+exit)". El operador *2.0 DUPLICA el round-trip ya implícito
+   -> analyzer asume 0.20% notional fees vs 0.10% intended (factor 2x).
+   BingX taker real: 0.05% per side x 2 = 0.10% round-trip.
+
+   FIX V1 SUGERIDO (1 línea):
+     est_fees = COMMISSION_RATE * notional_entry  # round-trip
+       (already includes entry+exit per comment)
+
+   PREDICCIÓN POST-FIX:
+   - gap mean abs:    0.0218 -> 0.0137 (-37%)
+   - gap median:      0.0201 -> 0.0127 (-37%)
+   - % > 0.01 absoluto: 93% -> 65%
+   - % > tolerance:   90% -> 57%
+
+   HIPÓTESIS DISCRIMINADAS:
+   - H_fees double-counting: CONFIRMADA primaria (corr -0.56 size_usdt).
+   - H_funding (pnl CSV inc. funding): REFUTADA (corr -0.24, mag 0.0004).
+   - H_decimal precision rounding: parcial secundaria.
+   - H_real_fees_below_taker (BNB discount): probable secundaria.
+   - H_size_usdt_drift: menor.
+
+   CAUSAS SECUNDARIAS RESIDUAL POST-FIX (mean -0.013 USDT):
+   - BingX real fees probably <0.10% round-trip (BNB discount, taker
+     rate menor).
+   - Precision rounding entry/exit prices CSV (4-6 decimales).
+
+   SPEC FASE D CRITERIO (gap típico <5%, p95 <10%): NO alcanza solo
+   con fix v1 (57% > tolerance vs target 5%). Requiere fix v1 +
+   investigación Fase 2 secundaria + posible tolerance ajuste.
+
+   STATUS ITEM §13.3: sigue ABIERTO. Cierre completará tras
+   (a) fix v1 implementado, (b) re-ejecución analyzer N=60 confirma
+   gap mean ~0.0137, (c) Fase 2 secundaria opcional.
+
+   HALLAZGO META L26: H_funding refutada por correlación débil +
+   magnitud insignificante. Sin validación per-componente, ecuación
+   cierre matemático (max diff 0.0000) hubiera ocultado el bug *2.0.
+
+ROADMAP Fase C status (post-sesión):
+- Audit institucional N>=50: DONE.
+- Opción D pnl_recon causa raíz: investigación DONE, fix pendiente.
+- L1892 active_config_id SIGNALS_RAW: SIGUIENTE (~30min).
+- L1904 multiplicadores SIGNALS_DISCARDED: ~30min.
+- Triaje micro-items: pre-implementación individual.
+
+Items §13.3 nuevos creados:
+- "Refactor audit_v5.x herramienta auditor" (proyecto post-reciclaje).
+- "Aplicar fix v1 pnl_recon + investigación Fase 2 opcional".
+
+Bot v2.4.5 operacional VPS Tokio invariante. Fidelidad 2 invariante.
+
+==============================
+
 2026-04-26 CIERRE
 -----------------
 Fase C item 1 — Audit institucional N>=50 doble Def A+B DONE.
