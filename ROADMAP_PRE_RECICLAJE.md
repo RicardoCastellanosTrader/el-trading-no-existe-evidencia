@@ -4,10 +4,12 @@
 
 ## Categorías
 
-### Categoría A — Z_BTC como feature GMM altcoins (mejora estructural)
-Scope: ~8-12h sesión dedicada.
-Modifica `regime_features.py` para añadir Z_ATR BTC como feature cross-símbolo del GMM de altcoins. BTC sin cambio. Re-entrena GMMs altcoins afectados. Smoke mini validation post-modificación.
-Referencias: §9.4 v3.0, §13.3 Z_ATR BTC 2026-04-23.
+### Categoría A — Z_BTC como feature GMM altcoins — **DONE_ARCHIVED 2026-04-26 (refutado empíricamente cross-5 altcoins)**
+Scope original: ~8-12h sesión dedicada. Modificaba `regime_features.py` para añadir Z_ATR BTC como feature cross-símbolo del GMM de altcoins.
+
+**Cierre 2026-04-26**: ARCHIVED por refutación empírica. Sub-fase A.1 V1 implementada (commit `20b5773`) + Sub-fase A.2 BIC sweep multi-criterio cross-5 altcoins (commit `63de84c`) → **ESCENARIO A — UNANIMIDAD V0**: ΔBIC = V1_best_bic - V0_best_bic positivo cross-5 (ONDO +14610, SEI +53193, ETH +121194, AAVE/DOGE strong V0 también). 5/5 altcoins prefieren V0 (sin Z_ATR_BTC) sobre V1 (con Z_ATR_BTC) por criterio BIC + discriminación + multicolinealidad. Z_BTC no aporta información incremental al GMM altcoins; complejidad cross-exchange Binance↔BingX (caveat §0.6.1) injustificada empíricamente. Adapter preservado: `analysis_scripts/fase_a_a2_bic_sweep_20260426/`.
+
+Referencias: §9.4 v3.0 (contexto conceptual), §13.3 Z_ATR BTC 2026-04-23, commits `db55617` + `20b5773` + `63de84c`, §0.6.1 caveat cross-exchange dependency.
 
 ### Categoría B — Metodología walk-forward Mecanismo 2 fix (refinamiento ranking) — **DONE 2026-04-25**
 Scope: ~4-6h sesión dedicada. Implementado commit 7162369 + validado empíricamente cross-symbol N=9 commit pendiente.
@@ -46,9 +48,8 @@ Scope: ~4-6h total distribuido. Estado actualizado:
 **Secuencial estricto** (Ricardo 2026-04-24): un hilo Claude Code activo por vez. Sin paralelización.
 
 1. ~~**Fase B primero**: Mecanismo 2 fix.~~ **DONE 2026-04-25** (M2 fix VALIDADO empíricamente cross-symbol N=9; mean ratio 2.41×, mejora 3.42× vs W3b baseline; merge a main).
-2. **Fase A** (siguiente): Z_BTC implementación + re-entrenamiento GMMs altcoins.
-   Razón: Z_BTC es cambio estructural mayor; con B ya consolidado, smoke Z_BTC valida pipeline completo W3+W4+A14+A15+M2fix+Z_BTC.
-3. **Fase C en paralelo** (entre A o después de A, según oportunidad): micro-fixes sin bloquear cadena principal. Audit Fidelidad 2 cuando disparador temporal ~2026-04-26 madure.
+2. ~~**Fase A**: Z_BTC implementación + re-entrenamiento GMMs altcoins.~~ **DONE_ARCHIVED 2026-04-26** (Z_BTC refutado empíricamente cross-5 altcoins, BIC sweep ESCENARIO A unanimidad V0; commit `63de84c`).
+3. ~~**Fase C en paralelo**~~ **DONE 7/7 2026-04-26** (audit Fid2 + investigación pnl_recon causa raíz + fix v1 + L1892/L1904 logs + triaje 4 micro-items + Fase 2 secundaria Opción C). Multi-testing correction CASO B archivado empíricamente paralelo (commit `0eb843c`, NO merge feature branch).
 
 ## Dependencias y post-reciclaje
 
@@ -67,7 +68,7 @@ Scope: ~4-6h total distribuido. Estado actualizado:
 
 ## Reciclaje completo 45 símbolos
 
-Trigger: A+B+C done + D+E validados o archivados.
+Trigger: A+B+C done + D+E validados o archivados. **Estado 2026-04-26**: A done (DONE_ARCHIVED refutado empírico) + B done (merged) + C done (7/7) — A+B+C completo. Pendiente solo D+E disparadores temporales (~2026-05-01 / ~2026-05-10).
 Scope compute: ~180-225h VPS (8-10 días).
 Estimación fecha: ~2026-05-12 a 05-22.
 
@@ -98,4 +99,5 @@ Documento vivo. Se actualiza con:
 - **2026-04-22** (`roadmap_2026-04-22.md.archived-20260424`): roadmap original categorización §13.3 N/R/C (29 items). Sustituido por criterio institucional 2026-04-24 "todas mejoras A+B+C pre-reciclaje".
 - **2026-04-24**: roadmap consolidado A+B+C+D+E post-smoke reciclaje Bloque 5 + refinamiento §13.2 marco mecánico canónico.
 - **2026-04-25**: Fase B DONE (M2 fix validado empíricamente cross-symbol N=9, mejora 3.42× vs W3b baseline, hallazgo metodológico `_FWD_MIN_PF` no eficaz documentado). Avanzar Fase A (Z_BTC).
-- **2026-04-26**: Fase C COMPLETA 7/7 DONE — audit Fid2 + investigación pnl_recon causa raíz + fix v1 + L1892/L1904 logs + triaje 4 micro-items + Fase 2 secundaria Opción C (causa raíz convenciones BingX vs analyzer identificada por code review). Multi-testing correction Holm/BH CASO B archivado empíricamente paralelo. Próximo: Fase A (Z_BTC ~8-12h) sin pendientes operacionales.
+- **2026-04-26**: Fase C COMPLETA 7/7 DONE — audit Fid2 + investigación pnl_recon causa raíz + fix v1 + L1892/L1904 logs + triaje 4 micro-items + Fase 2 secundaria Opción C (causa raíz convenciones BingX vs analyzer identificada por code review). Multi-testing correction Holm/BH CASO B archivado empíricamente paralelo. **Fase A DONE_ARCHIVED mismo día** (Z_BTC refutado empíricamente cross-5 altcoins BIC sweep, commit `63de84c`).
+- **2026-04-26 cierre estado pre-reciclaje maduro institucional**: Fase A DONE_ARCHIVED + Fase B DONE merged + Fase C 7/7 DONE + D+E ESPERA disparadores temporales (D N≥100 ~2026-05-01, E N≥150 ~2026-05-10). Refinamiento metodológico walk-forward: Multi-testing correction CASO B archivado empírico; tools selection-bias-specific (Deflated SR, k-fold CV) pendientes proyectos dedicados separados post-reciclaje. Próximo natural: esperar disparadores temporales D+E madurando o continuación sesión institucional según oportunidad.

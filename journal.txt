@@ -532,13 +532,109 @@ Documentacion:
 - §13.3 L2400 + L2284 actualizadas con cierres in-place.
 - ROADMAP_PRE_RECICLAJE.md Categoria C marcada COMPLETA.
 
-Proxima sesion: Fase A (Z_BTC implementacion + re-entrenamiento
-GMMs altcoins, ~8-12h sesion dedicada).
-- Modificar regime_features.py añadir Z_ATR BTC cross-symbol.
-- BTC sin cambio. Re-entrenar GMMs altcoins.
-- Smoke mini validation post-modificacion 1-3 simbolos.
-- Refs: §9.4 v3.0, §13.3 Z_ATR BTC 2026-04-23, ROADMAP
-  Categoria A.
+CORRECCION reporte previo erroneo: afirmacion "Proxima sesion:
+Fase A" era INCORRECTA. Estado real:
+- Fase A → DONE_ARCHIVED 2026-04-26 (Z_BTC refutado empirico
+  cross-5 altcoins, BIC sweep ESCENARIO A unanimidad V0;
+  commits db55617 + 20b5773 + 63de84c).
+- Fase B → DONE merged main 2026-04-25 (M2 fix cross-9
+  validado, mejora 3.42×).
+- Fase C → COMPLETA 7/7 DONE 2026-04-26 (esta sesion item 7).
+- Fase D → ESPERA datos N≥100 (~2026-05-01).
+- Fase E → ESPERA datos N≥150 (~2026-05-10).
+- Refinamiento metodologico walk-forward: Multi-testing
+  correction CASO B archivado empirico; tools selection-
+  bias-specific (Deflated SR, k-fold CV) pendientes proyectos
+  dedicados separados post-reciclaje.
 
-Reciclaje completo 45 sym: trigger A done (B+C ya done) + D+E
-validados. ETA estimada: ~2026-05-12 a 05-22.
+Proxima sesion natural: esperar disparadores temporales D+E
+madurando o continuacion sesion institucional segun
+oportunidad. Sistema pre-reciclaje en estado MADURO
+INSTITUCIONAL.
+
+Reciclaje completo 45 sym: trigger A+B+C done + D+E
+validados/archivados. ETA estimada: ~2026-05-12 a 05-22.
+
+================================================================
+2026-04-26 CIERRE SESION CONSOLIDADO — pre-reciclaje en estado
+MADURO INSTITUCIONAL + §12 L36 nueva
+================================================================
+
+Commits sesion (orden cronologico, 11 main):
+- db55617 docs(fase-a): caveat §0.6.1 cross-exchange dependency
+  Z_BTC.
+- 20b5773 feat(zbtc-v1): Sub-fase A.1 implementacion V1 + tests
+  + mini-smoke ONDO.
+- 63de84c analysis(zbtc-a2): BIC sweep multi-criterio V0 vs V1
+  cross-5-altcoins → ESCENARIO A unanimidad V0. Z_BTC refutado.
+- aa8bb2d (e575940 dup-tag) docs(audit): institucional N>=50
+  doble Def A+B post-v2.4.5.
+- 662ff00 docs(L35): test diagnostico discriminatorio antes de
+  investigar causa raiz alerta auditor.
+- c8cc999 docs(pnl_recon): causa raiz identificada — Fase C
+  item 2 Opcion D.
+- 195be1a fix(pnl_recon): elimina double-counting est_fees
+  *2.0 (analyze_performance_attribution.py L1001).
+- 3727366 feat(observability): L1892 active_config_id + L1904
+  multipliers SIGNALS_DISCARDED.
+- d28cc93 docs(triaje): Fase C item 6 — triaje 4 micro-items
+  §13.3 con §12 L27 protocolo.
+- ca911be analysis(multi-test): Holm/BH implementacion +
+  dry-run cross-9 → CASO B archivado (rama feature, NO
+  merge main).
+- 0eb843c docs(multi-test): Multi-testing correction Holm/BH
+  CASO B ARCHIVADO empiricamente.
+- 5312ed5 fix(pnl_recon): Fase 2 secundaria — Opcion C
+  redefinir metrica (causa raiz convenciones).
+- [proximo commit cierre con §12 L36 + correcciones afirmacion
+  Proximo Fase A].
+
+Items §13.3 cerrados sesion:
+- Linea 1608 audit Fid2 → RESUELTO (verify_test 76 trades
+  diff 0.0000).
+- Linea 1615 clustering divergente → CERRADO (verify_test
+  demuestra histeresis P≥0.75 brain replica kernel).
+- Linea 2400 pnl_recon causa raiz → RESUELTO Opcion C.
+- Linea 2284 L1916 test consistencia ecuacion → RESUELTO
+  por merge natural.
+- Linea 2336 sub-item Multi-testing correction → ARCHIVED_
+  EMPIRICAL (CASO B).
+- L2017 E4 update_trailing_stop → ARCHIVADO obsoleto
+  (arquitectura v2.4.0 elimina cancel-then-place).
+
+Items §13.3 EN_ESPERA con scope refinado:
+- L1999 orphan reconstruction (ratio reconstructed >5% N≥50).
+- L2005 funding fallback (>1% cycles).
+- L2011 emergency SL E3 (bloqueado P1 leverage).
+
+Lecciones nuevas:
+- §12 L35: test diagnostico discriminatorio reactivo
+  (post-alarma auditor). Caso origen audit v5_2 falsa alarma
+  48% match → verify_test 380 mediciones diff 0.0000.
+- §12 L36: prediccion ultrathink profilactica proactiva
+  (pre-implementacion). Variante constructive de L35.
+  3 casos origen mismo dia (Multi-testing Caso B + Fase 2
+  pnl_recon + audit v5_2). Cuatro pilares metodologicos
+  institucionales: L25+L26+L35+L36.
+
+Estado pre-reciclaje MADURO INSTITUCIONAL:
+- Fase A → DONE_ARCHIVED 2026-04-26 (Z_BTC refutado empirico
+  cross-5 altcoins).
+- Fase B → DONE merged main 2026-04-25 (M2 fix cross-9 mejora
+  3.42×).
+- Fase C → COMPLETA 7/7 DONE 2026-04-26.
+- Fase D → ESPERA datos N≥100 (~2026-05-01).
+- Fase E → ESPERA datos N≥150 (~2026-05-10).
+- Refinamiento metodologico walk-forward: Multi-testing
+  correction CASO B archivado empirico; tools selection-bias-
+  specific (Deflated SR, k-fold CV, sample splitting,
+  bootstrap aggregation con re-selection) pendientes proyectos
+  dedicados separados post-reciclaje.
+
+Proxima sesion natural: esperar disparadores temporales D+E
+madurando o continuacion sesion institucional segun
+oportunidad.
+
+Bot v2.4.5 operacional VPS Tokio invariante (uptime 4d+).
+Fidelidad 2 invariante (todas modificaciones offline tools
+o backwards-compat sin deploy).
