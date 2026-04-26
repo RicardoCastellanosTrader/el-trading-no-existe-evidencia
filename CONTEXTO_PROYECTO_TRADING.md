@@ -1,6 +1,8 @@
 # Sistema de Trading Algorítmico — Contexto Completo del Proyecto
 
-**Última actualización:** 26 Abril 2026 CIERRE SESIÓN Audit institucional N≥50 doble Def A+B post-v2.4.5 — **Fidelidad 2 CONFIRMADA EMPÍRICAMENTE + alpha residual edge erosion confirmado** (Fase C item 1 DONE): Sync VPS Tokio (trade_history.csv 215 trades + 18 archivos engine.log + bot uptime 4d 2h 35m continuo cycle 300 ejecutado 10:00 UTC). N por ventana: post-v2.3.11=106, post-v2.4.4=73, post-v2.4.5=60 (ambas Def A+B con margen N≥50). **Definición A — Match rate Fidelidad 2**: audit_v5_2 reportó 48.1% v2.4.5→now (N=52 efectivo) fuera CI95 baseline 91%, pero **`_run_verify_test` discriminatorio Ricardo 3 símbolos × 1000 bars (76 trades, 380 mediciones) diff 0.0000 EXACTO en 5 métricas (Trades, Wins, PnL %, Gross profit, Gross loss)** confirma **brain↔kernel productivo bit-a-bit**. El 48% audit_v5_2 es divergencia **HERRAMIENTA AUDITOR** (audit_fidelity_v5_2.py mantiene copia python estática del kernel divergente del Numba productivo, §13.2 "opción C"), NO bug Fidelidad 2 real. **Item §13.3 línea 1626 reformulado** (no "match 91% confirmado" sino "Fid2 confirmada via verify_test, refactor audit_v5.x pendiente proyecto post-reciclaje"). Item §13.3 línea 1633 clustering divergente CERRADO (verify_test demuestra histéresis P≥0.75 brain replica kernel). Item P1 leverage disparador N≥50 cumplido, análisis abierto NO implementación. Item R1 cooldown ya RESUELTO 2026-04-22 (cooldown unify). **Definición B — Alpha residual deep-dive**: analyzer v2.4.1 N=60 reporta alpha_residual=−5.76 USDT (−0.096/trade), **EMPEORA vs A.1 N=26 (−0.066)** confirmando edge erosion. 4 clusters CANDIDATO EXCLUSION RECICLAJE (BNB C0, ONDO C2, RENDER C1, SEI C0). WARN_EDGE_EROSION analyzer: alpha residual cae >10% últimos 20 vs 20 previos. PnL acumulado bot v2.4.5 4 días: −0.74 USDT (−0.18/día). **Replicación 3 hipótesis emergentes A.1 N=26**: H1 short/long REFUTACIÓN SOSTENIDA (ratio 1.48-1.94 vs 12:1 original); H_strategy CONFIRMADA en S4 sub-ventana (4.50× vs 3.4× A.1, NO contradice N=98 refutación cross-segmento — efecto ventana-específico no estructural); H_new_3 funding DEFERRED (caché funding parcial cubre solo hasta 2026-04-23 08:00, ya refutada N=98). **Validación per-componente Lección 26 PASS**: slippage 5% borderline (3 edge cases MARKET orders fill price exacto), funding 100% cobertura hold>1h (60/60), size_usdt 100% post-v2.4.4 (73/73), entry_timestamp_ms 100% post-v2.4.5 (60/60), ecuación cierre 0/55 con \|diff\|>0.01 max=0.0000 EXACTO. **§12 Lección 35 NUEVA**: test diagnóstico discriminatorio contra ground truth (kernel productivo via verify_test) ANTES de investigar causa raíz cuando herramienta auditor reporta alarma — caso origen audit_v5_2 falsa alarma 48% resuelta en 3 minutos via verify_test 380 mediciones diff 0.0000; triple guardrail con L25 + L26 ante alertas observabilidad/audit. pnl_recon_gap 93% confirmado masivamente N=60 (vs 92% N=26 A.1) — item §13.3 sigue abierto, próxima Fase C item 2 Opción D pnl_recon causa raíz (~1-2h). Bot v2.4.5 operacional VPS Tokio invariante. Fidelidad 2 invariante (sesión read-only sobre data productiva).
+**Última actualización:** 26 Abril 2026 CIERRE SESIÓN NOCHE — **Fase C 5/7 items DONE**: audit institucional + investigación pnl_recon causa raíz + fix v1 aplicado VALIDADO empíricamente + L1892 active_config_id + L1904 multipliers SIGNALS_DISCARDED implementados. **Fix v1 pnl_recon validación empírica EXACTA**: re-ejecución analyzer N=60 post-fix coincide con predicción dentro tolerance ±0.0002 USDT (gap mean abs 0.0218→0.0137 predicción exacta, gap median 0.0201→0.0127 EXACTO, % > tolerance 90%→56.7% vs predicción 57%). Reducción mean abs -37.0% (predicción -37%), % > tol -33.3pp (predicción -33pp). El bug `*2.0` en `analyze_performance_attribution.py` L1001 (COMMISSION_RATE=0.001 con comment "round-trip approx (entry+exit)" pero código aplica `*2.0` duplicando round-trip → 0.20% vs 0.10% intended) corregido con 1 línea. Item §13.3 "Aplicar fix v1 pnl_recon" → FIX_V1_APLICADO + VALIDADO; Fase 2 secundaria (BNB discount + precision drift residual ~0.013 USDT) sigue EN_ESPERA opcional ~30-45 min. **L1892 active_config_id**: añadido campo `cfg` en SIGNALS_RAW log (live_engine.py L565-577) — disparador cumplido por audit C1 (100% trades active_config_source=heuristic). **L1904 multipliers SIGNALS_DISCARDED**: añadidos vw/bf/br/dd en log (L607-625) — analyzer downstream puede atribuir descartes a saturación N (br) / DD breaker (dd) / balance bajo (vw/bf) sin proxy 5-ciclos. Sanity §0.8 Nivel A `_run_verify_test BTC/USDT N=1000` post-cambios L1892+L1904: diff **0.0000 EXACTO** en 5 métricas — Fidelidad 2 invariante por construcción (cambios solo enriquecen logs diagnóstico). **Cambios live_engine.py NO deployed al VPS** (observability extensions backwards-compat, deploy puede esperar ventana mantenimiento). Bot v2.4.5 invariante hasta próximo restart. Fase C status post-sesión: 5/7 items DONE; pendientes triaje micro-items L1843/49/55/61 + Fase 2 secundaria pnl_recon opcional. Disparadores temporales próximos: v2.6-inv N≥100 (~2026-05-01), v2.6-exit N≥150 (~2026-05-10). Bot v2.4.5 operacional VPS Tokio invariante (uptime 4d+). Fidelidad 2 invariante.
+
+**Actualización previa:** 26 Abril 2026 CIERRE SESIÓN Audit institucional N≥50 doble Def A+B post-v2.4.5 — **Fidelidad 2 CONFIRMADA EMPÍRICAMENTE + alpha residual edge erosion confirmado** (Fase C item 1 DONE): Sync VPS Tokio (trade_history.csv 215 trades + 18 archivos engine.log + bot uptime 4d 2h 35m continuo cycle 300 ejecutado 10:00 UTC). N por ventana: post-v2.3.11=106, post-v2.4.4=73, post-v2.4.5=60 (ambas Def A+B con margen N≥50). **Definición A — Match rate Fidelidad 2**: audit_v5_2 reportó 48.1% v2.4.5→now (N=52 efectivo) fuera CI95 baseline 91%, pero **`_run_verify_test` discriminatorio Ricardo 3 símbolos × 1000 bars (76 trades, 380 mediciones) diff 0.0000 EXACTO en 5 métricas (Trades, Wins, PnL %, Gross profit, Gross loss)** confirma **brain↔kernel productivo bit-a-bit**. El 48% audit_v5_2 es divergencia **HERRAMIENTA AUDITOR** (audit_fidelity_v5_2.py mantiene copia python estática del kernel divergente del Numba productivo, §13.2 "opción C"), NO bug Fidelidad 2 real. **Item §13.3 línea 1626 reformulado** (no "match 91% confirmado" sino "Fid2 confirmada via verify_test, refactor audit_v5.x pendiente proyecto post-reciclaje"). Item §13.3 línea 1633 clustering divergente CERRADO (verify_test demuestra histéresis P≥0.75 brain replica kernel). Item P1 leverage disparador N≥50 cumplido, análisis abierto NO implementación. Item R1 cooldown ya RESUELTO 2026-04-22 (cooldown unify). **Definición B — Alpha residual deep-dive**: analyzer v2.4.1 N=60 reporta alpha_residual=−5.76 USDT (−0.096/trade), **EMPEORA vs A.1 N=26 (−0.066)** confirmando edge erosion. 4 clusters CANDIDATO EXCLUSION RECICLAJE (BNB C0, ONDO C2, RENDER C1, SEI C0). WARN_EDGE_EROSION analyzer: alpha residual cae >10% últimos 20 vs 20 previos. PnL acumulado bot v2.4.5 4 días: −0.74 USDT (−0.18/día). **Replicación 3 hipótesis emergentes A.1 N=26**: H1 short/long REFUTACIÓN SOSTENIDA (ratio 1.48-1.94 vs 12:1 original); H_strategy CONFIRMADA en S4 sub-ventana (4.50× vs 3.4× A.1, NO contradice N=98 refutación cross-segmento — efecto ventana-específico no estructural); H_new_3 funding DEFERRED (caché funding parcial cubre solo hasta 2026-04-23 08:00, ya refutada N=98). **Validación per-componente Lección 26 PASS**: slippage 5% borderline (3 edge cases MARKET orders fill price exacto), funding 100% cobertura hold>1h (60/60), size_usdt 100% post-v2.4.4 (73/73), entry_timestamp_ms 100% post-v2.4.5 (60/60), ecuación cierre 0/55 con \|diff\|>0.01 max=0.0000 EXACTO. **§12 Lección 35 NUEVA**: test diagnóstico discriminatorio contra ground truth (kernel productivo via verify_test) ANTES de investigar causa raíz cuando herramienta auditor reporta alarma — caso origen audit_v5_2 falsa alarma 48% resuelta en 3 minutos via verify_test 380 mediciones diff 0.0000; triple guardrail con L25 + L26 ante alertas observabilidad/audit. pnl_recon_gap 93% confirmado masivamente N=60 (vs 92% N=26 A.1) — item §13.3 sigue abierto, próxima Fase C item 2 Opción D pnl_recon causa raíz (~1-2h). Bot v2.4.5 operacional VPS Tokio invariante. Fidelidad 2 invariante (sesión read-only sobre data productiva).
 
 **Actualización previa:** 25 Abril 2026 CIERRE SESIÓN post-validación M2 fix cross-symbol N=9 — **Fase B pre-reciclaje VALIDADA EMPÍRICAMENTE Y MERGED main**: test crítico cross-symbol BTC+ONDO+SEI top-1 M2 fix (N=9 configs) sobre Binance Futures 3y con setup Smoke C exacto (sanity determinismo W3b cfg 20607806 = 0.7722, paridad GMM HEAD baseline confirmada). Resultados: mean ratio J/B cross-9 = **2.408** (vs W3b baseline 8.235, **3.42× reducción** magnitud absoluta), 0/9 colapso fuerte cross-symbol (vs 1/1 baseline), 9/9 edge real positivo Binance pf_fwd>1.0 (mean 1.83), Spearman ρ −0.17 NO significativo p=0.65 (banda no-significancia N=9: ρ ∈ [−0.7, +0.7]), per-symbol BTC 2.75 / ONDO 2.58 / SEI 1.90 (heterogeneidad cross-symbol moderada). **Hallazgo metodológico**: `_FWD_MIN_PF` estricto NO es palanca eficaz para reducir residual (validado cross-9 con thresholds 1.1-3.0; min pf_fwd top-100 actual = 1.665 > threshold candidatos 1.3-1.5; specialist_score upstream filtra implícitamente vía pf_combined correlation; propuesta original Ricardo "subir piso fwd" descartada como path empíricamente). **Caveat permanente §13.2**: residual ratio 2.41× requiere proyectos dedicados separados (multi-testing correction Bonferroni/BH/Deflated SR ~15-25h; k-fold CV ~20-30h) — fuera scope Mecanismo 2 fix. **Decisión**: avanzar Fase A (Z_BTC). Adapter preservado `analysis_scripts/m2_fix_validation_20260424/` con CSV cross-9 + GMM HEAD baseline. Aplicaciones §12 L34 16ª (cross-symbol antes consolidar M2) + 17ª (multi-threshold antes invertir compute pipeline-run). Fidelidad 2 invariante. Bot v2.4.5 operacional VPS Tokio.
 
@@ -2186,11 +2188,19 @@ Disparo: si se observa un trade con pattern close+reopen mismo ciclo en logs de 
 Cierre: cambiar dict a list de eventos por clave, consumidores manejan multiples.
 Referencias: analyze_performance_attribution.py lineas 221, 229, 238, 249, 260.
 
-**[MEJORA] [EN_ESPERA] active_config_id en SIGNALS_RAW (v2.3.4) — 2026-04-17**
-Contexto: Ultra review S6. El analyzer actualmente usa heuristico para elegir config (primer cross_cluster_survival=True en top_configs). Puede diferir del config_id real de produccion. Para mapearlo correctamente, anadir campo `cfg` en [SIGNALS_RAW] por simbolo con el active_config_id. analyzer matcheara contra top_configs[*].config_id.
-Disparo: si reporte muestra >20% de trades con active_config_source=heuristic y los resultados son sensibles.
-Cierre: v2.3.4 anade cfg en SIGNALS_RAW; analyzer lo lee.
-Referencias: live_engine.py [SIGNALS_RAW] logging, analyze_performance_attribution.py attribute_trade seccion 2.
+**[MEJORA] [RESUELTO 2026-04-26] active_config_id en SIGNALS_RAW (v2.3.4) — 2026-04-17**
+
+Contexto original: Ultra review S6. analyzer usa heurístico para elegir config (primer cross_cluster_survival=True en top_configs); puede diferir del config_id real de producción. Disparador: >20% trades con active_config_source=heuristic.
+
+**Cierre 2026-04-26 (Fase C item 3)**: disparador cumplido masivamente — audit C1 ventana N=60 mostró 100% trades con active_config_source=heuristic (todos). Implementado campo `cfg` en SIGNALS_RAW per símbolo con active_config_id directo del `active_configs` dict.
+
+Cambio `live/live_engine.py` L565-577: extender `entry` dict del log SIGNALS_RAW con campo opcional `cfg = active_configs[sym]['config_id']` cuando > 0. Backwards-compat: campo añadido al final, parsers existentes ignoran keys desconocidas.
+
+Sanity §0.8 Nivel A `_run_verify_test BTC/USDT N=1000`: diff 0.0000 EXACTO post-fix (sin cambio lógica generación signals — solo enriquece log diagnóstico).
+
+Bot v2.4.5 invariante hasta próximo restart. Deploy puede esperar ventana mantenimiento (cambio retroactivo: trades futuros tendrán campo `cfg` en logs; trades históricos seguirán sin él, lo cual es esperable).
+
+Referencias: live_engine.py L565-577 (modificado), brain_engine.py select_active_configs (fuente config_id), analyze_performance_attribution.py attribute_trade (consumer downstream).
 
 **[MEJORA] [EN_ESPERA] Ejecución parcial de órdenes no manejada en reconcile — 2026-04-16**
 Contexto: Fix de Bug #1 asume que si BingX tiene contracts>0 la posición es real. No maneja explícitamente el caso raro de ejecución fraccional (BingX abre, digamos, 60% del size pedido por insufficient margin o slippage extremo). Raro con balance 297 USDT, más probable al escalar capital.
@@ -2198,8 +2208,22 @@ Disparo: al escalar capital (>1000 USDT) o si aparece algún trade con size real
 Cierre: reconcile extendido para detectar y manejar parcialidades, o decisión documentada de aceptar el caso como edge raro y no manejarlo.
 Referencias: live_engine.py _reconcile_brain_after_execution(), v2.3.2
 
-**[MEJORA] [EN_ESPERA] v2.3.3 — loguear multiplicadores en SIGNALS_DISCARDED — 2026-04-16**
-Contexto: Analyzer v2.4 necesita vw/bf/br/dd para atribución de coste en descartes. Actualmente [SIGNALS_EXECUTED] los tiene pero [SIGNALS_DISCARDED] no. Para señales descartadas el analyzer usa proxy de 5 ciclos previos con ejecuciones; si no hay suficientes en 48h, marca "no_estimable" y excluye del cálculo de balance_req. Si primer reporte v2.4 muestra no_estimable_ratio >20%, instrumentar v2.3.3 para loguear multiplicadores en SIGNALS_DISCARDED.
+**[MEJORA] [RESUELTO 2026-04-26] v2.3.3 — loguear multiplicadores en SIGNALS_DISCARDED — 2026-04-16**
+
+Contexto original: Analyzer v2.4 necesita vw/bf/br/dd para atribución de coste en descartes. SIGNALS_EXECUTED los tenía pero SIGNALS_DISCARDED no. Disparador: no_estimable_ratio >20%.
+
+**Cierre 2026-04-26 (Fase C item 4)**: Implementado en `live/live_engine.py` L607-625. Log SIGNALS_DISCARDED extendido con campos opcionales `vw` (vol_weight), `bf` (blending_factor), `br` (block_reduction), `dd` (dd_mult global cycle). Cuando alloc dict del descarte contiene los multiplicadores, se incluyen al log; dd_mult siempre disponible (variable global cycle).
+
+Backwards-compat: campos opcionales, parsers existentes ignoran keys desconocidas. analyzer downstream (analyze_performance_attribution.py) puede consumir vw/bf/br/dd directos en vez de proxy de 5 ciclos previos cuando estén presentes.
+
+Sanity §0.8 Nivel A `_run_verify_test BTC/USDT N=1000`: diff 0.0000 EXACTO post-fix (sin cambio lógica portfolio — solo enriquece log diagnóstico).
+
+Bot v2.4.5 invariante hasta próximo restart. Deploy puede esperar ventana mantenimiento.
+
+Referencias: live_engine.py L607-625 (modificado), portfolio_manager.py allocate_positions (fuente vw/bf/br), analyze_performance_attribution.py compute_saturation_analysis (consumer downstream que actualmente usa proxy).
+
+(Bloque histórico original preservado abajo para trazabilidad)
+---
 Disparo: primer reporte v2.4 con flag NO_ESTIMABLE_RATIO_ALTO activo.
 Cierre: v2.3.3 desplegada, o decisión documentada de no instrumentar (ej: si ratio baja orgánicamente por capitalización).
 Referencias: portfolio_manager.py ~511-521 cálculo factores, live_engine.py ~485 log DISCARDED, analyze_performance_attribution.py fallback proxy Q7
@@ -2567,6 +2591,56 @@ Cierre: Análisis B ejecutado con N_trades ≥15 per config + veredicto cross-cl
 ---
 
 ### 13.4 RESUELTO
+
+**[OBSERVABILIDAD] [RESUELTO Fase C items 3+4] L1892 active_config_id + L1904 multipliers SIGNALS_DISCARDED — 2026-04-26**
+
+Contexto: dos items §13.3 EN_ESPERA observability minor (~30min cada uno). L1892 spec §13.3 requería `cfg` en SIGNALS_RAW para que analyzer matchee config_id productivo exacto vs heurístico. L1904 requería vw/bf/br/dd en SIGNALS_DISCARDED para atribuir descartes a saturación/DD/balance específicos.
+
+**Disparadores cumplidos**: audit C1 institucional 2026-04-26 reveló `active_config_source=heuristic` en 100% trades N=60 (>20% threshold L1892). Para L1904, descartes ratio observado en logs operacionales sin atribución cuantitativa per multiplier. Ambos items maduros.
+
+**Implementación combinada Fase C items 3+4** (`live/live_engine.py`):
+
+1. **L1892 (Fase C item 3)** — L565-577: extender `entry` dict del log SIGNALS_RAW:
+   ```python
+   cfg_id = cfg.get("config_id")
+   if cfg_id is not None and cfg_id > 0:
+       entry["cfg"] = int(cfg_id)
+   ```
+   Backwards-compat: campo opcional, solo si cfg_id válido > 0.
+
+2. **L1904 (Fase C item 4)** — L607-625: extender entries del log SIGNALS_DISCARDED con multipliers cuando alloc dict los contiene:
+   ```python
+   if "vol_weight" in alloc: entry["vw"] = round(alloc["vol_weight"], 4)
+   if "blending_factor" in alloc: entry["bf"] = round(alloc["blending_factor"], 4)
+   if "block_reduction" in alloc: entry["br"] = round(alloc["block_reduction"], 4)
+   entry["dd"] = dd_mult  # global cycle, siempre disponible
+   ```
+   Backwards-compat: campos opcionales (excepto dd_mult que siempre se loguea).
+
+**Sanity §0.8 Nivel A** post-cambios: `_run_verify_test BTC/USDT --n-bars 1000` diff **0.0000 EXACTO** en 5 métricas (Trades 11, Wins 3, PnL -0.6215, GP 2.1589, GL 2.7804). Cambios solo enriquecen logs diagnóstico — NO tocan lógica generación signals (brain) ni portfolio allocation logic. Fidelidad 2 invariante por construcción.
+
+**Backwards-compat downstream**:
+- `analyze_performance_attribution.py` actualmente usa heurístico para `active_config_id` (S6 ultra review). Cuando logs nuevos lleguen post-deploy, puede consumir `cfg` directamente. Cambio analyzer requiere update separado (NO en este commit; analyzer se beneficia automáticamente cuando trades futuros tengan campo `cfg`).
+- `audit_v5_2.py` lee SIGNALS_RAW por nombre de campo (json dict); campos nuevos `cfg` y `vw/bf/br/dd` no rompen parsers.
+
+**Deploy status**: cambio activado en próximo restart bot VPS. Trades pre-deploy seguirán sin campos nuevos en logs (lo esperable). NO requiere deploy urgente — observability extension menor.
+
+**Status items §13.3**:
+- L1892 active_config_id en SIGNALS_RAW → **RESUELTO 2026-04-26**.
+- L1904 multipliers SIGNALS_DISCARDED → **RESUELTO 2026-04-26**.
+
+**Bot v2.4.5 invariante hasta próximo restart**. Cambios live_engine.py preservados pero NO desplegados al VPS (decisión Ricardo: deploy puede esperar ventana mantenimiento o agruparse con próximo deploy operacional).
+
+Referencias:
+- `live/live_engine.py` L565-577 (L1892), L607-625 (L1904).
+- §13.3 línea 2189 (L1892 spec) → RESUELTO.
+- §13.3 línea 2201 (L1904 spec) → RESUELTO.
+- audit C1 2026-04-26 (data origen disparador L1892).
+- §0.8 protocolo smoke pre-deploy (Nivel A PASS confirmado).
+
+Cierre Fase C items 3+4: permanente. Fase C status: 5/7 items DONE (audit+investigación pnl_recon+fix v1+L1892+L1904). Pendientes: triaje micro-items L1843/49/55/61 + Fase 2 secundaria pnl_recon opcional.
+
+---
 
 **[VALIDACIÓN] [RESUELTO Fase C item 2-fix] Fix v1 pnl_recon double-counting APLICADO + VALIDADO empíricamente — 2026-04-26**
 

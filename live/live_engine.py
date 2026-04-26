@@ -568,6 +568,13 @@ class LiveEngine:
                 k = cfg.get("cluster")
                 if k is not None:
                     entry["k"] = k
+                # L1892 (Fase C 2026-04-26): añadir active_config_id para
+                # tracking cross-sesión. Permite analyzer matchear cfg productivo
+                # exacto vs heurístico sobre top_configs[0]. Backwards-compat:
+                # campo opcional, solo si cfg_id > 0.
+                cfg_id = cfg.get("config_id")
+                if cfg_id is not None and cfg_id > 0:
+                    entry["cfg"] = int(cfg_id)
                 df_sym = market_data.get(sym)
                 if df_sym is not None and len(df_sym) > 0:
                     ts_val = df_sym["timestamp"].iloc[-1]
@@ -601,8 +608,23 @@ class LiveEngine:
             discarded = {}
             for sym in raw_for_log:
                 if sym not in entry_allocs:
-                    reason = allocations.get(sym, {}).get("reason", "unknown")
-                    discarded[sym] = {"a": raw_for_log[sym]["a"], "d": reason}
+                    alloc = allocations.get(sym, {}) or {}
+                    reason = alloc.get("reason", "unknown")
+                    entry = {"a": raw_for_log[sym]["a"], "d": reason}
+                    # L1904 (Fase C 2026-04-26): añadir multipliers (vw/bf/br/dd)
+                    # cuando estén disponibles. Permite analyzer atribuir signals
+                    # descartadas a saturación N (br ↓), DD breaker (dd ↓), o
+                    # min_order/balance_bajo (vw/bf). Backwards-compat: campos
+                    # opcionales, solo si valor presente en alloc dict.
+                    if "vol_weight" in alloc:
+                        entry["vw"] = round(alloc["vol_weight"], 4)
+                    if "blending_factor" in alloc:
+                        entry["bf"] = round(alloc["blending_factor"], 4)
+                    if "block_reduction" in alloc:
+                        entry["br"] = round(alloc["block_reduction"], 4)
+                    # dd_mult es global del cycle (siempre disponible)
+                    entry["dd"] = dd_mult
+                    discarded[sym] = entry
                     if reason == "unknown":
                         logger.warning(
                             f"[SIGNALS_DISCARDED] {sym} descartado sin reason "

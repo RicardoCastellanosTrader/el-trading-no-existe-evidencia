@@ -1,6 +1,75 @@
 Journal de sesiones — pre-reciclaje 2026-04
 =============================================
 
+2026-04-26 CIERRE NOCHE-2 (Fase C 5/7 items: fix v1 + L1892 + L1904)
+--------------------------------------------------------------------
+Tres items operacionales menores secuenciales A->B->C DONE.
+
+A) Fix v1 pnl_recon double-counting APLICADO + VALIDADO empíricamente.
+   Cambio: 1 línea en analyze_performance_attribution.py L1001.
+     BEFORE: est_fees = COMMISSION_RATE * notional_entry * 2.0
+     AFTER:  est_fees = COMMISSION_RATE * notional_entry
+   Validación empírica re-ejecución analyzer N=60 misma ventana:
+     gap mean abs:        0.0218 -> 0.0137 (-37.0%, predicción -37%).
+     gap median:          0.0201 -> 0.0127 (-36.7%, predicción -37%).
+     % trades > tolerance: 90.0% -> 56.7% (-33.3pp, predicción -33pp).
+   Coincide con predicción EXACTO dentro tolerance ±0.0002 USDT.
+   Item §13.3 "Aplicar fix v1 pnl_recon" -> FIX_V1_APLICADO + VALIDADO.
+   Fase 2 secundaria (BNB discount + precision drift residual ~0.013
+   USDT) sigue EN_ESPERA opcional ~30-45 min.
+   Sin tocar bot productivo (cambio en tool offline).
+   Commit: 195be1a.
+
+B) L1892 active_config_id en SIGNALS_RAW IMPLEMENTADO.
+   Cambio: live_engine.py L565-577 — añadir campo opcional `cfg`
+   en entry dict del log SIGNALS_RAW cuando config_id > 0.
+   Backwards-compat: parsers ignoran keys desconocidas.
+   Disparador cumplido: audit C1 ventana N=60 mostró 100% trades
+   con active_config_source=heuristic (>20% threshold L1892).
+   Item §13.3 línea 2189 -> RESUELTO.
+
+C) L1904 multipliers en SIGNALS_DISCARDED IMPLEMENTADO.
+   Cambio: live_engine.py L607-625 — añadir campos opcionales vw/bf/br
+   (cuando alloc dict los contiene) + dd (siempre, global cycle).
+   Permite analyzer atribuir descartes a saturación N / DD breaker /
+   balance bajo sin proxy 5-ciclos previos.
+   Backwards-compat: campos opcionales, parsers ignoran keys
+   desconocidas.
+   Item §13.3 línea 2201 -> RESUELTO.
+
+Sanity §0.8 Nivel A post-cambios live_engine.py L1892+L1904:
+  python -m live.brain_engine --verify --symbol BTC/USDT --n-bars 1000
+  Trades 11, Wins 3, PnL -0.6215, GP 2.1589, GL 2.7804.
+  Brain == Kernel diff 0.0000 EXACTO en 5 métricas.
+  Fidelidad 2 invariante por construcción (cambios solo enriquecen
+  logs diagnóstico, NO tocan lógica generación signals/portfolio).
+
+Cambios live_engine.py NO deployed VPS:
+- Cambios L1892/L1904 son observability extensions backwards-compat.
+- Bot v2.4.5 sigue invariante hasta próximo restart.
+- Deploy puede esperar ventana mantenimiento o agruparse con próximo
+  deploy operacional.
+
+ROADMAP Fase C status post-sesión (5/7 DONE):
+- ✓ Audit institucional N>=50.
+- ✓ Opción D pnl_recon investigación causa raíz.
+- ✓ Fix v1 pnl_recon aplicado + validado.
+- ✓ L1892 active_config_id en SIGNALS_RAW.
+- ✓ L1904 multipliers en SIGNALS_DISCARDED.
+- ⏭ Triaje micro-items L1843/49/55/61: pre-implementación individual.
+- ⏭ Fase 2 secundaria pnl_recon opcional ~30-45 min.
+
+Disparadores temporales próximos:
+- v2.6-inv N>=100 (~2026-05-01).
+- v2.6-exit N>=150 (~2026-05-10).
+- Reciclaje completo 45 sym: A+B+C done + D+E validados (~2026-05-12
+  a 05-22).
+
+Bot v2.4.5 operacional VPS Tokio invariante (uptime 4d+).
+Fidelidad 2 invariante.
+
+==============================
+
 2026-04-26 CIERRE NOCHE (Fase C item 2 + L35 + audit C1 a main)
 ----------------------------------------------------------------
 Tres acciones:

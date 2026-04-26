@@ -25,17 +25,21 @@ Re-ordena selección specialists por `pf_fwd_ci_low` directo en lugar de `specia
 
 Referencias: §13.2 bloque REFINAMIENTO canónico 2026-04-24 + sub-sección "Validación M2 fix 2026-04-25", §13.3 W3 implementation 2026-04-23, §13.4 entrada "M2 fix VALIDACIÓN POST-IMPLEMENTACIÓN cross-symbol N=9 — 2026-04-25".
 
-### Categoría C — Operacionales menores (micro-fixes + audit) — **EN_PROGRESO 2026-04-26**
+### Categoría C — Operacionales menores (micro-fixes + audit) — **EN_PROGRESO 2026-04-26 (5/7 DONE)**
 Scope: ~4-6h total distribuido. Estado actualizado:
-- ~~**Audit Fidelidad 2 N≥50 post-v2.3.11**~~ **DONE 2026-04-26** (audit institucional doble Def A+B; Fidelidad 2 CONFIRMADA via `_run_verify_test` 76 trades diff 0.0000; audit_v5_2 reportó 48% pero es divergencia herramienta auditor no bug bot; alpha residual edge erosion confirmado cuantitativamente N=60).
-- ~~**Opción D pnl_recon causa raíz**~~ **investigación DONE 2026-04-26** — causa raíz primaria identificada: double-counting `*2.0` en `analyze_performance_attribution.py` L1001 (`COMMISSION_RATE * notional * 2.0` = 0.20% mientras comment dice "0.10% round-trip"). Fix v1 sugerido (1 línea) reduciría gap mean -37%. Causas secundarias (H_real_fees_below_taker, H_decimal) requieren Fase 2 opcional ~30-45 min.
-- **L1892 active_config_id en SIGNALS_RAW** (~30min) — SIGUIENTE.
-- **L1904 multiplicadores en SIGNALS_DISCARDED** (~30min).
-- Triaje micro-items adicionales (L1843, L1849, L1855, L1861) — muchos son de ultra-review 2026-04-17, pueden ser obsoletos tras v2.4.x. Decidir individualmente pre-implementación.
+- ✓ **Audit Fidelidad 2 N≥50 post-v2.3.11** **DONE 2026-04-26** — Fidelidad 2 CONFIRMADA via `_run_verify_test` 76 trades diff 0.0000.
+- ✓ **Opción D pnl_recon causa raíz** **investigación DONE 2026-04-26** — double-counting `*2.0` identificado.
+- ✓ **Fix v1 pnl_recon aplicado + validado** **DONE 2026-04-26** — 1 línea analyze_performance_attribution.py L1001. Validación empírica: gap mean abs 0.0218→0.0137 (-37%, predicción EXACTA), % > tolerance 90%→56.7% (-33pp).
+- ✓ **L1892 active_config_id en SIGNALS_RAW** **DONE 2026-04-26** — campo `cfg` añadido en live_engine.py L565-577. Smoke §0.8 Nivel A PASS 0.0000.
+- ✓ **L1904 multipliers en SIGNALS_DISCARDED** **DONE 2026-04-26** — campos vw/bf/br/dd añadidos en live_engine.py L607-625. Smoke §0.8 Nivel A PASS 0.0000.
+- ⏭ **Triaje micro-items adicionales (L1843, L1849, L1855, L1861)** — muchos son de ultra-review 2026-04-17, pueden ser obsoletos tras v2.4.x. Decidir individualmente pre-implementación.
+- ⏭ **Fase 2 secundaria pnl_recon opcional** (~30-45 min) — investigar BingX fees reales account (BNB discount) + precision drift size_usdt + posible tolerance ajuste 0.01→0.015 USDT. Disparable cuando haya decisión sobre tolerance ajuste.
 
-**Items §13.3 nuevos (post-Fase C 2026-04-26)**:
-1. "Refactor audit_v5.x herramienta auditor + reconciliación con kernel productivo Numba" — proyecto dedicado post-reciclaje, NO bloqueante. audit_v5_2 reporta 48% match rate pero verify_test reporta 100% bit-a-bit; herramienta auditor diverge del kernel productivo (§13.2 "opción C").
-2. "Aplicar fix v1 pnl_recon double-counting + investigación Fase 2 secundaria" — fix de 1 línea identificado (eliminar `*2.0` en analyze_performance_attribution.py L1001), pendiente aplicar + verificar empíricamente. Item §13.3 original "pnl_recon causa raíz" sigue ABIERTO hasta cierre tras fix.
+**Items §13.3 actualizados post-Fase C 2026-04-26**:
+1. ✓ "Refactor audit_v5.x herramienta auditor + reconciliación con kernel productivo Numba" — proyecto dedicado post-reciclaje, NO bloqueante. CREADO.
+2. ✓ "Aplicar fix v1 pnl_recon" → **FIX_V1_APLICADO + VALIDADO 2026-04-26**. Fase 2 secundaria sigue EN_ESPERA scope ~30-45 min.
+
+**Cambios live/live_engine.py NO deployed VPS**: cambios L1892/L1904 son observability extensions con backwards-compat. Bot v2.4.5 sigue invariante hasta próximo restart. Deploy puede esperar ventana mantenimiento o agruparse con próximo deploy operacional.
 
 ## Orden de ejecución
 
