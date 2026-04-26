@@ -424,3 +424,121 @@ Fase C en paralelo (oportunidad):
 
 Reciclaje completo 45 sym: trigger A+B+C done + D+E validados.
 ETA estimada: ~2026-05-12 a 05-22.
+
+================================================================
+2026-04-26 NOCHE-5 CIERRE SESION — Fase 2 secundaria pnl_recon
+RESUELTA Opcion C — Fase C COMPLETA 7/7 DONE
+================================================================
+
+Causa raiz IDENTIFICADA (code review, no requirio raw BingX
+adicional):
+- pnl_usdt CSV proviene de live/execution_manager.py:378
+  retornando position["unrealized_pnl"] capturado en
+  fetch_positions() previo al close.
+- Fuente BingX unrealizedPnl (live/data_feed.py:351) usa
+  mark_price + bruto sin fees.
+- Analyzer reconstruye realized neto fill-based con fees.
+- Divergencia ESTRUCTURAL de convenciones BingX vs analyzer,
+  NO bug componente.
+
+Hipotesis A/B/C/D originales REFUTADAS individualmente como
+block:
+- A precision rounding: signed sistematico no random.
+- B fees divergente: 0.05% per side BingX confirmado raw
+  fetchMyTrades, sin BNB discount.
+- C notional mismatch: size_usdt post-v2.4.4 100% valido.
+- D size_usdt v2.4.4 colateral: idem.
+Caso instructivo: 4 hipotesis razonables atacaban componente
+equivocado. Causa real CONCEPTUAL (assumption framework no
+validado), no NUMERICA.
+
+Decision Opcion C per §13.2 ("fix resuelve fenomeno, no tapa
+sintoma"):
+- Opcion A (fix bot-side close_position recompute): descartada
+  por costo deploy + rompe semantica historica reports.
+- Opcion B (fix analyzer emular mark_price@fetch): imposible
+  retroactivamente, no almacenado.
+- Opcion C (redefinir metrica analyzer): elegida. Bot
+  invariante. Historico CSV preservado.
+
+Implementacion analyzer ~50 LOC
+(analyze_performance_attribution.py):
+- pnl_recon -> pnl_estimate_offline (variable + keys CSV).
+- pnl_recon_gap (abs) -> pnl_offline_gap_signed (signed,
+  preserva direccion drift).
+- Docstring expandido convenciones BingX vs analyzer.
+- Reporte agregado "n_bad/n_chk" -> distribucion descriptiva
+  (signed mean / |abs| mean / p50 / p95) con convenciones
+  inline.
+- Alert mecanico WARN/NOTA saturado eliminado (93%
+  pre-fix-v1, 56.7% post-fix-v1 -> falso-positivo masivo
+  por convencion divergente).
+- BALANCE_NOT_CLOSING_RATIO_ALERT + BALANCE_EQN_TOLERANCE_USDT
+  marcadas DEPRECATED (compat ABI).
+
+Validacion empirica end-to-end (analyzer N=63 trades validos):
+- signed mean: -0.0123 USDT (prediccion NEGATIVO consistente
+  ✓).
+- |abs| mean: 0.0133 USDT (prediccion 0.010-0.015 USDT ✓
+  exacta).
+- |abs| p50: 0.0121, p95: 0.0290 (prediccion p95
+  0.025-0.035 ✓).
+- Drift (fill - mark@fetch) ~ -0.0005×notional + fees
+  parciales unrealizedPnl BingX explica gap_signed
+  estructuralmente.
+- Sin error runtime end-to-end. CSV nuevas columnas. Reporte
+  ASCII+UTF-8 nueva seccion descriptiva. 0 menciones
+  WARN/NOTA legacy.
+- Alerts otros (EDGE EROSION, etc.) preservados sin regresion.
+
+Items §13.3 cerrados:
+- Linea 2400 "Investigacion causa raiz pnl_recon gap analyzer"
+  -> RESUELTO Opcion C.
+- Linea 2284 L1916 "Test consistencia ecuacion descomposicion"
+  -> RESUELTO por merge natural (metrica subyacente
+  rediseñada).
+
+Fase C status: COMPLETA 7/7 DONE.
+1. Audit Fid2 N≥50 (verify_test 76 trades diff 0.0000).
+2. Investigacion pnl_recon causa raiz Fase 1 (commit ab4f6f6).
+3. Fix v1 pnl_recon validado (commit 195be1a, -37%).
+4. L1892 active_config_id (live_engine.py L565-577).
+5. L1904 multipliers SIGNALS_DISCARDED (L607-625).
+6. Triaje 4 micro-items (3 EN_ESPERA refinados, 1 ARCHIVADO).
+7. Fase 2 secundaria Opcion C (esta sesion).
+
+Bot v2.4.5 invariante. Sin deploy. Sin tocar live/*. Cambio
+analyzer offline unicamente. Fidelidad 2 invariante por
+construccion.
+
+Hallazgos metodologicos:
+- §12 L25+L27 sinergia: code review identifica capas
+  arquitectonicas (convencion CSV bot-side vs convencion
+  analyzer offline-side) + verify code-side antes de
+  implementar reflexivamente. Observable directo en 2 lineas.
+- §13.2 DECISION operativa aplicada en caso limite:
+  fenomeno = divergencia conceptual, fix = separar
+  convenciones (no calibrar tolerance).
+- Prediccion ultrathink validada profilacticamente
+  (variante constructive §12 L35).
+- Pattern hipotesis A/B/C/D atacando componente equivocado
+  por assumption framework no validado pre-investigacion.
+
+Documentacion:
+- docs/pnl_recon_phase2_root_cause_20260426.md (analisis
+  completo + tabla cambios + validacion empirica).
+- §13.4 entrada [INVESTIGACION] [RESUELTO Opcion C — Fase C
+  item 7] 2026-04-26.
+- §13.3 L2400 + L2284 actualizadas con cierres in-place.
+- ROADMAP_PRE_RECICLAJE.md Categoria C marcada COMPLETA.
+
+Proxima sesion: Fase A (Z_BTC implementacion + re-entrenamiento
+GMMs altcoins, ~8-12h sesion dedicada).
+- Modificar regime_features.py añadir Z_ATR BTC cross-symbol.
+- BTC sin cambio. Re-entrenar GMMs altcoins.
+- Smoke mini validation post-modificacion 1-3 simbolos.
+- Refs: §9.4 v3.0, §13.3 Z_ATR BTC 2026-04-23, ROADMAP
+  Categoria A.
+
+Reciclaje completo 45 sym: trigger A done (B+C ya done) + D+E
+validados. ETA estimada: ~2026-05-12 a 05-22.

@@ -1,6 +1,8 @@
 # Sistema de Trading Algorítmico — Contexto Completo del Proyecto
 
-**Última actualización:** 26 Abril 2026 CIERRE SESIÓN NOCHE-4 — **Multi-testing correction Holm/BH CASO B ARCHIVADO empíricamente** (§13.3 línea 2336 sub-item walk-forward methodology refinement). Predicción ultrathink pre-implementación: classical multi-test correction es herramienta para hypothesis testing donde tests independientes; NO para **selection bias structural** "best of millions". Implementación completa en rama `feature-multi-testing-correction-pre-reciclaje` (commit `ca911be`): 3 funciones nuevas (`_compute_pvalues_from_ci_low`, `_apply_holm_correction`, `_apply_bh_correction`) + wrapper integration en `extract_validated_specialists` post-W3 bootstrap pre-sort. Default `_MULTI_TEST_METHOD='none'` backwards-compat M2 fix baseline. **Tests greenfield 13/13 PASS + no-regression 31/31 PASS = 44/44**. **Dry-run cross-9 sobre JSONs smoke 2026-04-24 in-memory**: Holm con N=100 α=0.05 produce **3/9 orphan (33%)** + 1/6 top-1 changed (degrada operacionalmente); BH **0/9 orphan + 0/9 top-1 changed (no-op efectivo)** porque survivor pool top-100 ya está heavily pre-filtered por W4 thresholds + flag_sospechoso → BH al α=0.05 acepta todos. Validación cross-symbol N=9 NO ejecutada per spec (skip si dry-run no produce top-1 distintos significativos) — compute saved ~30-45 min. **Veredicto Caso B**: classical multi-test correction NO mejora ranking M2 fix; residual J/B 2.41× **confirmed estructural** vía test empírico — atacable solo via tools selection-bias-specific (Deflated SR López de Prado ~15-25h, k-fold CV ~20-30h, sample splitting, bootstrap aggregation con re-selection). §13.2 caveat permanente actualizado. §13.3 línea 2336 sub-item Multi-testing → ARCHIVED_EMPIRICAL_2026-04-26. Rama feature queda REFERENCIA ARCHIVADA (NO merge a main, code preservado para reactivación futura experimentos α distinto / application points alternativos pre-W4). **Hallazgo metodológico**: BH redundancia con W4 + flag_sospechoso filtros upstream → multi-test correction adicional debería aplicarse PRE-W4 si se intenta de nuevo. **Hallazgo colateral**: JSONs smoke 2026-04-24 actuales sorted por specialist_score_ci_low (W3b ranking pre-M2-fix), NO pf_fwd_ci_low — caveat solo metodológico para análisis dry-run, no operacional. **Predicción ultrathink validada profilácticamente** = variante constructive §12 L35 (predicción cualitativa antes de implementación invasiva). Status Fase C: 6/7 items DONE + Multi-testing CASO B archivado adicional. Bot v2.4.5 operacional VPS Tokio invariante (uptime 4d+). Fidelidad 2 invariante (sin merge feature, code main intacto).
+**Última actualización:** 26 Abril 2026 CIERRE SESIÓN NOCHE-5 — **Fase 2 secundaria pnl_recon RESUELTA Opción C — Fase C COMPLETA 7/7 DONE**. Causa raíz IDENTIFICADA por code review sin compute adicional: `pnl_usdt` CSV proviene de `live/execution_manager.py:378` que retorna `position["unrealized_pnl"]` capturado en `fetch_positions()` previo al close, fuente BingX `unrealizedPnl` (`live/data_feed.py:351`) usa **mark_price + bruto sin fees**; analyzer reconstruye realized neto fill-based. **Divergencia estructural de convenciones BingX vs analyzer**, NO bug componente — hipótesis A/B/C/D originales (precision/fees/notional/size_usdt) refutadas individualmente como block instructivo donde 4 hipótesis razonables atacaban componente equivocado del problema (causa real conceptual, no numérica). **Decisión Opción C** per §13.2 DECISION canónica ("fix resuelve fenómeno, no tapa síntoma"): redefinir métrica analyzer en lugar de fix bot-side (Opción A descartada por costo deploy + rompe semántica histórica reports) o fix analyzer convención BingX (Opción B descartada por mark_price@fetch no almacenado). **Implementación analyzer ~50 LOC** (`analyze_performance_attribution.py`): rename `pnl_recon` → `pnl_estimate_offline` con docstring expandido convenciones BingX vs analyzer, gap signed (no abs) preservando dirección drift, alert mecánico WARN/NOTA saturado eliminado, reporte descriptivo distribución (signed mean / |abs| mean / p50 / p95) con convenciones inline, `BALANCE_NOT_CLOSING_RATIO_ALERT` + `BALANCE_EQN_TOLERANCE_USDT` marcadas DEPRECATED compat ABI. **Validación empírica end-to-end N=63**: signed mean **-0.0123 USDT** (predicción NEGATIVO consistente ✓), |abs| mean **0.0133 USDT** (predicción 0.010-0.015 ✓ exacta), p95 **0.0290 USDT** (predicción 0.025-0.035 ✓), CSV nuevas columnas + reporte nueva sección descriptiva, 0 menciones WARN/NOTA legacy. Drift `(fill - mark@fetch) ≈ -0.0005×notional` + fees parciales `unrealizedPnl` BingX explica gap_signed estructuralmente. **Items §13.3 cerrados**: L2400 → RESUELTO Opción C; L2284 L1916 → RESUELTO por merge natural (métrica subyacente rediseñada). **Status Fase C COMPLETA 7/7**: audit Fid2 + investigación pnl_recon causa raíz + fix v1 + L1892/L1904 logs + triaje 4 micro-items + Fase 2 secundaria Opción C. Roadmap pre-reciclaje permite avanzar Fase A (Z_BTC ~8-12h) sin pendientes operacionales. **Hallazgos metodológicos**: §12 L25+L27 sinergia (segmentación arquitectural identifica capas "convención CSV bot-side" vs "convención analyzer offline-side" + verify code-side antes de implementar reflexivamente — observable directo en 2 líneas), §13.2 DECISION aplicada en caso límite (fenómeno = divergencia conceptual, fix = separar convenciones), predicción ultrathink validada profilácticamente (variante constructive §12 L35), pattern hipótesis A/B/C/D atacando componente equivocado por assumption framework no validado pre-investigación. Bot v2.4.5 invariante (sin deploy, sin tocar `live/*`). Fidelidad 2 invariante por construcción. Documentación: `docs/pnl_recon_phase2_root_cause_20260426.md`. Bot operacional VPS Tokio uptime 4d+.
+
+**Actualización previa:** 26 Abril 2026 CIERRE SESIÓN NOCHE-4 — **Multi-testing correction Holm/BH CASO B ARCHIVADO empíricamente** (§13.3 línea 2336 sub-item walk-forward methodology refinement). Predicción ultrathink pre-implementación: classical multi-test correction es herramienta para hypothesis testing donde tests independientes; NO para **selection bias structural** "best of millions". Implementación completa en rama `feature-multi-testing-correction-pre-reciclaje` (commit `ca911be`): 3 funciones nuevas (`_compute_pvalues_from_ci_low`, `_apply_holm_correction`, `_apply_bh_correction`) + wrapper integration en `extract_validated_specialists` post-W3 bootstrap pre-sort. Default `_MULTI_TEST_METHOD='none'` backwards-compat M2 fix baseline. **Tests greenfield 13/13 PASS + no-regression 31/31 PASS = 44/44**. **Dry-run cross-9 sobre JSONs smoke 2026-04-24 in-memory**: Holm con N=100 α=0.05 produce **3/9 orphan (33%)** + 1/6 top-1 changed (degrada operacionalmente); BH **0/9 orphan + 0/9 top-1 changed (no-op efectivo)** porque survivor pool top-100 ya está heavily pre-filtered por W4 thresholds + flag_sospechoso → BH al α=0.05 acepta todos. Validación cross-symbol N=9 NO ejecutada per spec (skip si dry-run no produce top-1 distintos significativos) — compute saved ~30-45 min. **Veredicto Caso B**: classical multi-test correction NO mejora ranking M2 fix; residual J/B 2.41× **confirmed estructural** vía test empírico — atacable solo via tools selection-bias-specific (Deflated SR López de Prado ~15-25h, k-fold CV ~20-30h, sample splitting, bootstrap aggregation con re-selection). §13.2 caveat permanente actualizado. §13.3 línea 2336 sub-item Multi-testing → ARCHIVED_EMPIRICAL_2026-04-26. Rama feature queda REFERENCIA ARCHIVADA (NO merge a main, code preservado para reactivación futura experimentos α distinto / application points alternativos pre-W4). **Hallazgo metodológico**: BH redundancia con W4 + flag_sospechoso filtros upstream → multi-test correction adicional debería aplicarse PRE-W4 si se intenta de nuevo. **Hallazgo colateral**: JSONs smoke 2026-04-24 actuales sorted por specialist_score_ci_low (W3b ranking pre-M2-fix), NO pf_fwd_ci_low — caveat solo metodológico para análisis dry-run, no operacional. **Predicción ultrathink validada profilácticamente** = variante constructive §12 L35 (predicción cualitativa antes de implementación invasiva). Status Fase C: 6/7 items DONE + Multi-testing CASO B archivado adicional. Bot v2.4.5 operacional VPS Tokio invariante (uptime 4d+). Fidelidad 2 invariante (sin merge feature, code main intacto).
 
 **Actualización previa:** 26 Abril 2026 CIERRE SESIÓN NOCHE-3 — **Fase C 6/7 items DONE**: audit institucional + investigación pnl_recon causa raíz + fix v1 validado + L1892/L1904 logs + **triaje 4 micro-items §13.3 con §12 L27 protocolo (3 EN_ESPERA scope refinado, 1 ARCHIVADO obsoleto)**. Triaje hallazgos: code-side **0/4 fix aplicado**, disparador empírico **0/4 cumplido**, **L2017 E4 ARCHIVADO** porque arquitectura cambió v2.4.0 (update_trailing_stop NO-OP desde 2026-04-20 elimina cancel-then-place — caso clásico §12 L27 item §13.3 obsoleto por review previo no documentado). Items L1999/L2005/L2011 mantenidos EN_ESPERA con disparadores refinados empíricamente: L1999 ratio reconstructed >5% sobre N≥50 (actual 0/60 post-v2.4.5, 4/155 pre-v2.4.5 todos pre-v2.4.0); L2005 funding fallback >1% cycles (actual 0% en 4 días + 17 logs rotated); L2011 emergency SL bloqueado por P1 leverage (sl_emergency 0/215 trades histórico bot completo). Pattern §12 L27 confirmado robustamente: 4/4 items ultra review 2026-04-17 quedaron stale en 9 días post-review por drift arquitectónico, disparadores conservadores no alcanzados, o bloqueos por items relacionados. Validación decisión Ricardo institucional 2026-04-24 "todas mejoras A+B+C antes reciclaje" — sin triaje regular items §13.3 acumulan stale state. Bot v2.4.5 operacional VPS Tokio invariante (uptime 4d+). Fidelidad 2 invariante (triaje read-only sobre code + logs). Status Fase C: 6/7 DONE; pendiente Fase 2 secundaria pnl_recon opcional ~30-45 min. Disparadores temporales próximos: v2.6-inv N≥100 (~2026-05-01), v2.6-exit N≥150 (~2026-05-10).
 
@@ -2281,7 +2283,12 @@ Ver §13.4 entrada "[MEJORA] [RESUELTO L27 parcial] L1910 edge_erosion detection
 
 Resumen: detección automática ya implementada por analyzer v2.4.1 (alert `CANDIDATO EXCLUSION RECICLAJE`, primer caso empírico Fase II.C 2026-04-22 con ONDO C2 + SAND C1). Tracking cross-sesiones para criterio semi-automático 2+ reportes consecutivos integrado en §13.3 L1398 política adelantar reciclaje. Item cerrado como L27 parcial.
 
-**[MEJORA] [EN_ESPERA] Test de consistencia de ecuación de descomposición — 2026-04-16**
+**[MEJORA] [RESUELTO por merge natural 2026-04-26] Test de consistencia de ecuación de descomposición — 2026-04-16**
+
+**Cierre 2026-04-26**: la métrica subyacente (`pnl_recon_gap` con tolerance 0.01 USDT y alert 5%) fue rediseñada como parte de Fase 2 secundaria pnl_recon (Opción C). El "test de consistencia" original asumía que `pnl_usdt` CSV era `realized_pnl_neto` ground truth comparable con la reconstrucción analyzer; investigación 2026-04-26 reveló que es `unrealizedPnl@fetch` BingX (mark-based + bruto) — convención válida pero divergente. Test cerrado como **obsoleto por construcción**: las dos métricas son convenciones diferentes válidas, no comparables como pass/fail. Reporte descriptivo distribución gap signed/unsigned reemplaza el alert. Ver `docs/pnl_recon_phase2_root_cause_20260426.md` + §13.4 entrada Opción C 2026-04-26.
+
+(Bloque histórico original preservado abajo para trazabilidad)
+---
 Contexto: Analyzer v2.4 incluye verificación interna de que pnl_real ≈ suma de componentes con tolerancia 0.01 USDT por trade. Si algún trade falla, loguea WARNING. Si primera ejecución con N≥50 trades muestra WARNINGs frecuentes (>5% de trades), investigar emparejamiento trades↔logs o bugs en fórmulas.
 Disparo: primer reporte v2.4 con WARNINGs de ecuación no cerrando en >5% de trades.
 Cierre: causa raíz identificada y corregida, o ratio de WARNING <5% aceptado como ruido de floating point.
@@ -2397,8 +2404,16 @@ Ver §13.4 entrada "[MEJORA] [REFUTADO] Item pnl_recon ratio 25% refutado por pr
 
 Resumen: prerequisito "validación multi-segmento N=98" del item era inviable por bug histórico size_usdt=0 (§2.4 v2.4.4, afecta ~138/164 trades pre-v2.4.4). Solo S4 N=24 testeable — "multi-segmento" renombrado de single-segment. Aplicación L34 recursiva: item propio refutado al no cumplir criterio elevación multi-segmento de su propia lección invocada. 5ª refutación del día por stress-test. Item reemplazado por nuevo §13.3 "Investigación causa raíz pnl_recon gap" con scope explícito ~1-2h data-independent.
 
-**[MEJORA] [EN_ESPERA] Investigación causa raíz pnl_recon gap analyzer — 2026-04-23**
+**[MEJORA] [RESUELTO Opción C 2026-04-26] Investigación causa raíz pnl_recon gap analyzer — 2026-04-23**
 
+**Cierre 2026-04-26 (Fase C item 7 Fase 2 secundaria)**: causa raíz IDENTIFICADA = divergencia estructural de convenciones BingX `unrealizedPnl@fetch` (mark-based + bruto) vs analyzer reconstrucción `realized@fill` (neto con fees). NO es bug de componente A/B/C/D originales. Ver `docs/pnl_recon_phase2_root_cause_20260426.md` + §13.4 entrada Opción C 2026-04-26.
+
+Decisión Opción C (per §13.2 DECISION canónica): renombrar métrica analyzer `pnl_recon` → `pnl_estimate_offline` con docstring explícito + reporte descriptivo distribución signed/unsigned (eliminado alert mecánico saturado 93% pre-fix-v1, 56.7% post-fix-v1 → falso-positivo masivo por convención divergente). Bot v2.4.5 invariante (Opción A descartada por costo deploy + rompe semántica histórica reports).
+
+Validación empírica post-Opción C N=63: signed mean -0.0123 USDT, |abs| mean 0.0133 USDT (predicción exacta), p95 0.0290 USDT — magnitudes consistentes con drift `(fill-mark@fetch) ≈ -0.0005×notional` + fees parciales `unrealizedPnl` BingX. Item L1916 (test consistencia ecuación) RESUELTO por merge natural — métrica subyacente rediseñada.
+
+(Bloque histórico original preservado abajo para trazabilidad)
+---
 Contexto: síntoma 92% trades con `pnl_recon_gap > tolerance` sobre A.1 N=26 identificado 2026-04-23. Hipótesis "floor mal calibrado" (L2018) refutada empíricamente (bajar floor empeora ratio). Hipótesis "ratio 25% cross-segmento" (item sucesor) refutada por prerequisite inviable (§13.4 2026-04-23). Síntoma persiste.
 
 Distribución gap empírica sobre S4 N=24 (única ventana testeable):
@@ -2638,6 +2653,94 @@ Cierre: Análisis B ejecutado con N_trades ≥15 per config + veredicto cross-cl
 ---
 
 ### 13.4 RESUELTO
+
+**[INVESTIGACIÓN] [RESUELTO Opción C — Fase C item 7] Fase 2 secundaria pnl_recon — causa raíz convenciones BingX vs analyzer + redefinir métrica — 2026-04-26**
+
+Contexto: §13.3 L2400 item original "Investigación causa raíz pnl_recon gap analyzer" (commit `ab4f6f6` 2026-04-23, scope ~1-2h Opción D). Fase 1 (commit `195be1a` mismo día) eliminó duplicación `*2.0` round-trip → gap mean abs 0.0218→0.0137 USDT (-37%, predicción exacta), % > tolerance 90%→56.7%. Residual signed mean -0.013 USDT persistente — origen estructural pendiente. Spec original Fase 2 secundaria: Fase A descomposición + Fase B raw BingX API + Fase C fix + Fase D validación.
+
+**Causa raíz** (code review, no requirió raw BingX adicional):
+
+`pnl_usdt` CSV proviene de `live/execution_manager.py:378` que retorna `position.get("unrealized_pnl", 0.0)` capturado en `fetch_positions()` previo al close. La API BingX `unrealizedPnl` (`live/data_feed.py:351`) usa **mark_price actual + bruto sin fees**. Analyzer reconstruye `(fill_price@close - entry) × contracts × sign - 0.001×notional` (realized neto fill-based). **Divergencia estructural de convenciones BingX vs analyzer**, NO bug componente.
+
+```
+gap_signed ≈ (fill - mark@fetch) × contracts × sign - 0.001×notional
+           ≈ -0.0005×notional - 0.001×notional ≈ -0.0015 × notional ≈ -0.0075 USDT
+```
+
+Predicción cualitativa: signed mean NEGATIVO consistente (long sells at bid<mark; short buys at ask>mark, post side_sign queda negativo).
+
+**Hipótesis A/B/C/D originales refutadas individualmente**:
+- A precision rounding: NO (signed sistemático, no random).
+- B fees divergente: NO (fee 0.05% per side BingX confirmado raw fetchMyTrades cost=7.80738 fee=0.003904 = 0.10% round-trip exacto, sin BNB discount).
+- C notional mismatch: NO (size_usdt post-v2.4.4 100% válido N=73 audit C1 2026-04-26).
+- D size_usdt v2.4.4 colateral: NO (mismo audit confirma).
+
+Las 4 hipótesis abordaban componentes del cálculo offline asumiendo `pnl_usdt` CSV era ground truth — la causa real es **divergencia de convenciones**.
+
+**Decisión Opción C** (per §13.2 DECISION canónica "fix resuelve fenómeno, no tapa síntoma"):
+
+Tres opciones evaluadas:
+- **Opción A** (fix bot-side `close_position` recompute con fill_price): toca bot v2.4.5 operacional + deploy + Fidelidad 2 verificación + rompe semántica histórica reports. Descartada por costo.
+- **Opción B** (fix analyzer emular `mark_price@fetch`): imposible retroactivamente, mark_price@fetch no se almacena. Descartada.
+- **Opción C** (redefinir métrica analyzer): renombrar + docstring explícito + reporte descriptivo. Bot invariante; histórico preservado. **Elegida**.
+
+**Implementación analyzer** (`analyze_performance_attribution.py`, ~50 LOC modificadas):
+- L48 docstring: split counters → distribución `pnl_offline_gaps_signed` + alert legacy eliminado.
+- L132/140: `BALANCE_NOT_CLOSING_RATIO_ALERT` + `BALANCE_EQN_TOLERANCE_USDT` marcadas DEPRECATED (compat ABI).
+- L826-827: keys `pnl_recon_gap`/`pnl_recon_closes` → `pnl_estimate_offline`/`pnl_offline_gap_signed`.
+- L991-1011: variable `pnl_recon` → `pnl_estimate_offline`. Docstring expandido convenciones BingX vs analyzer. Gap signed (no abs) preservando dirección drift.
+- L1257-1265: reporte agregado de "n_bad/n_chk gap > tolerancia" → distribución descriptiva (signed mean / |abs| mean / p50 / p95) con convenciones inline.
+- L1621-1633: agregado `pnl_offline_gaps_signed` (lista) reemplaza split counters legacy.
+- L2031-2032: CSV output keys actualizadas.
+- L2049-2057: WARN/NOTA si ratio_bad > 5% → comment explicativo Opción C, sin print.
+
+**Validación empírica** (analyzer end-to-end run 2026-04-26 1511, N=63 trades válidos):
+
+| Métrica | Predicción | Observado | Status |
+|---|---|---|---|
+| signed mean | -0.005 a -0.013 USDT | **-0.0123 USDT** | ✓ dentro banda |
+| signo signed | NEGATIVO consistente | NEGATIVO | ✓ exacto |
+| \|abs\| mean | 0.010-0.015 USDT | **0.0133 USDT** | ✓ predicción exacta |
+| \|abs\| p95 | 0.025-0.035 USDT | **0.0290 USDT** | ✓ dentro banda |
+
+Causa raíz **CONFIRMADA empíricamente**. Sin error runtime end-to-end. CSV nuevas columnas presentes. Reporte ASCII+UTF-8 nueva sección descriptiva. 0 menciones `WARN/NOTA pnl_recon` legacy en reporte. Otros alerts (EDGE EROSION etc.) preservados sin regresión.
+
+**Trade-off documentado**:
+- Pierde: alert mecánico "consistency check" pass/fail (saturado pre-fix-v1 93%, post-fix-v1 56.7%; 0 casos reales detectados como bug — todos eran convención).
+- Gana: claridad conceptual (dos métricas válidas, no comparables como ground truth) + observabilidad descriptiva preservada + bot invariante + histórico CSV retro analyzable (keys additive).
+
+**Items §13.3 cerrados**:
+- Línea 2400 "Investigación causa raíz pnl_recon gap analyzer" → **RESUELTO Opción C 2026-04-26**.
+- Línea 2284 L1916 "Test consistencia ecuación de descomposición" → **RESUELTO por merge natural 2026-04-26** (métrica subyacente rediseñada).
+
+**Status Fase C pre-reciclaje: 7/7 items DONE** post-Opción C. Roadmap permite avanzar Fase A (Z_BTC ~8-12h) sin pendientes operacionales.
+
+**Hallazgos colaterales / aprendizajes**:
+
+1. **§12 L25 + L27 sinergia**: la causa raíz fue identificada por code review (`live/execution_manager.py` L378 + `live/data_feed.py` L351) sin invertir compute en raw BingX queries adicionales. Aplicación L25 (segmentación arquitectural — separar capa "convención CSV bot-side" de "convención analyzer offline-side") + L27 (verificar code-side antes de implementar reflexivamente — el `position["unrealized_pnl"]` pasaba al CSV literal sin recompute, observable directo).
+
+2. **§13.2 DECISION operativa**: "fix resuelve fenómeno, no tapa síntoma" aplicada en caso límite — el "fenómeno" no era un bug sino una divergencia de convenciones; el fix correcto fue **identificar y separar** las convenciones, no calibrar tolerance. Opción C cumple por construcción.
+
+3. **Predicción ultrathink validada profilácticamente** (variante constructive §12 L35): predicción cualitativa de signo negativo + magnitud ~0.005-0.015 USDT pre-implementación coincide con observado -0.0123 USDT mean, 0.0133 USDT |abs| mean. Reduce ambigüedad investigación posterior.
+
+4. **Hipótesis A/B/C/D refutadas como block**: caso instructivo donde 4 hipótesis razonables atacaban un componente equivocado del problema. La causa real fue conceptual (convenciones), no numérica (componentes). Pattern para futuras investigaciones: validar **assumption framework** antes de descomponer en sub-componentes.
+
+**Bot v2.4.5 invariante**. Sin deploy. Sin tocar `live/*`. Cambio analyzer offline únicamente. Fidelidad 2 invariante por construcción.
+
+Referencias:
+- `docs/pnl_recon_phase2_root_cause_20260426.md` (análisis completo).
+- `docs/pnl_recon_root_cause_20260426.md` (Fase 1 / fix v1, predecesor).
+- `analyze_performance_attribution.py` L991-1011 (cambios Opción C centrales).
+- `live/execution_manager.py` L378 + `live/data_feed.py` L351 (causa raíz código).
+- §13.2 DECISION canónica "Consistency check por reconstrucción no tautológico".
+- §13.3 línea 2400 entrada original (cerrada).
+- §13.3 línea 2284 L1916 (cerrada por merge natural).
+- §12 L25 + L27 + L35 (aplicadas).
+- ROADMAP_PRE_RECICLAJE.md Fase C item 7 → DONE; **Fase C COMPLETA 7/7**.
+
+Cierre Fase C item 7 (Fase 2 secundaria pnl_recon): permanente. Fase C pre-reciclaje completa. Próximo: Fase A (Z_BTC implementación + re-entrenamiento GMMs altcoins).
+
+---
 
 **[ANÁLISIS] [CASO B ARCHIVADO empíricamente] Multi-testing correction Holm/BH cross-9 — 2026-04-26**
 

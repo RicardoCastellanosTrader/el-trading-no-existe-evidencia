@@ -45,7 +45,8 @@ FIXES v2.4.1 (ultra review):
   S1  classify usa multipliers (admite proxy).
   S2  balance_req sin double-count de br.
   S3  --exclude-reconstructed default True.
-  S4  split counters: n_pnl_recon_checked, n_pnl_recon_not_closing, n_components_missing.
+  S4  split counters: distribución pnl_offline_gaps_signed + n_components_missing
+      (Opción C 2026-04-26: alert mecánico saturado eliminado; ver doc raíz).
   S5  unit validator de pnl_tr/pnl_fwd.
   S6  active_config_source='heuristic' trackeado (pendiente v2.3.4 logs).
   S7  CAPITALIZE safeguards: N>=20, |pnl|>=5 USDT.
@@ -128,15 +129,18 @@ CAPITALIZE_PCT_THRESHOLD = 30.0
 MIN_DD_BREAKER_COST_FOR_ALERT = 1.0      # USDT
 MIN_DD_BREAKER_N_TRADES = 3
 
-# S4: balance consistency ratio threshold
-BALANCE_NOT_CLOSING_RATIO_ALERT = 0.05
+# Opción C 2026-04-26 (Fase 2 secundaria pnl_recon): constantes legacy del
+# alert mecánico. Permanecen por compat ABI pero NO se consultan — el alert
+# fue eliminado al identificarse divergencia estructural de convenciones
+# (ver docs/pnl_recon_phase2_root_cause_20260426.md).
+BALANCE_NOT_CLOSING_RATIO_ALERT = 0.05  # DEPRECATED — sin uso operativo
 
 # S5: Expected unit for pnl_tr/pnl_fwd in walk-forward JSONs
 EXPECTED_PNL_UNIT = "percent"            # "percent" o "fraction"
 PNL_SAMPLE_RANGE_PERCENT = (0.01, 500.0)
 PNL_SAMPLE_RANGE_FRACTION = (0.0001, 5.0)
 
-# Consistency check
+# Consistency check — DEPRECATED Opción C 2026-04-26 (sin uso, ver alert legacy)
 BALANCE_EQN_TOLERANCE_USDT = 0.01
 
 # Proxy para multiplicadores (Q7)
@@ -823,8 +827,8 @@ def attribute_trade(trade_row, log_events, specialist_cfgs, bingx_cache):
         'n_simultaneous_signals_in_cycle': np.nan,
         'analyzable': 'no',
         'missing_fields': [],
-        'pnl_recon_gap': np.nan,      # C2: abs(pnl_csv - pnl_reconstruido)
-        'pnl_recon_closes': False,    # C2: True si gap <= tolerance
+        'pnl_estimate_offline': np.nan,   # Opción C: estimación offline realized neto
+        'pnl_offline_gap_signed': np.nan, # Opción C: gap signed (descriptivo, NO alert)
     }
 
     # Caso entry_candle_no_inferible: trade excluido de atribucion
@@ -988,27 +992,36 @@ def attribute_trade(trade_row, log_events, specialist_cfgs, bingx_cache):
                     - nan_safe(out['funding']))
         out['alpha_residual'] = residual
 
-    # C2: consistency check por reconstruccion de precios (no tautologica).
-    # pnl_reconstruido = (exit - entry) * contracts * side_sign - fees
-    # Verifica que el pnl_usdt del CSV es coherente con los precios y tamanio
-    # declarados, capturando errores de escritura, fees mal contabilizadas,
-    # o desajuste contracts vs size_usdt.
+    # Estimate offline (Opción C 2026-04-26 — Fase 2 secundaria pnl_recon):
+    #   pnl_estimate_offline = (exit_fill - entry_fill) * contracts * sign - est_fees
+    # Métrica DESCRIPTIVA, NO ground-truth check. Causa raíz Fase 2 reveló que
+    # pnl_usdt CSV proviene de `position["unrealized_pnl"]` capturado en
+    # `fetch_positions()` previo al close (live/execution_manager.py L378 +
+    # live/data_feed.py L351 — `unrealizedPnl` BingX API). Convención BingX:
+    # mark_price@fetch + bruto sin fees. El analyzer reconstruye realized neto
+    # con fill_price@close + fees. Son DOS CONVENCIONES VÁLIDAS DIFERENTES, no
+    # comparables como "ground truth vs bug". Gap signed mean ~-0.013 USDT
+    # post-fix-v1 (commit 195be1a) es estructural por:
+    #   gap_signed ≈ (fill_price - mark@fetch) * contracts * sign - 0.001*notional
+    # con (fill - mark) drift taker ~-0.0005×notional consistente con K
+    # implícito empírico. Ver docs/pnl_recon_phase2_root_cause_20260426.md
+    # y §13.4 entrada Opción C 2026-04-26.
+    #
+    # Se reporta `pnl_offline_gap_signed` (no abs) para preservar dirección
+    # del drift mark/fill. NO hay flag pass/fail — se publica distribución
+    # descriptiva en agregado.
     if (contracts is not None and contracts > 0
             and not math.isnan(out['entry_price_csv'])
             and not math.isnan(out['exit_price_csv'])
             and not math.isnan(out['pnl_real'])):
         notional_entry = contracts * out['entry_price_csv']
-        # Fix v1 2026-04-26 (Fase C item 2 Opción D): COMMISSION_RATE=0.001
-        # ya es round-trip approx (entry+exit) per comment L106. El *2.0
-        # previo duplicaba el round-trip (0.20% vs 0.10% intended). Causa raíz
-        # commit c8cc999. Predicción post-fix gap mean abs 0.0218 -> 0.0137.
-        est_fees = COMMISSION_RATE * notional_entry  # round-trip (entry+exit)
-        pnl_recon = ((out['exit_price_csv'] - out['entry_price_csv'])
-                     * contracts * ss) - est_fees
-        # Tolerancia: 0.01 USDT absoluto o 10% del pnl, lo mayor de los dos
-        tolerance = max(BALANCE_EQN_TOLERANCE_USDT, 0.1 * abs(out['pnl_real']))
-        out['pnl_recon_gap'] = abs(pnl_recon - out['pnl_real'])
-        out['pnl_recon_closes'] = out['pnl_recon_gap'] <= tolerance
+        # COMMISSION_RATE=0.001 ya es round-trip approx (entry+exit) per L106
+        # (fix v1 commit 195be1a 2026-04-26 eliminó *2.0 previo).
+        est_fees = COMMISSION_RATE * notional_entry
+        pnl_estimate_offline = ((out['exit_price_csv'] - out['entry_price_csv'])
+                                * contracts * ss) - est_fees
+        out['pnl_estimate_offline'] = pnl_estimate_offline
+        out['pnl_offline_gap_signed'] = pnl_estimate_offline - out['pnl_real']
 
     # 11. Analyzable level
     critical_missing = {'expectancy', 'signal_entry_price', 'signal_exit_price',
@@ -1254,14 +1267,27 @@ def write_report(report_path, ctx, alerts):
         out(f"Ratio alpha_residual / alpha_nominal: {_fmt(ratio, '{:+.3f}')}  "
             "(~0 si modelo calibrado)")
     out()
-    # C2 + S4: reporte de consistencia de precios separado de datos missing
-    n_chk = agg.get('n_pnl_recon_checked', 0)
-    n_bad = agg.get('n_pnl_recon_not_closing', 0)
+    # Opción C 2026-04-26: reporte descriptivo distribución gap signed offline
+    # estimate vs CSV (convenciones BingX unrealizedPnl@fetch vs realized@fill).
+    # Métrica observacional, NO alert. Ver docs/pnl_recon_phase2_root_cause_20260426.md
+    gaps_signed = agg.get('pnl_offline_gaps_signed', []) or []
     n_miss = agg.get('n_components_missing', 0)
-    ratio_bad = (n_bad / max(n_chk, 1)) if n_chk > 0 else 0.0
-    out(f"Consistencia de precios (C2): {n_bad}/{n_chk} trades con gap > tolerancia "
-        f"({ratio_bad*100:.1f}%)")
-    out(f"Datos de modelo incompletos: {n_miss} trades (excluidos del check)")
+    if gaps_signed:
+        gaps_arr = [g for g in gaps_signed if g is not None]
+        n_chk = len(gaps_arr)
+        mean_signed = sum(gaps_arr) / n_chk
+        mean_abs = sum(abs(g) for g in gaps_arr) / n_chk
+        sorted_abs = sorted(abs(g) for g in gaps_arr)
+        p50 = sorted_abs[n_chk // 2]
+        p95 = sorted_abs[max(0, int(0.95 * n_chk) - 1)] if n_chk >= 20 else sorted_abs[-1]
+        out(f"Gap offline-vs-CSV (descriptivo, N={n_chk}):")
+        out(f"  Convenciones: pnl_estimate_offline = (fill-entry)*contracts*sign - 0.10%*notional (realized)")
+        out(f"                pnl_usdt CSV = BingX unrealizedPnl@fetch (mark+bruto)")
+        out(f"  signed mean: {mean_signed:+.4f} USDT  |  |abs| mean: {mean_abs:.4f} USDT")
+        out(f"  |abs| p50: {p50:.4f}  |  p95: {p95:.4f}")
+    else:
+        out("Gap offline-vs-CSV: sin trades con datos completos (precios+pnl).")
+    out(f"Datos de modelo incompletos: {n_miss} trades")
     out()
 
     # ==== b) POR SIMBOLO ====
@@ -1618,19 +1644,16 @@ def aggregate_trades(per_trade):
         'factor_portfolio': sum_ns('factor_portfolio'),
         'funding': sum_ns('funding'),
         'alpha_residual': sum_ns('alpha_residual'),
-        # S4: split counters. pnl_recon_closes se setea solo si tenemos precios
-        # y pnl (no requiere componentes del modelo). Un NaN en pnl_recon_gap
-        # significa "no chequeable" (missing prices), no "gap".
-        'n_pnl_recon_checked': sum(
-            1 for r in per_trade if r.get('pnl_recon_gap') is not None
-            and not (isinstance(r.get('pnl_recon_gap'), float) and math.isnan(r['pnl_recon_gap']))
-        ),
-        'n_pnl_recon_not_closing': sum(
-            1 for r in per_trade
-            if r.get('pnl_recon_gap') is not None
-            and not (isinstance(r.get('pnl_recon_gap'), float) and math.isnan(r['pnl_recon_gap']))
-            and not r.get('pnl_recon_closes', False)
-        ),
+        # Opción C 2026-04-26: distribución descriptiva del gap signed entre
+        # pnl_estimate_offline (analyzer convention: realized neto fill-based)
+        # y pnl_real (CSV convention: BingX unrealizedPnl@fetch mark-based).
+        # NO hay alert pass/fail — son convenciones diferentes válidas.
+        'pnl_offline_gaps_signed': [
+            r['pnl_offline_gap_signed'] for r in per_trade
+            if r.get('pnl_offline_gap_signed') is not None
+            and not (isinstance(r.get('pnl_offline_gap_signed'), float)
+                     and math.isnan(r['pnl_offline_gap_signed']))
+        ],
         'n_components_missing': sum(
             1 for r in per_trade if r.get('analyzable') != 'full'
         ),
@@ -2005,7 +2028,8 @@ def run(args):
     ts_stamp = now.strftime('%Y%m%d_%H%M')
     csv_path = os.path.join(THIS_DIR, f"attribution_per_trade_{ts_stamp}.csv")
     # CSV per_trade: 26 columnas (23 antes + entry_candle_source +
-    # active_config_source + pnl_recon_* reemplazando balance_*).
+    # active_config_source + pnl_estimate_offline / pnl_offline_gap_signed
+    # — Opción C 2026-04-26 reemplazando pnl_recon_*).
     df_out = pd.DataFrame([{
         'ts': r['ts'], 'symbol': r['symbol'], 'side': r['side'],
         'cluster': r['cluster'], 'strategy': r['strategy'],
@@ -2028,8 +2052,8 @@ def run(args):
         'flag_reconstructed': r['flag_reconstructed'],
         'n_simultaneous_signals_in_cycle': r['n_simultaneous_signals_in_cycle'],
         'analyzable': r['analyzable'],
-        'pnl_recon_closes': r.get('pnl_recon_closes', False),
-        'pnl_recon_gap': r.get('pnl_recon_gap'),
+        'pnl_estimate_offline': r.get('pnl_estimate_offline'),
+        'pnl_offline_gap_signed': r.get('pnl_offline_gap_signed'),
         'missing_fields': ';'.join(r['missing_fields']),
     } for r in per_trade])
     df_out.to_csv(csv_path, index=False)
@@ -2046,15 +2070,10 @@ def run(args):
         if ok:
             print(f"Plot: {plot_path}")
 
-    # 14. Consistency check warning (C2: reconstruccion por precios)
-    n_chk = agg.get('n_pnl_recon_checked', 0)
-    n_bad = agg.get('n_pnl_recon_not_closing', 0)
-    ratio_bad = (n_bad / max(n_chk, 1)) if n_chk > 0 else 0.0
-    if ratio_bad > BALANCE_NOT_CLOSING_RATIO_ALERT:
-        print(f"\nWARN: {n_bad}/{n_chk} trades ({ratio_bad*100:.1f}%) con pnl_recon_gap "
-              f"> tolerancia. Posible problema en precios/fees del CSV.")
-    elif n_bad > 0:
-        print(f"\nNOTA: {n_bad}/{n_chk} trades con pnl_recon_gap > tolerancia (ratio OK).")
+    # Opción C 2026-04-26 (Fase 2 secundaria pnl_recon RESUELTO): el alert
+    # mecánico previo (WARN si ratio_bad > 5%) estaba estructuralmente
+    # saturado por divergencia de convenciones (93% pre-fix-v1, ~57% post-
+    # fix-v1). Distribución descriptiva ya emitida en sección a) del reporte.
 
     print("\n" + "=" * 70)
     print("RESUMEN")
