@@ -1,6 +1,6 @@
 # Sistema de Trading Algorítmico — Contexto Completo del Proyecto
 
-**Última actualización:** 26 Abril 2026 SESIÓN 2 — **(a) Cache funding refresh forward + cierre §13.3 L2317 §12 L27** + **(b) Item §13.3 nuevo OPERACIONAL EN_ESPERA Deploy L1892+L1904 diferido con disparador temporal explícito**. **(a)** 5ª aplicación §12 L36 cuádruple guardrail validada profilácticamente cross-3 puntos (service mismatch trading-bot vs combolab-bot + cache parcialmente cubre + cobertura 100% por construcción). Operación VPS pura ~42s: cache local pre-existing 2026-03-01 → 2026-04-23 08:00 (43 días margen sobre arranque trade_history 2026-04-13, cubre S1 categóricamente desde refresh previo no documentado en sesión hoy ~13:15 UTC); refresh forward gap real 2026-04-23 → 2026-04-26T16:00 (~306 entradas + apareció THETAUSDT.csv símbolo nuevo). Sync local tar+scp workflow §11 canónico. Validación coverage **78/78 trades duration>1h con entry_ms válido al 100%**. Item §13.3 L2317 RESUELTO §12 L27 con caveat (parcialmente obsoleto pre-operación). Stress-tests v2.6-inv N≥100 disparador (~2026-05-01) NO bloqueados. **(b)** Decisión Ricardo Opción C: diferir deploy L1892+L1904 (commit `3727366`) hasta agrupar con próximo deploy operacional natural (Fase D v2.6-inv ~2026-05-01 si emerge fix, Fase E v2.6-exit ~2026-05-10, o pre-reciclaje aislado fecha límite ~2026-05-10 si no). Mitigación §12 L27 conscientemente prevenida con disparador temporal explícito + fecha límite + 3 entry points docs (Header L3 + §13.3 item + ROADMAP pre-trigger). Bot v2.4.5 invariante uptime 4d+. Sin tocar `live/*`. Próximo natural sin cambios: esperar disparadores D+E madurando con item L1892+L1904 trackeado pre-reciclaje.
+**Última actualización:** 26 Abril 2026 SESIÓN 2 — **(a) Cache funding refresh forward + cierre §13.3 L2317 §12 L27** + **(b) Item §13.3 nuevo OPERACIONAL EN_ESPERA Deploy L1892+L1904 diferido con disparador temporal explícito** + **(c) Caracterización descriptiva alpha residual edge erosion N=60 — predicción ultrathink Claude REFUTADA en magnitud (Gini 0.36 no 0.55-0.70, concentración CANDIDATO 44.7% no 60-80%); veredicto best-fit hipótesis (d) MIX = (a) edge real estructural marginal cross-universe + (b) degradación temporal sostenida monotónica B3/B1 1.82× + (c) concentración modesta NO dominante; 0 items §13.3 nuevos creados §12 L34 profiláctica; framework pre-listo análisis Welch correcto N≥100 ~2026-05-01**. **(a)** 5ª aplicación §12 L36 cuádruple guardrail validada profilácticamente cross-3 puntos (service mismatch trading-bot vs combolab-bot + cache parcialmente cubre + cobertura 100% por construcción). Operación VPS pura ~42s: cache local pre-existing 2026-03-01 → 2026-04-23 08:00 (43 días margen sobre arranque trade_history 2026-04-13, cubre S1 categóricamente desde refresh previo no documentado en sesión hoy ~13:15 UTC); refresh forward gap real 2026-04-23 → 2026-04-26T16:00 (~306 entradas + apareció THETAUSDT.csv símbolo nuevo). Sync local tar+scp workflow §11 canónico. Validación coverage **78/78 trades duration>1h con entry_ms válido al 100%**. Item §13.3 L2317 RESUELTO §12 L27 con caveat (parcialmente obsoleto pre-operación). Stress-tests v2.6-inv N≥100 disparador (~2026-05-01) NO bloqueados. **(b)** Decisión Ricardo Opción C: diferir deploy L1892+L1904 (commit `3727366`) hasta agrupar con próximo deploy operacional natural (Fase D v2.6-inv ~2026-05-01 si emerge fix, Fase E v2.6-exit ~2026-05-10, o pre-reciclaje aislado fecha límite ~2026-05-10 si no). Mitigación §12 L27 conscientemente prevenida con disparador temporal explícito + fecha límite + 3 entry points docs (Header L3 + §13.3 item + ROADMAP pre-trigger). Bot v2.4.5 invariante uptime 4d+. Sin tocar `live/*`. Próximo natural sin cambios: esperar disparadores D+E madurando con item L1892+L1904 trackeado pre-reciclaje.
 
 **Actualización previa:** 26 Abril 2026 CIERRE SESIÓN NOCHE-5 CONSOLIDADO — **Fase 2 secundaria pnl_recon RESUELTA Opción C → Fase C COMPLETA 7/7 + §12 L36 NUEVA + estado pre-reciclaje MADURO INSTITUCIONAL**. Corrección reporte previo erróneo que afirmaba "Próximo: Fase A" — Fase A YA estaba DONE_ARCHIVED 2026-04-26 (Z_BTC refutado empíricamente cross-5 altcoins, BIC sweep ESCENARIO A unanimidad V0 commit `63de84c` mismo día). Estado real: A done_archived + B done merged + C 7/7 done; pendientes solo D+E disparadores temporales (D N≥100 ~2026-05-01, E N≥150 ~2026-05-10). **§12 Lección 36 NUEVA**: "Predicción ultrathink profiláctica antes de implementación invasiva — variante constructive de §12 L35". Cuando investigación o implementación tiene scope >2-3h y outcome incierto, hacer predicción cualitativa explícita ANTES de comenzar. Casos origen 2026-04-26 (3 aplicaciones mismo día): (a) Multi-testing correction Caso B confirmed predicción mismatch conceptual classical multi-test vs selection bias structural; (b) Fase 2 secundaria pnl_recon causa raíz convenciones BingX `unrealizedPnl@fetch` mark+bruto vs analyzer realized@fill matched predicción signed mean -0.0123 USDT exact; (c) audit v5_2 falsa alarma test diagnóstico L35 confirmed predicción auditor diverge no bot real. Patrón: predicción cualitativa pre-implementación es brújula metodológica reduciendo varianza outcomes — validada acelera cierre, refutada redirige antes invertir compute. **L36 es proactiva (pre-implementación) vs L35 reactiva (post-alarma)**. Cuarto pilar metodológico institucional: L25 (segmentación arquitectural) + L26 (validación per-componente) + L35 (test diagnóstico discriminatorio reactivo) + L36 (predicción ultrathink proactiva). Sesión consolidada 8 commits main: aa8bb2d audit Def A+B + 662ff00 §12 L35 + c8cc999 pnl_recon causa raíz + 195be1a fix v1 -37% + 3727366 L1892+L1904 observability + d28cc93 triaje §12 L27 + 0eb843c Multi-testing CASO B archivado + 5312ed5 Fase 2 secundaria Opción C. Sub-fase A.0/A.1/A.2 commits previos sesión: db55617 caveat §0.6.1 + 20b5773 Z_BTC V1 + 63de84c BIC sweep cross-5 altcoins ESCENARIO A. Bot v2.4.5 operacional VPS Tokio invariante uptime 4d+. Fidelidad 2 invariante (todas modificaciones offline tools o backwards-compat). Próximo natural: esperar disparadores temporales D+E madurando o continuación sesión institucional según oportunidad.
 
@@ -2739,6 +2739,57 @@ Referencias:
 ---
 
 ### 13.4 RESUELTO
+
+**[CARACTERIZACIÓN] [DESCRIPTIVA NO CONCLUYENTE] Alpha residual edge erosion emergente N=60 — pre-D 2026-04-26 sesión 2**
+
+Caracterización descriptiva sobre N=60 ventana post-v2.4.5 (2026-04-22 12:00 → 2026-04-26 09:00 UTC, ~3.9 días) del hallazgo audit C1 sesión 1 `aa8bb2d` (alpha residual EMPEORA N=60 vs N=26 +45% degradación, 4 clusters CANDIDATO EXCLUSION). **Aplicación §12 L34 profiláctica**: N=60 borderline, NO escalar hipótesis emergentes a §13.3 hasta N≥100. **Aplicación §12 L36** (6ª aplicación sesión 2 día): predicción ultrathink pre-análisis registrada explícitamente (4 hipótesis a/b/c/d) — **predicción Claude refutada en magnitud** (caso §12 L36 "refutada → redirige"). Datos: `attribution_per_trade_20260426_1324.csv` (N=60, α total -5.7636 USDT match audit C1 -5.76).
+
+**Hallazgos descriptivos (NO concluyentes)**:
+- **Veredicto best-fit: hipótesis (d) MIX** = (a) edge real estructural marginal cross-universe + (b) degradación temporal sostenida monotónica + (c) concentración modesta NO dominante.
+- **Concentración 4 CANDIDATO EXCLUSION: 44.7%** del α negativo (predicción Claude 60-80% **REFUTADA**; predicción usuario "dominante" **REFUTADA cuantitativamente**). N=25/60 trades, α/trade CANDIDATO −0.103 vs resto −0.091 (diferencia solo 0.012 USDT/trade).
+- **Gini per-trade 0.3642** (predicción Claude 0.55-0.70 REFUTADA; distribución MUCHO más uniforme). Top 20% trades → 41.1% α negativo (no 70%+).
+- **Pattern temporal monotónico creciente**: B1 -0.067/trade → B2 -0.099 → B3 -0.122. Ratio B3/B1 = **1.82×** (predicción >1.5× confirmada). PnL acelera B1 -0.05 → B3 -0.47 USDT (×9.5).
+- **Top contributors NO documentados como CANDIDATO**: TAO_C0 (-0.629 USDT, 3 trades, /trade -0.210) + GRT_C0 (-0.572, 4 trades, /trade -0.143). Si fuera "drift-on-outliers" emergerían como CANDIDATO; su presencia fuera del filter actual sugiere pattern más distribuido.
+- **Strategy**: 60/60 TF (0 trades MR — caracterización limitada al edge TF).
+- **Side asymmetric magnitude paradox**: SHORT WR 38% > LONG WR 26% (+12pp) PERO α/trade SHORT -0.132 vs LONG -0.068 (1.94× peor). Cross-session validation matches audit C1 sesión 1 H1 ratio 1.48-1.94 (aquí 1.94 upper bound).
+- **Hold duration anti-intuición**: trades >24h α POSITIVO +0.031 (3 trades); trades 1-12h dominan α negativo (-0.111/trade ambos buckets). Sugiere cancelaciones tempranas capturan ruido sin alpha real.
+- **Spearman ρ(trade_idx, α_per_trade) = -0.176** (débil, direccionalmente correcto pero N=60 insuficiente para significancia individual).
+
+**Framework pre-listo para análisis Welch correcto N≥100** (disparador v2.6-inv ~2026-05-01):
+1. Welch t-test α/trade B1+B2 vs B3+B4 (con N≥100 → 5 sub-ventanas N=20 → p<0.05 + Cohen d>0.5 esperado si sostenido).
+2. Welch α/trade CANDIDATO clusters vs resto (validar magnitud concentración cross-segmento).
+3. Spearman ρ(trade_idx, α_per_trade) con N≥100 (ahora 0.176, threshold sig ~0.20).
+4. Bootstrap CI95 α/trade ventana móvil 25 trades (detectar degradación brusca vs sostenida).
+5. Welch α/trade LONG vs SHORT (continuity audit C1 H1 ratio 1.48-1.94).
+6. Cross-correlation α/trade vs ATR/régimen GMM markers (régimen volatility BTC macro).
+
+**Disparadores escalación §13.3 estrictos** (consistente §12 L34): solo crear items §13.3 nuevos si **N≥100 valida con Welch p<0.05 + Cohen d>0.5 + magnitud sostenida cross-segmento + bootstrap CI no-cero**. Si N≥100 NO produce significancia → archivar como caracterización permanente sin item §13.3.
+
+**Implicaciones operacionales (DESCRIPTIVAS)**:
+- Si patrón (a)+(b) sostenido N≥100 → reciclaje completo necesario, no surgical (consistente calendario julio ~2026-05-12 a 05-22).
+- Si (c) emerge dominante en N≥100 → re-evaluar política adelantar reciclaje §13.3 L1398.
+- Si (b) profundiza acelerada → régimen mercado adverso global; reciclaje misma methodology podría no resolver — re-considerar W3+W4+M2 fix coverage cross-régimen.
+
+**Hallazgos meta**:
+1. §12 L36 6ª aplicación sesión 2 día — predicción REFUTADA en magnitud. Caso clásico "predicción refutada redirige antes invertir compute en hipótesis errónea (surgical exclusion premature)".
+2. §12 L34 profilácticamente aplicada — 0 items §13.3 nuevos creados. Tentaciones (TAO_C0/GRT_C0 emergentes, paradoja LONG/SHORT, hold duration anti-intuición) NO escaladas. Validación N≥100 obligatoria.
+3. Cross-session validation H1 short/long ratio sostenido (audit C1 1.48-1.94 → sesión 2 1.94) pero pattern direccional NO estructural (refutado audit C1 stress-test cross-segmento).
+
+**0 items §13.3 nuevos creados**. Disparadores existentes (v2.6-inv N≥100 ~2026-05-01, v2.6-exit N≥150 ~2026-05-10, política adelantar reciclaje §13.3 L1398) cubren escalación natural.
+
+Bot v2.4.5 invariante. Sin tocar código. Sin tocar `live/*`. Read-only sobre data productiva. Fidelidad 2 invariante por construcción.
+
+Referencias:
+- `docs/alpha_residual_caracterizacion_descriptiva_n60_20260426.md` (caracterización completa con tablas + heatmap + framework).
+- `attribution_per_trade_20260426_1324.csv` (data crudo N=60).
+- §13.4 audit C1 sesión 1 2026-04-26 (commit `aa8bb2d`, base referencial α=-5.76).
+- §12 L26 (validación per-componente analyzer) + L34 (multi-segmento N≥100) + L36 (predicción ultrathink, 6ª aplicación).
+- §13.3 v2.6-inv N≥100 ~2026-05-01 (disparador análisis Welch correcto).
+- §13.3 L1398 política adelantar reciclaje (criterio empírico evaluable post-N≥100).
+
+Cierre caracterización: permanente. Pendiente análisis Welch correcto cuando N≥100 disponible (~2026-05-01).
+
+---
 
 **[OPERACIONAL] [DONE] Cache funding context refresh forward + cierre item §13.3 L2317 §12 L27 — 2026-04-26 sesión 2**
 
