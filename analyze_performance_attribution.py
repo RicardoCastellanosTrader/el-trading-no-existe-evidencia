@@ -998,7 +998,11 @@ def attribute_trade(trade_row, log_events, specialist_cfgs, bingx_cache):
             and not math.isnan(out['exit_price_csv'])
             and not math.isnan(out['pnl_real'])):
         notional_entry = contracts * out['entry_price_csv']
-        est_fees = COMMISSION_RATE * notional_entry * 2.0  # round-trip
+        # Fix v1 2026-04-26 (Fase C item 2 Opción D): COMMISSION_RATE=0.001
+        # ya es round-trip approx (entry+exit) per comment L106. El *2.0
+        # previo duplicaba el round-trip (0.20% vs 0.10% intended). Causa raíz
+        # commit c8cc999. Predicción post-fix gap mean abs 0.0218 -> 0.0137.
+        est_fees = COMMISSION_RATE * notional_entry  # round-trip (entry+exit)
         pnl_recon = ((out['exit_price_csv'] - out['entry_price_csv'])
                      * contracts * ss) - est_fees
         # Tolerancia: 0.01 USDT absoluto o 10% del pnl, lo mayor de los dos

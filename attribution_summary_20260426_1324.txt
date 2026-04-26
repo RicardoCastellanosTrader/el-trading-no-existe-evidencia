@@ -1,0 +1,215 @@
+================================================================================
+ATRIBUCION DE PERFORMANCE -- REPORTE
+================================================================================
+Generado:             2026-04-26 13:24:44 UTC
+Ventana:              2026-04-22 09:46 UTC -> 2026-04-26 11:00 UTC
+Trades totales:       60
+Trades analizables:   55+5 (full+partial)
+Trades no_analizables:0
+
+CONVENCION DE SIGNOS:
+  slippage / factor_portfolio / funding / alpha_residual:
+      + = favorable, - = coste
+  pnl_real y alpha_esperado_*: valores absolutos en USDT
+
+FORMULAS CLAVE:
+  expectancy_pool = (pnl_tr + pnl_fwd) / (trades_tr + trades_fwd)  [%/trade]
+  expectancy_oos  = pnl_fwd / trades_fwd                            [%/trade]
+  alpha_nominal   = (expectancy_pool/100) * 0.05 * balance_at_entry
+  alpha_sized     = alpha_nominal + factor_portfolio                 [= exp * size_real]
+
+================================================================================
+(a) AGREGADO GLOBAL
+================================================================================
+PnL total realizado:                         -0.74 USDT
+Alpha esperado nominal (suma):               +7.21 USDT (+979.8% de |PnL|)
+Alpha esperado sized (suma):                 +5.60 USDT
+
+Descomposicion (todos en USDT y % de |PnL total|):
+  Slippage entry:                            -0.33 (-45.3%)
+  Slippage exit:                             -0.27 (-36.8%)
+  Slippage TOTAL:                            -0.60 (-80.9%)
+  Factor portfolio -- 4 capas:
+    coste_vol_targeting:                     -0.23
+    coste_blending:                          -0.73
+    coste_block_reduct (incl. global cap):   -0.65
+    coste_dd_breaker:                        +0.00
+    Factor portfolio TOTAL:                  -1.61 (-219.1%)
+  Funding:                                   +0.03 (+3.4%)
+  Alpha residual:                            -5.76 (-783.3%)
+
+Ratio alpha_residual / alpha_nominal: -0.799  (~0 si modelo calibrado)
+
+Consistencia de precios (C2): 34/60 trades con gap > tolerancia (56.7%)
+Datos de modelo incompletos: 5 trades (excluidos del check)
+
+================================================================================
+(b) POR SIMBOLO  (ordenado por alpha_residual descendente)
+================================================================================
+symbol          N        pnl  alpha_nom  alpha_res    res/nom flag           
+MANA/USDT       3      +0.14      +0.11      +0.14      +125%                
+APT/USDT        3      +0.09      +0.07      +0.05       +76%                
+BTC/USDT        1      +0.02      +0.00      +0.01        +0%                
+SAND/USDT       4      +0.43      +0.59      -0.01        -1%                
+DOT/USDT        1      -0.05      +0.09      -0.09      -102% WARN_neg_res   
+ALGO/USDT       1      -0.09      +0.07      -0.13      -195% WARN_neg_res   
+SHIB/USDT       2      -0.04      +0.18      -0.13       -73% WARN_neg_res   
+XLM/USDT        2      +0.15      +0.38      -0.13       -35% WARN_neg_res   
+ENA/USDT        5      +0.19      +0.71      -0.15       -21% WARN_neg_res   
+INJ/USDT        1      -0.10      +0.07      -0.17      -259% WARN_neg_res   
+POL/USDT        1      -0.04      +0.16      -0.23      -145% WARN_neg_res   
+UNI/USDT        1      +0.02      +0.28      -0.28       -98% WARN_neg_res   
+IMX/USDT        1      -0.19      +0.18      -0.31      -175% WARN_neg_res   
+SEI/USDT        5      -0.25      +0.45      -0.38       -85% WARN_neg_res   
+BNB/USDT        5      -0.05      +0.36      -0.46      -128% WARN_neg_res   
+DOGE/USDT       2      -0.17      +0.42      -0.56      -131% WARN_neg_res   
+ONDO/USDT       8      -0.14      +0.63      -0.57       -91% WARN_neg_res   
+GRT/USDT        4      -0.19      +0.56      -0.57      -102% WARN_neg_res   
+TAO/USDT        3      -0.09      +0.72      -0.63       -87% WARN_neg_res   
+RENDER/USDT     7      -0.37      +1.19      -1.17       -98% WARN_neg_res   
+
+================================================================================
+(c) POR SIMBOLO x CLUSTER
+================================================================================
+symbol        cl    N        pnl  alpha_nom  alpha_res    res/nom   exp_pool    exp_oos  ratio_oos flag                     
+ALGO/USDT      2    1      -0.09      +0.07      -0.13      -195%     +0.448     +0.626       1.40                          
+APT/USDT       2    3      +0.09      +0.07      +0.05       +76%     +0.238     +0.409       1.72                          
+BNB/USDT       0    5      -0.05      +0.36      -0.46      -128%     +0.484     +0.071       0.15 candidato_exclusion, edge_erosion
+BTC/USDT       1    1      +0.02      +0.00      +0.01        +0%        N/A        N/A        N/A                          
+DOGE/USDT      0    1      -0.03      +0.21      -0.14       -68%     +1.431     +1.496       1.05                          
+DOGE/USDT      1    1      -0.14      +0.21      -0.41      -195%     +1.432     +1.543       1.08                          
+DOT/USDT       0    1      -0.05      +0.09      -0.09      -102%     +0.578     +0.643       1.11                          
+ENA/USDT       0    4      -0.16      +0.50      -0.39       -79%     +0.839     +0.721       0.86                          
+ENA/USDT       1    1      +0.35      +0.22      +0.24      +111%     +1.456     +2.049       1.41                          
+GRT/USDT       0    4      -0.19      +0.56      -0.57      -102%     +0.951     +1.050       1.10                          
+IMX/USDT       2    1      -0.19      +0.18      -0.31      -175%     +1.217     +1.554       1.28                          
+INJ/USDT       0    1      -0.10      +0.07      -0.17      -259%     +0.449     +0.490       1.09                          
+MANA/USDT      1    3      +0.14      +0.11      +0.14      +125%     +0.248     +0.279       1.12                          
+ONDO/USDT      2    8      -0.14      +0.63      -0.57       -91%     +0.608     +0.764       1.26 candidato_exclusion      
+POL/USDT       1    1      -0.04      +0.16      -0.23      -145%     +1.060     +1.554       1.47                          
+RENDER/USDT    1    7      -0.37      +1.19      -1.17       -98%     +1.342     +3.146       2.34 candidato_exclusion      
+SAND/USDT      0    1      +0.41      +0.30      +0.20       +67%     +2.037     +1.823       0.89                          
+SAND/USDT      1    3      +0.02      +0.28      -0.21       -74%     +0.639     +0.682       1.07                          
+SEI/USDT       0    5      -0.25      +0.45      -0.38       -85%     +0.601     +0.612       1.02 candidato_exclusion      
+SHIB/USDT      1    2      -0.04      +0.18      -0.13       -73%     +0.616     +0.664       1.08                          
+TAO/USDT       0    3      -0.09      +0.72      -0.63       -87%     +1.626     +2.214       1.36                          
+UNI/USDT       1    1      +0.02      +0.28      -0.28       -98%     +1.905     +2.123       1.11                          
+XLM/USDT       0    2      +0.15      +0.38      -0.13       -35%     +1.299     +1.644       1.27                          
+
+================================================================================
+(d) COSTES DE EJECUCION -- Slippage por simbolo
+================================================================================
+symbol          N   slip_entry_bp    slip_exit_bp        total_bp flag           
+SEI/USDT        5          -33.53           +0.00          -33.53 alerta_slippage
+MANA/USDT       3          -15.10          -15.98          -31.08 alerta_slippage
+ENA/USDT        5           -3.82          -20.22          -24.04 alerta_slippage
+RENDER/USDT     7           -9.77          -12.91          -22.67 alerta_slippage
+DOT/USDT        1           -8.22           -8.22          -16.45 alerta_slippage
+UNI/USDT        1           -6.14           -6.14          -12.28                
+GRT/USDT        4           -5.80           -3.57           -9.37                
+INJ/USDT        1           +9.14           +0.00           +9.14                
+ONDO/USDT       8           -4.39           -4.72           -9.12                
+SHIB/USDT       2          -10.88           +4.86           -6.02                
+TAO/USDT        3           +0.53           -6.01           -5.49                
+BNB/USDT        5           -3.43           -2.05           -5.48                
+POL/USDT        1           -1.09           -2.18           -3.27                
+DOGE/USDT       2           -1.07           -2.07           -3.13                
+BTC/USDT        1           +0.27           +1.26           +1.53                
+APT/USDT        3           -0.79           +2.15           +1.36                
+XLM/USDT        2           +2.52           -1.44           +1.08                
+SAND/USDT       4           -7.74           +6.88           -0.87                
+IMX/USDT        1          +11.51          -11.51           +0.00                
+ALGO/USDT       1           +0.00           +0.00           +0.00                
+
+================================================================================
+(e) COSTES DE PORTFOLIO -- Desglose 4 capas
+================================================================================
+  coste_vol_targeting:   -0.23 USDT
+  coste_blending:        -0.73 USDT
+  coste_block_reduct:    -0.65 USDT
+  coste_dd_breaker:      +0.00 USDT
+  Capa mas costosa: blending (-0.73 USDT)
+  coste_blending / alpha_nominal = +10.1% (umbral alerta: 20.0%)
+
+================================================================================
+(f) SATURACION DE PORTFOLIO
+================================================================================
+Umbral N_threshold (aperturas simultaneas):        8
+Ciclos con saturacion (N >= umbral):               3
+Descartes below_min_order totales en ventana:      0
+
+(f1) Alpha perdido especifico por below_min_order:
+  Total USDT:                                      +0.00
+  Como % de |PnL realizado|:                       0.0%
+  Descartes no clasificables por cluster:          0
+
+(f2) Desglose por categoria de causa raiz:
+  saturacion_N_signals           N=   0  alpha_perdido=+0.00 USDT
+  dd_breaker_active              N=   0  alpha_perdido=+0.00 USDT
+  balance_bajo_absoluto          N=   0  alpha_perdido=+0.00 USDT
+
+Proxy de multiplicadores en ciclos saturados:
+  Con multipliers empiricos:                       0
+  Con proxy de 5 ciclos previos:                   0
+  Excluidos por falta de proxy:                    0
+
+Balance requerido para evitar saturacion (por ciclo):
+  p50: N/A USDT
+  p95: N/A USDT
+  max: N/A USDT
+
+================================================================================
+(g) COSTES DE FUNDING
+================================================================================
+Funding total (signed):   +0.03 USDT
+Funding / PnL neto:       -3.4%
+
+symbol          funding        pnl   %_of_pnl flag           
+BTC/USDT          +0.01      +0.02     +36.5% alerta_funding 
+ONDO/USDT         +0.00      -0.14      -2.7%                
+GRT/USDT          +0.00      -0.19      -1.8%                
+ENA/USDT          +0.00      +0.19      +1.4%                
+XLM/USDT          +0.00      +0.15      +1.6%                
+SEI/USDT          -0.00      -0.25      +0.7%                
+DOGE/USDT         +0.00      -0.17      -1.1%                
+BNB/USDT          +0.00      -0.05      -3.4%                
+TAO/USDT          +0.00      -0.09      -1.3%                
+INJ/USDT          +0.00      -0.10      -1.0%                
+UNI/USDT          +0.00      +0.02      +4.4%                
+APT/USDT          -0.00      +0.09      -1.0%                
+SAND/USDT         +0.00      +0.43      +0.2%                
+ALGO/USDT         +0.00      -0.09      -0.8%                
+POL/USDT          +0.00      -0.04      -1.6%                
+IMX/USDT          +0.00      -0.19      -0.2%                
+RENDER/USDT       -0.00      -0.37      +0.0%                
+MANA/USDT         +0.00      +0.14      +0.1%                
+SHIB/USDT         +0.00      -0.04      -0.3%                
+DOT/USDT          +0.00      -0.05      -0.2%                
+
+================================================================================
+(h) FRECUENCIA DE [BRAIN_RECONCILE]
+================================================================================
+fecha         count
+2026-04-16       56
+2026-04-17       75
+2026-04-18       41
+2026-04-19       40
+2026-04-20       24
+2026-04-21       17
+Tendencia (segunda mitad vs primera): -52.9% (DECRECIENTE)
+Interpretacion: alto y estable es esperable con balance bajo; si aumenta post-capitalizacion, investigar.
+
+================================================================================
+(i) TRADES RECONSTRUIDOS + ORPHAN_CLOSE
+================================================================================
+Trades con flag=reconstructed_post_hoc: 0
+Eventos [ORPHAN_CLOSE] en log: 3
+
+================================================================================
+NEXT STEPS -- CHECKS AUTOMATICOS
+================================================================================
+  [ALERT] CANDIDATO EXCLUSION RECICLAJE: BNB/USDT C0, ONDO/USDT C2, RENDER/USDT C1, SEI/USDT C0
+  [WARN] EDGE EROSIONANDOSE. Alpha residual cae > 10% en los ultimos 20 trades vs los 20 previos. Considerar reciclaje anticipado.
+  [WARN] EDGE EROSION en clusters: BNB/USDT C0
+
+================================================================================

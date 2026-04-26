@@ -2568,6 +2568,70 @@ Cierre: Análisis B ejecutado con N_trades ≥15 per config + veredicto cross-cl
 
 ### 13.4 RESUELTO
 
+**[VALIDACIÓN] [RESUELTO Fase C item 2-fix] Fix v1 pnl_recon double-counting APLICADO + VALIDADO empíricamente — 2026-04-26**
+
+Contexto: causa raíz identificada commit c8cc999 (Fase C item 2 Opción D). Bug `analyze_performance_attribution.py` L1001: `est_fees = COMMISSION_RATE * notional_entry * 2.0` con `COMMISSION_RATE=0.001` y comment L106 "round-trip approx (entry+exit)" — el `*2.0` duplicaba el round-trip ya implícito.
+
+**Fix aplicado (1 línea)**:
+
+```python
+# BEFORE:
+est_fees = COMMISSION_RATE * notional_entry * 2.0  # round-trip
+
+# AFTER:
+# Fix v1 2026-04-26 (Fase C item 2 Opción D): COMMISSION_RATE=0.001
+# ya es round-trip approx (entry+exit) per comment L106. El *2.0
+# previo duplicaba el round-trip (0.20% vs 0.10% intended). Causa raíz
+# commit c8cc999. Predicción post-fix gap mean abs 0.0218 -> 0.0137.
+est_fees = COMMISSION_RATE * notional_entry  # round-trip (entry+exit)
+```
+
+**Validación empírica post-fix** (re-ejecución analyzer sobre misma ventana N=60 post-v2.4.5):
+
+| Métrica | Pre-fix | Predicción | Post-fix | Δ vs predicción |
+|---------|--------:|-----------:|---------:|----------------:|
+| gap mean abs (USDT) | 0.0218 | 0.0137 | **0.0137** | EXACTO |
+| gap median (USDT) | 0.0201 | 0.0127 | **0.0127** | EXACTO |
+| % trades > tolerance | 90.0% | 57.0% | **56.7%** | -0.3pp ✓ |
+| Reducción mean abs | — | -37% | **-37.0%** | EXACTO |
+| Reducción median | — | -37% | **-36.7%** | -0.3pp ✓ |
+| Reducción % > tol | — | -33pp | **-33.3pp** | +0.3pp ✓ |
+
+**Veredicto: FIX V1 VALIDADO EMPÍRICAMENTE**. Las 3 métricas coinciden con predicción dentro tolerance ±0.0002 USDT (mean/median) y ±5pp (% > tol). Reducciones porcentuales coinciden con predicción dentro 0.3pp.
+
+**Hallazgo colateral preservado**: gap residual signed post-fix sigue NEGATIVO (-0.013 USDT mean) — bot reporta PnL real **mayor** que reconstrucción. Compatible con BingX fees reales <0.10% round-trip (BNB discount account del bot probable). Esto valida hipótesis H_real_fees_below_taker como causa secundaria, sigue pendiente Fase 2 investigación opcional ~30-45 min.
+
+**Spec Fase D criterio (gap típico <5%, p95 <10%)**: NO alcanzado solo con fix v1 (57% > tolerance vs target 5%). Causas secundarias remanentes:
+- H_real_fees_below_taker (BNB discount): magnitud 0.005-0.013 USDT/trade.
+- H_decimal precision rounding (CSV 4-6 decimales): magnitud 0.001-0.005 USDT/trade.
+
+**Plan remanente**:
+- Fase 2 secundaria opcional (~30-45 min): verificar BingX fees reales account bot + posible tolerance ajuste 0.01 → 0.015 USDT.
+- Item §13.3 sigue **PARCIALMENTE ABIERTO** — fix v1 cubre la causa primaria identificada y validada; Fase 2 atacaría el residual.
+
+**Status item §13.3 "Aplicar fix v1 pnl_recon + investigación Fase 2 secundaria"**:
+- Fix v1: **APLICADO + VALIDADO 2026-04-26**.
+- Fase 2 secundaria: **EN_ESPERA** (disparable cuando haya decisión sobre tolerance ajuste).
+
+**Sin tocar bot productivo**. Cambio en `analyze_performance_attribution.py` (tool offline observabilidad). Fidelidad 2 invariante por construcción.
+
+Outputs preservados:
+- `attribution_per_trade_20260426_1113.csv` (pre-fix N=60).
+- `attribution_per_trade_20260426_1324.csv` (post-fix N=60).
+- `attribution_summary_20260426_1324_utf8.txt` (reporte post-fix).
+
+Cierre Fase C item 2 fix: permanente. Próximo Fase C: L1892 active_config_id en SIGNALS_RAW + L1904 multipliers SIGNALS_DISCARDED.
+
+Referencias:
+- Commit c8cc999 (causa raíz investigación 2026-04-26).
+- `docs/pnl_recon_root_cause_20260426.md` (análisis completo pre-fix).
+- `analyze_performance_attribution.py` L1001 (fix), L106 (COMMISSION_RATE constante).
+- §13.3 item "Aplicar fix v1 pnl_recon" → status FIX_V1_APLICADO.
+- §12 L26 (validación per-componente — H_funding correctamente refutada).
+- §12 L34 (refutaciones recursivas — protocolo culminó en fix de 1 línea).
+
+---
+
 **[INVESTIGACIÓN] [RESUELTO Fase C item 2 — Opción D pnl_recon causa raíz] Double-counting fees identificado — 2026-04-26**
 
 Contexto: Item §13.3 "Investigación causa raíz pnl_recon gap analyzer" (commit ab4f6f6 2026-04-23, scope ~1-2h dedicada Opción D). Síntoma persistente: pnl_recon_gap > tolerance 92% N=26 (A.1 sesión 2026-04-23) → 93% N=60 (audit C1 2026-04-26).
