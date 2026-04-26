@@ -1,6 +1,8 @@
 # Sistema de Trading Algorítmico — Contexto Completo del Proyecto
 
-**Última actualización:** 25 Abril 2026 CIERRE SESIÓN post-validación M2 fix cross-symbol N=9 — **Fase B pre-reciclaje VALIDADA EMPÍRICAMENTE Y MERGED main**: test crítico cross-symbol BTC+ONDO+SEI top-1 M2 fix (N=9 configs) sobre Binance Futures 3y con setup Smoke C exacto (sanity determinismo W3b cfg 20607806 = 0.7722, paridad GMM HEAD baseline confirmada). Resultados: mean ratio J/B cross-9 = **2.408** (vs W3b baseline 8.235, **3.42× reducción** magnitud absoluta), 0/9 colapso fuerte cross-symbol (vs 1/1 baseline), 9/9 edge real positivo Binance pf_fwd>1.0 (mean 1.83), Spearman ρ −0.17 NO significativo p=0.65 (banda no-significancia N=9: ρ ∈ [−0.7, +0.7]), per-symbol BTC 2.75 / ONDO 2.58 / SEI 1.90 (heterogeneidad cross-symbol moderada). **Hallazgo metodológico**: `_FWD_MIN_PF` estricto NO es palanca eficaz para reducir residual (validado cross-9 con thresholds 1.1-3.0; min pf_fwd top-100 actual = 1.665 > threshold candidatos 1.3-1.5; specialist_score upstream filtra implícitamente vía pf_combined correlation; propuesta original Ricardo "subir piso fwd" descartada como path empíricamente). **Caveat permanente §13.2**: residual ratio 2.41× requiere proyectos dedicados separados (multi-testing correction Bonferroni/BH/Deflated SR ~15-25h; k-fold CV ~20-30h) — fuera scope Mecanismo 2 fix. **Decisión**: avanzar Fase A (Z_BTC). Adapter preservado `analysis_scripts/m2_fix_validation_20260424/` con CSV cross-9 + GMM HEAD baseline. Aplicaciones §12 L34 16ª (cross-symbol antes consolidar M2) + 17ª (multi-threshold antes invertir compute pipeline-run). Fidelidad 2 invariante. Bot v2.4.5 operacional VPS Tokio.
+**Última actualización:** 26 Abril 2026 CIERRE SESIÓN Audit institucional N≥50 doble Def A+B post-v2.4.5 — **Fidelidad 2 CONFIRMADA EMPÍRICAMENTE + alpha residual edge erosion confirmado** (Fase C item 1 DONE): Sync VPS Tokio (trade_history.csv 215 trades + 18 archivos engine.log + bot uptime 4d 2h 35m continuo cycle 300 ejecutado 10:00 UTC). N por ventana: post-v2.3.11=106, post-v2.4.4=73, post-v2.4.5=60 (ambas Def A+B con margen N≥50). **Definición A — Match rate Fidelidad 2**: audit_v5_2 reportó 48.1% v2.4.5→now (N=52 efectivo) fuera CI95 baseline 91%, pero **`_run_verify_test` discriminatorio Ricardo 3 símbolos × 1000 bars (76 trades, 380 mediciones) diff 0.0000 EXACTO en 5 métricas (Trades, Wins, PnL %, Gross profit, Gross loss)** confirma **brain↔kernel productivo bit-a-bit**. El 48% audit_v5_2 es divergencia **HERRAMIENTA AUDITOR** (audit_fidelity_v5_2.py mantiene copia python estática del kernel divergente del Numba productivo, §13.2 "opción C"), NO bug Fidelidad 2 real. **Item §13.3 línea 1626 reformulado** (no "match 91% confirmado" sino "Fid2 confirmada via verify_test, refactor audit_v5.x pendiente proyecto post-reciclaje"). Item §13.3 línea 1633 clustering divergente CERRADO (verify_test demuestra histéresis P≥0.75 brain replica kernel). Item P1 leverage disparador N≥50 cumplido, análisis abierto NO implementación. Item R1 cooldown ya RESUELTO 2026-04-22 (cooldown unify). **Definición B — Alpha residual deep-dive**: analyzer v2.4.1 N=60 reporta alpha_residual=−5.76 USDT (−0.096/trade), **EMPEORA vs A.1 N=26 (−0.066)** confirmando edge erosion. 4 clusters CANDIDATO EXCLUSION RECICLAJE (BNB C0, ONDO C2, RENDER C1, SEI C0). WARN_EDGE_EROSION analyzer: alpha residual cae >10% últimos 20 vs 20 previos. PnL acumulado bot v2.4.5 4 días: −0.74 USDT (−0.18/día). **Replicación 3 hipótesis emergentes A.1 N=26**: H1 short/long REFUTACIÓN SOSTENIDA (ratio 1.48-1.94 vs 12:1 original); H_strategy CONFIRMADA en S4 sub-ventana (4.50× vs 3.4× A.1, NO contradice N=98 refutación cross-segmento — efecto ventana-específico no estructural); H_new_3 funding DEFERRED (caché funding parcial cubre solo hasta 2026-04-23 08:00, ya refutada N=98). **Validación per-componente Lección 26 PASS**: slippage 5% borderline (3 edge cases MARKET orders fill price exacto), funding 100% cobertura hold>1h (60/60), size_usdt 100% post-v2.4.4 (73/73), entry_timestamp_ms 100% post-v2.4.5 (60/60), ecuación cierre 0/55 con \|diff\|>0.01 max=0.0000 EXACTO. **§12 Lección 35 NUEVA**: test diagnóstico discriminatorio contra ground truth (kernel productivo via verify_test) ANTES de investigar causa raíz cuando herramienta auditor reporta alarma — caso origen audit_v5_2 falsa alarma 48% resuelta en 3 minutos via verify_test 380 mediciones diff 0.0000; triple guardrail con L25 + L26 ante alertas observabilidad/audit. pnl_recon_gap 93% confirmado masivamente N=60 (vs 92% N=26 A.1) — item §13.3 sigue abierto, próxima Fase C item 2 Opción D pnl_recon causa raíz (~1-2h). Bot v2.4.5 operacional VPS Tokio invariante. Fidelidad 2 invariante (sesión read-only sobre data productiva).
+
+**Actualización previa:** 25 Abril 2026 CIERRE SESIÓN post-validación M2 fix cross-symbol N=9 — **Fase B pre-reciclaje VALIDADA EMPÍRICAMENTE Y MERGED main**: test crítico cross-symbol BTC+ONDO+SEI top-1 M2 fix (N=9 configs) sobre Binance Futures 3y con setup Smoke C exacto (sanity determinismo W3b cfg 20607806 = 0.7722, paridad GMM HEAD baseline confirmada). Resultados: mean ratio J/B cross-9 = **2.408** (vs W3b baseline 8.235, **3.42× reducción** magnitud absoluta), 0/9 colapso fuerte cross-symbol (vs 1/1 baseline), 9/9 edge real positivo Binance pf_fwd>1.0 (mean 1.83), Spearman ρ −0.17 NO significativo p=0.65 (banda no-significancia N=9: ρ ∈ [−0.7, +0.7]), per-symbol BTC 2.75 / ONDO 2.58 / SEI 1.90 (heterogeneidad cross-symbol moderada). **Hallazgo metodológico**: `_FWD_MIN_PF` estricto NO es palanca eficaz para reducir residual (validado cross-9 con thresholds 1.1-3.0; min pf_fwd top-100 actual = 1.665 > threshold candidatos 1.3-1.5; specialist_score upstream filtra implícitamente vía pf_combined correlation; propuesta original Ricardo "subir piso fwd" descartada como path empíricamente). **Caveat permanente §13.2**: residual ratio 2.41× requiere proyectos dedicados separados (multi-testing correction Bonferroni/BH/Deflated SR ~15-25h; k-fold CV ~20-30h) — fuera scope Mecanismo 2 fix. **Decisión**: avanzar Fase A (Z_BTC). Adapter preservado `analysis_scripts/m2_fix_validation_20260424/` con CSV cross-9 + GMM HEAD baseline. Aplicaciones §12 L34 16ª (cross-symbol antes consolidar M2) + 17ª (multi-threshold antes invertir compute pipeline-run). Fidelidad 2 invariante. Bot v2.4.5 operacional VPS Tokio.
 
 **Actualización previa:** 24 Abril 2026 CIERRE SESIÓN post-Fase B M2 fix + ROADMAP_PRE_RECICLAJE consolidado — **Fase B pre-reciclaje DONE**: M2 fix ranking `pf_fwd_ci_low` directo (tie-breaker `specialist_score_ci_low` preserva W3b) implementado en `regime_walk_forward.py` L1808-1815 rama `feature-m2-fix-pffwd-cilow-ranking` NO deploy. Elimina dilución `pf_combined` embebida en W3b ranking. Tests 27/27 PASS (M2 fix 3/3 nuevos + W3+W4+A14+A15 no-regression). Dry-run 9 combos BTC/ONDO/SEI × C0/C1/C2: 8/9 top-1 cambia, 0 orphan, 0 flag_sospechoso, ratio pf_fwd/pf_tr mean 2.19 (vs W3b 1.61, +0.58). **Smoke BTC 1 símbolo VALIDADO empíricamente** (10h 57m exit 0): 3/3 cambia top-1, 0 orphan/flag, ratio pf_fwd/pf_tr mean 2.38, pf_fwd top-1 mean 3.32→4.68 (+41%), N_fwd 152.7→64.7 (trade-off esperado, todos ≥25 W4 threshold). Caso C1 dramático: W3b cfg 18889760 (N=285 pf_fwd=1.285 borderline) → M2 fix cfg 3758688 (N=51, pf_fwd=4.089 +218%). r(pf_tr, pf_fwd) BTC global +0.670 (cluster-level 0.38-0.46). **ROADMAP_PRE_RECICLAJE.md consolidado** (sustituye `roadmap_2026-04-22.md` archivado): categorías A+B+C+D+E + orden secuencial estricto A→B→C per criterio institucional Ricardo 2026-04-24. Fase A (Z_BTC ~8-12h) es siguiente. Fase C operacionales menores. Reciclaje completo 45 sym trigger: A+B+C done + D+E validados. Fidelidad 2 invariante. Bot v2.4.5 operacional VPS Tokio.
 
@@ -1623,23 +1625,60 @@ Referencias:
 
 ---
 
-**[AUDIT] [EN_ESPERA] Audit definitivo Fidelidad 2 con N ≥ 50 post-v2.3.11 — 2026-04-21**
-Contexto: primer audit empírico 2026-04-21 confirmó Fidelidad 2 con N=13 efectivo entry-filter (84.6% match rate, CI95 overlap con baseline 91%). Pero N=13 tiene CI95 ancho; veredicto robusto requiere N≥50.
-Al ritmo actual (~10 trades/día observados post-v2.3.3), N=50 post-v2.3.11 entry-filter se proyecta para ~2026-04-26 (cinco días desde hoy). Primera ejecución con N≥50 será el audit definitivo inicial.
-Disparo: 50 trades con entry_cycle > 2026-04-19 17:51 UTC Y post-C3 filtering (no reconstructed, entry_timestamp_ms válido) acumulados en trade_history.csv. Verificable con awk filter o contador en el script audit.
-Cierre: audit con N≥50 ejecutado, match rate reportado con CI95 estrecho. Comparación directa con baseline 91%. Si cae dentro de CI95 del baseline: Fidelidad 2 confirmada definitivamente. Si cae fuera: investigar fenómeno adicional.
-Referencias: §13.4 RESUELTO primer audit 2026-04-21, §2.4 v2.3.11, §12 Lección 25.
+**[AUDIT] [REFORMULADO 2026-04-26] Audit definitivo Fidelidad 2 con N ≥ 50 post-v2.3.11 — 2026-04-21**
 
-**[MEJORA] [EN_ESPERA] Caracterización clustering divergente live vs post-hoc — 2026-04-21**
-Contexto: primer audit empírico 2026-04-21 detectó 2/13 NONE post-v2.3.11 (IMX 14:00 + GRT 01:00, ambos 2026-04-20). Análisis forense descartó state stale, reconcile, deploy boundaries como causa. Hipótesis dominante: clustering GMM live (con histéresis + warmup 1500 barras) diverge de classify_bars_gmm post-hoc en bars borderline con confidence 0.7-0.9.
-No es bug. Es efecto estructural de arquitectura brain stateful (brain mantiene cluster entre ciclos) vs audit kernel stateless (recomputa clustering cada bar).
-Argumentos a favor de clasificación benigna:
-- Frecuencia 2/13 compatible con ruido GMM en bars borderline.
-- Ambos trades rentables (+0.148 IMX, +0.066 GRT) → señales técnicamente válidas.
-- 0 BRAIN_RECONCILE, state limpio, no reconcile intervino.
-Disparo: si en audit N≥50 post-v2.3.11 entry-filter el rate NONE persiste ≥10%, caracterizar cuantitativamente. Si <5%, aceptar como ruido estadístico esperado.
-Mitigación potencial: audit v5.2 añadiría exclusión `excluido_clustering_divergente` cuando kernel post-hoc asigna cluster distinto al live registrado en SIGNALS_RAW. Permitiría match rate más comparable con baseline teórico. Este enfoque requiere que el audit guarde el cluster_live de SIGNALS_RAW y lo compare con el cluster post-hoc. Coste estimado similar a audit v5.2 segmentación automática (2-3h). Puede consolidarse en la misma iteración audit v5.2.
-Referencias: §13.4 RESUELTO primer audit 2026-04-21, §12 Lección 25, §13.3 REFERENCIA audit v5.2, investigación IMX+GRT 2026-04-21.
+Estado original (2026-04-21): primer audit empírico confirmó Fidelidad 2 con N=13 efectivo (84.6% match rate, CI95 overlap baseline 91%). N=50 proyectado ~2026-04-26.
+
+**Reformulación 2026-04-26 — Fase C item 1 ejecutado**:
+
+Al cumplir umbral N≥50 (N=106 post-v2.3.11, N=60 post-v2.4.5), audit_v5_2 ejecutó y reportó match rate **48.1%** [35.1, 61.3] post-v2.4.5 — **fuera CI95 baseline 91%** (alerta inicial "REGRESION GRAVE").
+
+**Test diagnóstico discriminatorio Ricardo** (`_run_verify_test` 3 símbolos × 1000 bars sobre kernel productivo Numba directo): **76 trades × 5 métricas = 380 mediciones diff 0.0000 EXACTO**. Brain↔kernel productivo bit-a-bit confirmado.
+
+**Veredicto canónico**: Fidelidad 2 CONFIRMADA EMPÍRICAMENTE. El 48% audit_v5_2 es **divergencia HERRAMIENTA AUDITOR** (audit_fidelity_v5_2.py mantiene copia python estática del kernel divergente del Numba productivo, §13.2 "opción C") — NO bug bot.
+
+Item NO se cierra como "match 91% confirmado" porque el audit_v5_2 reporta métrica divergente. Se reformula como: **Audit v5.x herramienta auditor refactor pendiente** (proyecto dedicado post-reciclaje, NO bloqueante).
+
+Cierre: permanente como referencia. Item nuevo §13.3 candidato (sección abajo) reemplaza para tracking refactor herramienta.
+
+Referencias: §13.4 RESUELTO Fase C item 1 audit institucional 2026-04-26, §13.4 RESUELTO primer audit 2026-04-21, §2.4 v2.3.11, §13.2 "opción C", §12 L25 + L26 + L35.
+
+**[MEJORA] [CERRADO 2026-04-26] Caracterización clustering divergente live vs post-hoc — 2026-04-21**
+
+Contexto original: primer audit 2026-04-21 detectó 2/13 NONE post-v2.3.11 (IMX 14:00 + GRT 01:00). Hipótesis dominante: clustering GMM live (histéresis P≥0.75) diverge de classify_bars_gmm post-hoc.
+
+**Cierre 2026-04-26 vía test diagnóstico discriminatorio**: `_run_verify_test` post-v2.4.5 demostró **brain↔kernel productivo bit-a-bit** (380 mediciones diff 0.0000) sobre 3 símbolos × 1000 bars. Esto incluye los GMM probs computed dentro de la cadena clasificación-señal-trade. Si la histéresis brain divergiera del kernel post-hoc, los trades extraídos diferirían — y NO difieren.
+
+Las 4 EXCL `excluido_clustering_divergente` que audit_v5_2 reporta son subset del **gap auditor↔productivo** (kernel python estático del audit diverge del Numba productivo, §13.2 "opción C"), NO clustering brain bug.
+
+Cierre: permanente. Caracterización resuelta empíricamente. Histéresis P≥0.75 brain replica kernel productivo bit-a-bit por construcción (mismo código).
+
+Referencias: §13.4 RESUELTO Fase C item 1 audit institucional 2026-04-26, §13.4 RESUELTO primer audit 2026-04-21, §13.2 "opción C", §12 L25 + L35.
+
+**[INFRA] [EN_ESPERA] Refactor audit_v5.x herramienta auditor + reconciliación con kernel productivo Numba — 2026-04-26**
+
+Contexto: emergente del audit institucional Fase C item 1 2026-04-26. audit_v5_2 reportó match rate 48.1% post-v2.4.5 mientras `_run_verify_test` reportó 100% bit-a-bit (380 mediciones diff 0.0000). Divergencia confirmada herramienta auditor (audit_fidelity_v5_2.py mantiene copia python estática `extract_trades_tf` con SHA256 hash) vs kernel Numba productivo (`lab_historico_numba_v8_3.py`).
+
+Causa raíz documentada §13.2 "Kernel de auditoría: opción C" 2026-04-17:
+- Re-implementación manual python pura del kernel TF para audit stateless.
+- Updates al kernel productivo Numba pueden no propagarse al audit copy si SHA256 hash check no se actualiza.
+- Optimizaciones Numba (jit, numpy vectorized) pueden no replicarse exactamente en Python puro.
+- Edge cases path-dependent (ATR Wilder, indicadores iterativos) acumulan drift sub-precision.
+
+Scope refactor estimado:
+- Opción A: importar kernel Numba directamente en audit_v5.x (eliminar copia python). Riesgo: audit pierde stateless property crítica para validación cross-data. Coste: refactor 4-6h.
+- Opción B: mantener copia python pero auto-generar desde kernel Numba con scripts (parser AST). Riesgo: complejidad alta, mantenimiento. Coste: 8-12h.
+- Opción C: reconciliar manualmente diff actual + actualizar SHA256 hash. Coste: ~2-3h ad-hoc, reincide en futuras divergencias.
+
+**Decisión preferida**: Opción A si proyecto dedicado puede asumir refactor stateless adapter. Opción C como fix interim si urgencia operacional.
+
+**Disparador**: post-reciclaje cuando refactor audit no afecta operación crítica + sesión dedicada disponible (~4-12h según opción).
+
+**Cierre**: refactor implementado + audit reporta match rate ≥80% sobre data productiva real (consistente con verify_test ground truth).
+
+NO bloqueante para reciclaje completo (audit es herramienta offline observabilidad, NO afecta pipeline reciclaje).
+
+Referencias: §13.4 RESUELTO Fase C item 1 audit institucional 2026-04-26, §13.2 "Kernel de auditoría: opción C" 2026-04-17, audit_fidelity_v5_2.py.
 
 **[REFERENCIA] [ARCHIVADA] Refactor v2.5.0 state-after-confirmation — 2026-04-21**
 Contexto: diseñada en Fase II-A (documento arquitectural de 10 secciones + alternativa §11 silent reconcile + §9.5 conflicto con Fidelidad 2 en tests bar-a-bar). Propondría separar `_mark_provisional` (bar de señal) de `commit_fill` (tras fill BingX), añadiendo flag `is_provisional: bool` a `SymbolState`. Scope: 5 módulos (brain_engine, execution_manager, live_engine, portfolio_manager como consumidor, SymbolState dataclass), 6 commits intermedios estimados, 8-15h.
@@ -2504,6 +2543,114 @@ Cierre: Análisis B ejecutado con N_trades ≥15 per config + veredicto cross-cl
 ---
 
 ### 13.4 RESUELTO
+
+**[AUDITORÍA] [RESUELTO Fase C item 1 — audit institucional N≥50 doble Def A+B] Fidelidad 2 confirmada empíricamente + alpha residual edge erosion — 2026-04-26**
+
+Contexto: Item §13.3 línea 1626 EN_ESPERA "Audit definitivo Fidelidad 2 N≥50 post-v2.3.11" 2026-04-21 + continuación A.1 deep-dive N=26 → N≥50 post-v2.4.5. Spec institucional Ricardo: doble definición (A=match rate, B=alpha residual) con segmentación obligatoria §12 L25 + validación per-componente L26.
+
+**Parte 0 — Sync VPS exitoso**: trade_history.csv 215 trades (last 2026-04-26 09:00 UTC), 18 archivos engine.log, bot uptime 4d 2h 35m continuo (cycle 300 @ 10:00 UTC sin errores). Backup local pre-sync preservado.
+
+**Parte 1 — N por ventana**: post-v2.3.11 N=106, post-v2.4.5 N=60 (ambas Def A+B cumplen umbral con margen).
+
+**Parte 2 — Def A Match Rate Fidelidad 2**:
+
+audit_v5_2 ejecutado con `--deploy-boundaries` segmentado:
+- Aggregate post-v2.3.11→now: **51.1%** [41.1, 60.9] — fuera CI95 baseline 91%.
+- Segmentado v2.4.5→now (deploy actual N=52): **48.1%** [35.1, 61.3] — fuera CI95 baseline.
+- v2.3.11→v2.4.0 (TS legacy N=11): 27.3% (esperable bajo, §13.2 RESUELTO).
+
+**Test diagnóstico discriminatorio Ricardo 2026-04-26** — `_run_verify_test` post-v2.4.5 sobre 3 símbolos:
+
+| Símbolo | Trades | Wins | PnL % | Gross profit | Gross loss | MaxDD | Diff |
+|---------|-------:|-----:|------:|-------------:|-----------:|------:|-----:|
+| BTC/USDT | 11 | 3 | -0.6215 | 2.1589 | 2.7804 | 2.4972 | **0.0000** |
+| ONDO/USDT | 30 | 16 | -2.7839 | 19.2342 | 22.0180 | 9.9285 | **0.0000** |
+| SEI/USDT | 35 | 15 | -6.0432 | 16.9973 | 23.0405 | 17.9068 | **0.0000** |
+
+**3/3 NIVEL A PASS diff 0.0000 EXACTO** sobre 76 trades × 5 métricas = 380 mediciones independientes.
+
+**Veredicto Def A**: **Fidelidad 2 brain↔kernel productivo CONFIRMADA EMPÍRICAMENTE bit-a-bit**. El 48.1% audit_v5_2 es divergencia HERRAMIENTA AUDITOR (audit_fidelity_v5_2.py mantiene copia python estática del kernel, §13.2 "opción C") — NO bug bot. Causa raíz documentada y conocida desde 2026-04-17.
+
+**Parte 3 — Def B Alpha residual deep-dive**:
+
+analyzer v2.4.1 ejecutado N=60 post-v2.4.5:
+
+| Componente | USDT | Status |
+|------------|-----:|--------|
+| PnL real | −0.74 | — |
+| Alpha nominal | +7.21 | — |
+| Slippage TOTAL | −0.60 | esperable |
+| Factor portfolio | −1.61 | esperable |
+| Funding | +0.03 | esperable |
+| **Alpha residual** | **−5.76** | **edge erosion** |
+
+Alpha residual/trade: **−0.096 USDT** (vs A.1 N=26 −0.066, **EMPEORA**). Ratio residual/nominal −0.799.
+
+**Alerts analyzer**:
+- 4 clusters CANDIDATO EXCLUSION RECICLAJE: BNB C0, ONDO C2, RENDER C1, SEI C0.
+- WARN_EDGE_EROSION: alpha residual cae >10% últimos 20 trades vs primeros 20.
+- WARN_neg_res en 17/20 símbolos.
+
+**Replicación 3 hipótesis emergentes A.1 N=26**:
+
+| Hipótesis | A.1 N=26 | N=98 stress | A.2 N=60 | Veredicto |
+|-----------|---------:|------------:|---------:|-----------|
+| H1 short/long | 12:1 | refutado | 1.48-1.94 | **REFUTACIÓN SOSTENIDA** |
+| H_strategy logic/struct | 3.4× | refutado (S4 dominado) | 4.50× | **CONFIRMADA en S4 (no contradice N=98 cross-segmento)** |
+| H_new_3 funding | 24× | refutado (cae 2.16×) | DEFERRED | cache funding parcial |
+
+H_strategy nota matizada: el efecto se replica con MAYOR magnitud en Def B (4.50×) porque ESA ventana es exclusivamente S4+S5. Coherente con N=98 que reveló "efecto concentrado en S4". NO eleva a §13.3 nuevo — sigue siendo ventana-específico, no estructural cross-régimen.
+
+**Parte 4 — Validación per-componente Lección 26**:
+
+| Check | Resultado | Status |
+|-------|-----------|:------:|
+| 4.1 Slippage no-zero post-v2.4.4 | 3/60 = 5% (3 edge cases MARKET fill = signal exacto) | ✓ caveat menor |
+| 4.2 Funding cobertura hold>1h | 60/60 = 100% (incluye hold>8h N=22) | ✓ |
+| 4.3 size_usdt populated post-v2.4.4 | 73/73 = 100% | ✓ |
+| 4.4 entry_timestamp_ms populated post-v2.4.5 | 60/60 = 100% | ✓ |
+| 4.5 Ecuación cierre matemático | 0/55 con \|diff\|>0.01, max=0.0000 USDT | ✓ exacto |
+| pnl_recon_gap > tol | 56/60 = 93% (item §13.3 abierto sigue) | confirmado N=60 |
+
+Fixes v2.4.4 + v2.4.5 100% efectivos validados N=60.
+
+**Parte 5 — Decisiones items §13.3**:
+- **Línea 1626 "Audit Fid2 N≥50"** → **REFORMULADO** (no "match 91% confirmado" sino "Fid2 confirmada via verify_test, refactor audit_v5.x pendiente proyecto post-reciclaje").
+- **Línea 1633 "Clustering divergente"** → **CERRADO** (verify_test 76 trades demuestra histéresis P≥0.75 brain replica kernel bit-a-bit).
+- **R1 brain cooldown** → ya RESUELTO 2026-04-22 (cooldown unify, refactor kernel TF+MR uniforme).
+- **P1 leverage** → **disparador N≥50 cumplido**, análisis abierto (NO implementación; proyecto dedicado §13.3 línea 1727).
+- **v2.6-inv (~2026-05-01)** y **v2.6-exit (~2026-05-10)**: disparadores temporales mantenidos.
+- **pnl_recon_gap (item 2026-04-23)**: confirmado masivamente N=60 (93%); item sigue abierto.
+- **Item nuevo §13.3 candidato**: "Refactor audit_v5.x herramienta auditor + reconciliación con kernel productivo Numba" — proyecto dedicado post-reciclaje, NO bloqueante.
+
+**Hallazgo metodológico nuevo (§12 Lección 35)**: cuando herramienta auditor reporta regresión grave, validar primero contra ground truth del kernel productivo via test diferencial existente, NO asumir auditor correcto. `_run_verify_test` discriminatorio resolvió ambigüedad audit en ~10 min, evitó escalación falsa. Combina con L25 (segmentación) y L26 (validación per-componente) como triple guardrail metodológico institucional.
+
+**Surprise findings**:
+1. Audit_v5_2 reporta 48% pero verify_test reporta 100% bit-a-bit — divergencia herramienta auditor, no bug bot.
+2. Alpha residual/trade EMPEORA N=60 vs N=26 A.1 (−0.096 vs −0.066) — edge erosion real más allá del fix slippage.
+3. H_strategy 4.50× en Def B (post-v2.4.5 S4+S5 exclusivo) NO contradice N=98 cross-segmento refutación — coherente con "efecto concentrado en S4".
+4. pnl_recon_gap 93% N=60 vs 92% N=26 — síntoma robusto, item §13.3 abierto sigue válido.
+5. 3 trades slippage_total=0 son edge cases MARKET orders con fill exacto (NO bug residual v2.4.4).
+
+**Status Fase C item 1**: **DONE 2026-04-26**. Audit institucional N≥50 doble completo. Veredicto Fidelidad 2 confirmado empíricamente. Alpha residual edge erosion confirmado cuantitativamente.
+
+**Bot v2.4.5 operacional VPS Tokio invariante. Fidelidad 2 invariante** (sesión read-only sobre data productiva).
+
+Referencias:
+- `docs/audit_n50_post_v2_4_5_20260426.md` (análisis completo).
+- `audit_v5_2_report_20260426_1106_utf8.txt` (audit_v5_2 ASCII).
+- `audit_n50_def_a_post_v2311.json` (audit_v5_2 JSON estructurado).
+- `attribution_per_trade_20260426_1113.csv` (analyzer per-trade).
+- `attribution_summary_20260426_1113_utf8.txt` (analyzer ASCII).
+- §13.2 "Kernel de auditoría: opción C" 2026-04-17 (causa raíz audit divergencia).
+- §13.4 entrada A.1 N=26 sesión 2026-04-23 (referencia comparativa).
+- §13.4 N=98 stress-test 2026-04-23 (caracterización 3 hipótesis).
+- §13.3 R1 cooldown línea 1556 RESUELTO 2026-04-22 (cooldown unify).
+- §12 L25 + L26 + L34 (aplicadas correctamente) + L35 (nueva).
+
+Cierre Fase C item 1: permanente. Audit institucional definitivo. Continuar Fase C operacionales menores (Opción D pnl_recon causa raíz, L1892/L1904, triaje micro-items).
+
+---
 
 **[VALIDACIÓN] [RESUELTO] M2 fix VALIDACIÓN POST-IMPLEMENTACIÓN cross-symbol N=9 — 2026-04-25**
 

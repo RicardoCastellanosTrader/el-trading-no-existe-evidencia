@@ -1,0 +1,2225 @@
+==============================================================================
+AUDITORIA DE FIDELIDAD v5 -- KERNEL STATELESS BingX (post-v2.3.2)
+==============================================================================
+Generado: 2026-04-26 11:06:02 UTC
+Ventana analizada: 2026-04-19 17:51 UTC -> 2026-04-26 11:00 UTC
+v2.3.2 deploy detectado: 2026-04-19 17:00 UTC
+
+--- RESUMEN EJECUTIVO ---
+N trades VPS en ventana bruta:           107
+N entry_candle no inferible:             0
+N excluidos (6 categorias):              13
+    excluido_reconstruido                        : 1  (Trade reconstruido post-hoc (orphan_close / flag reconstructed))
+    excluido_mr_kernel_no_implementado           : 4  (Trade mean-reversion (kernel MR no implementado en auditor))
+    excluido_dd_breaker                          : 0  (Ciclo con DD breaker activo (dd_multiplier < 1.0))
+    excluido_reconcile_intervino                 : 4  (Brain reconcile intervino en el ciclo de entrada)
+    excluido_ruido_cross_exchange                : 0  (Ruido cross-exchange BingX/Binance > 0.3%)
+    excluido_clustering_divergente               : 4  (Cluster live (SIGNALS_RAW.k) != cluster post-hoc (GMM stateless))
+N efectivo (denominador):                94
+Matches:                                 48
+  Mismo entry+side+razon (OK):           46
+  Mismo entry+side, razon distinta:      2
+  Regime change match:                   2
+Sin match (VPS sin kernel equivalente):  46
+Extras del kernel (no ejecutados en bot):203
+
+Match rate efectivo: 51.1%   CI95% Wilson = [41.1%, 60.9%]
+
+Comparativa numerica:
+  v3 (Binance):  N= 11  matches=9  rate=82%   CI~[52%, 95%]
+  v4 (BingX):    N= 11  matches=10  rate=91%   CI~[62%, 98%]
+  v5 (BingX+exc):N= 94  matches=48  rate=51.1%   CI [41.1%, 60.9%]
+
+VEREDICTO:
+  🚨 REGRESION GRAVE, POSIBLE BUG ACUMULATIVO
+    - match_rate = 51.1% (48/94)
+    - CI95% Wilson = [41.1%, 60.9%]
+
+==============================================================================
+SECCION 1.5 (v5.2): SEGMENTACION POR DEPLOY BOUNDARIES
+==============================================================================
+segmento                      N_eff    OK  NONE  EXCL    rate                 CI95
+------------------------------------------------------------------------------
+v2.3.11 -> v2.4.0                11     3     8     1   27.3%          [9.7, 56.6]
+v2.4.0 -> v2.4.1                  2     2     0     2  100.0%        [34.2, 100.0]
+v2.4.1 -> v2.4.2_v2.4.3           7     7     0     4  100.0%        [64.6, 100.0]
+v2.4.2_v2.4.3 -> v2.4.3-hot       0     0     0     0     N/A                  N/A
+v2.4.3-hotfix -> v2.4.4           6     3     3     1   50.0%         [18.8, 81.2]
+v2.4.4 -> v2.4.5                 12     6     6     1   50.0%         [25.4, 74.6]
+v2.4.5 -> now                    52    25    25     3   48.1%         [35.1, 61.3]
+
+Weighted avg match rate (ponderado por N_eff): 51.1%
+
+(Sin discontinuidades significativas entre segmentos.)
+
+==============================================================================
+SECCION 2: TABLA TRADE-A-TRADE
+==============================================================================
+ts_entry             symbol       side    entry_vps  entry_ker exit_vps        exit_ker        match    exclusion                                    
+------------------------------------------------------------------------------
+2026-04-19 13:00 UTC ONDO/USDT    long       0.2574          - tf_exit         -               NONE     -                                            
+2026-04-19 18:00 UTC SAND/USDT    short      0.0786          - div_exit        -               NONE     -                                            
+2026-04-19 10:00 UTC TRX/USDT     long       0.3331          - not_operable    -               NONE     -                                            
+2026-04-18 23:00 UTC TAO/USDT     short    245.8200          - zone_exit       -               EXCL     excluido_reconcile_intervino                 
+2026-04-19 20:00 UTC SAND/USDT    long       0.0793     0.0794 tf_exit         tf_exit         OK       -                                            
+2026-04-19 20:00 UTC OP/USDT      long       0.1230          - sl_trigger_reconstructed -               EXCL     excluido_reconstruido                        
+2026-04-18 05:00 UTC SEI/USDT     short      0.0578          - tf_exit         -               NONE     -                                            
+2026-04-20 01:00 UTC ONDO/USDT    long       0.2523          - zone_exit       -               NONE     -                                            
+2026-04-19 18:00 UTC INJ/USDT     short      3.2140          - tf_exit         -               NONE     -                                            
+2026-04-20 06:00 UTC INJ/USDT     short      3.2200     3.2200 div_exit        div_exit        OK       -                                            
+2026-04-20 05:00 UTC ONDO/USDT    short      0.2519          - div_exit        -               NONE     -                                            
+2026-04-18 13:00 UTC RENDER/USDT  short      1.8110          - zone_exit       -               NONE     -                                            
+2026-04-20 16:00 UTC UNI/USDT     short      3.2330          - zone_exit_mr    -               EXCL     excluido_mr_kernel_no_implementado           
+2026-04-20 14:00 UTC IMX/USDT     long       0.1638          - zone_exit       -               NONE     -                                            
+2026-04-20 18:00 UTC UNI/USDT     long       3.2600          - cancel_mr       -               EXCL     excluido_mr_kernel_no_implementado           
+2026-04-20 21:00 UTC SAND/USDT    long       0.0813     0.0813 div_exit        div_exit        OK       -                                            
+2026-04-20 18:00 UTC LINK/USDT    long       9.2880     9.2790 cancel_tf       cancel_tf       OK       -                                            
+2026-04-20 20:00 UTC ATOM/USDT    long       1.8010          - tf_exit         -               EXCL     excluido_reconcile_intervino                 
+2026-04-21 03:00 UTC STX/USDT     short      0.2223          - tf_exit         -               EXCL     excluido_mr_kernel_no_implementado           
+2026-04-20 01:00 UTC GRT/USDT     long       0.0245          - tf_exit         -               NONE     -                                            
+2026-04-20 08:00 UTC BNB/USDT     long     624.7600   624.4500 zone_exit       zone_exit       OK       -                                            
+2026-04-21 03:00 UTC APT/USDT     short      0.9269     0.9276 div_exit        div_exit        OK       -                                            
+2026-04-19 23:00 UTC ALGO/USDT    short      0.1017          - div_exit        -               NONE     -                                            
+2026-04-21 02:00 UTC ENA/USDT     short      0.1119     0.1117 zone_exit       zone_exit       OK       -                                            
+2026-04-21 06:00 UTC SAND/USDT    long       0.0796     0.0796 tf_exit         tf_exit         OK       -                                            
+2026-04-21 06:00 UTC ONDO/USDT    long       0.2575          - div_exit        -               EXCL     excluido_reconcile_intervino                 
+2026-04-21 10:00 UTC ONDO/USDT    long       0.2596     0.2595 div_exit        div_exit        OK       -                                            
+2026-04-21 06:00 UTC OP/USDT      long       0.1240     0.1239 sl_hit          sl_hit          OK       -                                            
+2026-04-20 01:00 UTC MANA/USDT    long       0.0898          - div_exit        -               NONE     -                                            
+2026-04-21 08:00 UTC XLM/USDT     long       0.1794          - tf_exit         -               EXCL     excluido_reconcile_intervino                 
+2026-04-20 21:00 UTC TAO/USDT     long     247.8800   247.8300 div_exit        div_exit        OK       -                                            
+2026-04-20 16:00 UTC RENDER/USDT  long       1.7780          - regime_change   regime_change   OK       -                                            
+2026-04-21 15:00 UTC INJ/USDT     short      3.2610          - regime_change   regime_change   OK       -                                            
+2026-04-21 14:00 UTC DOT/USDT     short      1.2730          - zone_exit_mr    -               EXCL     excluido_mr_kernel_no_implementado           
+2026-04-21 15:00 UTC BTC/USDT     short  75723.7000          - zone_exit       -               NONE     -                                            
+2026-04-21 17:00 UTC ALGO/USDT    short      0.1028          - div_exit        -               NONE     -                                            
+2026-04-21 20:00 UTC INJ/USDT     short      3.2020     3.2030 div_exit        div_exit        OK       -                                            
+2026-04-21 20:00 UTC ADA/USDT     short      0.2444     0.2444 tf_exit         tf_exit         OK       -                                            
+2026-04-21 18:00 UTC SUI/USDT     short      0.9374     0.9377 cancel_tf       cancel_tf       OK       -                                            
+2026-04-21 14:00 UTC ICP/USDT     short      2.4560          - tf_exit         -               NONE     -                                            
+2026-04-22 00:00 UTC SOL/USDT     long      86.0590    85.9810 div_exit        div_exit        OK       -                                            
+2026-04-21 20:00 UTC ALGO/USDT    short      0.1014     0.1014 div_exit        div_exit        OK       -                                            
+2026-04-22 01:00 UTC SHIB/USDT    long       0.0000          - not_operable    -               NONE     -                                            
+2026-04-22 02:00 UTC ICP/USDT     short      2.4550     2.4550 tf_exit         tf_exit         OK       -                                            
+2026-04-22 02:00 UTC ETC/USDT     long       8.4370          - regime_change   -               EXCL     excluido_clustering_divergente               
+2026-04-21 14:00 UTC SAND/USDT    short      0.0782     0.0780 tf_exit         tf_exit         OK       -                                            
+2026-04-21 21:00 UTC ATOM/USDT    long       1.8190          - not_operable    -               NONE     -                                            
+2026-04-22 03:00 UTC ONDO/USDT    long       0.2649          - zone_exit       -               NONE     -                                            
+2026-04-22 09:00 UTC SAND/USDT    short      0.0786     0.0786 zone_exit       zone_exit       OK       -                                            
+2026-04-22 14:00 UTC BNB/USDT     long     651.2500   650.6700 div_exit        div_exit        OK       -                                            
+2026-04-22 05:00 UTC SEI/USDT     long       0.0627          - div_exit        -               NONE     -                                            
+2026-04-22 03:00 UTC APT/USDT     long       0.9432          - tf_exit         -               NONE     -                                            
+2026-04-22 15:00 UTC SAND/USDT    long       0.0784     0.0783 tf_exit         tf_exit         OK       -                                            
+2026-04-22 19:00 UTC SEI/USDT     long       0.0627          - div_exit        -               NONE     -                                            
+2026-04-22 03:00 UTC RENDER/USDT  long       1.8180          - tf_exit         -               NONE     -                                            
+2026-04-22 21:00 UTC MANA/USDT    short      0.0915     0.0915 zone_exit       zone_exit       OK       -                                            
+2026-04-23 02:00 UTC SEI/USDT     long       0.0616          - div_exit        -               NONE     -                                            
+2026-04-23 01:00 UTC TAO/USDT     short    244.8200   244.8600 zone_exit       zone_exit       OK       -                                            
+2026-04-22 16:00 UTC ENA/USDT     short      0.1107     0.1110 zone_exit       zone_exit       OK       -                                            
+2026-04-23 07:00 UTC RENDER/USDT  long       1.8060          - tf_exit         -               NONE     -                                            
+2026-04-23 04:00 UTC ONDO/USDT    short      0.2562     0.2566 div_exit        div_exit        OK       -                                            
+2026-04-23 11:00 UTC ALGO/USDT    short      0.1006          - div_exit        -               EXCL     excluido_clustering_divergente               
+2026-04-23 06:00 UTC SEI/USDT     long       0.0608          - div_exit        -               NONE     -                                            
+2026-04-23 08:00 UTC DOGE/USDT    short      0.0959     0.0959 tf_exit         tf_exit         OK       -                                            
+2026-04-23 00:00 UTC INJ/USDT     short      3.2830     3.2800 tf_exit         tf_exit         OK       -                                            
+2026-04-23 13:00 UTC BNB/USDT     long     634.3100          - tf_exit         -               NONE     -                                            
+2026-04-23 19:00 UTC DOT/USDT     short      1.2160          - div_exit        -               NONE     -                                            
+2026-04-23 01:00 UTC SAND/USDT    short      0.0766          - div_exit        -               NONE     -                                            
+2026-04-23 17:00 UTC ONDO/USDT    short      0.2619     0.2617 div_exit        div_exit        OK       -                                            
+2026-04-23 21:00 UTC BNB/USDT     long     637.5800          - tf_exit         -               NONE     -                                            
+2026-04-23 15:00 UTC MANA/USDT    long       0.0917     0.0914 tf_exit         tf_exit         OK       -                                            
+2026-04-24 05:00 UTC ONDO/USDT    short      0.2604     0.2605 below_min_order_5.0usdt tf_exit         DIFF     -                                            
+2026-04-24 09:00 UTC MANA/USDT    long       0.0921     0.0919 tf_exit         tf_exit         OK       -                                            
+2026-04-24 08:00 UTC BNB/USDT     long     634.9000          - div_exit        -               NONE     -                                            
+2026-04-24 02:00 UTC XLM/USDT     short      0.1755          - tf_exit         -               NONE     -                                            
+2026-04-23 14:00 UTC RENDER/USDT  short      1.7940     1.7970 tf_exit         tf_exit         OK       -                                            
+2026-04-24 09:00 UTC SHIB/USDT    long       0.0000          - div_exit        -               EXCL     excluido_clustering_divergente               
+2026-04-24 01:00 UTC SEI/USDT     long       0.0628          - regime_change   -               NONE     -                                            
+2026-04-24 13:00 UTC GRT/USDT     short      0.0246     0.0246 tf_exit         tf_exit         OK       -                                            
+2026-04-24 16:00 UTC BNB/USDT     long     639.4400          - tf_exit         -               NONE     -                                            
+2026-04-24 18:00 UTC GRT/USDT     short      0.0247     0.0247 tf_exit         tf_exit         OK       -                                            
+2026-04-24 17:00 UTC RENDER/USDT  short      1.8020     1.8060 tf_exit         tf_exit         OK       -                                            
+2026-04-24 20:00 UTC DOGE/USDT    long       0.0984          - sl_hit          -               NONE     -                                            
+2026-04-24 01:00 UTC SAND/USDT    long       0.0770          - zone_exit       -               NONE     -                                            
+2026-04-24 22:00 UTC RENDER/USDT  short      1.7960     1.7950 direction_reversal zone_exit       DIFF     -                                            
+2026-04-25 01:00 UTC IMX/USDT     short      0.1738          - regime_change   -               EXCL     excluido_clustering_divergente               
+2026-04-25 04:00 UTC ONDO/USDT    long       0.2635          - tf_exit         -               NONE     -                                            
+2026-04-24 23:00 UTC APT/USDT     long       0.9802          - div_exit        -               NONE     -                                            
+2026-04-25 08:00 UTC GRT/USDT     short      0.0252          - tf_exit         -               NONE     -                                            
+2026-04-24 14:00 UTC TAO/USDT     short    247.7700   247.8400 div_exit        div_exit        OK       -                                            
+2026-04-25 10:00 UTC ONDO/USDT    long       0.2635          - tf_exit         -               NONE     -                                            
+2026-04-24 16:00 UTC SHIB/USDT    long       0.0000          - not_operable    -               NONE     -                                            
+2026-04-25 05:00 UTC UNI/USDT     short      3.2580     3.2620 zone_exit       zone_exit       OK       -                                            
+2026-04-25 14:00 UTC ONDO/USDT    long       0.2617          - tf_exit         -               NONE     -                                            
+2026-04-25 13:00 UTC ENA/USDT     long       0.1084     0.1082 tf_exit         tf_exit         OK       -                                            
+2026-04-25 12:00 UTC GRT/USDT     short      0.0250     0.0250 zone_exit       zone_exit       OK       -                                            
+2026-04-25 17:00 UTC ENA/USDT     long       0.1077     0.1075 tf_exit         tf_exit         OK       -                                            
+2026-04-25 04:00 UTC RENDER/USDT  long       1.7950     1.7920 tf_exit         tf_exit         OK       -                                            
+2026-04-25 19:00 UTC ENA/USDT     long       0.1069     0.1067 tf_exit         tf_exit         OK       -                                            
+2026-04-25 19:00 UTC RENDER/USDT  long       1.7820     1.7800 tf_exit         tf_exit         OK       -                                            
+2026-04-26 03:00 UTC ENA/USDT     long       0.1063     0.1065 tf_exit         tf_exit         OK       -                                            
+2026-04-25 12:00 UTC XLM/USDT     short      0.1724          - tf_exit         -               NONE     -                                            
+2026-04-25 20:00 UTC TAO/USDT     short    245.7200   245.6800 div_exit        div_exit        OK       -                                            
+2026-04-25 17:00 UTC ONDO/USDT    short      0.2588          - tf_exit         -               NONE     -                                            
+2026-04-23 05:00 UTC BTC/USDT     long   77882.8000          - zone_exit       -               NONE     -                                            
+2026-04-26 07:00 UTC APT/USDT     long       0.9764          - zone_exit       -               NONE     -                                            
+2026-04-26 08:00 UTC POL/USDT     long       0.0918          - tf_exit         -               NONE     -                                            
+
+==============================================================================
+SECCION 3: CASOS SIN MATCH -- ANALISIS DETALLADO
+==============================================================================
+[1] ONDO/USDT  side=long  entry=2026-04-19 13:00 UTC
+    entry_price_real   = 0.2574
+    entry_price_kernel = None
+    exit_reason_real   = tf_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_kernel
+
+[2] SAND/USDT  side=short  entry=2026-04-19 18:00 UTC
+    entry_price_real   = 0.07857
+    entry_price_kernel = None
+    exit_reason_real   = div_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = timing_borderline
+
+[3] TRX/USDT   side=long  entry=2026-04-19 10:00 UTC
+    entry_price_real   = 0.3331
+    entry_price_kernel = None
+    exit_reason_real   = not_operable
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_kernel
+
+[4] SEI/USDT   side=short  entry=2026-04-18 05:00 UTC
+    entry_price_real   = 0.0578
+    entry_price_kernel = None
+    exit_reason_real   = tf_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_kernel
+
+[5] ONDO/USDT  side=long  entry=2026-04-20 01:00 UTC
+    entry_price_real   = 0.2523
+    entry_price_kernel = None
+    exit_reason_real   = zone_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_kernel
+
+[6] INJ/USDT   side=short  entry=2026-04-19 18:00 UTC
+    entry_price_real   = 3.214
+    entry_price_kernel = None
+    exit_reason_real   = tf_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_kernel
+
+[7] ONDO/USDT  side=short  entry=2026-04-20 05:00 UTC
+    entry_price_real   = 0.2519
+    entry_price_kernel = None
+    exit_reason_real   = div_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_kernel
+
+[8] RENDER/USDT side=short  entry=2026-04-18 13:00 UTC
+    entry_price_real   = 1.811
+    entry_price_kernel = None
+    exit_reason_real   = zone_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = timing_borderline
+
+[9] IMX/USDT   side=long  entry=2026-04-20 14:00 UTC
+    entry_price_real   = 0.1638
+    entry_price_kernel = None
+    exit_reason_real   = zone_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_kernel
+
+[10] GRT/USDT   side=long  entry=2026-04-20 01:00 UTC
+    entry_price_real   = 0.02448
+    entry_price_kernel = None
+    exit_reason_real   = tf_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_kernel
+
+[11] ALGO/USDT  side=short  entry=2026-04-19 23:00 UTC
+    entry_price_real   = 0.1017
+    entry_price_kernel = None
+    exit_reason_real   = div_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_kernel
+
+[12] MANA/USDT  side=long  entry=2026-04-20 01:00 UTC
+    entry_price_real   = 0.0898
+    entry_price_kernel = None
+    exit_reason_real   = div_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_kernel
+
+[13] BTC/USDT   side=short  entry=2026-04-21 15:00 UTC
+    entry_price_real   = 75723.7
+    entry_price_kernel = None
+    exit_reason_real   = zone_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_kernel
+
+[14] ALGO/USDT  side=short  entry=2026-04-21 17:00 UTC
+    entry_price_real   = 0.1028
+    entry_price_kernel = None
+    exit_reason_real   = div_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_kernel
+
+[15] ICP/USDT   side=short  entry=2026-04-21 14:00 UTC
+    entry_price_real   = 2.456
+    entry_price_kernel = None
+    exit_reason_real   = tf_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = timing_borderline
+
+[16] SHIB/USDT  side=long  entry=2026-04-22 01:00 UTC
+    entry_price_real   = 6.087e-06
+    entry_price_kernel = None
+    exit_reason_real   = not_operable
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = timing_borderline
+
+[17] ATOM/USDT  side=long  entry=2026-04-21 21:00 UTC
+    entry_price_real   = 1.819
+    entry_price_kernel = None
+    exit_reason_real   = not_operable
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_kernel
+
+[18] ONDO/USDT  side=long  entry=2026-04-22 03:00 UTC
+    entry_price_real   = 0.2649
+    entry_price_kernel = None
+    exit_reason_real   = zone_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_kernel
+
+[19] SEI/USDT   side=long  entry=2026-04-22 05:00 UTC
+    entry_price_real   = 0.0627
+    entry_price_kernel = None
+    exit_reason_real   = div_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_kernel
+
+[20] APT/USDT   side=long  entry=2026-04-22 03:00 UTC
+    entry_price_real   = 0.9432
+    entry_price_kernel = None
+    exit_reason_real   = tf_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_kernel
+
+[21] SEI/USDT   side=long  entry=2026-04-22 19:00 UTC
+    entry_price_real   = 0.0627
+    entry_price_kernel = None
+    exit_reason_real   = div_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_kernel
+
+[22] RENDER/USDT side=long  entry=2026-04-22 03:00 UTC
+    entry_price_real   = 1.818
+    entry_price_kernel = None
+    exit_reason_real   = tf_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_kernel
+
+[23] SEI/USDT   side=long  entry=2026-04-23 02:00 UTC
+    entry_price_real   = 0.0616
+    entry_price_kernel = None
+    exit_reason_real   = div_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = timing_borderline
+
+[24] RENDER/USDT side=long  entry=2026-04-23 07:00 UTC
+    entry_price_real   = 1.806
+    entry_price_kernel = None
+    exit_reason_real   = tf_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = timing_borderline
+
+[25] SEI/USDT   side=long  entry=2026-04-23 06:00 UTC
+    entry_price_real   = 0.0608
+    entry_price_kernel = None
+    exit_reason_real   = div_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_kernel
+
+[26] BNB/USDT   side=long  entry=2026-04-23 13:00 UTC
+    entry_price_real   = 634.31
+    entry_price_kernel = None
+    exit_reason_real   = tf_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = timing_borderline
+
+[27] DOT/USDT   side=short  entry=2026-04-23 19:00 UTC
+    entry_price_real   = 1.216
+    entry_price_kernel = None
+    exit_reason_real   = div_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = timing_borderline
+
+[28] SAND/USDT  side=short  entry=2026-04-23 01:00 UTC
+    entry_price_real   = 0.07664
+    entry_price_kernel = None
+    exit_reason_real   = div_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_kernel
+
+[29] BNB/USDT   side=long  entry=2026-04-23 21:00 UTC
+    entry_price_real   = 637.58
+    entry_price_kernel = None
+    exit_reason_real   = tf_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = timing_borderline
+
+[30] BNB/USDT   side=long  entry=2026-04-24 08:00 UTC
+    entry_price_real   = 634.9
+    entry_price_kernel = None
+    exit_reason_real   = div_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = timing_borderline
+
+[31] XLM/USDT   side=short  entry=2026-04-24 02:00 UTC
+    entry_price_real   = 0.17554
+    entry_price_kernel = None
+    exit_reason_real   = tf_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_kernel
+
+[32] SEI/USDT   side=long  entry=2026-04-24 01:00 UTC
+    entry_price_real   = 0.0628
+    entry_price_kernel = None
+    exit_reason_real   = regime_change
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_kernel
+
+[33] BNB/USDT   side=long  entry=2026-04-24 16:00 UTC
+    entry_price_real   = 639.44
+    entry_price_kernel = None
+    exit_reason_real   = tf_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_kernel
+
+[34] DOGE/USDT  side=long  entry=2026-04-24 20:00 UTC
+    entry_price_real   = 0.09839
+    entry_price_kernel = None
+    exit_reason_real   = sl_hit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_kernel
+
+[35] SAND/USDT  side=long  entry=2026-04-24 01:00 UTC
+    entry_price_real   = 0.07701
+    entry_price_kernel = None
+    exit_reason_real   = zone_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_kernel
+
+[36] ONDO/USDT  side=long  entry=2026-04-25 04:00 UTC
+    entry_price_real   = 0.2635
+    entry_price_kernel = None
+    exit_reason_real   = tf_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_kernel
+
+[37] APT/USDT   side=long  entry=2026-04-24 23:00 UTC
+    entry_price_real   = 0.9802
+    entry_price_kernel = None
+    exit_reason_real   = div_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_kernel
+
+[38] GRT/USDT   side=short  entry=2026-04-25 08:00 UTC
+    entry_price_real   = 0.02522
+    entry_price_kernel = None
+    exit_reason_real   = tf_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_kernel
+
+[39] ONDO/USDT  side=long  entry=2026-04-25 10:00 UTC
+    entry_price_real   = 0.2635
+    entry_price_kernel = None
+    exit_reason_real   = tf_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_kernel
+
+[40] SHIB/USDT  side=long  entry=2026-04-24 16:00 UTC
+    entry_price_real   = 6.243e-06
+    entry_price_kernel = None
+    exit_reason_real   = not_operable
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_kernel
+
+[41] ONDO/USDT  side=long  entry=2026-04-25 14:00 UTC
+    entry_price_real   = 0.2617
+    entry_price_kernel = None
+    exit_reason_real   = tf_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_kernel
+
+[42] XLM/USDT   side=short  entry=2026-04-25 12:00 UTC
+    entry_price_real   = 0.17235
+    entry_price_kernel = None
+    exit_reason_real   = tf_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_kernel
+
+[43] ONDO/USDT  side=short  entry=2026-04-25 17:00 UTC
+    entry_price_real   = 0.2588
+    entry_price_kernel = None
+    exit_reason_real   = tf_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_kernel
+
+[44] BTC/USDT   side=long  entry=2026-04-23 05:00 UTC
+    entry_price_real   = 77882.8
+    entry_price_kernel = None
+    exit_reason_real   = zone_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_kernel
+
+[45] APT/USDT   side=long  entry=2026-04-26 07:00 UTC
+    entry_price_real   = 0.9764
+    entry_price_kernel = None
+    exit_reason_real   = zone_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_kernel
+
+[46] POL/USDT   side=long  entry=2026-04-26 08:00 UTC
+    entry_price_real   = 0.09182
+    entry_price_kernel = None
+    exit_reason_real   = tf_exit
+    exit_reason_kernel = None
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_kernel
+
+[47] ONDO/USDT  side=long  entry=2026-04-17 19:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.274
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[48] ONDO/USDT  side=long  entry=2026-04-21 23:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.258
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[49] ONDO/USDT  side=long  entry=2026-04-18 04:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.2695
+    exit_reason_real   = None
+    exit_reason_kernel = zone_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[50] ONDO/USDT  side=short  entry=2026-04-18 08:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.2675
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[51] ONDO/USDT  side=short  entry=2026-04-18 01:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.2691
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[52] ONDO/USDT  side=short  entry=2026-04-18 09:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.2654
+    exit_reason_real   = None
+    exit_reason_kernel = div_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[53] ONDO/USDT  side=short  entry=2026-04-18 13:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.2603
+    exit_reason_real   = None
+    exit_reason_kernel = div_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[54] ONDO/USDT  side=short  entry=2026-04-19 00:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.2568
+    exit_reason_real   = None
+    exit_reason_kernel = div_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[55] ONDO/USDT  side=short  entry=2026-04-19 04:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.2557
+    exit_reason_real   = None
+    exit_reason_kernel = div_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[56] ONDO/USDT  side=short  entry=2026-04-19 06:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.2554
+    exit_reason_real   = None
+    exit_reason_kernel = zone_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[57] ONDO/USDT  side=long  entry=2026-04-19 10:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.2535
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[58] ONDO/USDT  side=long  entry=2026-04-20 00:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.252
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[59] ONDO/USDT  side=long  entry=2026-04-21 04:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.2562
+    exit_reason_real   = None
+    exit_reason_kernel = div_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[60] ONDO/USDT  side=long  entry=2026-04-22 02:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.2648
+    exit_reason_real   = None
+    exit_reason_kernel = div_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[61] ONDO/USDT  side=short  entry=2026-04-24 06:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.2613
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[62] ONDO/USDT  side=short  entry=2026-04-24 09:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.2604
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[63] ONDO/USDT  side=short  entry=2026-04-24 12:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.2629
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[64] ONDO/USDT  side=short  entry=2026-04-24 20:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.2653
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[65] ONDO/USDT  side=short  entry=2026-04-25 02:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.2628
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[66] ONDO/USDT  side=short  entry=2026-04-25 04:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.2625
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[67] ONDO/USDT  side=short  entry=2026-04-25 11:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.2613
+    exit_reason_real   = None
+    exit_reason_kernel = div_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[68] ONDO/USDT  side=short  entry=2026-04-25 14:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.2609
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[69] ONDO/USDT  side=short  entry=2026-04-26 08:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.263
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[70] SAND/USDT  side=long  entry=2026-04-24 15:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.07861
+    exit_reason_real   = None
+    exit_reason_kernel = zone_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[71] SAND/USDT  side=short  entry=2026-04-18 09:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.08385
+    exit_reason_real   = None
+    exit_reason_kernel = div_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[72] SAND/USDT  side=short  entry=2026-04-18 18:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.08019
+    exit_reason_real   = None
+    exit_reason_kernel = div_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[73] SAND/USDT  side=short  entry=2026-04-18 20:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.08042
+    exit_reason_real   = None
+    exit_reason_kernel = div_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[74] SAND/USDT  side=short  entry=2026-04-19 08:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.07891
+    exit_reason_real   = None
+    exit_reason_kernel = div_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[75] SAND/USDT  side=short  entry=2026-04-19 16:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.07953
+    exit_reason_real   = None
+    exit_reason_kernel = div_exit
+    cross_exchange_diff= N/A
+    hipotesis          = timing_borderline
+
+[76] SAND/USDT  side=short  entry=2026-04-21 12:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.07844
+    exit_reason_real   = None
+    exit_reason_kernel = div_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[77] SAND/USDT  side=short  entry=2026-04-23 00:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.07667
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[78] SAND/USDT  side=long  entry=2026-04-25 08:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.08431
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[79] TRX/USDT   side=long  entry=2026-04-18 14:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.32948
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[80] TRX/USDT   side=long  entry=2026-04-19 10:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.33127
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[81] TRX/USDT   side=long  entry=2026-04-21 14:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.33079
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[82] TAO/USDT   side=short  entry=2026-04-18 20:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 245.49
+    exit_reason_real   = None
+    exit_reason_kernel = zone_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[83] OP/USDT    side=short  entry=2026-04-18 01:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.1318
+    exit_reason_real   = None
+    exit_reason_kernel = sl_hit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[84] OP/USDT    side=short  entry=2026-04-18 08:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.1314
+    exit_reason_real   = None
+    exit_reason_kernel = div_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[85] OP/USDT    side=long  entry=2026-04-18 21:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.1264
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[86] OP/USDT    side=long  entry=2026-04-19 04:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.1237
+    exit_reason_real   = None
+    exit_reason_kernel = div_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[87] OP/USDT    side=long  entry=2026-04-19 19:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.123
+    exit_reason_real   = None
+    exit_reason_kernel = sl_hit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[88] OP/USDT    side=long  entry=2026-04-20 01:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.1219
+    exit_reason_real   = None
+    exit_reason_kernel = div_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[89] OP/USDT    side=long  entry=2026-04-22 02:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.1255
+    exit_reason_real   = None
+    exit_reason_kernel = div_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[90] OP/USDT    side=short  entry=2026-04-22 19:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.1255
+    exit_reason_real   = None
+    exit_reason_kernel = zone_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[91] OP/USDT    side=long  entry=2026-04-24 00:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.1225
+    exit_reason_real   = None
+    exit_reason_kernel = sl_hit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[92] OP/USDT    side=long  entry=2026-04-24 07:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.1212
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[93] OP/USDT    side=short  entry=2026-04-25 16:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.1245
+    exit_reason_real   = None
+    exit_reason_kernel = div_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[94] OP/USDT    side=long  entry=2026-04-25 19:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.1239
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[95] OP/USDT    side=long  entry=2026-04-26 05:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.1255
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[96] OP/USDT    side=long  entry=2026-04-22 23:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.1208
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[97] OP/USDT    side=short  entry=2026-04-23 02:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.1183
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[98] OP/USDT    side=short  entry=2026-04-24 17:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.1232
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[99] OP/USDT    side=long  entry=2026-04-25 04:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.1289
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[100] SEI/USDT   side=short  entry=2026-04-21 21:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.0564
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[101] SEI/USDT   side=short  entry=2026-04-22 19:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.0619
+    exit_reason_real   = None
+    exit_reason_kernel = zone_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[102] SEI/USDT   side=long  entry=2026-04-23 00:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.0617
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = timing_borderline
+
+[103] SEI/USDT   side=long  entry=2026-04-23 06:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.0611
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[104] SEI/USDT   side=long  entry=2026-04-23 12:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.0604
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[105] SEI/USDT   side=long  entry=2026-04-23 21:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.0612
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[106] SEI/USDT   side=short  entry=2026-04-18 00:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.0579
+    exit_reason_real   = None
+    exit_reason_kernel = div_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[107] SEI/USDT   side=short  entry=2026-04-19 10:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.055
+    exit_reason_real   = None
+    exit_reason_kernel = div_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[108] SEI/USDT   side=short  entry=2026-04-19 15:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.0558
+    exit_reason_real   = None
+    exit_reason_kernel = div_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[109] SEI/USDT   side=short  entry=2026-04-19 19:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.0553
+    exit_reason_real   = None
+    exit_reason_kernel = div_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[110] SEI/USDT   side=short  entry=2026-04-21 04:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.0559
+    exit_reason_real   = None
+    exit_reason_kernel = zone_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[111] SEI/USDT   side=long  entry=2026-04-21 15:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.0564
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[112] SEI/USDT   side=long  entry=2026-04-21 22:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.0568
+    exit_reason_real   = None
+    exit_reason_kernel = zone_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[113] INJ/USDT   side=short  entry=2026-04-18 16:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 3.259
+    exit_reason_real   = None
+    exit_reason_kernel = zone_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[114] INJ/USDT   side=long  entry=2026-04-19 04:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 3.205
+    exit_reason_real   = None
+    exit_reason_kernel = div_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[115] INJ/USDT   side=long  entry=2026-04-19 06:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 3.22
+    exit_reason_real   = None
+    exit_reason_kernel = div_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[116] INJ/USDT   side=long  entry=2026-04-19 08:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 3.207
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[117] INJ/USDT   side=short  entry=2026-04-19 15:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 3.26
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[118] INJ/USDT   side=short  entry=2026-04-21 03:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 3.263
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[119] INJ/USDT   side=short  entry=2026-04-21 13:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 3.275
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[120] INJ/USDT   side=short  entry=2026-04-23 17:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 3.29
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[121] INJ/USDT   side=short  entry=2026-04-25 04:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 3.45
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[122] INJ/USDT   side=short  entry=2026-04-17 23:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 3.359
+    exit_reason_real   = None
+    exit_reason_kernel = div_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[123] INJ/USDT   side=short  entry=2026-04-18 08:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 3.323
+    exit_reason_real   = None
+    exit_reason_kernel = div_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[124] INJ/USDT   side=long  entry=2026-04-24 01:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 3.393
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[125] INJ/USDT   side=long  entry=2026-04-24 11:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 3.483
+    exit_reason_real   = None
+    exit_reason_kernel = sl_hit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[126] INJ/USDT   side=long  entry=2026-04-25 20:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 3.542
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[127] RENDER/USDT side=short  entry=2026-04-19 21:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 1.75
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[128] RENDER/USDT side=long  entry=2026-04-17 12:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 1.897
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[129] RENDER/USDT side=short  entry=2026-04-18 11:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 1.807
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = timing_borderline
+
+[130] RENDER/USDT side=long  entry=2026-04-20 14:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 1.765
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[131] RENDER/USDT side=long  entry=2026-04-21 23:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 1.791
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[132] RENDER/USDT side=long  entry=2026-04-23 05:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 1.8
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = timing_borderline
+
+[133] RENDER/USDT side=short  entry=2026-04-24 14:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 1.808
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[134] RENDER/USDT side=short  entry=2026-04-24 16:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 1.802
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[135] RENDER/USDT side=long  entry=2026-04-25 03:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 1.794
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[136] IMX/USDT   side=short  entry=2026-04-18 18:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.1622
+    exit_reason_real   = None
+    exit_reason_kernel = div_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[137] IMX/USDT   side=short  entry=2026-04-19 03:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.1584
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[138] IMX/USDT   side=long  entry=2026-04-26 05:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.1762
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[139] IMX/USDT   side=long  entry=2026-04-20 13:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.1637
+    exit_reason_real   = None
+    exit_reason_kernel = zone_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[140] IMX/USDT   side=short  entry=2026-04-24 22:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.1728
+    exit_reason_real   = None
+    exit_reason_kernel = div_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[141] IMX/USDT   side=short  entry=2026-04-25 00:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.1738
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[142] IMX/USDT   side=short  entry=2026-04-25 19:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.1796
+    exit_reason_real   = None
+    exit_reason_kernel = div_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[143] IMX/USDT   side=short  entry=2026-04-26 00:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.1771
+    exit_reason_real   = None
+    exit_reason_kernel = div_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[144] LINK/USDT  side=long  entry=2026-04-23 15:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 9.345
+    exit_reason_real   = None
+    exit_reason_kernel = cancel_tf
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[145] ATOM/USDT  side=long  entry=2026-04-20 00:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 1.767
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[146] ATOM/USDT  side=long  entry=2026-04-20 17:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 1.802
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[147] ATOM/USDT  side=long  entry=2026-04-21 20:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 1.818
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[148] GRT/USDT   side=short  entry=2026-04-18 11:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.0254
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[149] GRT/USDT   side=long  entry=2026-04-20 00:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.02444
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[150] GRT/USDT   side=long  entry=2026-04-22 02:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.02501
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[151] GRT/USDT   side=short  entry=2026-04-25 05:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.02532
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[152] GRT/USDT   side=long  entry=2026-04-17 16:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.02643
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[153] GRT/USDT   side=long  entry=2026-04-18 05:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.0261
+    exit_reason_real   = None
+    exit_reason_kernel = sl_hit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[154] BNB/USDT   side=long  entry=2026-04-21 20:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 629.74
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[155] BNB/USDT   side=long  entry=2026-04-22 18:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 644.93
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[156] BNB/USDT   side=long  entry=2026-04-23 05:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 636.59
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[157] BNB/USDT   side=long  entry=2026-04-23 11:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 633.26
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = timing_borderline
+
+[158] BNB/USDT   side=long  entry=2026-04-23 19:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 635.67
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = timing_borderline
+
+[159] BNB/USDT   side=long  entry=2026-04-24 06:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 634.41
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = timing_borderline
+
+[160] BNB/USDT   side=long  entry=2026-04-24 11:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 637.98
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[161] BNB/USDT   side=long  entry=2026-04-24 19:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 638.19
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[162] BNB/USDT   side=short  entry=2026-04-21 12:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 631.82
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[163] BNB/USDT   side=short  entry=2026-04-25 06:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 637.36
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[164] BNB/USDT   side=short  entry=2026-04-25 11:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 634.45
+    exit_reason_real   = None
+    exit_reason_kernel = zone_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[165] APT/USDT   side=long  entry=2026-04-17 19:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 1.0056
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[166] APT/USDT   side=long  entry=2026-04-17 21:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 1.005
+    exit_reason_real   = None
+    exit_reason_kernel = div_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[167] APT/USDT   side=long  entry=2026-04-18 01:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.9897
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[168] APT/USDT   side=long  entry=2026-04-18 05:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.9827
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[169] APT/USDT   side=long  entry=2026-04-18 12:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.9517
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[170] APT/USDT   side=long  entry=2026-04-18 16:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.9434
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[171] APT/USDT   side=long  entry=2026-04-18 20:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.9401
+    exit_reason_real   = None
+    exit_reason_kernel = zone_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[172] APT/USDT   side=short  entry=2026-04-19 01:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.9268
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[173] APT/USDT   side=short  entry=2026-04-19 06:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.9287
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[174] APT/USDT   side=short  entry=2026-04-19 09:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.9285
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[175] APT/USDT   side=short  entry=2026-04-19 14:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.9454
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[176] APT/USDT   side=short  entry=2026-04-21 17:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.9263
+    exit_reason_real   = None
+    exit_reason_kernel = div_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[177] APT/USDT   side=short  entry=2026-04-21 19:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.9203
+    exit_reason_real   = None
+    exit_reason_kernel = div_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[178] APT/USDT   side=long  entry=2026-04-21 10:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.9442
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[179] APT/USDT   side=long  entry=2026-04-21 15:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.9411
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[180] APT/USDT   side=long  entry=2026-04-21 23:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.9387
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[181] APT/USDT   side=long  entry=2026-04-22 02:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.9435
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[182] APT/USDT   side=long  entry=2026-04-24 01:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.9572
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[183] APT/USDT   side=long  entry=2026-04-24 08:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.9492
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[184] APT/USDT   side=long  entry=2026-04-25 09:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.9773
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[185] APT/USDT   side=long  entry=2026-04-25 20:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.9625
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[186] APT/USDT   side=long  entry=2026-04-26 04:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.9671
+    exit_reason_real   = None
+    exit_reason_kernel = zone_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[187] ALGO/USDT  side=short  entry=2026-04-18 00:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.1104
+    exit_reason_real   = None
+    exit_reason_kernel = zone_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[188] ALGO/USDT  side=long  entry=2026-04-19 14:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.1059
+    exit_reason_real   = None
+    exit_reason_kernel = zone_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[189] ALGO/USDT  side=short  entry=2026-04-24 03:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.1049
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[190] ALGO/USDT  side=long  entry=2026-04-16 05:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.1138
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[191] ALGO/USDT  side=short  entry=2026-04-19 09:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.1042
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[192] ALGO/USDT  side=short  entry=2026-04-21 05:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.1026
+    exit_reason_real   = None
+    exit_reason_kernel = div_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[193] ALGO/USDT  side=short  entry=2026-04-23 08:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.1014
+    exit_reason_real   = None
+    exit_reason_kernel = div_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[194] ALGO/USDT  side=short  entry=2026-04-23 17:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.1021
+    exit_reason_real   = None
+    exit_reason_kernel = div_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[195] ENA/USDT   side=long  entry=2026-04-23 18:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.1082
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[196] ENA/USDT   side=long  entry=2026-04-24 17:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.1089
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[197] ENA/USDT   side=long  entry=2026-04-24 20:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.1096
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[198] ENA/USDT   side=long  entry=2026-04-25 20:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.1068
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[199] ENA/USDT   side=long  entry=2026-04-17 15:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.1169
+    exit_reason_real   = None
+    exit_reason_kernel = cancel_tf
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[200] ENA/USDT   side=short  entry=2026-04-19 07:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.1185
+    exit_reason_real   = None
+    exit_reason_kernel = zone_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[201] ENA/USDT   side=long  entry=2026-04-23 22:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.1095
+    exit_reason_real   = None
+    exit_reason_kernel = zone_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[202] MANA/USDT  side=long  entry=2026-04-25 01:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.0971
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[203] MANA/USDT  side=long  entry=2026-04-21 23:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.0923
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[204] MANA/USDT  side=short  entry=2026-04-22 07:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.0929
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[205] MANA/USDT  side=long  entry=2026-04-24 10:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.0921
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[206] MANA/USDT  side=long  entry=2026-04-17 15:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.0952
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[207] MANA/USDT  side=long  entry=2026-04-19 14:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.0936
+    exit_reason_real   = None
+    exit_reason_kernel = sl_hit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[208] MANA/USDT  side=long  entry=2026-04-20 20:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.0928
+    exit_reason_real   = None
+    exit_reason_kernel = div_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[209] XLM/USDT   side=long  entry=2026-04-19 03:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.17079
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[210] XLM/USDT   side=long  entry=2026-04-21 06:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.17658
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[211] XLM/USDT   side=short  entry=2026-04-23 21:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.17591
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[212] XLM/USDT   side=short  entry=2026-04-24 21:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.17362
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[213] DOT/USDT   side=short  entry=2026-04-23 17:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 1.222
+    exit_reason_real   = None
+    exit_reason_kernel = div_exit
+    cross_exchange_diff= N/A
+    hipotesis          = timing_borderline
+
+[214] DOT/USDT   side=short  entry=2026-04-24 07:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 1.229
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[215] DOT/USDT   side=short  entry=2026-04-25 18:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 1.24
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[216] DOT/USDT   side=short  entry=2026-04-26 02:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 1.242
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[217] BTC/USDT   side=long  entry=2026-04-23 22:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 78191.4
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[218] BTC/USDT   side=long  entry=2026-04-22 13:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 78790.0
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[219] SUI/USDT   side=long  entry=2026-04-18 05:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 1.0037
+    exit_reason_real   = None
+    exit_reason_kernel = cancel_tf
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[220] SUI/USDT   side=short  entry=2026-04-20 23:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.9436
+    exit_reason_real   = None
+    exit_reason_kernel = div_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[221] SUI/USDT   side=long  entry=2026-04-16 03:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.9742
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[222] SUI/USDT   side=short  entry=2026-04-26 03:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.9346
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[223] ICP/USDT   side=long  entry=2026-04-16 11:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 2.552
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[224] ICP/USDT   side=short  entry=2026-04-20 08:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 2.427
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[225] ICP/USDT   side=short  entry=2026-04-20 22:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 2.469
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[226] ICP/USDT   side=short  entry=2026-04-21 01:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 2.465
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[227] ICP/USDT   side=short  entry=2026-04-21 12:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 2.465
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = timing_borderline
+
+[228] SOL/USDT   side=long  entry=2026-04-21 15:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 86.01
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[229] SHIB/USDT  side=long  entry=2026-04-18 05:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 6.308e-06
+    exit_reason_real   = None
+    exit_reason_kernel = sl_hit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[230] SHIB/USDT  side=long  entry=2026-04-21 19:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 5.988e-06
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[231] SHIB/USDT  side=long  entry=2026-04-21 23:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 6.085e-06
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = timing_borderline
+
+[232] SHIB/USDT  side=long  entry=2026-04-24 00:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 6.162e-06
+    exit_reason_real   = None
+    exit_reason_kernel = div_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[233] SHIB/USDT  side=long  entry=2026-04-24 08:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 6.172e-06
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[234] SHIB/USDT  side=long  entry=2026-04-24 15:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 6.236e-06
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[235] ETC/USDT   side=short  entry=2026-04-24 02:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 8.494
+    exit_reason_real   = None
+    exit_reason_kernel = zone_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[236] ETC/USDT   side=short  entry=2026-04-17 23:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 8.769
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[237] ETC/USDT   side=long  entry=2026-04-22 00:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 8.443
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[238] DOGE/USDT  side=long  entry=2026-04-24 00:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.09757
+    exit_reason_real   = None
+    exit_reason_kernel = sl_hit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[239] DOGE/USDT  side=long  entry=2026-04-24 13:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.09787
+    exit_reason_real   = None
+    exit_reason_kernel = sl_hit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[240] DOGE/USDT  side=short  entry=2026-04-18 13:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.09575
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[241] DOGE/USDT  side=short  entry=2026-04-24 22:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.09796
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[242] DOGE/USDT  side=long  entry=2026-04-17 16:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.1019
+    exit_reason_real   = None
+    exit_reason_kernel = zone_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[243] DOGE/USDT  side=short  entry=2026-04-18 04:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.09833
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[244] POL/USDT   side=short  entry=2026-04-19 20:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.08955
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[245] POL/USDT   side=short  entry=2026-04-23 05:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.09276
+    exit_reason_real   = None
+    exit_reason_kernel = regime_change
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[246] POL/USDT   side=short  entry=2026-04-23 17:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.094
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[247] POL/USDT   side=long  entry=2026-04-26 04:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.09121
+    exit_reason_real   = None
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[248] POL/USDT   side=short  entry=2026-04-19 01:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.08903
+    exit_reason_real   = None
+    exit_reason_kernel = div_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[249] POL/USDT   side=short  entry=2026-04-19 17:00 UTC
+    entry_price_real   = None
+    entry_price_kernel = 0.08955
+    exit_reason_real   = None
+    exit_reason_kernel = zone_exit
+    cross_exchange_diff= N/A
+    hipotesis          = no_match_bot
+
+[250] ONDO/USDT  side=short  entry=2026-04-24 05:00 UTC
+    entry_price_real   = 0.2604
+    entry_price_kernel = 0.2605
+    exit_reason_real   = below_min_order_5.0usdt
+    exit_reason_kernel = tf_exit
+    cross_exchange_diff= N/A
+    hipotesis          = razon_salida_distinta
+
+[251] RENDER/USDT side=short  entry=2026-04-24 22:00 UTC
+    entry_price_real   = 1.796
+    entry_price_kernel = 1.795
+    exit_reason_real   = direction_reversal
+    exit_reason_kernel = zone_exit
+    cross_exchange_diff= N/A
+    hipotesis          = razon_salida_distinta
+
+
+==============================================================================
+SECCION 4: EXCLUSIONES -- DESGLOSE POR MOTIVO
+==============================================================================
+[excluido_reconstruido] -- Trade reconstruido post-hoc (orphan_close / flag reconstructed)  (1)
+    2026-04-19 20:00 UTC OP/USDT      long   reason_exit=sl_trigger_reconstructed flag=reconstructed
+
+[excluido_mr_kernel_no_implementado] -- Trade mean-reversion (kernel MR no implementado en auditor)  (4)
+    2026-04-20 16:00 UTC UNI/USDT     short  cluster=0
+    2026-04-20 18:00 UTC UNI/USDT     long   cluster=0
+    2026-04-21 03:00 UTC STX/USDT     short  cluster=2
+    2026-04-21 14:00 UTC DOT/USDT     short  cluster=1
+
+[excluido_dd_breaker] -- Ciclo con DD breaker activo (dd_multiplier < 1.0)  (0)
+
+[excluido_reconcile_intervino] -- Brain reconcile intervino en el ciclo de entrada  (4)
+    2026-04-18 23:00 UTC TAO/USDT     short  reconcile_cycle=2026-04-18 22:00:00+00:00
+    2026-04-20 20:00 UTC ATOM/USDT    long   reconcile_cycle=2026-04-20 19:00:00+00:00
+    2026-04-21 06:00 UTC ONDO/USDT    long   reconcile_cycle=2026-04-21 05:00:00+00:00
+    2026-04-21 08:00 UTC XLM/USDT     long   reconcile_cycle=2026-04-21 07:00:00+00:00
+
+[excluido_ruido_cross_exchange] -- Ruido cross-exchange BingX/Binance > 0.3%  (0)
+
+[excluido_clustering_divergente] -- Cluster live (SIGNALS_RAW.k) != cluster post-hoc (GMM stateless)  (4)
+    2026-04-22 02:00 UTC ETC/USDT     long   cluster_live=2 cluster_post_hoc=0
+    2026-04-23 11:00 UTC ALGO/USDT    short  cluster_live=2 cluster_post_hoc=0
+    2026-04-24 09:00 UTC SHIB/USDT    long   cluster_live=1 cluster_post_hoc=2
+    2026-04-25 01:00 UTC IMX/USDT     short  cluster_live=2 cluster_post_hoc=1
+
+
+==============================================================================
+SECCION 5: COMPARATIVA v3 / v4 / v5
+==============================================================================
+version        N    matches     rate     CI_low    CI_high
+v3            11          9    82.0%      52.0%      95.0%
+v4            11         10    91.0%      62.0%      98.0%
+v5            94         48    51.1%      41.1%      60.9%
+
+Comentario sobre convergencia/divergencia (S10 fix: CI overlap formal):
+  v5 DIVERGE A LA BAJA: CI v5 [41.1, 60.9]% no solapa con CI v4 [62, 98]%.
+
+CAVEAT IMPORTANTE: v3 y v4 tienen bugs de matching identificados en el
+ultra review del 17/04/2026 (entry/exit semantics, kernel copy, tolerancia
+laxa, rollover frágil). Sus match rate son REFERENCIALES, no ground truth.
+No extrapolar a la baja directamente si v5 da menos del 91% de v4.
+
+==============================================================================

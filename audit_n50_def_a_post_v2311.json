@@ -1,0 +1,164 @@
+{
+  "audit_version": "5.2",
+  "generated": "2026-04-26 11:06:02 UTC",
+  "window": {
+    "since": "2026-04-19T17:51:00+00:00",
+    "until": "2026-04-26T11:00:00+00:00"
+  },
+  "deploy_boundaries": {
+    "v2.3.2": "2026-04-16T17:00:00+00:00",
+    "v2.3.3": "2026-04-17T08:55:00+00:00",
+    "v2.3.11": "2026-04-19T17:51:00+00:00",
+    "v2.4.0": "2026-04-20T14:08:00+00:00",
+    "v2.4.1": "2026-04-20T19:07:56+00:00",
+    "v2.4.2_v2.4.3": "2026-04-21T10:15:25+00:00",
+    "v2.4.3-hotfix": "2026-04-21T11:09:56+00:00",
+    "v2.4.4": "2026-04-21T18:22:02+00:00",
+    "v2.4.5": "2026-04-22T09:46:10+00:00"
+  },
+  "total": {
+    "n_window": 107,
+    "n_excluded": 13,
+    "n_entry_not_inferrable": 0,
+    "n_effective": 94,
+    "matches_ok": 46,
+    "matches_diff": 2,
+    "n_none": 46,
+    "match_rate": 0.5106382978723404,
+    "ci95": [
+      0.41116886151084964,
+      0.609272370908479
+    ]
+  },
+  "exclusion_counts": {
+    "excluido_reconstruido": 1,
+    "excluido_mr_kernel_no_implementado": 4,
+    "excluido_dd_breaker": 0,
+    "excluido_reconcile_intervino": 4,
+    "excluido_ruido_cross_exchange": 0,
+    "excluido_clustering_divergente": 4
+  },
+  "segments": {
+    "v2.3.11 -> v2.4.0": {
+      "n_effective": 11,
+      "matches_ok": 3,
+      "matches_diff": 0,
+      "none": 8,
+      "excluded": 1,
+      "exclusion_counts": {
+        "excluido_reconstruido": 1
+      },
+      "match_rate": 0.2727272727272727,
+      "ci_low": 0.09746059290024892,
+      "ci_high": 0.5656453011761292,
+      "period": {
+        "start": "2026-04-19T17:51:00+00:00",
+        "end": "2026-04-20T14:08:00+00:00"
+      }
+    },
+    "v2.4.0 -> v2.4.1": {
+      "n_effective": 2,
+      "matches_ok": 2,
+      "matches_diff": 0,
+      "none": 0,
+      "excluded": 2,
+      "exclusion_counts": {
+        "excluido_mr_kernel_no_implementado": 2
+      },
+      "match_rate": 1.0,
+      "ci_low": 0.34238022750665303,
+      "ci_high": 1.0,
+      "period": {
+        "start": "2026-04-20T14:08:00+00:00",
+        "end": "2026-04-20T19:07:56+00:00"
+      }
+    },
+    "v2.4.1 -> v2.4.2_v2.4.3": {
+      "n_effective": 7,
+      "matches_ok": 7,
+      "matches_diff": 0,
+      "none": 0,
+      "excluded": 4,
+      "exclusion_counts": {
+        "excluido_reconcile_intervino": 3,
+        "excluido_mr_kernel_no_implementado": 1
+      },
+      "match_rate": 1.0,
+      "ci_low": 0.6456695649333126,
+      "ci_high": 1.0,
+      "period": {
+        "start": "2026-04-20T19:07:56+00:00",
+        "end": "2026-04-21T10:15:25+00:00"
+      }
+    },
+    "v2.4.2_v2.4.3 -> v2.4.3-hotfix": {
+      "n_effective": 0,
+      "matches_ok": 0,
+      "matches_diff": 0,
+      "none": 0,
+      "excluded": 0,
+      "exclusion_counts": {},
+      "match_rate": 0.0,
+      "ci_low": 0.0,
+      "ci_high": 0.0,
+      "period": {
+        "start": "2026-04-21T10:15:25+00:00",
+        "end": "2026-04-21T11:09:56+00:00"
+      }
+    },
+    "v2.4.3-hotfix -> v2.4.4": {
+      "n_effective": 6,
+      "matches_ok": 3,
+      "matches_diff": 0,
+      "none": 3,
+      "excluded": 1,
+      "exclusion_counts": {
+        "excluido_mr_kernel_no_implementado": 1
+      },
+      "match_rate": 0.5,
+      "ci_low": 0.18761630648265054,
+      "ci_high": 0.8123836935173494,
+      "period": {
+        "start": "2026-04-21T11:09:56+00:00",
+        "end": "2026-04-21T18:22:02+00:00"
+      }
+    },
+    "v2.4.4 -> v2.4.5": {
+      "n_effective": 12,
+      "matches_ok": 6,
+      "matches_diff": 0,
+      "none": 6,
+      "excluded": 1,
+      "exclusion_counts": {
+        "excluido_clustering_divergente": 1
+      },
+      "match_rate": 0.5,
+      "ci_low": 0.2537815976337061,
+      "ci_high": 0.7462184023662939,
+      "period": {
+        "start": "2026-04-21T18:22:02+00:00",
+        "end": "2026-04-22T09:46:10+00:00"
+      }
+    },
+    "v2.4.5 -> now": {
+      "n_effective": 52,
+      "matches_ok": 25,
+      "matches_diff": 2,
+      "none": 25,
+      "excluded": 3,
+      "exclusion_counts": {
+        "excluido_clustering_divergente": 3
+      },
+      "match_rate": 0.4807692307692308,
+      "ci_low": 0.3510411444545552,
+      "ci_high": 0.6131431723194396,
+      "period": {
+        "start": "2026-04-22T09:46:10+00:00",
+        "end": "2026-04-26T11:00:00+00:00"
+      }
+    }
+  },
+  "weighted_avg_match_rate": 0.5111111111111111,
+  "discontinuity_warnings": [],
+  "clustering_skipped": 0
+}

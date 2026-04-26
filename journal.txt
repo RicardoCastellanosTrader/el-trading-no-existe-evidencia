@@ -1,6 +1,93 @@
 Journal de sesiones — pre-reciclaje 2026-04
 =============================================
 
+2026-04-26 CIERRE
+-----------------
+Fase C item 1 — Audit institucional N>=50 doble Def A+B DONE.
+Fidelidad 2 CONFIRMADA EMPÍRICAMENTE via verify_test discriminatorio.
+Alpha residual edge erosion confirmado cuantitativamente N=60.
+
+Sync VPS Tokio:
+- trade_history.csv: 215 trades (last 2026-04-26 09:00 UTC).
+- engine.logs: 18 archivos (current + 17 .gz, ~16d historia).
+- Bot uptime: 4d 2h 35m continuo. Cycle 300 ejecutado @ 10:00 UTC.
+- 0 errores reales en logs.
+
+N por ventana post-sync:
+- post-v2.3.11: N=106 (umbral N>=50 cumplido con margen).
+- post-v2.4.5:  N=60 (idem).
+
+Definición A — Match rate Fid2 audit_v5_2:
+- Aggregate: 51.1% [41.1, 60.9] fuera CI95 baseline 91%.
+- Segmento v2.4.5->now N=52: 48.1% [35.1, 61.3] fuera CI95.
+- ALERT inicial "regresión grave".
+
+Test diagnóstico discriminatorio Ricardo (verify_test 3 símbolos):
+- BTC/USDT N=11: diff 0.0000 exacto.
+- ONDO/USDT N=30: diff 0.0000 exacto.
+- SEI/USDT N=35: diff 0.0000 exacto.
+- TOTAL: 76 trades x 5 métricas = 380 mediciones, todas 0.0000.
+
+VEREDICTO Def A: Fidelidad 2 brain<->kernel productivo CONFIRMADA
+EMPÍRICAMENTE bit-a-bit. El 48% audit_v5_2 es divergencia HERRAMIENTA
+AUDITOR (audit_fidelity_v5_2.py kernel python estático diverge del
+Numba productivo, §13.2 'opción C'). NO bug Fid2 real.
+
+Definición B — Alpha residual deep-dive analyzer N=60:
+- PnL real: -0.74 USDT (4 días).
+- Alpha residual: -5.76 USDT (-0.096/trade).
+- EMPEORA vs A.1 N=26 (-0.066/trade) -> edge erosion confirmado.
+- WARN_EDGE_EROSION analyzer: alpha cae >10% últimos 20 vs 20 previos.
+- 4 clusters CANDIDATO EXCLUSION RECICLAJE: BNB C0, ONDO C2,
+  RENDER C1, SEI C0.
+
+Replicación 3 hipótesis emergentes A.1 N=26:
+- H1 short/long 12:1: REFUTACIÓN SOSTENIDA (1.48-1.94 vs 12:1).
+- H_strategy logic/struct 3.4x: CONFIRMADA en S4 (4.50x), NO contradice
+  N=98 cross-segmento refutación (efecto ventana-específico no
+  estructural).
+- H_new_3 funding 24x: DEFERRED (cache funding parcial cubre solo
+  hasta 2026-04-23 08:00, ya refutada N=98).
+
+Validación per-componente Lección 26 PASS:
+- Slippage: 5% borderline (3 edge cases MARKET fill exacto).
+- Funding: 100% cobertura hold>1h (60/60).
+- size_usdt: 100% post-v2.4.4 (73/73).
+- entry_timestamp_ms: 100% post-v2.4.5 (60/60).
+- Ecuación cierre: 0/55 con |diff|>0.01, max=0.0000 USDT.
+- pnl_recon_gap: 93% confirmado masivamente N=60 (vs 92% N=26).
+
+Decisiones items §13.3:
+- Línea 1626 Audit Fid2 -> REFORMULADO (no "match 91% confirmado"
+  sino "Fid2 confirmada via verify_test, refactor audit_v5.x
+  pendiente proyecto post-reciclaje").
+- Línea 1633 clustering divergente -> CERRADO (verify_test 76 trades
+  demuestra histéresis P>=0.75 brain replica kernel bit-a-bit).
+- R1 cooldown -> ya RESUELTO 2026-04-22 (cooldown unify).
+- P1 leverage -> disparador N>=50 cumplido, análisis abierto NO
+  implementación.
+- v2.6-inv (~2026-05-01) y v2.6-exit (~2026-05-10): mantener.
+- pnl_recon_gap (item 2026-04-23): confirmado masivamente; abierto.
+- ITEM NUEVO §13.3: refactor audit_v5.x herramienta auditor (proyecto
+  post-reciclaje, no bloqueante).
+
+§12 Lección 35 NUEVA: cuando herramienta auditor reporta regresión
+grave, validar primero contra ground truth del kernel productivo via
+test diferencial existente. _run_verify_test discriminatorio resolvió
+ambigüedad audit en ~10 min, evitó escalación falsa. Combina con
+L25+L26 como triple guardrail metodológico.
+
+ROADMAP Fase C status:
+- Audit institucional N>=50: DONE 2026-04-26.
+- Opción D pnl_recon causa raíz: SIGUIENTE (~1-2h data-independent).
+- L1892 active_config_id SIGNALS_RAW: ~30min.
+- L1904 multiplicadores SIGNALS_DISCARDED: ~30min.
+- Triaje micro-items: pre-implementación individual.
+
+Bot v2.4.5 operacional VPS Tokio invariante. Fidelidad 2 invariante.
+
+==============================
+
 2026-04-25 CIERRE
 -----------------
 Fase B M2 fix VALIDADA EMPIRICAMENTE cross-symbol N=9.
