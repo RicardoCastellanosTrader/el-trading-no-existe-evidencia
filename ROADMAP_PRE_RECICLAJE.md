@@ -32,7 +32,7 @@ Scope: ~4-6h total distribuido. Estado actualizado:
 - ✓ **Fix v1 pnl_recon aplicado + validado** **DONE 2026-04-26** — 1 línea analyze_performance_attribution.py L1001. Validación empírica: gap mean abs 0.0218→0.0137 (-37%, predicción EXACTA), % > tolerance 90%→56.7% (-33pp).
 - ✓ **L1892 active_config_id en SIGNALS_RAW** **DONE 2026-04-26** — campo `cfg` añadido en live_engine.py L565-577. Smoke §0.8 Nivel A PASS 0.0000.
 - ✓ **L1904 multipliers en SIGNALS_DISCARDED** **DONE 2026-04-26** — campos vw/bf/br/dd añadidos en live_engine.py L607-625. Smoke §0.8 Nivel A PASS 0.0000.
-- ⏭ **Triaje micro-items adicionales (L1843, L1849, L1855, L1861)** — muchos son de ultra-review 2026-04-17, pueden ser obsoletos tras v2.4.x. Decidir individualmente pre-implementación.
+- ✓ **Triaje 4 micro-items §13.3 (L1999, L2005, L2011, L2017)** **DONE 2026-04-26** — §12 L27 protocolo aplicado individual. Resultado: 3 mantenidos EN_ESPERA con disparadores empíricos refinados (L1999 ratio reconstructed >5% sobre N≥50, L2005 funding fallback >1% cycles, L2011 bloqueado P1 leverage); 1 ARCHIVADO obsoleto (L2017 E4 — update_trailing_stop NO-OP desde v2.4.0 elimina cancel-then-place). Hallazgo metodológico: 4/4 items quedaron stale en 9 días post-ultra-review.
 - ⏭ **Fase 2 secundaria pnl_recon opcional** (~30-45 min) — investigar BingX fees reales account (BNB discount) + precision drift size_usdt + posible tolerance ajuste 0.01→0.015 USDT. Disparable cuando haya decisión sobre tolerance ajuste.
 
 **Items §13.3 actualizados post-Fase C 2026-04-26**:

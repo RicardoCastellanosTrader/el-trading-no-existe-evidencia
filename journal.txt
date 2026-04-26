@@ -1,6 +1,66 @@
 Journal de sesiones — pre-reciclaje 2026-04
 =============================================
 
+2026-04-26 CIERRE NOCHE-3 (Fase C item 6 — triaje 4 micro-items §12 L27)
+------------------------------------------------------------------------
+Triaje individual 4 items §13.3 EN_ESPERA del ultra review 2026-04-17.
+
+Veredictos por item:
+
+L1999 orphan reconstruction sl_level (live_engine.py L992):
+  Code-side: NO fix aplicado (sigue estimated_exit = sl_level).
+  Empírico: 0/60 trades reconstructed post-v2.4.5; 4/155 pre-v2.4.5
+            (todos pre-v2.4.0 era TS legacy stop_market intrabar).
+  VEREDICTO: (c2) EN_ESPERA disparador refinado — ratio reconstructed
+             >5% sobre N>=50 ventana cualquier deploy futuro.
+
+L2005 funding fallback signo (execution_manager.py L177):
+  Code-side: NO fix aplicado (sigue sin -side_sign).
+  Empírico: 0% fallback "Funding history no disponible" en logs 4
+            días + 17 archivos rotated. Path muerto operacionalmente.
+  VEREDICTO: (c2) EN_ESPERA bug latente sin path activo —
+             reabrir si emerge >1% cycles fallback (cambio API BingX).
+
+L2011 emergency SL fill_price E3 (execution_manager.py L502-504):
+  Code-side: NO fix aplicado (sigue fill_price * 0.95/1.05).
+  Empírico: 0/215 trades sl_emergency en histórico completo bot.
+            Bot 1x leverage actual (P1 bloqueado) -> impacto sub-%.
+  VEREDICTO: (c2) EN_ESPERA bloqueado P1 + sin disparador —
+             reabrir conjunto E3+P1 cuando P1 se aplique.
+
+L2017 cancel-place ventana E4 (execution_manager.py L684-734):
+  Code-side: ARQUITECTURA CAMBIÓ — update_trailing_stop NO-OP desde
+             v2.4.0 deploy 2026-04-20. Cancel-then-place ELIMINADO.
+  VEREDICTO: (c3) ARCHIVADO obsoleto — bug E4 arquitectónicamente
+             eliminado por v2.4.0 sin documentar como cierre L2017.
+             Caso clásico §12 L27.
+
+Resumen:
+- 0/4 fix aplicados code-side (NO ningún review previo aplicó).
+- 0/4 disparadores empíricos cumplidos.
+- 1/4 ARCHIVADO obsoleto (arquitectura cambió).
+- 3/4 EN_ESPERA con disparadores empíricos refinados.
+
+Hallazgo metodológico: 4/4 items ultra review 2026-04-17 quedaron
+stale en 9 días post-review. §12 L27 patrón confirmado robustamente:
+- Drift arquitectónico (v2.4.0 -> L2017 obsoleto).
+- Disparadores conservadores que data empírica no alcanza
+  (sl_emergency 0/215, orphan 0/60, fallback 0%).
+- Bloqueos por items relacionados (P1 -> E3).
+
+Validación decisión Ricardo institucional 2026-04-24 "todas mejoras
+A+B+C antes reciclaje" — sin triaje regular, items §13.3 acumulan
+stale state. Triaje hoy redujo carga §13.3 con honestidad: ningún
+fix urgente identificado.
+
+Status Fase C: 6/7 items DONE.
+Pendiente: Fase 2 secundaria pnl_recon opcional ~30-45 min.
+
+Bot v2.4.5 operacional VPS Tokio invariante. Fidelidad 2 invariante
+(triaje read-only sobre code + logs).
+
+==============================
+
 2026-04-26 CIERRE NOCHE-2 (Fase C 5/7 items: fix v1 + L1892 + L1904)
 --------------------------------------------------------------------
 Tres items operacionales menores secuenciales A->B->C DONE.

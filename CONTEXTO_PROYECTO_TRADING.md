@@ -1,6 +1,8 @@
 # Sistema de Trading Algorítmico — Contexto Completo del Proyecto
 
-**Última actualización:** 26 Abril 2026 CIERRE SESIÓN NOCHE — **Fase C 5/7 items DONE**: audit institucional + investigación pnl_recon causa raíz + fix v1 aplicado VALIDADO empíricamente + L1892 active_config_id + L1904 multipliers SIGNALS_DISCARDED implementados. **Fix v1 pnl_recon validación empírica EXACTA**: re-ejecución analyzer N=60 post-fix coincide con predicción dentro tolerance ±0.0002 USDT (gap mean abs 0.0218→0.0137 predicción exacta, gap median 0.0201→0.0127 EXACTO, % > tolerance 90%→56.7% vs predicción 57%). Reducción mean abs -37.0% (predicción -37%), % > tol -33.3pp (predicción -33pp). El bug `*2.0` en `analyze_performance_attribution.py` L1001 (COMMISSION_RATE=0.001 con comment "round-trip approx (entry+exit)" pero código aplica `*2.0` duplicando round-trip → 0.20% vs 0.10% intended) corregido con 1 línea. Item §13.3 "Aplicar fix v1 pnl_recon" → FIX_V1_APLICADO + VALIDADO; Fase 2 secundaria (BNB discount + precision drift residual ~0.013 USDT) sigue EN_ESPERA opcional ~30-45 min. **L1892 active_config_id**: añadido campo `cfg` en SIGNALS_RAW log (live_engine.py L565-577) — disparador cumplido por audit C1 (100% trades active_config_source=heuristic). **L1904 multipliers SIGNALS_DISCARDED**: añadidos vw/bf/br/dd en log (L607-625) — analyzer downstream puede atribuir descartes a saturación N (br) / DD breaker (dd) / balance bajo (vw/bf) sin proxy 5-ciclos. Sanity §0.8 Nivel A `_run_verify_test BTC/USDT N=1000` post-cambios L1892+L1904: diff **0.0000 EXACTO** en 5 métricas — Fidelidad 2 invariante por construcción (cambios solo enriquecen logs diagnóstico). **Cambios live_engine.py NO deployed al VPS** (observability extensions backwards-compat, deploy puede esperar ventana mantenimiento). Bot v2.4.5 invariante hasta próximo restart. Fase C status post-sesión: 5/7 items DONE; pendientes triaje micro-items L1843/49/55/61 + Fase 2 secundaria pnl_recon opcional. Disparadores temporales próximos: v2.6-inv N≥100 (~2026-05-01), v2.6-exit N≥150 (~2026-05-10). Bot v2.4.5 operacional VPS Tokio invariante (uptime 4d+). Fidelidad 2 invariante.
+**Última actualización:** 26 Abril 2026 CIERRE SESIÓN NOCHE-3 — **Fase C 6/7 items DONE**: audit institucional + investigación pnl_recon causa raíz + fix v1 validado + L1892/L1904 logs + **triaje 4 micro-items §13.3 con §12 L27 protocolo (3 EN_ESPERA scope refinado, 1 ARCHIVADO obsoleto)**. Triaje hallazgos: code-side **0/4 fix aplicado**, disparador empírico **0/4 cumplido**, **L2017 E4 ARCHIVADO** porque arquitectura cambió v2.4.0 (update_trailing_stop NO-OP desde 2026-04-20 elimina cancel-then-place — caso clásico §12 L27 item §13.3 obsoleto por review previo no documentado). Items L1999/L2005/L2011 mantenidos EN_ESPERA con disparadores refinados empíricamente: L1999 ratio reconstructed >5% sobre N≥50 (actual 0/60 post-v2.4.5, 4/155 pre-v2.4.5 todos pre-v2.4.0); L2005 funding fallback >1% cycles (actual 0% en 4 días + 17 logs rotated); L2011 emergency SL bloqueado por P1 leverage (sl_emergency 0/215 trades histórico bot completo). Pattern §12 L27 confirmado robustamente: 4/4 items ultra review 2026-04-17 quedaron stale en 9 días post-review por drift arquitectónico, disparadores conservadores no alcanzados, o bloqueos por items relacionados. Validación decisión Ricardo institucional 2026-04-24 "todas mejoras A+B+C antes reciclaje" — sin triaje regular items §13.3 acumulan stale state. Bot v2.4.5 operacional VPS Tokio invariante (uptime 4d+). Fidelidad 2 invariante (triaje read-only sobre code + logs). Status Fase C: 6/7 DONE; pendiente Fase 2 secundaria pnl_recon opcional ~30-45 min. Disparadores temporales próximos: v2.6-inv N≥100 (~2026-05-01), v2.6-exit N≥150 (~2026-05-10).
+
+**Actualización previa:** 26 Abril 2026 CIERRE SESIÓN NOCHE — **Fase C 5/7 items DONE**: audit institucional + investigación pnl_recon causa raíz + fix v1 aplicado VALIDADO empíricamente + L1892 active_config_id + L1904 multipliers SIGNALS_DISCARDED implementados. **Fix v1 pnl_recon validación empírica EXACTA**: re-ejecución analyzer N=60 post-fix coincide con predicción dentro tolerance ±0.0002 USDT (gap mean abs 0.0218→0.0137 predicción exacta, gap median 0.0201→0.0127 EXACTO, % > tolerance 90%→56.7% vs predicción 57%). Reducción mean abs -37.0% (predicción -37%), % > tol -33.3pp (predicción -33pp). El bug `*2.0` en `analyze_performance_attribution.py` L1001 (COMMISSION_RATE=0.001 con comment "round-trip approx (entry+exit)" pero código aplica `*2.0` duplicando round-trip → 0.20% vs 0.10% intended) corregido con 1 línea. Item §13.3 "Aplicar fix v1 pnl_recon" → FIX_V1_APLICADO + VALIDADO; Fase 2 secundaria (BNB discount + precision drift residual ~0.013 USDT) sigue EN_ESPERA opcional ~30-45 min. **L1892 active_config_id**: añadido campo `cfg` en SIGNALS_RAW log (live_engine.py L565-577) — disparador cumplido por audit C1 (100% trades active_config_source=heuristic). **L1904 multipliers SIGNALS_DISCARDED**: añadidos vw/bf/br/dd en log (L607-625) — analyzer downstream puede atribuir descartes a saturación N (br) / DD breaker (dd) / balance bajo (vw/bf) sin proxy 5-ciclos. Sanity §0.8 Nivel A `_run_verify_test BTC/USDT N=1000` post-cambios L1892+L1904: diff **0.0000 EXACTO** en 5 métricas — Fidelidad 2 invariante por construcción (cambios solo enriquecen logs diagnóstico). **Cambios live_engine.py NO deployed al VPS** (observability extensions backwards-compat, deploy puede esperar ventana mantenimiento). Bot v2.4.5 invariante hasta próximo restart. Fase C status post-sesión: 5/7 items DONE; pendientes triaje micro-items L1843/49/55/61 + Fase 2 secundaria pnl_recon opcional. Disparadores temporales próximos: v2.6-inv N≥100 (~2026-05-01), v2.6-exit N≥150 (~2026-05-10). Bot v2.4.5 operacional VPS Tokio invariante (uptime 4d+). Fidelidad 2 invariante.
 
 **Actualización previa:** 26 Abril 2026 CIERRE SESIÓN Audit institucional N≥50 doble Def A+B post-v2.4.5 — **Fidelidad 2 CONFIRMADA EMPÍRICAMENTE + alpha residual edge erosion confirmado** (Fase C item 1 DONE): Sync VPS Tokio (trade_history.csv 215 trades + 18 archivos engine.log + bot uptime 4d 2h 35m continuo cycle 300 ejecutado 10:00 UTC). N por ventana: post-v2.3.11=106, post-v2.4.4=73, post-v2.4.5=60 (ambas Def A+B con margen N≥50). **Definición A — Match rate Fidelidad 2**: audit_v5_2 reportó 48.1% v2.4.5→now (N=52 efectivo) fuera CI95 baseline 91%, pero **`_run_verify_test` discriminatorio Ricardo 3 símbolos × 1000 bars (76 trades, 380 mediciones) diff 0.0000 EXACTO en 5 métricas (Trades, Wins, PnL %, Gross profit, Gross loss)** confirma **brain↔kernel productivo bit-a-bit**. El 48% audit_v5_2 es divergencia **HERRAMIENTA AUDITOR** (audit_fidelity_v5_2.py mantiene copia python estática del kernel divergente del Numba productivo, §13.2 "opción C"), NO bug Fidelidad 2 real. **Item §13.3 línea 1626 reformulado** (no "match 91% confirmado" sino "Fid2 confirmada via verify_test, refactor audit_v5.x pendiente proyecto post-reciclaje"). Item §13.3 línea 1633 clustering divergente CERRADO (verify_test demuestra histéresis P≥0.75 brain replica kernel). Item P1 leverage disparador N≥50 cumplido, análisis abierto NO implementación. Item R1 cooldown ya RESUELTO 2026-04-22 (cooldown unify). **Definición B — Alpha residual deep-dive**: analyzer v2.4.1 N=60 reporta alpha_residual=−5.76 USDT (−0.096/trade), **EMPEORA vs A.1 N=26 (−0.066)** confirmando edge erosion. 4 clusters CANDIDATO EXCLUSION RECICLAJE (BNB C0, ONDO C2, RENDER C1, SEI C0). WARN_EDGE_EROSION analyzer: alpha residual cae >10% últimos 20 vs 20 previos. PnL acumulado bot v2.4.5 4 días: −0.74 USDT (−0.18/día). **Replicación 3 hipótesis emergentes A.1 N=26**: H1 short/long REFUTACIÓN SOSTENIDA (ratio 1.48-1.94 vs 12:1 original); H_strategy CONFIRMADA en S4 sub-ventana (4.50× vs 3.4× A.1, NO contradice N=98 refutación cross-segmento — efecto ventana-específico no estructural); H_new_3 funding DEFERRED (caché funding parcial cubre solo hasta 2026-04-23 08:00, ya refutada N=98). **Validación per-componente Lección 26 PASS**: slippage 5% borderline (3 edge cases MARKET orders fill price exacto), funding 100% cobertura hold>1h (60/60), size_usdt 100% post-v2.4.4 (73/73), entry_timestamp_ms 100% post-v2.4.5 (60/60), ecuación cierre 0/55 con \|diff\|>0.01 max=0.0000 EXACTO. **§12 Lección 35 NUEVA**: test diagnóstico discriminatorio contra ground truth (kernel productivo via verify_test) ANTES de investigar causa raíz cuando herramienta auditor reporta alarma — caso origen audit_v5_2 falsa alarma 48% resuelta en 3 minutos via verify_test 380 mediciones diff 0.0000; triple guardrail con L25 + L26 ante alertas observabilidad/audit. pnl_recon_gap 93% confirmado masivamente N=60 (vs 92% N=26 A.1) — item §13.3 sigue abierto, próxima Fase C item 2 Opción D pnl_recon causa raíz (~1-2h). Bot v2.4.5 operacional VPS Tokio invariante. Fidelidad 2 invariante (sesión read-only sobre data productiva).
 
@@ -2079,29 +2081,72 @@ Disparo: al proximo reciclaje (julio), cuando se pueda refactorizar close_positi
 Cierre: refactor aplicado con eliminacion de la redundancia, o decision documentada de mantener arquitectura actual con 2 fetches.
 Referencias: data_feed.py get_open_positions líneas 242-251, execution_manager.py close_position linea 258, Fase 3 B6 del 2026-04-19.
 
-**[MEJORA] [EN_ESPERA] live_engine: orphan reconstruction usa sl_level brain, no real exit price — 2026-04-17**
+**[MEJORA] [EN_ESPERA — TRIAJE 2026-04-26 (c2) disparador no cumplido] live_engine: orphan reconstruction usa sl_level brain, no real exit price — 2026-04-17**
 Contexto: Ultra review L4. Líneas 872-876 de _reconcile_brain_after_execution: estimated_exit = sl_level del brain (fixed 3% + TS). Real exit puede haber sido emergency SL 5% (intrabar) o TS mayor. PnL reconstruido desvía ±2%. Flag 'reconstructed' marca el trade; analyzer v2.4.1 los excluye de agregados via fix C3.
-Disparo: si aparecen múltiples orphan closes y el desajuste de PnL reconstruido afecta análisis.
-Cierre: en lugar de sl_level, fetch price real de BingX al momento del trigger (via fetch_my_trades o fetch_order), o documentar aceptación del desajuste.
-Referencias: live_engine.py _reconcile_brain_after_execution líneas 872-876.
 
-**[MEJORA] [EN_ESPERA] execution_manager: estimated funding fallback ignora side → signo invertido para longs — 2026-04-17**
-Contexto: Ultra review E1. Línea 177: `estimated = rate * position_size_usdt * periods_8h`. No considera side del trade. Convención ccxt: amount>0 recibido, amount<0 pagado. Para LONG con rate positiva, trader PAGA (debería ser negativo); formula actual devuelve positivo. Ruta activa solo cuando fetch_funding_history falla (exception) y cae al fallback estimado. Frecuencia actual desconocida — grep en logs "Funding history no disponible" revelaría incidencia.
-Disparo: si analyzer v2.4.1 reporta funding con signos inesperadamente invertidos para longs, o si log engine muestra uso frecuente del fallback.
-Cierre: pasar `side` a `_get_position_funding` y multiplicar por -1 si long (o `-side_sign`).
-Referencias: execution_manager.py _get_position_funding líneas 143-186, DECISION sobre sign de funding del 16/04 en 13.2.
+**Triaje 2026-04-26 (Fase C item 6)**: code inspection live_engine.py L992 confirma `estimated_exit = sl_level` sigue presente (NO fix aplicado). PERO disparador empírico **NO cumplido**:
+- post-v2.4.5 (4 días uptime, N=60 trades): **0/60 reconstructed** (0.0%).
+- pre-v2.4.5 histórico N=155: **4/155 = 2.58%** (todos pre-v2.4.0 era TS legacy: GRT 2026-04-16, OP 2026-04-18, OP 2026-04-19 ×2).
+- Post-v2.4.0 deploy (2026-04-20): 0 reconstructed observados.
 
-**[MEJORA] [EN_ESPERA] execution_manager: emergency SL usa fill_price no entry_price_brain — 2026-04-17**
-Contexto: Ultra review E3. Línea 469: `stop_price_bingx = fill_price * (1 - SL_EMERGENCY_PCT / 100)`. Kernel asume emergency_sl = close_de_la_barra × 0.95. Producción usa fill_price que puede diferir por slippage. Divergencia sub-% típicamente.
-Disparo: si auditoría v5.1 muestra divergencia de precios de exit por SL emergencia (kernel triggerea a close×0.95, producción a fill×0.95). Actualmente los trades observados caen por sl_hit (software SL 3%) o normal exits, no sl_emergency.
-Cierre: pasar entry_price (close de señal del brain) como parámetro a open_position y usarlo para calcular stop_price_bingx, en lugar de fill_price.
-Referencias: execution_manager.py open_position línea 469.
+Causa: TS brain on-close via close_position MARKET reduceOnly (post-v2.4.0) elimina prácticamente la ventana donde "BingX cierra entre ciclos" sin que close_position MARKET se invoque. Mecanismo orphan reconstruction es red de seguridad arquitectural rara vez ejecutada.
 
-**[MEJORA] [EN_ESPERA] execution_manager: ventana sin stop entre cancel y place-new — 2026-04-17**
+Veredicto: **mantener EN_ESPERA con disparador refinado**: si frecuencia trades reconstructed >5% en ventana N≥50 emerge en futuro, reabrir item para fix. Mientras 0/60 actual, sin urgencia.
+
+Disparo refinado: ratio trades flag=reconstructed >5% sobre ventana N≥50 cualquier deploy futuro.
+Cierre: implementación fix (fetch real price BingX) cuando disparador se cumpla, o archivar como obsoleto si emerge arquitectura post-reciclaje que elimine reconstruction.
+Referencias: live_engine.py L980-1014 (_reconcile_brain_after_execution flujo orphan), §13.4 audit C1 N=60 2026-04-26 (data origen triaje), §12 L27 (item obsoleto por review previo posible).
+
+**[MEJORA] [EN_ESPERA — TRIAJE 2026-04-26 (c2) bug latente sin impacto operacional] execution_manager: estimated funding fallback ignora side → signo invertido para longs — 2026-04-17**
+Contexto: Ultra review E1. Línea 177: `estimated = rate * position_size_usdt * periods_8h`. No considera side del trade. Convención ccxt: amount>0 recibido, amount<0 pagado. Para LONG con rate positiva, trader PAGA (debería ser negativo); formula actual devuelve positivo. Ruta activa solo cuando fetch_funding_history falla.
+
+**Triaje 2026-04-26 (Fase C item 6)**: code inspection execution_manager.py L143-186 confirma bug code-side persiste — fallback NO multiplica por `-side_sign`. PERO disparador empírico definitivamente **NO se cumple**:
+- §13.4 entrada "Fase 1 C1 — Funding fallback frequency 0%" 2026-04-19 ya verificó 0/35 SIGNALS_EXECUTED con fallback en logs históricos.
+- Re-verificación 2026-04-26 sobre logs VPS post-sync (4 días + 17 archivos rotated): grep "Funding history no disponible" = **0 ocurrencias**.
+- Funding fetch_funding_history es 100% disponible BingX en ventana observada — fallback path muerto operacionalmente.
+- Análisis funding signs N=60 post-v2.4.5: longs mean +0.000036 (mix recibido/pagado), shorts mean +0.000924 (24/26 recibido). Distribuciones consistentes con fetch_funding_history correcto, NO invertidos.
+
+Veredicto: **bug latente confirmado código-side, sin impacto operacional empírico** (0% fallback en 4 días + 215 trades histórico). §12 L26 corolario: bug latente sin path activo NO requiere fix urgente; fix aplica solo cuando emerja necesidad operacional.
+
+Disparo refinado: si emerge >1% cycles con "Funding history no disponible" en logs (ej. cambio API BingX rompe fetch_funding_history), reabrir y aplicar fix.
+Cierre: fix aplicado cuando disparador emerja, o archivar obsoleto si arquitectura post-reciclaje refactoriza funding handling.
+Referencias: execution_manager.py L143-186, §13.4 entrada Fase 1 C1 2026-04-19, §13.4 entrada triaje Fase C item 6 2026-04-26.
+
+**[MEJORA] [EN_ESPERA — TRIAJE 2026-04-26 (c2) disparador no cumplido + bloqueo P1] execution_manager: emergency SL usa fill_price no entry_price_brain — 2026-04-17**
+Contexto: Ultra review E3. Línea 469 (actualmente L502-504): `stop_price_bingx = fill_price * (1 - SL_EMERGENCY_PCT / 100)`. Kernel asume emergency_sl = close_de_la_barra × 0.95. Producción usa fill_price que puede diferir por slippage. Divergencia sub-% típicamente.
+
+**Triaje 2026-04-26 (Fase C item 6)**: code inspection execution_manager.py L502-504 confirma sigue con `fill_price` (NO fix aplicado). Disparador empírico **NO cumplido categóricamente**:
+- post-v2.4.5 N=60: **0 trades sl_emergency**.
+- Histórico bot completo N=215: **0 trades sl_emergency** (no aparece en value_counts reason_exit). Solo `sl_hit` 9 (software SL 3% on-close). El sl_emergency 5% intrabar BingX **nunca se ha disparado** en histórico bot.
+- Bot 1x leverage actual (P1 leverage bug, item §13.3 separado) → impacto E3 sub-%.
+
+Bloqueado conceptualmente por P1: si P1 leverage variable se aplica (>1x), E3 pasa de SERIO a potencialmente CRÍTICO (E3 escala con leverage per OBSERVACION L1447).
+
+Veredicto: **mantener EN_ESPERA bloqueado por P1 + sin disparador empírico**. Combinación factores: 0/215 sl_emergency observados + 1x leverage hace impacto sub-% + P1 implementación deferida → fix E3 NO urgente.
+
+Disparo refinado: si P1 se aplica O sl_emergency emerge en futuro, reabrir y aplicar fix conjunto E3+P1.
+Cierre: fix aplicado conjuntamente con P1 leverage variable, o archivar si ambos quedan obsoletos por arquitectura post-reciclaje.
+Referencias: execution_manager.py L502-504, OBSERVACION L1447 E3-leverage, item P1 leverage §13.3 línea 1727.
+
+**[MEJORA] [ARCHIVADO 2026-04-26 (c3) OBSOLETO arquitectura cambiada] execution_manager: ventana sin stop entre cancel y place-new — 2026-04-17**
 Contexto: Ultra review E4. El patrón cancel-then-place (necesario porque BingX no soporta modify-order) deja ~100ms+latencia sin stop. Mitigado por rama de fallo que coloca emergency SL si place-new falla, pero la ventana existe.
-Disparo: si en un evento de volatilidad extrema ocurre trigger de stop entre cancel y place-new, y no hay orphan reconstrucción adecuada.
-Cierre: investigar si BingX añade en nueva versión soporte para modify-order, o usar un flag `keep_previous_on_fail` antes del cancel.
-Referencias: execution_manager.py update_trailing_stop líneas 610-648.
+
+**Triaje 2026-04-26 (Fase C item 6) — VEREDICTO: OBSOLETO**:
+
+`update_trailing_stop` (execution_manager.py L684-734) es **NO-OP desde v2.4.0** (deploy 2026-04-20). Cuerpo original (153 líneas con cancel-then-place) reemplazado por logger info + return `noop_v240`. **YA NO HAY cancel-then-place**:
+- BingX stop_market emergency 5% se coloca UNA VEZ en `open_position` (L502-504).
+- TS vive on-close en brain `state.sl_level` (software).
+- Stop NO se cancela hasta `close_position` MARKET reduceOnly (cierre activo).
+
+**No existe "ventana sin stop entre cancel y place-new" porque NO hay cancel-then-place** post-v2.4.0. Bug E4 fue arquitectónicamente **eliminado por v2.4.0 deploy** sin documentar como cierre L2017.
+
+Caso perfecto **§12 L27**: item §13.3 EN_ESPERA quedó stale después de v2.4.0 deploy mayor que cambió arquitectura. v2.4.0 NO se documentó como "cierre L2017" porque el deploy era para Fidelidad 2 TS principalmente; cierre colateral E4 quedó implícito sin update §13.3.
+
+**Status**: ARCHIVADO. Item resolvido por arquitectura v2.4.0. Si futuro re-deploy con TS BingX-side (rollback v2.4.0 muy improbable), re-abrir item.
+
+Disparo: N/A (arquitectura cambió).
+Cierre: ARCHIVADO permanente 2026-04-26.
+Referencias: execution_manager.py L684-734 (update_trailing_stop no-op), §13.4 v2.4.0 deploy 2026-04-20, §13.2 HALLAZGO Fidelidad 2 TS RESUELTO, §12 L27 (caso de estudio item §13.3 obsoleto por review previo).
 
 **[MEJORA] [EN_ESPERA] portfolio_manager: vol_weight puede neutralizar dd_multiplier en low-vol — 2026-04-17**
 Contexto: Ultra review S1. Líneas 387-396: effective_max_pos_pct aplica dd_multiplier, pero el cap max_allowed usa max_single_position_pct SIN dd. Con vw=2 (símbolo low-vol típicamente BTC) y dd=0.5, adjusted = min(2.5% × 2, 5%) = 5% — DD neutralizado. Ambigüedad de diseño: si el 5% cap es "risk-equivalent" entonces OK, si es "dollar exposure bajo cualquier condición" entonces OK actual, si es "dd_reduced%" entonces bug. Impacto real: BTC (principal símbolo low-vol) escapa al DD reduce.
@@ -2591,6 +2636,58 @@ Cierre: Análisis B ejecutado con N_trades ≥15 per config + veredicto cross-cl
 ---
 
 ### 13.4 RESUELTO
+
+**[OPERACIONAL] [DONE Fase C item 6] Triaje 4 micro-items §13.3 EN_ESPERA con §12 L27 protocolo — 2026-04-26**
+
+Contexto: Fase C item 6 — triaje individual 4 micro-items §13.3 EN_ESPERA del ultra review 2026-04-17 aplicando §12 Lección 27 protocolo (verificar fix ya implementado en código actual antes de proceder reflejamente).
+
+**Tabla resumen 4 veredictos**:
+
+| Item | Línea | Code-side status | Disparador empírico | Veredicto |
+|------|------:|------------------|---------------------|-----------|
+| L1999 orphan reconstruction sl_level vs real | 2082 | NO fix aplicado (live_engine.py L992) | 0/60 post-v2.4.5; 4/155 pre-v2.4.5 (todos era TS legacy) | **(c2) EN_ESPERA disparador refinado** |
+| L2005 funding fallback signo invertido | 2089 | NO fix (execution_manager.py L177) | 0% fallback en 4 días + 17 logs rotated; signs N=60 OK fetch_funding_history | **(c2) EN_ESPERA bug latente sin path activo** |
+| L2011 emergency SL fill_price (E3) | 2095 | NO fix (execution_manager.py L502-504) | **0/215 sl_emergency en histórico completo bot** | **(c2) EN_ESPERA bloqueado P1 + sin disparador** |
+| L2017 cancel-place ventana (E4) | 2101 | **Arquitectura cambió v2.4.0**: update_trailing_stop NO-OP desde 2026-04-20 | YA NO hay cancel-then-place | **(c3) ARCHIVADO obsoleto** |
+
+**Resultado triaje**:
+- 0 items reclasificados §13.4 RESUELTO (caso a) — ningún fix code-side aplicado.
+- 3 items mantenidos §13.3 EN_ESPERA con scope refinado (caso c2).
+- 1 item ARCHIVADO obsoleto (caso c3) — L2017 E4.
+- 0 items con disparador empírico cumplido para implementación urgente (caso c1).
+
+**Hallazgo metodológico**: 4/4 items del ultra review 2026-04-17 quedaron desactualizados o sin disparador empírico cumplido en 9 días post-review. **§12 L27 patrón confirmado robustamente**: items §13.3 EN_ESPERA tienden a obsolescencia por:
+- Drift arquitectónico (v2.4.0 cambió E4 → ARCHIVADO).
+- Disparadores conservadores que data empírica no alcanza (sl_emergency 0/215, orphan 0/60, fallback 0%).
+- Bloqueos por items relacionados (P1 leverage bloquea E3).
+
+Esto valida la decisión Ricardo institucional 2026-04-24 "todas las mejoras A+B+C antes de reciclaje" — porque sin triaje regular, items §13.3 acumulan stale state. Triaje hoy redujo carga §13.3 con honestidad: ningún fix urgente identificado de los 4.
+
+**Cambios CONTEXTO**:
+- §13.3 línea 2082 (L1999): tag actualizado [EN_ESPERA — TRIAJE 2026-04-26 (c2) disparador no cumplido].
+- §13.3 línea 2089 (L2005): tag actualizado [EN_ESPERA — TRIAJE 2026-04-26 (c2) bug latente sin impacto operacional].
+- §13.3 línea 2095 (L2011): tag actualizado [EN_ESPERA — TRIAJE 2026-04-26 (c2) disparador no cumplido + bloqueo P1].
+- §13.3 línea 2101 (L2017): tag actualizado [ARCHIVADO 2026-04-26 (c3) OBSOLETO arquitectura cambiada].
+
+**Items con disparadores refinados** (c2 cases):
+- L1999: ratio reconstructed >5% sobre N≥50 ventana cualquier deploy futuro.
+- L2005: ratio "Funding history no disponible" >1% cycles en logs.
+- L2011: P1 leverage variable aplicado O sl_emergency emerge.
+
+**Status Fase C** post-triaje: 6/7 items DONE. Pendiente solo Fase 2 secundaria pnl_recon opcional ~30-45 min.
+
+**Bot v2.4.5 invariante**. Triaje read-only sobre code + logs. Sin tocar bot productivo.
+
+Referencias:
+- audit C1 N=60 commit aa8bb2d 2026-04-26 (data origen disparadores empíricos).
+- §13.4 entrada Fase 1 C1 funding fallback 0% 2026-04-19 (re-validación L2005).
+- §13.2 HALLAZGO Fidelidad 2 TS RESUELTO v2.4.0 (causa L2017 archivado).
+- §13.3 línea 1727 P1 leverage (bloqueo L2011).
+- §12 L27 protocolo + caso de estudio.
+
+Cierre Fase C item 6: permanente. Triaje individual completo. Próximo Fase C: Fase 2 secundaria pnl_recon opcional o cierre Fase C como completa según decisión.
+
+---
 
 **[OBSERVABILIDAD] [RESUELTO Fase C items 3+4] L1892 active_config_id + L1904 multipliers SIGNALS_DISCARDED — 2026-04-26**
 
