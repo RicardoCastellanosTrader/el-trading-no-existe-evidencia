@@ -943,6 +943,30 @@ Sin esto, el auditor produce falsos positivos masivos y la auditoría pierde val
 
 **Caso origen completo**: sesión 2026-04-23 A.1 deep-dive + Fase 2 H1 + Fase 3 stress-test. 3 refutaciones en una sesión aplicando el protocolo por iniciativa del operador (Ricardo) que solicitó stress-test antes de escribir borradores §13.3. Sin el protocolo se habrían creado 3 items §13.3 activos con disparadores N≥40/50/100 que habrían consumido 3-4 sesiones de validación incremental para concluir refutación. Con el protocolo se resuelven en 1 sesión.
 
+35. **Test diagnóstico discriminatorio contra ground truth antes de investigar causa raíz cuando herramienta auditor reporta alarma — 2026-04-26**. Cuando una herramienta auditor (audit_v5.1, audit_v5_2, analyzers, etc.) reporta métrica alarmante (regresión grave, fuera CI95, anomalía estructural), **validar primero contra ground truth** (kernel productivo via test diferencial existente) ANTES de invertir tiempo investigando causa raíz por hipótesis. Caso origen: audit_v5_2 reportó match rate 48.1% post-v2.4.5 N=52 fuera CI95 baseline 91%, escalado a "REGRESION GRAVE". Test discriminatorio `_run_verify_test` cross-3-símbolos (BTC+ONDO+SEI) sobre 76 trades = 380 mediciones independientes con diff 0.0000 EXACTO confirmó Fidelidad 2 bit-a-bit. La divergencia estaba en audit_v5_2 (kernel python estático), NO en bot productivo.
+
+**Patrón problemático**: cuando una alerta de herramienta auditor llega (especialmente con métrica que parece grave), la tentación inmediata es enumerar hipótesis explicativas (H1: cross-exchange, H2: clustering divergente, H3: régimen, H4: bug entry_candle, H5: bug Fidelidad 2 real) e ir investigando una por una. Esto consume horas y arrastra al operador a un mindset de "el bot está roto, encontremos qué" en vez de "el reporte podría estar equivocado, validemos primero". Sin test discriminatorio, la sesión hubiera escalado falsa alarma con 2-3h de investigación H1-H5 hipótesis innecesaria.
+
+**Mitigación protocolaria**: ante alerta auditor con métrica fuera de baseline esperado:
+1. **PASO 1 (test discriminatorio)**: ejecutar test diferencial contra ground truth productivo (`_run_verify_test`, `audit_mr_fidelity_sei`, equivalente). Coste 5-10 min.
+2. **PASO 2 según resultado**:
+   - Si ground truth confirma OK (diff 0.0000 sobre N≥10 trades): herramienta auditor es la divergente — abrir item §13.3 refactor herramienta sin alarma operacional. Continuar trabajo sin escalación.
+   - Si ground truth confirma FALLO (diff sustantivo): escalar como crítico genuino. Investigar hipótesis H1-Hn solo aquí.
+3. **PASO 3 (documentación)**: registrar el test discriminatorio en el reporte audit como gate metodológico. Audits futuros reproducen el patrón.
+
+**Prior probability racional**: cuando herramienta auditor diverge del sistema operacional, prior probability del problema está en herramienta auditor (más pequeña, menos batalla-probada, no en producción) que en sistema operacional (uptime largo, PnL coherente, cycles sin errores). Es Bayes inversa: P(bug | auditor reports problema) << P(auditor herramienta divergente | auditor reports problema) cuando sistema productivo tiene track record sólido.
+
+**Aplicabilidad fuera de trading**: cualquier sistema con herramientas auditor separadas del runtime productivo (analyzers, audit scripts, smoke tests heredados, telemetría de validación). Cuando auditor y sistema operacional divergen, el problema históricamente ha estado en auditor (casos 2026-04-21 L25 — agregados engañan, 2026-04-22 L26 — componentes individuales bug silencioso, 2026-04-26 L35 — herramienta auditor diverge).
+
+**Triple guardrail metodológico institucional**:
+- L25: segmentación arquitectónica obligatoria sobre ventanas con deploys heterogéneos.
+- L26: validación per-componente además de ecuación global de cierre.
+- L35: test diferencial contra ground truth productivo ANTES de investigar causa raíz por hipótesis.
+
+Las tres se aplican secuencialmente ante alertas observabilidad/audit. L25 y L26 son sobre interpretación métrica; L35 es sobre dirección de la investigación de causa raíz.
+
+**Caso origen completo**: sesión Fase C item 1 audit institucional N≥50 doble 2026-04-26. Test discriminatorio Ricardo's solicitud aplicada en ~10 min, evitó 2-3h investigación falsa alarma. Resultado: Fidelidad 2 confirmada, item §13.3 reformulado, item nuevo "Refactor audit_v5.x herramienta auditor" creado para tracking sin alarma operacional.
+
 ---
 
 ## 13. LISTA VIVA DE SEGUIMIENTO
