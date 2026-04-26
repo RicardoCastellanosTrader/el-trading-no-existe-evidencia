@@ -1,6 +1,87 @@
 Journal de sesiones — pre-reciclaje 2026-04
 =============================================
 
+2026-04-26 CIERRE NOCHE-4 (Multi-testing correction Holm/BH CASO B archivado)
+-----------------------------------------------------------------------------
+Implementación + dry-run + decisión Caso B archivado empíricamente.
+
+PREDICCIÓN ULTRATHINK PRE-IMPLEMENTACIÓN:
+Classical multi-test correction (Holm/BH/Bonferroni) es herramienta para
+hypothesis testing donde tests son independientes; NO para selection bias
+structural "best of millions". El residual J/B 2.41× post-M2 fix viene
+del POINT ESTIMATE inflado por seleccionar el mejor de ~138M candidates
+pre-filter, NO de inferencia mal calibrada dentro del survivor pool.
+Predicción Caso B con probabilidad alta.
+
+IMPLEMENTACIÓN (rama feature-multi-testing-correction-pre-reciclaje
+commit ca911be):
+- regime_walk_forward.py: 3 funciones nuevas + wrapper integration.
+  · _compute_pvalues_from_ci_low: SE approx desde W3 bootstrap CI95.
+  · _apply_holm_correction: step-down FWER control.
+  · _apply_bh_correction: step-up FDR control.
+  · _apply_multi_testing_correction wrapper con flag _MULTI_TEST_METHOD.
+- Default 'none' backwards-compat M2 fix baseline.
+- Constantes: _MULTI_TEST_METHOD, _MULTI_TEST_ALPHA=0.05, _MULTI_TEST_NULL_PF=1.0.
+- Integración pre-sort en extract_validated_specialists.
+
+TESTS:
+- 13 greenfield (test_multi_testing_correction.py).
+- 31 no-regression (W3+W4+A14+A15+M2).
+- 44/44 PASS.
+
+DRY-RUN CROSS-9 sobre JSONs smoke 2026-04-24 (in-memory):
+- Holm: 3/9 ORPHAN clusters (33% — degrada operacionalmente).
+        Solo SEI C0 changed top-1 (1/6 no-orphan).
+- BH:   0/9 orphan, 0/9 top-1 changed (NO-OP efectivo).
+
+VEREDICTO Caso B confirmado empíricamente:
+- Holm filtra demasiado en clusters con ci_low modesto (1.5-2.0).
+  Threshold α/N=5e-4 con N=100 + α=0.05 — pf_fwd_ci_low requerido alto.
+- BH al α=0.05 acepta todos (rank 100 threshold = 100/100 × 0.05 = 0.05).
+  Survivor pool top-100 ya tiene pf_fwd_ci_low >= 1.0 implícito (W4
+  thresholds + flag_sospechoso filtros upstream).
+
+Causa raíz (predicción ultrathink confirmada):
+Classical multi-test correction es herramienta INCORRECTA para
+selection bias structural. Residual 2.41× es estructural, atacable
+solo via:
+- Deflated Sharpe Ratio (López de Prado): ~15-25h proyecto dedicado.
+- k-fold Cross-Validation: ~20-30h proyecto dedicado.
+- Sample splitting: dividir histórico en partes selección + evaluación.
+- Bootstrap aggregation con re-selection per resample.
+
+Estos refinamientos son proyectos dedicados separados post-reciclaje.
+
+VALIDACIÓN cross-symbol N=9 NO ejecutada per spec 5.1 (skip si dry-run
+sin top-1 changes significativos) — compute saved ~30-45 min.
+
+DECISIÓN:
+- Rama feature queda REFERENCIA ARCHIVADA (NO merge a main).
+- Code preservado con default 'none' backwards-compat.
+- Tests preservados (13 PASS) garantizan funcionalidad reactivación.
+- §13.3 línea 2336 sub-item Multi-testing → ARCHIVED_EMPIRICAL_2026-04-26.
+- §13.2 caveat permanente: residual 2.41× confirmed estructural via test
+  empírico.
+
+HALLAZGOS COLATERALES:
+1. JSONs smoke 2026-04-24 sorted por specialist_score_ci_low (W3b
+   ranking pre-M2-fix), NO pf_fwd_ci_low. Smoke ONDO/SEI fue ANTES del
+   M2 fix commit 7162369 mismo día. Solo BTC-only smoke 2026-04-25 tiene
+   M2 fix activo. Caveat metodológico para análisis dry-run.
+2. BH redundancia con W4 + flag_sospechoso filtros upstream → multi-test
+   correction adicional debería aplicarse PRE-W4, NO post-W4.
+3. Predicción ultrathink validada profilácticamente = variante
+   constructive §12 L35 (predicción cualitativa antes de implementación
+   invasiva, valida o refuta hipótesis con compute mínimo).
+
+ROADMAP Fase C status post-sesión: 6/7 items DONE + Multi-testing CASO B
+archivado adicional. Pendiente solo Fase 2 secundaria pnl_recon opcional.
+
+Bot v2.4.5 operacional VPS Tokio invariante. Fidelidad 2 invariante (sin
+merge feature branch, code main intacto).
+
+==============================
+
 2026-04-26 CIERRE NOCHE-3 (Fase C item 6 — triaje 4 micro-items §12 L27)
 ------------------------------------------------------------------------
 Triaje individual 4 items §13.3 EN_ESPERA del ultra review 2026-04-17.

@@ -1,6 +1,8 @@
 # Sistema de Trading Algorítmico — Contexto Completo del Proyecto
 
-**Última actualización:** 26 Abril 2026 CIERRE SESIÓN NOCHE-3 — **Fase C 6/7 items DONE**: audit institucional + investigación pnl_recon causa raíz + fix v1 validado + L1892/L1904 logs + **triaje 4 micro-items §13.3 con §12 L27 protocolo (3 EN_ESPERA scope refinado, 1 ARCHIVADO obsoleto)**. Triaje hallazgos: code-side **0/4 fix aplicado**, disparador empírico **0/4 cumplido**, **L2017 E4 ARCHIVADO** porque arquitectura cambió v2.4.0 (update_trailing_stop NO-OP desde 2026-04-20 elimina cancel-then-place — caso clásico §12 L27 item §13.3 obsoleto por review previo no documentado). Items L1999/L2005/L2011 mantenidos EN_ESPERA con disparadores refinados empíricamente: L1999 ratio reconstructed >5% sobre N≥50 (actual 0/60 post-v2.4.5, 4/155 pre-v2.4.5 todos pre-v2.4.0); L2005 funding fallback >1% cycles (actual 0% en 4 días + 17 logs rotated); L2011 emergency SL bloqueado por P1 leverage (sl_emergency 0/215 trades histórico bot completo). Pattern §12 L27 confirmado robustamente: 4/4 items ultra review 2026-04-17 quedaron stale en 9 días post-review por drift arquitectónico, disparadores conservadores no alcanzados, o bloqueos por items relacionados. Validación decisión Ricardo institucional 2026-04-24 "todas mejoras A+B+C antes reciclaje" — sin triaje regular items §13.3 acumulan stale state. Bot v2.4.5 operacional VPS Tokio invariante (uptime 4d+). Fidelidad 2 invariante (triaje read-only sobre code + logs). Status Fase C: 6/7 DONE; pendiente Fase 2 secundaria pnl_recon opcional ~30-45 min. Disparadores temporales próximos: v2.6-inv N≥100 (~2026-05-01), v2.6-exit N≥150 (~2026-05-10).
+**Última actualización:** 26 Abril 2026 CIERRE SESIÓN NOCHE-4 — **Multi-testing correction Holm/BH CASO B ARCHIVADO empíricamente** (§13.3 línea 2336 sub-item walk-forward methodology refinement). Predicción ultrathink pre-implementación: classical multi-test correction es herramienta para hypothesis testing donde tests independientes; NO para **selection bias structural** "best of millions". Implementación completa en rama `feature-multi-testing-correction-pre-reciclaje` (commit `ca911be`): 3 funciones nuevas (`_compute_pvalues_from_ci_low`, `_apply_holm_correction`, `_apply_bh_correction`) + wrapper integration en `extract_validated_specialists` post-W3 bootstrap pre-sort. Default `_MULTI_TEST_METHOD='none'` backwards-compat M2 fix baseline. **Tests greenfield 13/13 PASS + no-regression 31/31 PASS = 44/44**. **Dry-run cross-9 sobre JSONs smoke 2026-04-24 in-memory**: Holm con N=100 α=0.05 produce **3/9 orphan (33%)** + 1/6 top-1 changed (degrada operacionalmente); BH **0/9 orphan + 0/9 top-1 changed (no-op efectivo)** porque survivor pool top-100 ya está heavily pre-filtered por W4 thresholds + flag_sospechoso → BH al α=0.05 acepta todos. Validación cross-symbol N=9 NO ejecutada per spec (skip si dry-run no produce top-1 distintos significativos) — compute saved ~30-45 min. **Veredicto Caso B**: classical multi-test correction NO mejora ranking M2 fix; residual J/B 2.41× **confirmed estructural** vía test empírico — atacable solo via tools selection-bias-specific (Deflated SR López de Prado ~15-25h, k-fold CV ~20-30h, sample splitting, bootstrap aggregation con re-selection). §13.2 caveat permanente actualizado. §13.3 línea 2336 sub-item Multi-testing → ARCHIVED_EMPIRICAL_2026-04-26. Rama feature queda REFERENCIA ARCHIVADA (NO merge a main, code preservado para reactivación futura experimentos α distinto / application points alternativos pre-W4). **Hallazgo metodológico**: BH redundancia con W4 + flag_sospechoso filtros upstream → multi-test correction adicional debería aplicarse PRE-W4 si se intenta de nuevo. **Hallazgo colateral**: JSONs smoke 2026-04-24 actuales sorted por specialist_score_ci_low (W3b ranking pre-M2-fix), NO pf_fwd_ci_low — caveat solo metodológico para análisis dry-run, no operacional. **Predicción ultrathink validada profilácticamente** = variante constructive §12 L35 (predicción cualitativa antes de implementación invasiva). Status Fase C: 6/7 items DONE + Multi-testing CASO B archivado adicional. Bot v2.4.5 operacional VPS Tokio invariante (uptime 4d+). Fidelidad 2 invariante (sin merge feature, code main intacto).
+
+**Actualización previa:** 26 Abril 2026 CIERRE SESIÓN NOCHE-3 — **Fase C 6/7 items DONE**: audit institucional + investigación pnl_recon causa raíz + fix v1 validado + L1892/L1904 logs + **triaje 4 micro-items §13.3 con §12 L27 protocolo (3 EN_ESPERA scope refinado, 1 ARCHIVADO obsoleto)**. Triaje hallazgos: code-side **0/4 fix aplicado**, disparador empírico **0/4 cumplido**, **L2017 E4 ARCHIVADO** porque arquitectura cambió v2.4.0 (update_trailing_stop NO-OP desde 2026-04-20 elimina cancel-then-place — caso clásico §12 L27 item §13.3 obsoleto por review previo no documentado). Items L1999/L2005/L2011 mantenidos EN_ESPERA con disparadores refinados empíricamente: L1999 ratio reconstructed >5% sobre N≥50 (actual 0/60 post-v2.4.5, 4/155 pre-v2.4.5 todos pre-v2.4.0); L2005 funding fallback >1% cycles (actual 0% en 4 días + 17 logs rotated); L2011 emergency SL bloqueado por P1 leverage (sl_emergency 0/215 trades histórico bot completo). Pattern §12 L27 confirmado robustamente: 4/4 items ultra review 2026-04-17 quedaron stale en 9 días post-review por drift arquitectónico, disparadores conservadores no alcanzados, o bloqueos por items relacionados. Validación decisión Ricardo institucional 2026-04-24 "todas mejoras A+B+C antes reciclaje" — sin triaje regular items §13.3 acumulan stale state. Bot v2.4.5 operacional VPS Tokio invariante (uptime 4d+). Fidelidad 2 invariante (triaje read-only sobre code + logs). Status Fase C: 6/7 DONE; pendiente Fase 2 secundaria pnl_recon opcional ~30-45 min. Disparadores temporales próximos: v2.6-inv N≥100 (~2026-05-01), v2.6-exit N≥150 (~2026-05-10).
 
 **Actualización previa:** 26 Abril 2026 CIERRE SESIÓN NOCHE — **Fase C 5/7 items DONE**: audit institucional + investigación pnl_recon causa raíz + fix v1 aplicado VALIDADO empíricamente + L1892 active_config_id + L1904 multipliers SIGNALS_DISCARDED implementados. **Fix v1 pnl_recon validación empírica EXACTA**: re-ejecución analyzer N=60 post-fix coincide con predicción dentro tolerance ±0.0002 USDT (gap mean abs 0.0218→0.0137 predicción exacta, gap median 0.0201→0.0127 EXACTO, % > tolerance 90%→56.7% vs predicción 57%). Reducción mean abs -37.0% (predicción -37%), % > tol -33.3pp (predicción -33pp). El bug `*2.0` en `analyze_performance_attribution.py` L1001 (COMMISSION_RATE=0.001 con comment "round-trip approx (entry+exit)" pero código aplica `*2.0` duplicando round-trip → 0.20% vs 0.10% intended) corregido con 1 línea. Item §13.3 "Aplicar fix v1 pnl_recon" → FIX_V1_APLICADO + VALIDADO; Fase 2 secundaria (BNB discount + precision drift residual ~0.013 USDT) sigue EN_ESPERA opcional ~30-45 min. **L1892 active_config_id**: añadido campo `cfg` en SIGNALS_RAW log (live_engine.py L565-577) — disparador cumplido por audit C1 (100% trades active_config_source=heuristic). **L1904 multipliers SIGNALS_DISCARDED**: añadidos vw/bf/br/dd en log (L607-625) — analyzer downstream puede atribuir descartes a saturación N (br) / DD breaker (dd) / balance bajo (vw/bf) sin proxy 5-ciclos. Sanity §0.8 Nivel A `_run_verify_test BTC/USDT N=1000` post-cambios L1892+L1904: diff **0.0000 EXACTO** en 5 métricas — Fidelidad 2 invariante por construcción (cambios solo enriquecen logs diagnóstico). **Cambios live_engine.py NO deployed al VPS** (observability extensions backwards-compat, deploy puede esperar ventana mantenimiento). Bot v2.4.5 invariante hasta próximo restart. Fase C status post-sesión: 5/7 items DONE; pendientes triaje micro-items L1843/49/55/61 + Fase 2 secundaria pnl_recon opcional. Disparadores temporales próximos: v2.6-inv N≥100 (~2026-05-01), v2.6-exit N≥150 (~2026-05-10). Bot v2.4.5 operacional VPS Tokio invariante (uptime 4d+). Fidelidad 2 invariante.
 
@@ -2483,7 +2485,7 @@ Referencias: §13.4 Fase 3 2026-04-23, funding_context.py CLI refresh-cache, §1
 
 **[UPDATE 2026-04-24 post-Smoke C]**: hallazgo cuantitativamente CONFIRMADO con setup metodológicamente correcto. Train→fwd decay 26% estructural; Spearman(pf_fwd_JSON, pf_fwd_binance)=+0.047 (selection sin información); ratio JSON/real 4-30×. Scope investigación cuantificado:
 
-1. **Multi-testing correction formal** (Bonferroni/Holm/BH/Deflated SR) — ~3-4h.
+1. ~~**Multi-testing correction formal** (Bonferroni/Holm/BH/Deflated SR) — ~3-4h.~~ **CASO B ARCHIVADO empíricamente 2026-04-26** — Holm/BH implementados + dry-run cross-9 no mejoran ranking M2 fix. Holm 33% orphan rate inviable; BH no-op redundante con filtros upstream. Residual 2.41× confirmed structural — selection bias requiere tools selection-bias-specific (Deflated SR, k-fold CV, sample splitting) como proyectos dedicados separados. Ver §13.4 entrada Multi-testing correction Caso B 2026-04-26 + `docs/multi_testing_correction_caso_b_archivado_20260426.md`.
 2. **k-fold CV vs train/fwd split** comparison — ~2-3h.
 3. **ci_low bootstrap filter agresivo** (extensión W3) — ~2h.
 4. **N_fwd penalty experiments** — ~2h.
@@ -2636,6 +2638,85 @@ Cierre: Análisis B ejecutado con N_trades ≥15 per config + veredicto cross-cl
 ---
 
 ### 13.4 RESUELTO
+
+**[ANÁLISIS] [CASO B ARCHIVADO empíricamente] Multi-testing correction Holm/BH cross-9 — 2026-04-26**
+
+Contexto: §13.3 línea 2336 sub-item walk-forward methodology refinement — "Multi-testing correction formal (Bonferroni/Holm/BH/Deflated SR) ~3-4h". §13.2 caveat permanente residual ratio J/B 2.41× post-M2 fix. Implementación rama `feature-multi-testing-correction-pre-reciclaje` NO deploy.
+
+**Predicción ultrathink pre-implementación**: classical multi-test correction es herramienta para hypothesis testing donde tests son independientes; NO para **selection bias structural** "best of millions". El residual 2.41× viene del POINT ESTIMATE inflado por selección sobre ~138M candidates pre-filter, NO de inferencia mal calibrada dentro del survivor pool top-100. Predicción Caso B (archivar empírico) probabilidad alta.
+
+**Implementación** (rama `feature-multi-testing-correction-pre-reciclaje` commit `ca911be`):
+
+- `regime_walk_forward.py`: 3 funciones nuevas (~250 LOC):
+  - `_compute_pvalues_from_ci_low(df)`: SE approx desde W3 bootstrap CI95 lower bound. t-stat = (pf_fwd - 1) / SE. p-value normal CDF one-sided.
+  - `_apply_holm_correction(p_values, alpha)`: step-down FWER control. α/(N-i) thresholds.
+  - `_apply_bh_correction(p_values, alpha)`: step-up FDR control. (i+1)/N × α thresholds.
+  - `_apply_multi_testing_correction(df, method, alpha)`: wrapper con flag `_MULTI_TEST_METHOD`.
+- Constantes nuevas: `_MULTI_TEST_METHOD='none'` (default backwards-compat M2 fix), `_MULTI_TEST_ALPHA=0.05`, `_MULTI_TEST_NULL_PF=1.0`.
+- Integración en `extract_validated_specialists` post-W3 bootstrap, pre-sort. NO-OP si method='none'.
+
+**Tests**: 13 greenfield + 31 no-regression (W3+W4+A14+A15+M2) = **44/44 PASS**.
+
+**Dry-run cross-9** sobre JSONs smoke 2026-04-24 (in-memory, sin re-running pipeline):
+
+| Sym | Cl | M2 cfg | pf_fwd | ci_low | Holm N | Holm cfg | BH N | BH cfg |
+|-----|---:|-------:|-------:|-------:|-------:|---------:|-----:|-------:|
+| BTC | 0 | 36909877 | 4.48 | 2.83 | 100 | same | 100 | same |
+| BTC | 1 | 3758688 | 4.09 | 2.49 | 100 | same | 100 | same |
+| BTC | 2 | 33831248 | 5.47 | 3.65 | 100 | same | 100 | same |
+| ONDO | 0 | 34635228 | 3.27 | 1.81 | **0 ORPHAN** | — | 100 | same |
+| ONDO | 1 | 12360961 | 2.88 | 1.54 | **0 ORPHAN** | — | 100 | same |
+| ONDO | 2 | 48380978 | 3.95 | 2.40 | 100 | same | 100 | same |
+| SEI | 0 | 57375331 | 3.44 | 1.81 | 1 | **CHANGED** | 100 | same |
+| SEI | 1 | 1612992 | 3.08 | 1.84 | 79 | same | 100 | same |
+| SEI | 2 | 815625 | 3.77 | 2.07 | **0 ORPHAN** | — | 100 | same |
+
+**Summary**:
+- **Holm**: 3/9 orphan (33%) + 1/6 top-1 changed → **degrada operacionalmente**.
+- **BH**: 0/9 orphan + **0/9 top-1 changed** → **NO-OP efectivo, idéntico M2 fix baseline**.
+
+**Veredicto Caso B**:
+
+Ambas variantes Multi-testing correction clásico **NO mejoran ranking M2 fix**:
+- Holm: trade-off desfavorable (orphan 33% sin compensación clara).
+- BH: redundante con W4 thresholds + flag_sospechoso_outlier filtros upstream existentes (los configs sobrevivientes ya tienen pf_fwd_ci_low ≥ 1.0 implícito → BH al α=0.05 acepta todos).
+
+**Causa raíz** (predicción ultrathink confirmada empíricamente): classical multi-test correction es la herramienta INCORRECTA para selection bias structural. Residual J/B 2.41× post-M2 fix **confirmed estructural** — solo atacable via tools selection-bias-specific:
+- Deflated Sharpe Ratio (López de Prado): específico finanzas, penaliza Sharpe ratio según N tests + serial autocorrelation. ~15-25h proyecto dedicado.
+- k-fold Cross-Validation: replicar selección + evaluación sobre múltiples folds. ~20-30h proyecto dedicado.
+- Sample splitting: dividir histórico en parte selección + parte evaluación independientes.
+- Bootstrap aggregation con re-selection: en cada bootstrap resample, re-seleccionar top-N. Acumular distribución.
+
+Estos refinamientos permanecen como proyectos dedicados separados post-reciclaje per §13.2 caveat permanente.
+
+**Validación cross-symbol N=9 NO ejecutada** per spec 5.1 (skip si dry-run no produce top-1 distintos significativos): BH 0/9 changes + Holm 1/9 + 3 orphans → insuficiente para tabla cross-9 robusta. Compute saved ~30-45 min.
+
+**Decisión**:
+- Rama `feature-multi-testing-correction-pre-reciclaje` queda **REFERENCIA ARCHIVADA** (NO merge a main).
+- Code preservado con default `_MULTI_TEST_METHOD='none'` para backwards-compat. Tests preservados (13 PASS) garantizan funcionalidad si se reactiva (ej. para experimentar α distinto, application points alternativos pre-W4).
+- §13.3 sub-item Multi-testing correction → **ARCHIVED_EMPIRICAL_2026-04-26**.
+- §13.2 caveat permanente residual J/B 2.41× **actualizado**: confirmed estructural via test empírico — reducción adicional requiere selection-bias-specific tools como proyectos dedicados separados.
+
+**Hallazgos colaterales**:
+
+1. **JSONs smoke 2026-04-24 actuales** (regime_wf/) están sorted por `specialist_score_ci_low` (W3b ranking pre-M2-fix), NO por `pf_fwd_ci_low` (M2 fix). Smoke 2026-04-24 BTC+ONDO+SEI fue ANTES del M2 fix implementación (commit 7162369 mismo día post-smoke). Solo BTC-only smoke 2026-04-25 tiene M2 fix activo. Para reciclaje completo 45 sym, JSONs se regenerarán post-A+B+C done con M2 fix activo. Caveat solo metodológico para análisis dry-run.
+
+2. **BH redundancia con W4 + flag_sospechoso**: filtro upstream existente actúa como BH-equivalente conservador implícito. Multi-test correction adicional debería aplicarse **PRE-W4**, NO post-W4. Esto es insight metodológico para futuros proyectos selection-bias-specific.
+
+3. **Predicción ultrathink validada profilácticamente**: la reflexión metodológica pre-implementación (predicción Caso B) coincide con resultado empírico. **Variante constructive de §12 L35** (test diagnóstico antes de invertir compute) — aquí aplicado en dirección "predicción cualitativa antes de implementar invasivamente": si predicción correcta, reduce confiabilidad investigación posterior. Si incorrecta, hallazgo más interesante.
+
+**Bot v2.4.5 invariante**. Sin deploy. Sin merge a main. Activación efectiva no aplica (Caso B archivado).
+
+Referencias:
+- `docs/multi_testing_correction_caso_b_archivado_20260426.md` (análisis completo).
+- Commit `ca911be` (rama feature, REFERENCIA ARCHIVADA).
+- §13.2 bloque REFINAMIENTO + caveat permanente residual J/B 2.41×.
+- §13.3 línea 2336 sub-item walk-forward methodology refinement.
+- §12 L26 + L34 + L35 (aplicadas).
+
+Cierre Multi-testing correction: permanente CASO B. Walk-forward methodology refinement queda con residual 2.41× confirmed estructural — refinamientos adicionales son proyectos dedicados separados post-reciclaje.
+
+---
 
 **[OPERACIONAL] [DONE Fase C item 6] Triaje 4 micro-items §13.3 EN_ESPERA con §12 L27 protocolo — 2026-04-26**
 

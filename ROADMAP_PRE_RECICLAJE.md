@@ -61,8 +61,8 @@ Scope: ~4-6h total distribuido. Estado actualizado:
 
 ### Post-reciclaje
 - Tier 0 I1 kernel reason_exit + Bloque 2c H1+H_funding+H_strategy (proyecto dedicado ~20-30h).
-- Multi-testing correction formal (Bonferroni/BH/Deflated SR) — refinamiento menor no bloqueante.
-- k-fold CV vs train/fwd split único — refinamiento menor.
+- ~~Multi-testing correction formal (Bonferroni/BH/Deflated SR)~~ — **CASO B ARCHIVADO empíricamente 2026-04-26** (Holm/BH no mejoran ranking M2 fix; residual 2.41× confirmed estructural). Selection-bias-specific tools (Deflated SR López de Prado ~15-25h, k-fold CV ~20-30h, sample splitting) permanecen como proyectos dedicados separados — refinamiento mayor post-reciclaje.
+- k-fold CV vs train/fwd split único — proyecto dedicado ~20-30h post-reciclaje.
 - `_FWD_MIN_PF` óptimo calibrado — refinamiento menor.
 
 ## Reciclaje completo 45 símbolos
