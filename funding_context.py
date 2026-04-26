@@ -168,6 +168,8 @@ async def fetch_funding_rates(
         ex = ccxt_async.bingx({"options": {"defaultType": "swap"}, "enableRateLimit": True})
     elif exchange_id == "binance":
         ex = ccxt_async.binance({"options": {"defaultType": "future"}, "enableRateLimit": True})
+    elif exchange_id == "okx":
+        ex = ccxt_async.okx({"options": {"defaultType": "swap"}, "enableRateLimit": True})
     else:
         raise ValueError(f"Unsupported exchange: {exchange_id}")
 
@@ -821,7 +823,7 @@ def main() -> int:
     rp.add_argument("--csv", default=None, help="Alternativa: extraer símbolos del CSV.")
     rp.add_argument("--since", default=None, help="ISO date UTC. Default v2.3.11 deploy.")
     rp.add_argument("--until", default=None, help="ISO date UTC. Default now.")
-    rp.add_argument("--exchange", default="bingx", choices=["bingx", "binance"])
+    rp.add_argument("--exchange", default="bingx", choices=["bingx", "binance", "okx"])
     rp.add_argument("--force", action="store_true", help="Ignora cache existente.")
 
     ep = sub.add_parser("enrich", help="Enriquece trade_history CSV usando cache.")

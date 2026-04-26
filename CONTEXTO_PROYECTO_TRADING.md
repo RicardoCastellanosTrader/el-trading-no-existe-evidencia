@@ -1,6 +1,8 @@
 # Sistema de Trading Algorítmico — Contexto Completo del Proyecto
 
-**Última actualización:** 26 Abril 2026 SESIÓN 2 — **(a) Cache funding refresh forward + cierre §13.3 L2317 §12 L27** + **(b) Item §13.3 nuevo OPERACIONAL EN_ESPERA Deploy L1892+L1904 diferido con disparador temporal explícito** + **(c) Caracterización descriptiva alpha residual edge erosion N=60 — predicción ultrathink Claude REFUTADA en magnitud (Gini 0.36 no 0.55-0.70, concentración CANDIDATO 44.7% no 60-80%); veredicto best-fit hipótesis (d) MIX = (a) edge real estructural marginal cross-universe + (b) degradación temporal sostenida monotónica B3/B1 1.82× + (c) concentración modesta NO dominante; 0 items §13.3 nuevos creados §12 L34 profiláctica; framework pre-listo análisis Welch correcto N≥100 ~2026-05-01**. **(a)** 5ª aplicación §12 L36 cuádruple guardrail validada profilácticamente cross-3 puntos (service mismatch trading-bot vs combolab-bot + cache parcialmente cubre + cobertura 100% por construcción). Operación VPS pura ~42s: cache local pre-existing 2026-03-01 → 2026-04-23 08:00 (43 días margen sobre arranque trade_history 2026-04-13, cubre S1 categóricamente desde refresh previo no documentado en sesión hoy ~13:15 UTC); refresh forward gap real 2026-04-23 → 2026-04-26T16:00 (~306 entradas + apareció THETAUSDT.csv símbolo nuevo). Sync local tar+scp workflow §11 canónico. Validación coverage **78/78 trades duration>1h con entry_ms válido al 100%**. Item §13.3 L2317 RESUELTO §12 L27 con caveat (parcialmente obsoleto pre-operación). Stress-tests v2.6-inv N≥100 disparador (~2026-05-01) NO bloqueados. **(b)** Decisión Ricardo Opción C: diferir deploy L1892+L1904 (commit `3727366`) hasta agrupar con próximo deploy operacional natural (Fase D v2.6-inv ~2026-05-01 si emerge fix, Fase E v2.6-exit ~2026-05-10, o pre-reciclaje aislado fecha límite ~2026-05-10 si no). Mitigación §12 L27 conscientemente prevenida con disparador temporal explícito + fecha límite + 3 entry points docs (Header L3 + §13.3 item + ROADMAP pre-trigger). Bot v2.4.5 invariante uptime 4d+. Sin tocar `live/*`. Próximo natural sin cambios: esperar disparadores D+E madurando con item L1892+L1904 trackeado pre-reciclaje.
+**Última actualización:** 26 Abril 2026 SESIÓN 4 — **Path B caracterización rasgo agregado mercado funding rates ARCHIVED + captura institucional 3 hallazgos permanentes**: (1) Threshold X=5e-4 empírico cross-3-exchanges (Binance+BingX+OKX × 15 sym × 180d, 96.5% unanimidad pooled) **REEMPLAZA §9.3 arbitrario `|rate| > 0.001`** como input al disparador operacional D ~2026-05-01 N≥100; (2) Rasgo es EXTREMO RARO régimen actual — 11/15 sym 0 eventos cross-180d, concentración SEI 14% + DOT 8.4% + SOL 1.4% + NEAR 0.3% (mega/large-caps 0 eventos); (3) OKX funding history retention API ≈95d caveat permanente cross-exchange retrospective. Decisión Ricardo Path B.4 archivar continuación Sesión 2 (Fase 2-3'-4-5-6) por retornos decrecientes vs disparador D inminente — Sesión 2 acumularía 7 caveats sobre output power limitado N=57 eventos cross-180d en 4 sym. Items §13.3 L2340 v2.6-inv + L2385 v2.6-exit actualizados con threshold empírico vs §9.3 arbitrario. **§12 L36 validada profilácticamente cross-3 sesiones consecutivas funding research** (Sesión 1 Variante 4: 6/6 acertadas Tier 0 I1 bloqueante detectado pre-compute; Sesión 2 Path B previo: 5/5 refutaciones reformulación marco emergente; Sesión 3 Path B-institutional: 6/9 acertadas + 1 refutada fuerte por OKX retention factor estructural no anticipado). Ahorro compute acumulado ~30-45h paths infeasibles ciegamente. Disparador operacional D ~2026-05-01 N≥100 sigue método correcto para decisión filter productivo, ahora con threshold empírico X=5e-4 mejor que arbitrario. Bot v2.4.5 invariante uptime 4d 12h+. Sin tocar `live/*`. Sin deploy. Fidelidad 2 invariante por construcción. **Estado pre-reciclaje MADURO INSTITUCIONAL invariante post-archive**: A done_archived + B done merged + C 7/7 done + Path B archive con captura permanente; pendientes solo D+E disparadores temporales (D ~2026-05-01, E ~2026-05-10) + reciclaje completo 45 sym ~2026-05-12 a 05-22.
+
+**Actualización previa:** 26 Abril 2026 SESIÓN 2 — **(a) Cache funding refresh forward + cierre §13.3 L2317 §12 L27** + **(b) Item §13.3 nuevo OPERACIONAL EN_ESPERA Deploy L1892+L1904 diferido con disparador temporal explícito** + **(c) Caracterización descriptiva alpha residual edge erosion N=60 — predicción ultrathink Claude REFUTADA en magnitud (Gini 0.36 no 0.55-0.70, concentración CANDIDATO 44.7% no 60-80%); veredicto best-fit hipótesis (d) MIX = (a) edge real estructural marginal cross-universe + (b) degradación temporal sostenida monotónica B3/B1 1.82× + (c) concentración modesta NO dominante; 0 items §13.3 nuevos creados §12 L34 profiláctica; framework pre-listo análisis Welch correcto N≥100 ~2026-05-01**. **(a)** 5ª aplicación §12 L36 cuádruple guardrail validada profilácticamente cross-3 puntos (service mismatch trading-bot vs combolab-bot + cache parcialmente cubre + cobertura 100% por construcción). Operación VPS pura ~42s: cache local pre-existing 2026-03-01 → 2026-04-23 08:00 (43 días margen sobre arranque trade_history 2026-04-13, cubre S1 categóricamente desde refresh previo no documentado en sesión hoy ~13:15 UTC); refresh forward gap real 2026-04-23 → 2026-04-26T16:00 (~306 entradas + apareció THETAUSDT.csv símbolo nuevo). Sync local tar+scp workflow §11 canónico. Validación coverage **78/78 trades duration>1h con entry_ms válido al 100%**. Item §13.3 L2317 RESUELTO §12 L27 con caveat (parcialmente obsoleto pre-operación). Stress-tests v2.6-inv N≥100 disparador (~2026-05-01) NO bloqueados. **(b)** Decisión Ricardo Opción C: diferir deploy L1892+L1904 (commit `3727366`) hasta agrupar con próximo deploy operacional natural (Fase D v2.6-inv ~2026-05-01 si emerge fix, Fase E v2.6-exit ~2026-05-10, o pre-reciclaje aislado fecha límite ~2026-05-10 si no). Mitigación §12 L27 conscientemente prevenida con disparador temporal explícito + fecha límite + 3 entry points docs (Header L3 + §13.3 item + ROADMAP pre-trigger). Bot v2.4.5 invariante uptime 4d+. Sin tocar `live/*`. Próximo natural sin cambios: esperar disparadores D+E madurando con item L1892+L1904 trackeado pre-reciclaje.
 
 **Actualización previa:** 26 Abril 2026 CIERRE SESIÓN NOCHE-5 CONSOLIDADO — **Fase 2 secundaria pnl_recon RESUELTA Opción C → Fase C COMPLETA 7/7 + §12 L36 NUEVA + estado pre-reciclaje MADURO INSTITUCIONAL**. Corrección reporte previo erróneo que afirmaba "Próximo: Fase A" — Fase A YA estaba DONE_ARCHIVED 2026-04-26 (Z_BTC refutado empíricamente cross-5 altcoins, BIC sweep ESCENARIO A unanimidad V0 commit `63de84c` mismo día). Estado real: A done_archived + B done merged + C 7/7 done; pendientes solo D+E disparadores temporales (D N≥100 ~2026-05-01, E N≥150 ~2026-05-10). **§12 Lección 36 NUEVA**: "Predicción ultrathink profiláctica antes de implementación invasiva — variante constructive de §12 L35". Cuando investigación o implementación tiene scope >2-3h y outcome incierto, hacer predicción cualitativa explícita ANTES de comenzar. Casos origen 2026-04-26 (3 aplicaciones mismo día): (a) Multi-testing correction Caso B confirmed predicción mismatch conceptual classical multi-test vs selection bias structural; (b) Fase 2 secundaria pnl_recon causa raíz convenciones BingX `unrealizedPnl@fetch` mark+bruto vs analyzer realized@fill matched predicción signed mean -0.0123 USDT exact; (c) audit v5_2 falsa alarma test diagnóstico L35 confirmed predicción auditor diverge no bot real. Patrón: predicción cualitativa pre-implementación es brújula metodológica reduciendo varianza outcomes — validada acelera cierre, refutada redirige antes invertir compute. **L36 es proactiva (pre-implementación) vs L35 reactiva (post-alarma)**. Cuarto pilar metodológico institucional: L25 (segmentación arquitectural) + L26 (validación per-componente) + L35 (test diagnóstico discriminatorio reactivo) + L36 (predicción ultrathink proactiva). Sesión consolidada 8 commits main: aa8bb2d audit Def A+B + 662ff00 §12 L35 + c8cc999 pnl_recon causa raíz + 195be1a fix v1 -37% + 3727366 L1892+L1904 observability + d28cc93 triaje §12 L27 + 0eb843c Multi-testing CASO B archivado + 5312ed5 Fase 2 secundaria Opción C. Sub-fase A.0/A.1/A.2 commits previos sesión: db55617 caveat §0.6.1 + 20b5773 Z_BTC V1 + 63de84c BIC sweep cross-5 altcoins ESCENARIO A. Bot v2.4.5 operacional VPS Tokio invariante uptime 4d+. Fidelidad 2 invariante (todas modificaciones offline tools o backwards-compat). Próximo natural: esperar disparadores temporales D+E madurando o continuación sesión institucional según oportunidad.
 
@@ -2362,7 +2364,19 @@ Contexto (actualizado post-Bloque 2 ampliación): observabilidad funding §13.3 
 
 **Prerequisito parcial**: ítem §13.3 E1 funding sign bug relevante SOLO si la implementación del filter consume `_get_position_funding` fallback. Si el filter fetcha rate directo de ccxt (como hace `funding_observability.py`), bypass natural y E1 irrelevante.
 
-Referencias: §13.4 entrada "Observabilidad funding per-trade" 2026-04-22 + ampliación bar-a-bar; §9.3 v2.6 (refutado); §12 Lección 33; `funding_context.py` (reemplaza `funding_observability.py` borrado; analyzer enriquecido definitivo).
+**Update Path B-institutional 2026-04-26 sesión 4 — threshold empírico identificado**:
+
+Threshold **X=5e-4 cross-3-exchanges (Binance+BingX+OKX)** confirmado empíricamente como magnitud donde rasgo agregado mercado es genuino (96.5% unanimidad pooled cross-15-sym × 180d, 100% sw2 60d más reciente). REEMPLAZA §9.3 arbitrario `|rate| > 0.001`. Disparador N≥100 ~2026-05-01 MANTENIDO. Análisis Welch específico post-disparador:
+
+- Subset trades con `|funding_rate_at_entry| ≥ 5e-4` aligned vs contrarian.
+- Welch p<0.05 + Cohen d>0.3 + N subset adecuado para decisión filter.
+- Caveat: subset esperado pequeño régimen actual (concentración SEI/DOT/SOL/NEAR primary; mega-caps 0 eventos cross-180d Path B).
+- Si N subset trades ≥5e-4 < 20 cross-N≥100 operacional: archivar filter "rasgo real pero NO operacionalmente accionable régimen actual".
+- Si N subset adecuado + p<0.05: filter v2.6-inv productivo justificado empíricamente con threshold derivado.
+
+Hallazgo Path B preserva: rasgo agregado mercado genuino X=5e-4 cross-3-exchanges. Disparador operacional D ahora con input empírico, no arbitrario. Ver §13.4 entrada Path B archive 2026-04-26 sesión 4 + `docs/funding_pathb_sesion3_archived_20260426.md`.
+
+Referencias: §13.4 entrada "Observabilidad funding per-trade" 2026-04-22 + ampliación bar-a-bar; §13.4 entrada Path B archive 2026-04-26 (threshold empírico X=5e-4); §9.3 v2.6 (refutado); §12 Lección 33; §12 L36 (validación cross-3 sesiones funding research); `funding_context.py` (reemplaza `funding_observability.py` borrado; analyzer enriquecido definitivo).
 
 **[OBSERVACION] [EN_ESPERA] engine_state.json nomenclature — consumers usan `dict.get("positions", {})` con default silencioso — 2026-04-22**
 
@@ -2407,7 +2421,17 @@ Contexto: Bloque 2 ampliación (funding_context.py bar-a-bar) reveló evidencia 
 
 **Cierre**: decisión fundamentada con data robusta o archivar si efectos revirtieron.
 
-Referencias: §13.4 entrada "Observabilidad funding bar-a-bar — integración permanente" 2026-04-22; §9.3 v2.6 refutada; §13.3 v2.6-inv (candidato paralelo); §12 Lección 33; `funding_context.py`.
+**Update Path B-institutional 2026-04-26 sesión 4 — threshold empírico análogo**:
+
+Threshold **X=5e-4 cross-3-exchanges** identificado en Path B (96.5% unanimidad pooled) aplicable también para v2.6-exit. Sub-análisis post-disparador N≥150:
+- Subset trades con `|funding_rate_at_entry| ≥ 5e-4` OR `|funding_rate_max_during| ≥ 5e-4` (rasgo agregado durante hold).
+- Spearman ρ(n_bars_contrarian, pnl_pct) restringido a subset con magnitud crowd ≥X.
+- Caveat: subset esperado todavía más pequeño que v2.6-inv (filtro adicional por exit gestión sobre subset entry).
+- Si N subset insuficiente cross-N≥150 (probable régimen actual): archivar v2.6-exit como "rasgo real pero requeriría régimen funding más extremo para signal operacional".
+
+Ver §13.4 entrada Path B archive 2026-04-26 sesión 4 + `docs/funding_pathb_sesion3_archived_20260426.md`.
+
+Referencias: §13.4 entrada "Observabilidad funding bar-a-bar — integración permanente" 2026-04-22; §13.4 entrada Path B archive 2026-04-26; §9.3 v2.6 refutada; §13.3 v2.6-inv (candidato paralelo, threshold empírico análogo); §12 Lección 33 + L36; `funding_context.py`.
 
 **[DECISION] [EN_ESPERA] Funding rate NO es feature del GMM — rechazo explícito 2026-04-23**
 Contexto: durante discusión 2026-04-23 sobre cómo integrar funding rate al sistema, se evaluaron dos opciones arquitectónicas:
@@ -2739,6 +2763,99 @@ Referencias:
 ---
 
 ### 13.4 RESUELTO
+
+**[ANÁLISIS] [PATH B ARCHIVED — captura institucional 3 hallazgos] Caracterización sesgo agregado mercado funding rates — 2026-04-26 sesión 4 día**
+
+Contexto: Variante 4 caracterización estructural rasgo funding aligned/contrarian inicialmente diseñada como kernel re-ejecución cross-régimen. Pivotó a Opción C aggregate-level (Tier 0 I1 bloqueante per-trade §13.3 L2589-2645 documentado). Pivotó a Path B Binance bajo reformulación Ricardo *"rasgo agregado mercado, buscar fuente más informativa (mayor cap), no en runtime bot"*. Path B Fase 1' cross-3-exchanges ejecutado con resultado decisión Path B.4 archivar.
+
+**Hallazgo 1 — Rasgo estructural CONFIRMADO empíricamente**:
+
+Cross-3-exchanges (Binance + BingX + OKX) × 15 símbolos representativos × 180d. Threshold sweep pooled:
+
+| Threshold X | N bars ≥X | Unanimidad 3-way |
+|---|---:|---:|
+| 1e-05 | 3792 | 63.8% |
+| 5e-05 | 2266 | 71.1% |
+| 1e-04 | 1055 | 78.5% |
+| **5e-04** | **57** | **96.5% ✓** |
+| 1e-03 | 12 | 100.0% |
+
+X crítico empírico = **5e-04**. Rates ≥5e-4 muestran direccionalidad unanimous cross-3-exchanges = evidencia rasgo agregado mercado (no ruido local-exchange). Rates <5e-4 son local-exchange phenomena dominantes.
+
+Cross-régimen breakdown (efectivamente 2 sub-windows post-OKX-retention):
+- sw0 (2025-10-28→2025-12-27): N=0 cross-3 (OKX retention 95d).
+- sw1 (2025-12-27→2026-02-25): N=22 unanimidad 90.9%.
+- sw2 (2026-02-25→2026-04-26): N=35 unanimidad 100.0%.
+
+**Hallazgo 2 — Rasgo es EXTREMO RARO régimen actual**:
+
+Per-symbol distribución cross-180d, frac bars `|rate_binance|≥5e-4`:
+- SEI: 14.0% (primary).
+- DOT: 8.4% (primary).
+- SOL: 1.4% (secondary).
+- NEAR: 0.3% (secondary).
+- BTC, ETH, BNB, XRP, DOGE, ADA, LINK, AVAX, LTC, ONDO, ENA: **0.0% cross-180d**.
+
+11/15 símbolos (73%) NUNCA alcanzan rate ≥5e-4 cross-180d. Concentración extrema en 4 símbolos (SEI/DOT/SOL/NEAR ~24% combined). Mega/large-caps (donde el bot opera más) 0 eventos régimen actual.
+
+**Hallazgo 3 — OKX retention 95d (caveat permanente)**:
+
+Verificado vía test directo: `okx.fetch_funding_rate_history()` con `limit=1000` retorna 287 rates earliest 2026-01-21. Idéntico con `since=2025-10-28`. **OKX API funding history retention ≈ 95 días** no extensible. Binance + BingX retention >180d (no testado upper bound).
+
+Implicación cualquier análisis futuro cross-exchange retrospectivo extendido: OKX bottleneck permanente. Cross-3-exchanges efectivo limitado a ~95d desde fecha de análisis. 2-exchange Binance↔BingX puede extenderse cross-régimen amplio.
+
+**Decisión Path B.4 — Archivar Variante 4 con captura institucional**:
+
+Continuar Fase 2-3'-4-5-6 acumularía 7 caveats sobre output power limitado:
+1. Aggregate-level cluster ≠ per-trade.
+2. Tier 0 I1 diferido post-reciclaje.
+3. Cross-exchange transferibilidad parcial.
+4. Threshold X específico régimen actual.
+5. Funding cobertura asimétrica 4h vs 8h.
+6. **Rasgo extremo raro régimen actual (N=57 eventos cross-180d)**.
+7. **OKX retention 95d cross-régimen no extensible**.
+
+Output esperado Sesión 2 con esos caveats: *"evidencia indirecta sugestiva con power limitado sobre 4 símbolos en régimen rates pequeños actual"*. Erosión señal/ruido vs disparador operacional D inminente.
+
+**Disparador D ~2026-05-01 N≥100 BingX-native (post-v2.4.5 régimen homogéneo) sigue siendo método correcto** para decisión filter productivo. **Threshold X=5e-4 empírico identificado hoy reemplaza §9.3 arbitrario `|rate| > 0.001`** como input al diseño v2.6-inv análisis Welch post-disparador.
+
+**Calibración §12 L36 retrospectiva (3 sesiones consecutivas funding research)**:
+
+| Sesión | Predicciones | Acertadas | Refutadas | Outcome |
+|---|---:|---:|---:|---|
+| Sesión 1 (Variante 4 original) | 6 cualitativas estructurales | 6/6 | 0/6 | Tier 0 I1 bloqueante detectado pre-compute. Pivote Opción C. Ahorro ~15-90h compute infeasible. |
+| Sesión 2 (Path B previo cross-2-exchange) | 5 (ALTA coherence) | 0/5 | 5/5 | Refutación reveló estructura: rates pequeños = local-noise, magnitudes ≥X cross-exchange unanimous. Reformulación Ricardo emergente. |
+| Sesión 3 (Path B-institutional cross-3 + 180d) | 9 | 6/9 | 1/9 fuerte + 2/9 parcial | Rasgo X=5e-4 confirmado pero EXTREMO RARO. Predicción 1.E refutada por OKX retention (factor estructural no anticipado). |
+
+Patrón institucional consolidado §12 L36: predicciones refutadas en magnitud (no en dirección estructural) son outcome más informativo que predicciones acertadas. Cada refutación llevó a hallazgo estructural genuino + redirección scope metodológicamente correcto. Ahorro acumulado compute estimado **~30-45h** sobre paths que hubieran sido infeasibles ciegamente.
+
+**Hallazgos institucionales permanentes preservados (independientes de Variante 4 outcome)**:
+
+1. Threshold **X=5e-4 empírico** reemplaza §9.3 arbitrario.
+2. Rasgo agregado mercado funding rates es real (96.5% unanimidad cross-3) pero raro régimen actual (concentración 4 símbolos).
+3. **OKX retention 95d** caveat permanente cross-exchange retrospective.
+4. **§12 L36 validada profilácticamente cross-3 sesiones consecutivas funding research**.
+
+**Items §13.3 actualizados con input empírico**:
+- L2340 v2.6-inv: contexto + threshold empírico X=5e-4 vs §9.3 arbitrario. Disparador N≥100 ~2026-05-01 MANTENIDO con análisis Welch específico subset trades con `|funding_rate_at_entry|≥5e-4`. Caveat: subset esperado pequeño en régimen actual (mayoría trades en mega-caps con rates <5e-4) — concentración 4 símbolos primary (SEI/DOT/SOL/NEAR) probable.
+- L2385 v2.6-exit: análogo update threshold empírico. Disparador N≥150 mantenido.
+
+**Bot v2.4.5 invariante uptime 4d 12h+. Sin tocar `live/*`. Sin deploy. Fidelidad 2 invariante por construcción.**
+
+Referencias:
+- `analysis_scripts/funding_v4_pathb_20260426/fase1prima_results.json` (datos crudos cross-3 × 15 sym × 180d).
+- `analysis_scripts/funding_v4_pathb_20260426/fase1prima_cross3_exchanges.py` (script ejecutable).
+- `analysis_scripts/funding_v4_opcion_c_20260426/fase1_results.json` (Sesión 2 cross-2-exchange BAJA coherence — referencia previa al pivot Path B).
+- `docs/funding_pathb_sesion3_archived_20260426.md` (análisis completo).
+- `funding_context.py` extendido OKX support (commit incluido en cierre).
+- §13.3 L2340 v2.6-inv + L2385 v2.6-exit (actualizados).
+- §13.3 L2589-2645 Tier 0 I1 (sigue diferido post-reciclaje).
+- §12 L34 + L35 + L36 (cross-3 sesiones aplicaciones consecutivas).
+- Conversación Ricardo 2026-04-26 sesión 3 día (reformulación marco) + sesión 4 día (decisión Path B.4 archivar).
+
+Cierre: permanente. Rasgo agregado mercado funding rates caracterizado empíricamente. Threshold X=5e-4 input al disparador operacional D ~2026-05-01 N≥100. Hallazgos institucionales permanentes preservados.
+
+---
 
 **[CARACTERIZACIÓN] [DESCRIPTIVA NO CONCLUYENTE] Alpha residual edge erosion emergente N=60 — pre-D 2026-04-26 sesión 2**
 
