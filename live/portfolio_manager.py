@@ -86,6 +86,18 @@ def compute_correlation_matrix(
     Returns:
         DataFrame NxN con correlaciones EWMA.
     """
+    # G5.11 fix 2026-04-28 (ROADMAP_PRE_RECICLAJE.md AGGRESSIVE pura recalibrada
+    # Sesión 1A): excluir símbolos con N<MIN_SAMPLES en lugar de truncar todos a
+    # min(N). Pre-fix: si símbolo recién entra con N=20 barras y otros tienen
+    # 168, todos se truncaban a 20 → EWMA halflife=24 sobre N=20 ≈ peso uniforme,
+    # correlación esencialmente sin información. Post-fix: símbolos con N<60
+    # excluidos del cálculo cross-correlación; resto preserva N completo.
+    # Threshold 60 conservador (validado §13.3 L2393 análisis previo). Disparador
+    # original: añadir símbolos nuevos al MASTER_SYMBOLS o primer reciclaje 45 sym
+    # ~2026-05-22 a 06-05 (cuando emerjan símbolos con N pequeño tras data_cache
+    # regeneración). Item §13.3 L2393 → IMPLEMENTED 2026-04-28 Sesión 1A.
+    MIN_SAMPLES_FOR_CORRELATION = 60
+
     returns = {}
     for sym, df in market_data.items():
         if df is None or len(df) < 2:
@@ -94,13 +106,14 @@ def compute_correlation_matrix(
         # log-returns, usar las ultimas `lookback` barras
         lr = np.diff(np.log(close))
         lr = lr[-lookback:] if len(lr) > lookback else lr
-        if len(lr) >= 20:  # minimo razonable para correlacion
+        if len(lr) >= MIN_SAMPLES_FOR_CORRELATION:
             returns[sym] = lr
 
     if not returns:
         return pd.DataFrame()
 
-    # Alinear longitudes (usar el minimo comun)
+    # Alinear longitudes (usar el minimo comun de los símbolos que pasaron el
+    # threshold). Sin truncate-to-20-stale del pre-fix.
     min_len = min(len(v) for v in returns.values())
     df_ret = pd.DataFrame({sym: arr[-min_len:] for sym, arr in returns.items()})
 
@@ -643,11 +656,59 @@ def compute_leverage_map(
     target_max_dd: float = 25.0,
 ) -> dict[str, int]:
     """
-    Calcula leverage por símbolo basado en maxDD del top-1 specialist.
+    Retorna leverage_map = {sym: 1 for sym in active_symbols}.
 
-    leverage = target_max_dd / maxdd_worst (del top-1 config del mejor cluster operable)
-    Capped: min 1x, max 10x.
+    P1 OPCIÓN (b) 1x FEATURE OFICIAL — confirmed empíricamente 2026-04-27 (Sesión 1
+    Fase 2 análisis cuantitativo full robusto cross-12-escenarios isolated cluster-
+    específico, commit `06e30fb`). Implementación pre-reciclaje Sesión 1A 2026-04-28
+    (G1.3 ROADMAP_PRE_RECICLAJE.md AGGRESSIVE pura recalibrada, plan 2026-04-27 Sesión
+    2 D commit `8d837af`).
+
+    HALLAZGOS EMPÍRICOS sustentando opción (b) (cross-N=76 limpio post-v2.4.5):
+    - Cap 3x AMPLIFICA decay 1.61× vs baseline (-0.0246 vs -0.0153 PnL/trade).
+    - Liquidaciones cross-12-escenarios = 0 (régimen lateral-alcista pnl_pct intra-
+      trade modesto + leverage 1-5x = no llega 99% margin call).
+    - Cluster leverage selectivo top-10 PEOR que baseline 1x universal (asimetría
+      arquitectónica clusters ganadores maxdd alto / perdedores maxdd bajo).
+    - §0.3 Fidelidad break: leverage variable rompe F1 (kernel lab simula 1x →
+      specialists pf calibrados 1x; leverage variable invalida calibración) + F2.
+    - Capital actual 296 USDT << umbrales propuestos (500/1000).
+
+    Pre-fix (commit 06e30fb y previo): bug `*100.0` en cálculo `target_max_dd /
+    (best_maxdd * 100.0)` reducía todos los leverages a 1x funcionalmente — bot
+    operaba 1x. Fix pre-reciclaje formaliza opción (b) como feature oficial: lev=1
+    para TODO símbolo activo (TF operable o MR rescate). Bot productivo behavior
+    INVARIANTE (lev=1 antes y después por construcción matemática).
+
+    REACTIVACIÓN POST-RECICLAJE — caveats (i)-(v) explícitos:
+    - (i) Edge restored validado N≥50 nuevo post-reciclaje específico (pf_real bot
+      >1.3 sostenido).
+    - (ii) Capital >1000 USDT (umbral conservador safety + reduces saturation impact).
+    - (iii) Margin mode `isolated` mantenido (verified empírico 2026-04-27 VPS BingX).
+    - (iv) Re-simulación cross-12-escenarios specifically post-reciclaje muestra
+      mejora vs baseline 2026-04-27 (PnL hip cap 3x > PnL real 1x sostenido).
+    - (v) Asimetría arquitectónica clusters ganadores maxdd-bajo / perdedores maxdd-
+      bajo resuelta (clusters ganadores nuevo reciclaje pueden tener maxdd diferente).
+
+    Sin (i)-(v) cumplidos: P1 PERMANECE 1x feature oficial.
+
+    Args:
+        specialist_configs_dir: ruta a regime_wf/ con *_specialist_configs.json.
+        target_max_dd: parámetro legacy preservado para compat ABI (NO usado en
+            opción b; relevante solo bajo eventual reactivación leverage variable).
+
+    Returns:
+        dict[symbol, 1] para cada símbolo con cluster operable (TF top-1 sqn_p5>0
+        O MR rescate config_id>0).
+
+    References:
+        - §13.4 entrada P1 leverage quantitative full robusto 2026-04-27 sesión tarde.
+        - §13.3 L1849 P1 + L2152 E3 + L1861 setLeverage altos → ARCHIVED_EMPIRICAL
+          2026-04-27.
+        - §13.3 L2370 portfolio compute_leverage_map heurística → ARCHIVED bajo P1.
+        - §12 L36 cross-9-aplicaciones consolidada (~52-90h ahorro acumulado).
     """
+    _ = target_max_dd  # legacy param preservado compat ABI bajo opción (b)
     leverage_map = {}
     configs_path = Path(specialist_configs_dir)
 
@@ -663,40 +724,29 @@ def compute_leverage_map(
         if not symbol:
             continue
 
-        # Buscar el mejor cluster operable (top-1 con sqn_p5 > 0)
-        best_maxdd = None
+        # P1 opción (b): lev=1 si símbolo tiene cualquier cluster operable
+        # (TF top-1 sqn_p5>0 O MR rescate config_id>0).
+        operable = False
         clusters = data.get("clusters", {})
 
         for cluster_id, cluster_data in clusters.items():
+            # TF operable check
             top_configs = cluster_data.get("top_configs", [])
-            if not top_configs:
-                continue
-            top1 = top_configs[0]
-            if top1.get("sqn_p5", 0.0) <= 0:
-                continue
-            maxdd = top1.get("maxdd_worst", 0.0)
-            if maxdd > 0:
-                # Tomar el que tenga mayor specialist_score entre los operables
-                if best_maxdd is None:
-                    best_maxdd = maxdd
-                else:
-                    # Prefiero el cluster con mejor score
-                    best_maxdd = maxdd  # simplificación: último operable gana
+            if top_configs and top_configs[0].get("sqn_p5", 0.0) > 0:
+                operable = True
+                break
+            # MR rescate check
+            mr = cluster_data.get("mean_reversion")
+            if mr and mr.get("strategy_type") == "mean_reversion" and mr.get("config_id", 0) > 0:
+                operable = True
+                break
 
-        if best_maxdd and best_maxdd > 0:
-            raw_lev = target_max_dd / (best_maxdd * 100.0)  # maxdd_worst está en fracción
-            lev = max(1, min(10, int(raw_lev)))
-            leverage_map[symbol] = lev
-        else:
-            # MR-only symbols (no TF operable cluster) default to 1x
-            for cluster_id, cluster_data in clusters.items():
-                mr = cluster_data.get("mean_reversion")
-                if mr and mr.get("strategy_type") == "mean_reversion" and mr.get("config_id", 0) > 0:
-                    leverage_map[symbol] = 1
-                    break
+        if operable:
+            leverage_map[symbol] = 1
 
     logger.info(
-        f"[PORTFOLIO] Leverage map: {len(leverage_map)} símbolos calculados"
+        f"[PORTFOLIO] Leverage map: {len(leverage_map)} símbolos a 1x "
+        f"(P1 opción (b) feature oficial 2026-04-27)"
     )
     return leverage_map
 

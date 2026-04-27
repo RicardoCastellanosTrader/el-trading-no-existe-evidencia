@@ -84,15 +84,30 @@ Trigger: A+B+C done + D+E validados o archivados. **Estado 2026-04-27 Sesión 2 
 
 **Recalibración temporal §12 L37**: estimaciones humanas (89-135h cross-3-semanas) → tiempo Claude Code real (20-35h cross-1.5-2 semanas calendario). Bot obsoleto adicional ~1-2 semanas vs ~5-6 semanas estimación original. Diferencia categórica trade-offs.
 
-### Sesión 1A — Setup base independiente (~3-4h Claude Code, ~2026-04-28)
+### Sesión 1A — Setup base parcial DONE 2026-04-28 (2/3 implemented + 1/3 BLOQUEADO mismatch revealed)
 
-- [ ] **G1.3 Lab compute_leverage_map fix** → `lev=1` always + docstring P1 opción (b) confirmed (~30-45 min)
-- [ ] **G2.1 Refactor audit_v5.x Opción A** (importar kernel directo, preservar stateless property) (~1-2h)
-- [ ] **G5.11 portfolio correlación min_len** arquitectónica simple (~10-20 min)
-- [ ] **G2.2 Smoke §0.8 Nivel B baseline** pre-cambios (BTC + ONDO N=8000 + APT N=10000) (~15-30 min)
-- [ ] Commit consolidado Sesión 1A.
+- [x] **G1.3 Lab compute_leverage_map fix** → `lev=1` always + docstring P1 opción (b) caveats (i)-(v) explícitos (`live/portfolio_manager.py:641-728`, 45 sym verificado lev=1).
+- [x] **G5.11 portfolio correlación min_len** arquitectónica simple (`live/portfolio_manager.py:89-122` threshold 60 + tests no-regression PASS).
+- [⚠] **G2.1 Refactor audit_v5.x Opción A** → BLOQUEADO mismatch revealed (`extract_trades_tf` audit retorna per-trade vs `run_simulation_numba` kernel retorna agregados). Path A reorder confirmed Ricardo: **Sesión 1A.2 nueva post-G1.1**.
+- [x] **G2.2 Smoke §0.8 Nivel B baseline** pre-cambios cross-3-símbolos: BTC N=1000 diff 0.0000 + ONDO N=8000 diff_rel 22.70% (specialist working tree NEW, NO regresión brain/kernel — §12 L25 sub-refinamiento) + APT N=10000 diff_rel 1.51% PASS (specialist HEAD baseline). Cross-symbol triangulación §12 L26 valida diagnóstico.
+- [x] **G2.2 Smoke §0.8 Nivel B post-cambios validation**: BTC N=1000 diff 0.0000 IDÉNTICO baseline (predicción §12 L36 (3) confirmed: G1.3+G5.11 NO tocan brain path). ONDO+APT post equivalencia lógica.
+- [x] Commit consolidado Sesión 1A parcial.
 
-### Sesión 1B — G1.1 Tier 0 I1 dedicada (~3-5h Claude Code, ~2026-04-29)
+**Hallazgos institucionales Sesión 1A**:
+- §12 L36 9ª aplicación profiláctica funcionó: G2.1 dependency mismatch detectado pre-implementación (~1-2h CC ahorrados redirección Path A) + ONDO baseline context revealed (~30-60 min ahorro).
+- §12 L25 sub-refinamiento inline aplicado: smoke baselines + specialist version context.
+- Cross-10-aplicaciones §12 L36 consolidada (~52-90h ahorro acumulado paths infeasibles ciegamente).
+- Ver §13.4 entrada Sesión 1A parcial 2026-04-28.
+
+### Sesión 1A.2 — G2.1 Refactor audit_v5.x Opción A clean post-G1.1 (NUEVA reorder Path A, ~1-2h Claude Code, ~2026-04-30)
+
+- [ ] **G2.1 Refactor audit_v5.x Opción A** (importar kernel directo, preservar stateless property) post-G1.1 (per-trade arrays disponibles)
+- [ ] Tests greenfield audit pre/post refactor diff 0.0000 cross-3-símbolos
+- [ ] Cross-check `_run_verify_test` ground truth (76 trades 380 mediciones diff 0.0000 baseline 2026-04-26)
+- [ ] Smoke audit cross-3-símbolos validación
+- [ ] Commit consolidado Sesión 1A.2.
+
+### Sesión 1B — G1.1 Tier 0 I1 dedicada PRIORITARIA próxima (~3-5h Claude Code, ~2026-04-29)
 
 - [ ] Análisis profundo callers `run_simulation_numba` (grep + ag-search)
 - [ ] **G1.1 Tier 0 I1 kernel modify**: arrays per-trade + reason_exit enum + signature extension
@@ -103,7 +118,7 @@ Trigger: A+B+C done + D+E validados o archivados. **Estado 2026-04-27 Sesión 2 
 - [ ] Cross-check `_run_verify_test` baseline (76 trades 380 mediciones diff 0.0000 baseline 2026-04-26)
 - [ ] Commit consolidado Sesión 1B.
 
-### Sesión 2 — G1.2 Bloque 2c + Hipótesis Mec 3+4 (~4-6h Claude Code, ~2026-04-30 a 05-01)
+### Sesión 2 — G1.2 Bloque 2c + Hipótesis Mec 3+4 (~4-6h Claude Code, ~2026-05-01 a 02)
 
 - [ ] **G1.2 Bloque 2c granular** H1+H_funding+H_strategy cross-régimen (44 sym × 3 clusters × top-5 cross-régimen 3y BTC macro)
 - [ ] **H_M3 Selection bias cross-cluster** (matriz correlation MA preset families top-1 cross-44-sym)
@@ -113,14 +128,14 @@ Trigger: A+B+C done + D+E validados o archivados. **Estado 2026-04-27 Sesión 2 
 - [ ] Calibración §12 L36 9ª aplicación retrospectiva
 - [ ] Commit consolidado Sesión 2.
 
-### Sesión 3 — Selection-bias-specific tools subsets (~5-6h Claude Code, ~2026-05-02 a 03)
+### Sesión 3 — Selection-bias-specific tools subsets (~5-6h Claude Code, ~2026-05-03 a 04)
 
 - [ ] **G3.2 Deflated SR core formula** + validación numérica + cross-9 cross-symbol M2 fix baseline (Q1+W1 2026-04-23)
 - [ ] **G3.3 k-fold CV walk-forward subset** + validación tests
 - [ ] Aplicación al ranking selection (input para Sesión 4 reciclaje preparation)
 - [ ] Commit consolidado Sesión 3.
 
-### Sesión 4 — G5.3 brain refactors + cierre pre-reciclaje (~3-5h Claude Code, ~2026-05-04 a 05)
+### Sesión 4 — G5.3 brain refactors + cierre pre-reciclaje (~3-5h Claude Code, ~2026-05-05 a 06)
 
 - [ ] Análisis profundo lecciones v2.3.9 prev_zone B2 + TF locals B3 (subtarea explícita pre-implementar). Output: documento decisión arquitectónica (a/b/c) prev_zone.
 - [ ] **G5.3 prev_zone B2 + TF locals B3** implementación (~3-5h Claude Code)
@@ -130,14 +145,14 @@ Trigger: A+B+C done + D+E validados o archivados. **Estado 2026-04-27 Sesión 2 
 - [ ] Documentación final pre-reciclaje
 - [ ] Commit consolidado Sesión 4.
 
-### Sesión 5 — Reciclaje 45 sym launch (~30 min preparation + ~10-15 días compute autónomo VPS, ~2026-05-06 a 05-22)
+### Sesión 5 — Reciclaje 45 sym launch (~30 min preparation + ~10-15 días compute autónomo VPS, ~2026-05-07 a 22)
 
 - [ ] Validation gates: bot v2.4.5 invariante + audit refactored + Smoke Nivel B sistemático done + Deploy L1892+L1904 done
 - [ ] Reciclaje 45 sym launch
 - [ ] Reciclaje ejecución autónoma VPS (~10-15 días compute)
 - [ ] Reciclaje completo: ~2026-05-22 a 06-05
 
-**Trigger reciclaje launch**: cuando Sesiones 1A+1B+2+3+4 done todas. Estimación temporal: ~2026-05-06 a 12.
+**Trigger reciclaje launch**: cuando Sesiones 1A+1B+1A.2+2+3+4 done todas. Estimación temporal: ~2026-05-07 a 13.
 
 **Bot obsoleto adicional bajo AGGRESSIVE pura recalibrada**: ~1-2 semanas vs plan minimalista sesión 1 Fase 5 (~3-4 días). Trade-off aceptable bajo enfoque Ricardo "al margen de lo que cueste, aspirar a lo mejor reciclaje".
 
@@ -203,6 +218,8 @@ Disparador operacional D ~2026-05-01 N≥100 BingX-native sigue método correcto
 §12 L36 validada profilácticamente cross-3 sesiones consecutivas funding research (ahorro compute ~30-45h paths infeasibles ciegamente).
 
 ## Historia
+
+- **2026-04-28 Sesión 1A parcial** (setup base independiente DONE 2/3 + 1/3 BLOQUEADO mismatch revealed): bajo plan AGGRESSIVE pura recalibrada commit `8d837af` 2026-04-27 Sesión 2 D, ejecución Sesión 1A primer dedicada. **Items implementados clean**: G1.3 Lab compute_leverage_map fix → lev=1 always + docstring P1 (b) caveats (i)-(v) (45 sym verificado); G5.11 portfolio correlación min_len threshold 60 + tests no-regression PASS. **Item BLOQUEADO**: G2.1 Refactor audit_v5.x Opción A — investigación pre-cambio reveló dependency mismatch (audit `extract_trades_tf` retorna per-trade vs kernel `run_simulation_numba` retorna agregados; Opción A inherente requiere G1.1 Tier 0 I1 prereq). Decisión Ricardo Path A reorder: Sesión 1A.2 nueva post-G1.1. **Validación cross-cambios**: BTC pre/post N=1000 diff 0.0000 IDÉNTICO (G1.3+G5.11 NO tocan brain path); ONDO pre N=8000 diff_rel 22.70% explicable specialist working tree NEW vs HEAD baseline (no regresión brain/kernel — §12 L25 sub-refinamiento inline aplicado); APT pre N=10000 diff_rel 1.51% PASS triangulación cross-símbolo §12 L26 confirmando JSON HEAD baseline preserved. **§12 L36 9ª aplicación profiláctica funcionó**: G2.1 mismatch detectado pre-implementación (~1-2h CC ahorrados redirección Path A) + ONDO baseline context revealed. Cross-10-aplicaciones consolidada (~52-90h ahorro acumulado). Items §13.3 actualizados: L2370 + L2393 → IMPLEMENTED 2026-04-28; L1781 → BLOQUEADO scope refinado Sesión 1A.2. Calendario refinado 5-6 sesiones cross-1.5-2.5 semanas (vs 4-5 original). Trigger reciclaje launch ~2026-05-07 a 13. Reciclaje completo ~2026-05-22 a 06-05. Bot v2.4.5 invariante uptime 5d 4h+ (sin tocar live/* productivo, G1.3+G5.11 cambios offline preservados).
 
 - **2026-04-27 Sesión 2 D** (auditoría exhaustiva pre-reciclaje + decisión Ricardo AGGRESSIVE pura recalibrada): bajo enfoque Ricardo "al margen de lo que cueste, aspirar a lo mejor reciclaje", auditoría 4-fase exhaustiva (Parte 0 inventario gaps F1/F2/F3 cross-25-items + Parte 1 re-evaluación individual + Parte 2 mapping dependencias + Parte 3 calendarios A/M/F + Parte 4 riesgos+mitigaciones específicas). Reformulaciones timing categóricas reveladas: G1.1 Tier 0 I1 + G1.3 Lab compute_leverage_map + G2.1 Refactor audit_v5.x conceptualmente PRE-RECICLAJE (sesión 1 Fase 5 timing inversión). Recalibración temporal §12 L37 capturado: estimaciones humanas (89-135h cross-3-semanas) → tiempo Claude Code real (20-35h cross-1.5-2 semanas calendario). Decisión Ricardo confirmada AGGRESSIVE pura recalibrada: 14 items pre-reciclaje cross-Sesiones 1A+1B+2+3+4 (~18-26h Claude Code). Bot obsoleto adicional ~1-2 semanas vs ~5-6 semanas plan original. §12 L36 9ª aplicación cross-9-aplicaciones consolidada (~52-90h ahorro acumulado). 4 hipótesis Walk-forward Mec 3+4 §12 L34 compatible formuladas (H_M3+H_M4+H_M5+H_M6). 5 commits acumulados día + 1 Sesión 2 D = 6 commits día completo. Estado pre-reciclaje MADURO INSTITUCIONAL FINAL+P1+TRIAJE+AUDIT-RESCATE+AGGRESSIVE-PRE-RECICLAJE invariante.
 

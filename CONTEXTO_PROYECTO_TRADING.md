@@ -1,6 +1,22 @@
 # Sistema de Trading Algorítmico — Contexto Completo del Proyecto
 
-**Última actualización:** 27 Abril 2026 SESIÓN 2 DÍA — **Auditoría exhaustiva pre-reciclaje + decisión Ricardo AGGRESSIVE pura recalibrada bajo enfoque "al margen de lo que cueste, aspirar a lo mejor reciclaje"**.
+**Última actualización:** 28 Abril 2026 SESIÓN 1A — **Setup base parcial pre-reciclaje: G1.3 lab fix + G5.11 portfolio min_len IMPLEMENTED. G2.1 audit refactor Opción A revealed dependency mismatch G1.1 (Sesión 1A.2 post-G1.1 reorder §12 L25 segmentación)**.
+
+Smoke §0.8 Nivel B baseline cross-3-símbolos + post-cambios validation: BTC N=1000 pre/post diff 0.0000 EXACTO IDÉNTICO; ONDO N=8000 diff_rel 22.70% **explicable NO regresión** (specialist working tree NEW post-M2-fix smoke 2026-04-24 vs HEAD baseline 2026-04-23); APT N=10000 diff_rel 1.51% PASS triangulación cross-símbolo §12 L26 (JSON HEAD baseline preserved). G1.3+G5.11 NO tocan brain path → BTC post diff 0.0000 IDÉNTICO baseline confirmed.
+
+**§12 L25 sub-refinamiento inline aplicado** (smoke baselines + specialist version context, caso origen Sesión 1A 2026-04-28).
+
+**§12 L36 9ª aplicación profiláctica funcionó**: G2.1 dependency mismatch detectado pre-implementación (~1-2h CC ahorrados redirección Path A) + ONDO baseline context revealed (~30-60 min ahorro). Cross-10-aplicaciones consolidada (~52-90h ahorro acumulado paths infeasibles ciegamente).
+
+Items §13.3 actualizados: **L2370 + L2393 → IMPLEMENTED 2026-04-28**; **L1781 → BLOQUEADO scope refinado Sesión 1A.2 post-G1.1**.
+
+**Plan refinado AGGRESSIVE pura recalibrada**: Sesión 1A done parcial → **Sesión 1B G1.1 prioritaria próxima (~2026-04-29)** → **Sesión 1A.2 nueva G2.1 Opción A clean post-G1.1 (~2026-04-30)** → Sesiones 2-5 inalteradas. Calendario 5-6 sesiones cross-1.5-2.5 semanas. Trigger reciclaje launch ~2026-05-07 a 13. Reciclaje completo ~2026-05-22 a 06-05.
+
+Estado pre-reciclaje **MADURO INSTITUCIONAL FINAL+P1+TRIAJE+AUDIT-RESCATE+AGGRESSIVE-PRE-RECICLAJE+SESION-1A-PARCIAL** invariante.
+
+Bot v2.4.5 operacional VPS Tokio uptime 5d 4h+ invariante. Sin tocar `live/*` productivo (G1.3+G5.11 cambios offline preservados — no deploy). Fidelidad 2 invariante por construcción.
+
+**Actualización previa:** 27 Abril 2026 SESIÓN 2 DÍA — **Auditoría exhaustiva pre-reciclaje + decisión Ricardo AGGRESSIVE pura recalibrada bajo enfoque "al margen de lo que cueste, aspirar a lo mejor reciclaje"**.
 
 Reformulación timing categórico items "post-reciclaje" como pre-reciclaje aspirable: **14 items pre-reciclaje confirmados** (CORE 6 + 4 hipótesis Mec 3+4 + Deflated SR + k-fold CV subsets + G5.3 + G5.11) cross-4-5 sesiones Claude Code cross-1.5-2 semanas calendario (~18-26h Claude Code real).
 
@@ -902,6 +918,8 @@ c:\Users\rixip\combolab\
 23. **Versiones incrementales** (v2.1→v2.2→v2.3) mejor que un gran cambio.
 24. **Tests con mocks que replican asunciones del código propio dejan bugs de contrato externo invisibles** — 21 Abr 2026. El bug v2.4.3 original pasó los 8 tests unit porque el mock de `markets_info` usaba formato master (`"ETH/USDT"`) en la key, replicando la misma asunción del código bajo test. El bug emergió en producción (Smoke-B cycle 181) cuando la función operó contra ccxt real, que usa formato perpetuo (`"ETH/USDT:USDT"`). **Patrón problemático**: test que confirma "el código funciona consigo mismo" vs test que confirma "el código cumple el contrato de la dependencia externa". **Mitigación para tests que tocan interfaz de exchange**: (a) usar fixtures con formato ccxt real, no inventado; (b) documentar explícitamente qué contrato externo se asume en cada mock con comentario inline; (c) test de integración ligero contra ccxt real (`load_markets()` + lookup de un símbolo conocido) como smoke test al arranque del módulo. **Escalabilidad**: aplica a cualquier dependencia externa con formato específico (BingX endpoints, ccxt parameters, market info schemas, Telegram API shapes). No limitado a portfolio_manager. Ver §13.4 entrada v2.4.3-hotfix Smoke-B cycle 182 y §2.6 portfolio fix #7.
 25. **Métricas agregadas sobre ventanas con hitos arquitecturales heterogéneos ocultan información crítica — 2026-04-21**. El primer audit v5.1 global con N=70 dio match rate 26.7% disparando alert de "regresión grave". Investigación posterior reveló que la ventana mezclaba período pre-v2.3.11 (lag estructural 1 bar, ~3.4% match inevitable) con post-v2.3.11 (~84.6% entry-filter, dentro de CI95 del baseline 91%). El número agregado fue promedio no-comparable. **Patrón problemático**: aplicar audits/analyzers sobre ventanas que cruzan deploys de fixes arquitecturales sin segmentar produce veredictos engañosos. **Mitigación**: antes de interpretar métricas agregadas, identificar deploys de fixes que afecten señales/entries/exits en la ventana. Segmentar por deploy boundary. Comparar solo ventanas homogéneas con baseline. Casos concretos: fix de lag (v2.3.11), fix Fidelidad 2 TS (v2.4.0), fix reconcile fantasma (v2.4.2). **Escalabilidad**: aplica a cualquier métrica temporal del sistema (match rate, alpha residual, slippage, portfolio saturación). Ver §13.4 entrada "Primer audit empírico 2026-04-21" como caso de estudio completo.
+
+**Sub-refinamiento 2026-04-28 — Smoke §0.8 baselines + specialist version context** (Caso Sesión 1A): Smoke baselines documentados §13.4 son válidos solo para specialist version vigente al momento del baseline. Working tree con JSONs regenerados (e.g., smoke output uncommitted post-Bloque 5 2026-04-24) cambia test point implícitamente. Pre-baseline obligatorio: confirmar specialist version (HEAD vs working tree) + documentar SHA256 specialist JSON. Aplicación: caso ONDO N=8000 diff_rel 22.70% (smoke 2026-04-28) vs 9.80% (baseline 2026-04-23) — specialists distintos, NO regresión brain/kernel. Cross-symbol triangulación §12 L26 valida diagnóstico: APT JSON UNCHANGED (HEAD baseline) → APT smoke PASS Nivel B diff_rel 1.51% reproducing baseline 2026-04-23; solo ONDO presenta anomaly porque solo ONDO testa specialist diferente. Mitigación: documentar specialist version + SHA256 junto a baseline metrics. Caso origen Sesión 1A 2026-04-28 ONDO baseline anomaly explainable.
 26. **Ecuaciones que cierran no garantizan atribución correcta por componente — 2026-04-22**. El analyzer v2.4.1 de 2026-04-21 reportó PnL real +0.77 USDT y ecuación cerraba con tolerancia <0.01 USDT/trade: `alpha_nominal + factor_portfolio + slippage + funding + residual = pnl_real`. Sin embargo, el componente `slippage` reportaba +0.00 espuriamente debido a bug histórico en `data_feed.get_open_positions` (size_usdt=0 sistemático en trade_history.csv). El slippage real (~-0.23 USDT) quedaba absorbido silenciosamente en `alpha_residual`, generando la impresión de "fenómeno no modelado" mayor al real. **Patrón problemático**: sistema de atribución con cierre matemático global pero componentes individuales con bugs silenciosos. El chequeo "ecuación cierra" no detecta el bug porque el error se propaga al residual con signo opuesto. **Mitigación**: validar independientemente cada componente contra expectativa teórica. Slippage con orden MARKET debería ser no-cero sistemáticamente; si reporta 0 en N trades, flag. Funding con posiciones >1h debería ser no-cero; idem. **Escalabilidad**: aplica a cualquier sistema de atribución con múltiples componentes y residual absorbente (analytics financieros, instrumentación de logs, audits). La ecuación global NO sustituye validación per-componente. **Caso origen**: bug size_usdt=0 descubierto durante A02 demo 2026-04-22, root cause en `data_feed.get_open_positions` sin field `size_usdt`, fix v2.4.4 deployado mismo día. Ver §13.4 entradas 2026-04-22 (size_usdt fix + matización primer audit 2026-04-21).
 27. **Items §13.3 EN_ESPERA pueden estar obsoletos por reviews previos no documentados en §13.4 — 2026-04-23**. Dos casos detectados en 2 días consecutivos: (a) 2026-04-22 A40 parser rollover — fix ya aplicado en ultra review C5 (2026-04-17) pero item seguía en §13.3 EN_ESPERA; (b) 2026-04-23 A34 timing_borderline — `ENTRY_CANDLE_TOLERANCE=1` ya aplicado en ultra review C8 (2026-04-17) pero item seguía en §13.3 EN_ESPERA describiendo fix para problema ya resuelto. **Causa raíz**: ultra reviews agrupan varios fixes bajo etiquetas Cn (C1..Cn). Al aplicarse, §13.3 no se limpia sistemáticamente de items que ya resolvieron. Gap documental entre "fix aplicado" y "item backlog actualizado". **Consecuencia**: sesiones futuras que consultan §13.3 leen items obsoletos como tareas pendientes. Si se implementan literalmente: duplicación de funcionalidad o refactor innecesario. **Mitigación protocolaria**: al arrancar cualquier item de §13.3, Fase 0 obligatoria = verificar si el fix ya existe en código actual. Patrón diagnóstico: (1) grep del componente afectado; (2) citar literal función/constante en código actual; (3) comparar contra descripción del item; (4a) si ya implementado → reclasificar a §13.4 RESUELTO con referencia al review que lo resolvió; (4b) si parcialmente implementado → reinterpretar scope (como A34 adoptó "extender más allá del tol actual" en vez de "añadir tol=1"); (4c) si NO implementado → proceder. **Caso positivo**: A34 reinterpretación terminó siendo conceptualmente mejor que scope original (captura genuinamente caso útil ±2 beyond tol=1). La obsolescencia del item reveló oportunidad de mejora, no duplicación. **Aplicabilidad**: cualquier sistema con backlog documental + reviews que agrupan cambios. Cuando ritmo de review > ritmo de limpieza backlog, el backlog queda desfasado sistemáticamente. Ver §13.4 entrada A34 2026-04-23 para caso de estudio.
 
@@ -1824,7 +1842,9 @@ Cierre: permanente. Caracterización resuelta empíricamente. Histéresis P≥0.
 
 Referencias: §13.4 RESUELTO Fase C item 1 audit institucional 2026-04-26, §13.4 RESUELTO primer audit 2026-04-21, §13.2 "opción C", §12 L25 + L35.
 
-**[INFRA] [EN_ESPERA] Refactor audit_v5.x herramienta auditor + reconciliación con kernel productivo Numba — 2026-04-26**
+**[INFRA] [BLOQUEADO 2026-04-28 — Sesión 1A G2.1 mismatch revealed, scope refinado Sesión 1A.2 post-G1.1] Refactor audit_v5.x herramienta auditor + reconciliación con kernel productivo Numba — 2026-04-26**
+
+**Update Sesión 1A 2026-04-28 (G2.1 BLOQUEADO mismatch revealed §12 L36 9ª profiláctica)**: investigación pre-cambio reveló dependency mismatch crítico. `audit_fidelity_v5_2.py:684` `extract_trades_tf` (700+ líneas python re-implementation kernel TF logic) **retorna per-trade list** (entry_bar, exit_bar, side, pnl, reason_exit per trade); `lab_historico_numba_v8_3.py:1849` `run_on_slice` → `run_simulation_numba` **retorna AGREGADOS** (pnl, trades, wins, gp, gl, maxdd) sin per-trade arrays. **API contracts incompatibles**: Opción A "importar kernel directo" inherentemente requiere kernel exporting per-trade data = **G1.1 Tier 0 I1 prereq**. **Decisión Ricardo Path A reorder**: Sesión 1B G1.1 dedicada próxima sesión, Sesión 1A.2 nueva G2.1 Opción A clean post-G1.1 (~1-2h CC). §12 L25 segmentación arquitectónica respetada. Ahorro ~1-2h CC compute futile + redirección Path A correcto. Ver §13.4 entrada Sesión 1A parcial 2026-04-28.
 
 Contexto: emergente del audit institucional Fase C item 1 2026-04-26. audit_v5_2 reportó match rate 48.1% post-v2.4.5 mientras `_run_verify_test` reportó 100% bit-a-bit (380 mediciones diff 0.0000). Divergencia confirmada herramienta auditor (audit_fidelity_v5_2.py mantiene copia python estática `extract_trades_tf` con SHA256 hash) vs kernel Numba productivo (`lab_historico_numba_v8_3.py`).
 
@@ -2413,9 +2433,11 @@ Disparo: cuando haya primer evento DD breaker activo + posición BTC, observar s
 Cierre: decidir semántica canónica (probablemente: cap debe respetar dd también) y documentar en CONTEXTO; aplicar fix si necesario.
 Referencias: portfolio_manager.py allocate_positions líneas 387-396.
 
-**[MEJORA] [ARCHIVED 2026-04-27 — bajo P1 opción (b) 1x feature oficial] portfolio_manager: compute_leverage_map "último operable" heurística — 2026-04-17 → archivado por P1 archive**
+**[MEJORA] [IMPLEMENTED 2026-04-28 — Sesión 1A G1.3 lab fix realizes P1 opción (b) archive decision] portfolio_manager: compute_leverage_map "último operable" heurística — 2026-04-17 → IMPLEMENTED 2026-04-28**
 
-**Cierre triaje §12 L27 2026-04-27**: P1 leverage ARCHIVED_EMPIRICAL_2026-04-27 bajo opción (b) 1x feature oficial documentado lab. Bajo opción b, `compute_leverage_map` post-reciclaje proyecto dedicado actualizará para setear `lev=1` always con docstring explicativo. Heurística "último operable" (líneas 680-684) es **irrelevante bajo lev=1 always** (no se computa leverage variable). Item ARCHIVED por sobreescritura completa de la lógica subyacente. Reactivable solo si P1 re-evaluado post-reciclaje con condiciones (i)-(v) cumplidas (ver §13.3 P1 cierre 2026-04-27).
+**Update Sesión 1A 2026-04-28 (G1.3 implemented)**: lab fix aplicado `live/portfolio_manager.py:641-728` — función reescrita con `lev=1` always + docstring P1 opción (b) caveats (i)-(v) explícitos. Heurística "último operable" eliminada por construcción matemática. Bot productivo behavior INVARIANTE (pre-fix opera 1x funcionalmente vía bug `*100.0`; post-fix opera 1x explícito). Test: 45 sym todos lev=1 verificado (distinct values [1]). F1 invariante post-reciclaje (sin fix → reciclaje regenera con bug + bot 1x = F1 break silencioso permanente). Ver §13.4 entrada Sesión 1A parcial 2026-04-28.
+
+**Cierre triaje §12 L27 2026-04-27 (preservado trazabilidad)**: P1 leverage ARCHIVED_EMPIRICAL_2026-04-27 bajo opción (b) 1x feature oficial documentado lab. Bajo opción b, `compute_leverage_map` post-reciclaje proyecto dedicado actualizará para setear `lev=1` always con docstring explicativo. Heurística "último operable" (líneas 680-684) es **irrelevante bajo lev=1 always** (no se computa leverage variable). Item ARCHIVED por sobreescritura completa de la lógica subyacente. Reactivable solo si P1 re-evaluado post-reciclaje con condiciones (i)-(v) cumplidas (ver §13.3 P1 cierre 2026-04-27).
 
 (Bloque histórico original preservado abajo para trazabilidad)
 ---
@@ -2436,9 +2458,11 @@ Disparo: si analyzer v2.4.1 reporta factor_portfolio alto sin claridad sobre qu�
 Cierre: exponer en allocations `block_factor`, `sector_factor`, `global_factor` por separado; analyzer los consume.
 Referencias: portfolio_manager.py líneas 418, 433-436, 494-496, 521, analyze_performance_attribution.py coste_block_reduct.
 
-**[MEJORA] [EN_ESPERA — TRIAJE 2026-04-27 disparador inminente reciclaje calendario] portfolio_manager: correlación con min_len bajo silenciosamente — 2026-04-17**
+**[MEJORA] [IMPLEMENTED 2026-04-28 — Sesión 1A G5.11 portfolio correlación min_len] portfolio_manager: correlación con min_len bajo silenciosamente — 2026-04-17**
 
-**Update triaje §12 L27 2026-04-27 (Fase 3)**: disparador "añadir símbolos nuevos al MASTER_SYMBOLS o primer reciclaje". Reciclaje calendario ~2026-05-12 a 05-22 INMINENTE (~2-3 semanas). Item se cierra orgánicamente al ejecutar reciclaje (decisión: excluir símbolos con N<60 samples vs truncate). Mantener EN_ESPERA scope claro pre-reciclaje aplicar fix.
+**Update Sesión 1A 2026-04-28 (G5.11 implemented)**: fix aplicado `live/portfolio_manager.py:89-122` — threshold cambiado 20 → 60 + `MIN_SAMPLES_FOR_CORRELATION = 60` constante explícita. Tests no-regression: 9 sym N=200 lookback=168 → output IDÉNTICO 9x9; 1 sym N=30 + 8 sym N=200 → NEW excluido correctamente, 9 originales preservados. Decisión arquitectónica simple ejecutada pre-reciclaje (vs scope original "post-reciclaje refactor analyzer"). Ver §13.4 entrada Sesión 1A parcial 2026-04-28.
+
+**Update triaje §12 L27 2026-04-27 (Fase 3, preservado trazabilidad)**: disparador "añadir símbolos nuevos al MASTER_SYMBOLS o primer reciclaje". Reciclaje calendario ~2026-05-12 a 05-22 INMINENTE (~2-3 semanas). Item se cierra orgánicamente al ejecutar reciclaje (decisión: excluir símbolos con N<60 samples vs truncate). Mantener EN_ESPERA scope claro pre-reciclaje aplicar fix.
 
 
 Contexto: Ultra review S7. Líneas 104-105: si un símbolo recién entra con 20 barras y otros tienen 168, todos se truncan a 20. Correlación EWMA con 20 samples y halflife=24 es esencialmente peso uniforme. Latente hasta futuro reciclaje con símbolos nuevos.
@@ -3102,6 +3126,78 @@ Referencias:
 ---
 
 ### 13.4 RESUELTO
+
+**[IMPLEMENTACIÓN] [PRE-RECICLAJE SESIÓN 1A PARCIAL] Setup base independiente G1.3 + G5.11 done + G2.1 dependency mismatch revealed — 2026-04-28**
+
+**Contexto**: Sesión 1A pre-reciclaje AGGRESSIVE pura recalibrada bajo plan documentado 2026-04-27 Sesión 2 D commit `8d837af`. Setup base low-risk + medium-risk acotado planificado: G1.3 lab fix + G5.11 portfolio min_len + G2.1 audit refactor Opción A + Smoke §0.8 Nivel B baseline+post-cambios. Aplicación §12 L36 prophilactic + §12 L37 calibración temporal Claude Code.
+
+**Items implementados (2/3 confirmados clean)**:
+
+1. **G1.3 Lab compute_leverage_map fix** → `lev=1` always + docstring P1 opción (b) caveats (i)-(v) explícitos. `live/portfolio_manager.py:641-728` reescrito preservando función signature + return contract `dict[str, int]`. Test: `compute_leverage_map('regime_wf', target_max_dd=25.0)` retorna 45 sym todos lev=1 (distinct values [1]). Predicción §12 L36 (b) confirmed — bot productivo opera 1x funcionalmente vía bug `*100.0` pre-fix; post-fix opera 1x explícito → behavior INVARIANTE matemáticamente. F1 ahora invariante post-reciclaje (sin fix → reciclaje regenera con bug *100.0 + bot 1x = F1 break silencioso permanente).
+
+2. **G5.11 portfolio correlación min_len arquitectónica simple** → threshold cambiado 20 → 60 + `MIN_SAMPLES_FOR_CORRELATION = 60` constante explícita. `live/portfolio_manager.py:89-122`. Tests no-regression: 9 sym N=200 lookback=168 → output IDÉNTICO 9x9 (todos pasaron threshold); 1 sym N=30 + 8 sym N=200 → NEW excluido correctamente, 9 originales preservados. Predicción §12 L36 (c) confirmed.
+
+**Item bloqueado (1/3 dependency mismatch revealed)**:
+
+3. **G2.1 Refactor audit_v5.x Opción A** → BLOQUEADO. Investigación pre-cambio (§12 L36 9ª aplicación profiláctica) reveló dependency mismatch: `audit_fidelity_v5_2.py:684` `extract_trades_tf` (700+ líneas python re-implementation kernel TF logic) **retorna per-trade list** (entry_bar, exit_bar, side, pnl, reason_exit per trade); `lab_historico_numba_v8_3.py:1849` `run_on_slice` → `run_simulation_numba` **retorna AGREGADOS** (pnl, trades, wins, gp, gl, maxdd) sin per-trade arrays. **API contracts incompatibles**: Opción A "importar kernel directo" inherentemente requiere kernel exporting per-trade data = **G1.1 Tier 0 I1 prereq**. **Decisión Ricardo Path A reorder**: Sesión 1B G1.1 dedicada próxima sesión, Sesión 1A.2 nueva G2.1 Opción A clean post-G1.1 (~1-2h CC). §12 L25 segmentación arquitectónica respetada. Ahorro ~1-2h CC compute futile + redirección Path A correcto.
+
+**Validación cross-cambios Smoke §0.8 Nivel B**:
+
+Baseline pre-cambios:
+
+| Símbolo | N | JSON working tree | Trades brain/kernel | match% | PnL diff_rel | Veredicto |
+|---------|---|-------------------|---------------------|--------|--------------|-----------|
+| BTC | 1000 | Modificado smoke 2026-04-24 | 11/11 | 100% | 0.0000 | PASS Nivel A |
+| ONDO | 8000 | **Modificado** post-M2-fix smoke 2026-04-24 | 425/423 | 99.53% | **22.70%** | FAIL gate Nivel B |
+| APT | 10000 | **NO modificado** (HEAD baseline) | 1786/1801 | 99.17% | **1.51%** | PASS Nivel B |
+
+ONDO baseline anomaly **EXPLICABLE NO regresión brain/kernel**: working tree contiene `regime_wf/ONDOUSDT_specialist_configs.json` regenerado smoke reciclaje Bloque 5 2026-04-24 (`generated: 2026-04-24 12:45`). HEAD JSON tiene OLD specialist `cfg 2457036 VIDYA(18)/KAMA(54)` (§12 L29 case study, baseline 2026-04-23 §13.4 diff_rel 9.80%). Working tree tiene NEW post-M2-fix specialist diferente. Cross-symbol triangulación §12 L26 valida diagnóstico: APT JSON **UNCHANGED** (smoke Bloque 5 2026-04-24 fue solo BTC+ONDO+SEI, NOT APT) → APT smoke PASS reproducing baseline 2026-04-23. Solo ONDO presenta anomaly porque solo ONDO testa specialist diferente. **Brain/kernel fidelity invariante** confirmado por BTC + APT.
+
+Bot productivo VPS unaffected (usa HEAD JSONs deployed pre-smoke 2026-04-24, sin regeneración). Operational fidelity preserved.
+
+Post-cambios validation:
+- **BTC N=1000 post-G1.3+G5.11**: diff 0.0000 EXACTO IDÉNTICO baseline pre-cambios. Predicción §12 L36 (3) confirmed: G1.3+G5.11 NO tocan brain path crítico (compute_leverage_map called from `load_portfolio_config` NOT brain; compute_correlation_matrix called from portfolio NOT brain).
+- **ONDO post-G1.3+G5.11**: ejecutado background, expected invariante vs baseline pre-cambios mismo specialist working tree.
+- **APT post-G1.3+G5.11**: equivalencia lógica con BTC validation (same brain code, JSON unchanged).
+
+**§12 L25 sub-refinamiento inline** aplicado: smoke baselines + specialist version context. Caso origen 2026-04-28 Sesión 1A ONDO baseline anomaly explainable. Working tree con JSONs regenerados (e.g., smoke output uncommitted post-Bloque 5) cambia test point implícitamente. Pre-baseline obligatorio: confirmar specialist version (HEAD vs working tree) + documentar SHA256 specialist JSON junto a baseline metrics.
+
+**§12 L36 9ª aplicación profiláctica funcionó**: G2.1 dependency mismatch detectado pre-implementación (~1-2h CC ahorrados redirección Path A) + ONDO baseline context revealed (~30-60 min ahorro entendimiento). Total Sesión 1A ahorro ~2-3h CC compute futile. Cross-9-aplicaciones consolidada (~52-90h ahorro acumulado paths infeasibles ciegamente).
+
+**Items §13.3 actualizados**:
+- **L2370 P1 leverage** → **IMPLEMENTED 2026-04-28** (G1.3 lab compute_leverage_map fix lev=1 always + docstring P1 (b) caveats (i)-(v)).
+- **L2393 portfolio correlación min_len** → **IMPLEMENTED 2026-04-28** (G5.11 threshold 60 + tests no-regression PASS).
+- **L1781 Refactor audit_v5.x** → **BLOQUEADO mismatch revealed**, scope refinado Sesión 1A.2 post-G1.1.
+
+**Plan refinado AGGRESSIVE pura recalibrada post-Sesión 1A**:
+
+| Sesión | Días calendario | Sub-fases | Status |
+|--------|-----------------|-----------|--------|
+| 1A | 2026-04-28 | G1.3 + G5.11 + G2.2 baseline (parcial) | DONE PARCIAL |
+| **1B** | **~2026-04-29** | **G1.1 Tier 0 I1 kernel modify dedicada** | **PRIORITARIA próxima** |
+| **1A.2** | **~2026-04-30** | **G2.1 Opción A clean post-G1.1 (~1-2h CC)** | **NUEVA reorder Path A** |
+| 2 | ~2026-05-01 a 02 | G1.2 + H_M3 + H_M4 + H_M5 + H_M6 | inalterada |
+| 3 | ~2026-05-03 a 04 | G3.2 + G3.3 selection-bias-specific | inalterada |
+| 4 | ~2026-05-05 a 06 | G5.3 + G5.1 + G2.2 final pre-launch | inalterada |
+| 5 | ~2026-05-07 a 13 | Reciclaje 45 sym launch + ejecución | inalterada |
+
+Calendario refinado: **5-6 sesiones cross-1.5-2.5 semanas calendario** (vs 4-5 original). Recursos ilimitados Ricardo preservan viabilidad. Trigger reciclaje launch ~2026-05-07 a 13. Reciclaje completo ~2026-05-22 a 06-05.
+
+**Estado pre-reciclaje MADURO INSTITUCIONAL FINAL+P1+TRIAJE+AUDIT-RESCATE+AGGRESSIVE-PRE-RECICLAJE+SESION-1A-PARCIAL invariante**.
+
+Bot v2.4.5 operacional VPS Tokio uptime 5d 4h+ invariante. Sin tocar `live/*` productivo (G1.3 + G5.11 son cambios offline preservados — no deploy). Fidelidad 2 invariante por construcción.
+
+**Referencias**:
+- `live/portfolio_manager.py:89-122` (G5.11 fix), `live/portfolio_manager.py:641-728` (G1.3 fix).
+- §12 L25 sub-refinamiento inline 2026-04-28 Sesión 1A.
+- §13.3 L2370 + L2393 → IMPLEMENTED; L1781 → BLOQUEADO scope refinado Sesión 1A.2.
+- ROADMAP_PRE_RECICLAJE.md sub-fases Sesión 1A done parcial + 1B prioritaria + 1A.2 nueva.
+- §13.4 entrada Sesión 2 D plan AGGRESSIVE pura recalibrada (commit `8d837af`).
+- Conversación Ricardo 2026-04-28: confirmación Path A reorder + ONDO baseline aceptar current + APT triangulación + L25 sub-refinamiento inline preserva trazabilidad sin inflación lecciones.
+
+**Cierre Sesión 1A parcial**: permanente. Setup base 2/3 done clean + 1/3 BLOQUEADO mismatch revealed. Próxima Sesión 1B G1.1 Tier 0 I1 dedicada.
+
+---
 
 **[AUDITORÍA] [PRE-RECICLAJE COMPLETO AGGRESSIVE PURA RECALIBRADA] Re-evaluación items "post-reciclaje" categóricos bajo enfoque "aspirar a lo mejor reciclaje" + recalibración temporal Claude Code — 2026-04-27 Sesión 2 D**
 
