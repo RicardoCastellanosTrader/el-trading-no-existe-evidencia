@@ -70,6 +70,7 @@ Reactivable post-reciclaje 45 sym + k-fold CV proyecto dedicado podría re-evalu
 - ~~Multi-testing correction formal (Bonferroni/BH/Deflated SR)~~ — **CASO B ARCHIVADO empíricamente 2026-04-26** (Holm/BH no mejoran ranking M2 fix; residual 2.41× confirmed estructural). Selection-bias-specific tools (Deflated SR López de Prado ~15-25h, k-fold CV ~20-30h, sample splitting) permanecen como proyectos dedicados separados — refinamiento mayor post-reciclaje.
 - k-fold CV vs train/fwd split único — proyecto dedicado ~20-30h post-reciclaje.
 - `_FWD_MIN_PF` óptimo calibrado — refinamiento menor.
+- **P1 leverage 1x feature oficial documentado lab** (proyecto post-reciclaje ~2-4h): fix bug `*100.0` `compute_leverage_map` → setear `lev=1` always con docstring explicativo. Análisis cuantitativo Fase 2 sesión 2026-04-27 tarde confirmó opción (b) empíricamente (cap 3x amplifica decay 1.61×, asimetría arquitectónica clusters ganadores maxdd alto / perdedores maxdd bajo). Reactivable solo post-reciclaje con condiciones (i)-(v) explícitas (ver §13.4 entrada P1 quantitative 2026-04-27 tarde).
 
 ## Reciclaje completo 45 símbolos
 
@@ -115,6 +116,8 @@ Disparador operacional D ~2026-05-01 N≥100 BingX-native sigue método correcto
 §12 L36 validada profilácticamente cross-3 sesiones consecutivas funding research (ahorro compute ~30-45h paths infeasibles ciegamente).
 
 ## Historia
+
+- **2026-04-27 sesión tarde**: P1 leverage ARCHIVED_EMPIRICAL bajo opción (b) 1x feature oficial. Fase 2 análisis cuantitativo full robusto isolated cluster-específico cross-12-escenarios + cluster top/bottom 10 + leverage selectivo + sanity cross-segmento §12 L25. Margin mode `isolated` VERIFIED empírico VPS BingX. Cluster_id mapping 100% coverage post-v2.4.5 N=76 vía SIGNALS_RAW logs parse. Hallazgos: cap 3x amplifica decay 1.61× (-0.0246 vs -0.0153 baseline); 0 liquidaciones cross-12-escenarios; cluster selectivo top-10 PEOR que baseline (-1.92 vs -1.17 USDT); asimetría arquitectónica clusters ganadores maxdd alto / perdedores maxdd bajo. §13.3 L1849 P1 + L2152 E3 + L1861 setLeverage altos → ARCHIVED. §12 L36 cross-5-sesiones consolidada (3/7 acertadas + 3/7 refutadas + 1/7 parcial; ~40-65h ahorro acumulado). Baseline cuantitativo preservado para reactivación post-reciclaje con condiciones (i)-(v) explícitas. Estado pre-reciclaje MADURO INSTITUCIONAL FINAL+P1.
 
 - **2026-04-27 sesión mañana**: D+E ARCHIVED_EMPIRICAL pre-disparadores. Pre-flight enrichment N=72 trades post-v2.4.5 (~17s compute local) reveló refutación masiva: v2.6-inv subset `|rate|≥5e-4` = 0/72 (Path B caveat "extremo raro régimen actual" validado operacionalmente cross-arquitectura limpia); v2.6-exit Spearman ρ=+0.020 p=0.87 signo OPUESTO triple-refutado vs Bloque 2 -0.32. Aplicación §12 L36 prophilactic ahorró ~6-10h compute + 2 días tiempo (validación mínima vs framework completo + Welch + esperar disparadores). §13.3 L2342 + L2399 → ARCHIVED_EMPIRICAL. §12 L36 cross-4-sesiones funding research consolidada (ahorro acumulado ~36-55h). Estado pre-reciclaje MADURO INSTITUCIONAL FINAL — A+B+C+D+E completo, trigger reciclaje 45 sym aguarda solo fecha calendario.
 

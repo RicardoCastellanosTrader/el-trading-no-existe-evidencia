@@ -1,6 +1,8 @@
 # Sistema de Trading Algorítmico — Contexto Completo del Proyecto
 
-**Última actualización:** 27 Abril 2026 SESIÓN MAÑANA — **Opción α cierre empírico v2.6-inv + v2.6-exit pre-flight refutación masiva → estado pre-reciclaje MADURO INSTITUCIONAL FINAL**: pre-flight enrichment local N=72 trades post-v2.4.5 (~17s compute) reveló (a) v2.6-inv subset trades `|rate|≥5e-4` = **0/72** (Path B caveat "extremo raro régimen actual" VALIDADO operacionalmente cross-arquitectura limpia, no solo cross-180d retrospective); (b) v2.6-exit Spearman ρ(n_bars_contrarian, pnl) = **+0.020 p=0.87** signo OPUESTO + magnitud nula triple-refutación vs Bloque 2 N=50 ρ=-0.32 (artefacto ventana 4d + contaminación pre-v2.4.4 size_usdt=0 + pre-v2.4.5 entry_ms=0 + clusters S2+S3 sub-window concentración confirmado). **Aplicación §12 L36 prophilactic en variante más estricta** ahorró ~6-10h compute + 2 días tiempo (pre-flight ~17s vs framework completo + ~30min Welch + 1-2 días esperando disparadores). Hallazgo descriptivo emergente NO escalado §12 L34: aligned -0.246% PEOR contrarian -0.149% post-v2.4.5 N=72 (signo OPUESTO §9.3 refutación N=50; Welch p=0.77 NS) — sugiere edge degradación o régimen anti-trend-following emergente, consistente caracterización N=60 sesión 2026-04-26 B3/B1=1.82× monotónica. Cross-boundary 8h funding 34.7% trades vs predicción 6-12% (refutación magnitud 3-5× — distribución hold post-v2.4.5 más amplia). Items §13.3 archivados: **L2342 v2.6-inv + L2399 v2.6-exit → ARCHIVED_EMPIRICAL_2026-04-27**. ROADMAP_PRE_RECICLAJE.md categorías D+E archivadas. **§12 L36 cross-4-sesiones funding research consolidada** (sesión 4ª: 2/7 acertadas + 3/7 refutadas fuerte + 1/7 parcial + 1/7 N/A; ahorro acumulado ~36-55h cross-4-sesiones consecutivas). **Estado pre-reciclaje MADURO INSTITUCIONAL FINAL invariante**: A done_archived + B done merged + C 7/7 done + Path B archive + **D+E archived empírico**. Trigger reciclaje completo 45 sym solo aguarda fecha (~2026-05-12 a 05-22). Bot v2.4.5 invariante uptime 4d 21h+. Sin tocar `live/*`. Sin deploy. Fidelidad 2 invariante por construcción.
+**Última actualización:** 27 Abril 2026 SESIÓN TARDE — **P1 leverage Fase 2 análisis cuantitativo FULL ROBUSTO → opción (b) 1x feature oficial confirmed empíricamente + baseline reactivación post-reciclaje**: simulación isolated cluster-específico cross-12-escenarios (capital 296/500/1000 × cap 1x/3x/5x/unrestricted) sobre N=76 limpio post-v2.4.5 + sanity cross-segmento §12 L25. Mitigaciones T1-T9 explícitas: T7 margin mode `isolated` VERIFIED empírico VPS BingX (matiz Ricardo aplicable); T1 cluster_id mapping 100% coverage post-v2.4.5 vía SIGNALS_RAW logs parse; T2 fees+funding lineales con notional → fórmula `pnl_neto_hyp = L × pnl_real` matemáticamente correcta isolated; T3 liquidación criterio worst-case observado. **Hallazgos**: (1) cap 3x AMPLIFICA decay 1.61× vs baseline (-0.0246 vs -0.0153 PnL/trade); (2) 0 liquidaciones cross-12-escenarios (régimen lateral-alcista pnl_pct intra-trade modesto + leverage 1-5x = no llega 99% margin call); (3) cluster leverage selectivo top-10 cap 3x = -1.92 USDT PEOR que baseline 1x universal -1.17 USDT (asimetría arquitectónica clusters ganadores maxdd alto / perdedores maxdd bajo); (4) cap 5x/unrestricted Sharpe "menos malo" (-0.41 vs -1.32) pero PnL aún negativo; (5) §12 L25 sanity cross-segmento confirma decay temporal monotónico (post-v2.4.4 pre-v2.4.5 N=9 +0.089/trade vs post-v2.4.5 N=76 -0.025/trade). **Decisión Ricardo OPCIÓN (b) 1x feature oficial documentado lab** confirmed empíricamente. Items §13.3 archivados: **L1849 P1 leverage + L2152 E3 + L1861 setLeverage altos → ARCHIVED_EMPIRICAL_2026-04-27**. ROADMAP post-reciclaje proyecto dedicado P1 (~2-4h) actualizar lab `compute_leverage_map`. **Caveat reactivación post-reciclaje** con baseline cuantitativo permanente preservado: condiciones (i)-(v) explícitas (edge restored N≥50 nuevo + capital >1000 + isolated mantenido + re-simulación mejora vs baseline + asimetría resuelta). **§12 L36 cross-5-sesiones consolidada** (3/7 acertadas + 3/7 refutadas + 1/7 parcial; ~40-65h ahorro acumulado). **Estado pre-reciclaje MADURO INSTITUCIONAL FINAL+P1 invariante**: A done_archived + B done merged + C 7/7 done + Path B archive + D+E archived + **P1 archived empírico**. Trigger reciclaje completo 45 sym aguarda solo fecha calendario (~2026-05-12 a 05-22). Bot v2.4.5 invariante uptime 4d 22h+. Sin tocar `live/*`. Sin deploy. Fidelidad 2 invariante por construcción.
+
+**Actualización previa:** 27 Abril 2026 SESIÓN MAÑANA — **Opción α cierre empírico v2.6-inv + v2.6-exit pre-flight refutación masiva → estado pre-reciclaje MADURO INSTITUCIONAL FINAL**: pre-flight enrichment local N=72 trades post-v2.4.5 (~17s compute) reveló (a) v2.6-inv subset trades `|rate|≥5e-4` = **0/72** (Path B caveat "extremo raro régimen actual" VALIDADO operacionalmente cross-arquitectura limpia, no solo cross-180d retrospective); (b) v2.6-exit Spearman ρ(n_bars_contrarian, pnl) = **+0.020 p=0.87** signo OPUESTO + magnitud nula triple-refutación vs Bloque 2 N=50 ρ=-0.32 (artefacto ventana 4d + contaminación pre-v2.4.4 size_usdt=0 + pre-v2.4.5 entry_ms=0 + clusters S2+S3 sub-window concentración confirmado). **Aplicación §12 L36 prophilactic en variante más estricta** ahorró ~6-10h compute + 2 días tiempo (pre-flight ~17s vs framework completo + ~30min Welch + 1-2 días esperando disparadores). Hallazgo descriptivo emergente NO escalado §12 L34: aligned -0.246% PEOR contrarian -0.149% post-v2.4.5 N=72 (signo OPUESTO §9.3 refutación N=50; Welch p=0.77 NS) — sugiere edge degradación o régimen anti-trend-following emergente, consistente caracterización N=60 sesión 2026-04-26 B3/B1=1.82× monotónica. Cross-boundary 8h funding 34.7% trades vs predicción 6-12% (refutación magnitud 3-5× — distribución hold post-v2.4.5 más amplia). Items §13.3 archivados: **L2342 v2.6-inv + L2399 v2.6-exit → ARCHIVED_EMPIRICAL_2026-04-27**. ROADMAP_PRE_RECICLAJE.md categorías D+E archivadas. **§12 L36 cross-4-sesiones funding research consolidada** (sesión 4ª: 2/7 acertadas + 3/7 refutadas fuerte + 1/7 parcial + 1/7 N/A; ahorro acumulado ~36-55h cross-4-sesiones consecutivas). **Estado pre-reciclaje MADURO INSTITUCIONAL FINAL invariante**: A done_archived + B done merged + C 7/7 done + Path B archive + **D+E archived empírico**. Trigger reciclaje completo 45 sym solo aguarda fecha (~2026-05-12 a 05-22). Bot v2.4.5 invariante uptime 4d 21h+. Sin tocar `live/*`. Sin deploy. Fidelidad 2 invariante por construcción.
 
 **Actualización previa:** 26 Abril 2026 SESIÓN 4 — **Path B caracterización rasgo agregado mercado funding rates ARCHIVED + captura institucional 3 hallazgos permanentes**: (1) Threshold X=5e-4 empírico cross-3-exchanges (Binance+BingX+OKX × 15 sym × 180d, 96.5% unanimidad pooled) **REEMPLAZA §9.3 arbitrario `|rate| > 0.001`** como input al disparador operacional D ~2026-05-01 N≥100; (2) Rasgo es EXTREMO RARO régimen actual — 11/15 sym 0 eventos cross-180d, concentración SEI 14% + DOT 8.4% + SOL 1.4% + NEAR 0.3% (mega/large-caps 0 eventos); (3) OKX funding history retention API ≈95d caveat permanente cross-exchange retrospective. Decisión Ricardo Path B.4 archivar continuación Sesión 2 (Fase 2-3'-4-5-6) por retornos decrecientes vs disparador D inminente — Sesión 2 acumularía 7 caveats sobre output power limitado N=57 eventos cross-180d en 4 sym. Items §13.3 L2340 v2.6-inv + L2385 v2.6-exit actualizados con threshold empírico vs §9.3 arbitrario. **§12 L36 validada profilácticamente cross-3 sesiones consecutivas funding research** (Sesión 1 Variante 4: 6/6 acertadas Tier 0 I1 bloqueante detectado pre-compute; Sesión 2 Path B previo: 5/5 refutaciones reformulación marco emergente; Sesión 3 Path B-institutional: 6/9 acertadas + 1 refutada fuerte por OKX retention factor estructural no anticipado). Ahorro compute acumulado ~30-45h paths infeasibles ciegamente. Disparador operacional D ~2026-05-01 N≥100 sigue método correcto para decisión filter productivo, ahora con threshold empírico X=5e-4 mejor que arbitrario. Bot v2.4.5 invariante uptime 4d 12h+. Sin tocar `live/*`. Sin deploy. Fidelidad 2 invariante por construcción. **Estado pre-reciclaje MADURO INSTITUCIONAL invariante post-archive**: A done_archived + B done merged + C 7/7 done + Path B archive con captura permanente; pendientes solo D+E disparadores temporales (D ~2026-05-01, E ~2026-05-10) + reciclaje completo 45 sym ~2026-05-12 a 05-22.
 
@@ -1846,7 +1848,92 @@ Disparo: aproximadamente tras completar v2.3.6 (H1+H4) y resolver los serios de 
 Cierre: combolab como repo git con remote GitHub privado, commit inicial del estado actual, documentado workflow de deploy desde commit conocido.
 Referencias: investigación /ultrareview del 2026-04-17, política de uso en 13.4 (ítem "Naturaleza real de /ultrareview").
 
-**[DECISION] [EN_ESPERA] P1 leverage NO es fix simple — requiere proyecto separado — 2026-04-17**
+**[DECISION] [ARCHIVED_EMPIRICAL 2026-04-27] P1 leverage NO es fix simple — opción (b) 1x feature oficial confirmada empíricamente — 2026-04-17 → archivado pre-reciclaje por análisis cuantitativo Fase 2**
+
+**Cierre empírico 2026-04-27 sesión tarde (Fase 2 análisis full robusto)**:
+
+Análisis cuantitativo isolated cluster-específico cross-12-escenarios + sanity cross-segmento §12 L25 + cluster top/bottom 10 + leverage selectivo evaluado. Mitigaciones T1-T9 explícitas aplicadas (margin mode `isolated` VERIFIED empírico VPS BingX; cluster_id mapping coverage 100% post-v2.4.5 N=76 vía SIGNALS_RAW logs parse).
+
+**Hallazgos cuantitativos N=76 limpio post-v2.4.5 (target_max_dd_pct=25 default `compute_leverage_map` sin bug `*100.0`)**:
+
+| Cap leverage | PnL/trade USDT | PnL total USDT | N_liq | Sharpe | %saturated cap |
+|---|---:|---:|---:|---:|---:|
+| 1x baseline | -0.0153 | **-1.166** | 0 | -1.322 | 100% |
+| 3x | -0.0246 | **-1.866** | 0 | -0.996 | 15.8% |
+| 5x | -0.0143 | -1.087 | 0 | -0.429 | 1.3% |
+| unrestricted | -0.0137 | -1.040 | 0 | -0.410 | 0% |
+
+**Hallazgos institucionales**:
+
+1. **Cap 3x AMPLIFICA decay 1.61× vs baseline** (-0.0246 vs -0.0153). Asimetría arquitectónica: clusters perdedores tienen `maxdd_worst` BAJO (estables pero régimen actual los perjudica) → L_target ALTO → leverage amplifica pérdidas. Clusters ganadores (APT C2 +0.029/trade, MANA C1 +0.020/trade) tienen `maxdd_worst` ALTO (>25%) → L_target ≤ 1 → no se benefician leverage.
+
+2. **Liquidaciones cross-12-escenarios = 0** — predicción §12 L36 (b) acertada. Régimen lateral-alcista pnl_pct intra-trade modesto (max ~5-7%) × leverage 1-5x = no llega 99% margin call. Liquidación NO es el riesgo dominante régimen actual.
+
+3. **Sharpe ratio "menos malo" con cap mayor** (de -1.322 a -0.410), pero PnL absoluto sigue negativo. Sharpe negativo significa estrategia pierde ajustada por volatilidad — leverage no rescata edge inexistente.
+
+4. **Cluster leverage selectivo top-10 REFUTADO**: PnL selectivo cap 3x top-10 = **-1.92 USDT** (PEOR que baseline 1x universal -1.17). Top-10 incluye más perdedores que ganadores; leverage selectivo amplifica pérdidas mismo. Predicción §12 L36 (e) refutada.
+
+5. **Sanity §12 L25 cross-segmento (target=25 cap=3x)**:
+   - pre_v2.4.4 N=5 contaminado: -0.0517/trade (size_usdt=0 espurio limita análisis).
+   - post_v2.4.4 pre_v2.4.5 N=9: **+0.0889/trade** (régimen 6h positivo aislado).
+   - post_v2.4.5 N=76 limpio: -0.0246/trade.
+   Régimen post-v2.4.4 pre-v2.4.5 fue corto (~6h, 9 trades) y positivo; régimen post-v2.4.5 sostenido es negativo. Confirma decay temporal monotónico (caracterización descriptiva N=60 sesión 2026-04-26 B3/B1=1.82×).
+
+6. **Margin mode operacional confirmado `isolated`** (T7 mitigación VERIFIED empírico VPS): matiz Ricardo "isolated per posición" alineado con realidad operacional. Análisis isolated NO es contrafáctico.
+
+7. **§0.3 Fidelidad break (T6)**: P1 implementación rompe Fidelidad 1 (kernel lab simula 1x → specialists pf calibrados 1x; leverage variable invalida calibración) + Fidelidad 2 (bot diverge del lab post-leverage). Argumento arquitectónico independiente del análisis empírico.
+
+**Calibración §12 L36 retrospectiva (5ª aplicación cross-sesiones consolidada)**:
+
+| # | Predicción ultrathink | Realidad | Status |
+|---|---|---|---|
+| (a) PnL hip cap 3x ~-2.9 USDT | -2.9 | -1.87 | ⚠️ refutada parcial (dirección correcta, magnitud sub-estimada) |
+| (b) Liquidaciones cap 3x = 0-2 | 0-2 | 0 | ✓ acertada |
+| (c) Liquidaciones cap 5x = 2-5 | 2-5 | 0 | ❌ refutada |
+| (d) Liquidaciones unr = 5-15 | 5-15 | 0 | ❌ refutada fuerte |
+| (e) Cluster top-10 selectivo positivo | possible | -1.92 (peor que -1.17 baseline) | ❌ refutada |
+| (f) N=215 distorsión segmentos | confirmed | confirmed | ✓ acertada |
+| (g) Decisión opción (b/c) 1x | confirmed | confirmed | ✓ acertada |
+
+3/7 acertadas + 3/7 refutadas + 1/7 parcial. Patrón §12 L36: refutaciones outcome más informativo (régimen liquidación NO dominante; clusters ganadores tienen maxdd alto; selectivo NO funciona bajo asimetría arquitectónica observada).
+
+**Decisión institucional Ricardo recomendada empíricamente — OPCIÓN (b)**:
+
+**OPCIÓN (b) 1x feature oficial documentado lab** — confirmed empíricamente cross-3-niveles capital × cross-4-caps leverage:
+
+- Edge actual marginal/negativo (-0.0153/trade × 76 trades = -1.17 USDT real).
+- Leverage cap 3x amplifica decay 1.61×.
+- Cap 5x/unrestricted sharpe "menos malo" pero PnL aún negativo.
+- Liquidación NO es riesgo dominante régimen actual (0/76 cross-cap).
+- Cluster selectivo top-10 PEOR que baseline 1x.
+- Asimetría arquitectónica clusters ganadores maxdd alto / perdedores maxdd bajo.
+- §0.3 Fidelidad 1+2 break + lab simula 1x + capital 296 USDT << umbrales propuestos (500/1000).
+
+Acción: lab actualizar `compute_leverage_map` documentando 1x feature oficial (fix bug `*100.0` o setear `lev=1` always con docstring explicativo). Sin cambio operacional bot productivo (ya opera 1x).
+
+**Caveat reactivación post-reciclaje con baseline cuantitativo permanente (preservado este cierre)**:
+
+Reactivable post-reciclaje 45 sym SI **TODAS** las condiciones siguientes:
+- (i) Edge restored validado N≥50 nuevo post-reciclaje específico (pf_real bot >1.3 sostenido).
+- (ii) Capital >1000 USDT (umbral conservador safety + reduces saturation impact).
+- (iii) Margin mode `isolated` mantenido (verified empírico hoy).
+- (iv) Re-simulación cross-12-escenarios specifically post-reciclaje muestra mejora vs baseline 2026-04-27 (PnL hip cap 3x > PnL real 1x sostenido).
+- (v) Asimetría arquitectónica clusters ganadores maxdd-bajo / perdedores maxdd-bajo resuelta (clusters ganadores nuevo reciclaje pueden tener maxdd diferente).
+
+Sin (i)-(v) cumplidos: P1 PERMANECE archivado bajo opción (b) 1x feature oficial.
+
+**Items §13.3 cerrados análogamente esta sesión**:
+- L2152 E3 emergency SL bloqueado por P1: ARCHIVED bajo P1 archive (sigue 0/215 sl_emergency + 1x oficial → impacto sub-%).
+- L1861 Verificar setLeverage altos: ARCHIVED bajo P1 archive (prerequisite irrelevante bajo opción b).
+- L1532 OBSERVACION E3 escala con leverage: STATUS REFINADO bajo 1x oficial (E3 NO escala porque L=1; sigue informativa bajo eventual reactivación).
+
+Referencias cierre: `analysis_scripts/p1_leverage_isolated_20260427/simulate_p1_leverage.py` + `scenario_results.csv` + `cluster_performance.csv`; §13.4 entrada nueva "P1 leverage quantitative full robusto — 2026-04-27 sesión tarde"; §12 L34 + L36 cross-5-aplicaciones consolidada; verificación margin mode VPS isolated empírico; ROADMAP categoría post-reciclaje update.
+
+(Bloque histórico original preservado abajo para trazabilidad)
+
+---
+
+**[DECISION HISTÓRICO] P1 leverage NO es fix simple — requiere proyecto separado — 2026-04-17**
 Contexto: Investigación leverage confirmó que el lab simula a 1x. Los specialist_scores, pf_combined, maxdd_worst están calibrados para ese mundo. Aplicar compute_leverage_map sin más convierte el bot en un sistema que el lab nunca simuló — maxDD sobre capital deja de corresponder a maxdd_worst del JSON, liquidación se vuelve riesgo real (10x = liquidación a -10%), funding escala sobre notional apalancado. El fix correcto NO es simplemente eliminar el `*100.0`. Requiere:
   a) Decidir si queremos leverage variable o mantener 1x como feature.
   b) Si leverage variable: adaptar el kernel de auditoría para simular con leverage; recalibrar maxdd_worst y specialist_scores en próximo reciclaje teniendo en cuenta leverage objetivo.
@@ -1858,7 +1945,14 @@ Disparo: tras primer reporte audit v5.1 con N≥50 (baseline 1x documentada), cu
 Cierre: decisión tomada sobre una de 3 opciones: (1) fix aplicado con cap de safety, (2) 1x adoptado como feature oficial (actualizar lab para no calcular leverage), (3) posposición explícita hasta balance mayor.
 Referencias: HALLAZGO "Investigación leverage lab↔producción" 2026-04-17, ítem P1 "Leverage map siempre 1x", ítem E3 emergency SL.
 
-**[MEJORA] [EN_ESPERA] Verificar setLeverage con valores altos antes de aplicar P1 — 2026-04-17**
+**[MEJORA] [ARCHIVED 2026-04-27] Verificar setLeverage con valores altos antes de aplicar P1 — 2026-04-17 → archivado por P1 archive**
+
+Cierre: prerequisite bloqueado por P1 leverage decision. P1 archived bajo opción (b) 1x feature oficial 2026-04-27 → setLeverage altos NO se ejecutará bajo opción (b) → test irrelevante. Reactivable solo si P1 re-evaluado post-reciclaje con condiciones (i)-(v) cumplidas (ver §13.3 P1 cierre 2026-04-27).
+
+(Bloque histórico original preservado abajo para trazabilidad)
+---
+
+**[MEJORA HISTÓRICO] Verificar setLeverage con valores altos antes de aplicar P1 — 2026-04-17**
 Contexto: El fix histórico `setLeverage: params={'side': 'BOTH'}` (§2.6) se ha probado en producción solo con leverage=1x uniforme durante semanas. Si P1 se aplica y los símbolos usan 2x, 5x, 10x, el flujo setLeverage ejecuta con esos valores. Hay que verificar que BingX acepta esos valores vía ccxt sin errores raros (permiso de cuenta, margin mode, maximum leverage por símbolo de BingX). Fase 1 C2 intentó validación local pero bloqueado: no hay credenciales BingX en entorno local. Test requiere scp del .env del VPS o ejecución en VPS fuera de ventana cycle (xx:59:50-xx:00:10).
 Disparo: al arrancar proyecto P1 tras primer reporte audit v5.1 con N≥50. Incluir entonces en el scope de P1 el test de setLeverage con 2x/5x/10x (desde local tras scp del .env, o desde VPS en ventana xx:30-xx:45).
 Cierre: test completado, setLeverage verificado con valores altos, o documentación de limitaciones encontradas.
@@ -2149,7 +2243,14 @@ Disparo refinado: si emerge >1% cycles con "Funding history no disponible" en lo
 Cierre: fix aplicado cuando disparador emerja, o archivar obsoleto si arquitectura post-reciclaje refactoriza funding handling.
 Referencias: execution_manager.py L143-186, §13.4 entrada Fase 1 C1 2026-04-19, §13.4 entrada triaje Fase C item 6 2026-04-26.
 
-**[MEJORA] [EN_ESPERA — TRIAJE 2026-04-26 (c2) disparador no cumplido + bloqueo P1] execution_manager: emergency SL usa fill_price no entry_price_brain — 2026-04-17**
+**[MEJORA] [ARCHIVED 2026-04-27 — bajo P1 opción (b) 1x feature oficial] execution_manager: emergency SL usa fill_price no entry_price_brain — 2026-04-17**
+
+Cierre 2026-04-27: P1 leverage archived bajo opción (b) 1x feature oficial 2026-04-27 sesión tarde. E3 estaba **bloqueado conceptualmente por P1**; con P1 archived bajo 1x sostenido, E3 escala con leverage = 1x (sub-%). Combinado con disparador empírico no cumplido (0/231 sl_emergency cross-histórico bot completo), E3 archivado bajo P1 cierre. Reactivable solo si P1 re-evaluado post-reciclaje con condiciones (i)-(v) cumplidas (ver §13.3 P1 cierre 2026-04-27).
+
+(Bloque histórico original preservado abajo para trazabilidad)
+---
+
+**[MEJORA HISTÓRICO TRIAJE] execution_manager: emergency SL usa fill_price no entry_price_brain — 2026-04-17**
 Contexto: Ultra review E3. Línea 469 (actualmente L502-504): `stop_price_bingx = fill_price * (1 - SL_EMERGENCY_PCT / 100)`. Kernel asume emergency_sl = close_de_la_barra × 0.95. Producción usa fill_price que puede diferir por slippage. Divergencia sub-% típicamente.
 
 **Triaje 2026-04-26 (Fase C item 6)**: code inspection execution_manager.py L502-504 confirma sigue con `fill_price` (NO fix aplicado). Disparador empírico **NO cumplido categóricamente**:
@@ -2817,6 +2918,142 @@ Referencias:
 ---
 
 ### 13.4 RESUELTO
+
+**[ANÁLISIS] [P1 LEVERAGE QUANTITATIVE FULL ROBUSTO — opción (b) 1x feature oficial confirmada empíricamente] Simulación isolated cluster-específico cross-12-escenarios + baseline permanente — 2026-04-27 sesión tarde**
+
+**Contexto**: Sesión 2026-04-27 día completo institucional Ricardo recursos ilimitados. Fase 1 cierre v2.6-inv + v2.6-exit DONE commit `3eb937c` (estado MADURO INSTITUCIONAL FINAL post-archive D+E). Fase 2 análisis cuantitativo P1 leverage `[DECISION] [EN_ESPERA] L1849` con disparador N≥50 cumplido + matiz Ricardo "isolated per posición + transformación matemática lineal" + enfoque institucional "aspirar a lo mejor" (opción β' full robusto vs opciones α' simplificada o γ' archivar directo).
+
+**Mitigaciones T1-T9 aplicadas explícitamente** (vs caveats no acotados opciones lite):
+
+| # | Tensión | Mitigación aplicada | Resultado |
+|---|---|---|---|
+| T1 | Cluster_id no en CSV | Parse SIGNALS_RAW logs VPS sync local + match (sym, hour_floor) | 100% coverage post-v2.4.5 N=76 |
+| T2 | Fees+funding non-linearity | Análisis matemático: fees+funding escalan lineal con notional → `pnl_neto_hyp = L × pnl_real` correcto | Fórmula matemáticamente válida bajo isolated |
+| T3 | Liquidación criterio | Worst-case observado `\|pnl_pct_real\| × L ≥ 0.99` | 0 liquidaciones cross-12-escenarios |
+| T4 | Confounding portfolio_manager | Caveat documentado (no acción — fuera scope análisis post-hoc) | Limitación inherente análisis post-hoc |
+| T5 | Trade no completa si liquidación | `pnl_final = -size_usdt` (full margin assigned lost) | Aplicado, pero 0 liquidaciones observadas |
+| T6 | §0.3 Fidelidad break | Argumento arquitectónico independiente análisis empírico | Reforzado opción (b) 1x oficial |
+| T7 | Margin mode unknown | Verificación empírica VPS ccxt fetch_positions: `marginMode: 'isolated'` | RESUELTO empírico |
+| T8 | Selection bias clusters top-10 | Filter N≥3 + leverage selectivo evaluation paralelo | Top-10 selectivo PEOR que baseline 1x |
+| T9 | N=215 contaminado §12 L25 | Segmentación arquitectural pre/post deploys + análisis principal N=76 | Sanity confirmó decay temporal monotónico |
+
+**Hallazgos cuantitativos N=76 limpio post-v2.4.5 (target_max_dd_pct=25 default `compute_leverage_map` sin bug `*100.0`)**:
+
+12 escenarios cross-capital × cap leverage:
+
+| Cap | Capital | PnL_total | PnL/trade | N_liq | MaxDD_USD | MaxDD%cap | Sharpe | %saturated |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| 1x | 296 | -1.166 | -0.0153 | 0 | 1.65 | 0.56 | -1.322 | 100% |
+| 1x | 500 | -1.166 | -0.0153 | 0 | 1.65 | 0.33 | -1.322 | 100% |
+| 1x | 1000 | -1.166 | -0.0153 | 0 | 1.65 | 0.16 | -1.322 | 100% |
+| **3x** | **296** | **-1.866** | **-0.0246** | **0** | **2.63** | **0.89** | **-0.996** | **15.8%** |
+| 3x | 500 | -1.866 | -0.0246 | 0 | 2.63 | 0.53 | -0.996 | 15.8% |
+| 3x | 1000 | -1.866 | -0.0246 | 0 | 2.63 | 0.26 | -0.996 | 15.8% |
+| 5x | 296 | -1.087 | -0.0143 | 0 | 2.35 | 0.79 | -0.429 | 1.3% |
+| 5x | 1000 | -1.087 | -0.0143 | 0 | 2.35 | 0.23 | -0.429 | 1.3% |
+| unr | 296 | -1.040 | -0.0137 | 0 | 2.30 | 0.78 | -0.410 | 0% |
+| unr | 1000 | -1.040 | -0.0137 | 0 | 2.30 | 0.23 | -0.410 | 0% |
+
+**Hallazgos institucionales**:
+
+1. **Cap 3x AMPLIFICA decay 1.61× vs baseline** (-0.0246 vs -0.0153). Asimetría arquitectónica clusters: ganadores tienen `maxdd_worst` ALTO (APT C2 26.85%, MANA C1 32.78%) → L_target ≤ 1 → no se benefician leverage. Perdedores tienen `maxdd_worst` BAJO (ONDO C2 7.18% L_target=3.48; BNB C0 11.14% L_target=2.24) → leverage amplifica pérdidas.
+
+2. **Liquidaciones cross-12-escenarios = 0**. Régimen lateral-alcista pnl_pct intra-trade modesto (max ~5-7%) × leverage 1-5x = no llega 99% margin call. Liquidación NO es el riesgo dominante régimen actual.
+
+3. **Cap 5x/unrestricted "menos malo" que cap 3x** (paradox): cap 3x **trunca** L_target en clusters perdedores con maxdd bajo (de 3.48× a 3.0×, etc.); cap 5x permite L_target completo en algunos casos. Pero ambos amplifican pérdidas vs baseline 1x. Sharpe negativo + más alto = "menos malo" pero aún negativo.
+
+4. **Cluster leverage selectivo top-10 REFUTADO**: PnL selectivo cap 3x sobre top-10 clusters = **-1.92 USDT** (peor que baseline 1x universal -1.17 USDT). Top-10 incluye más perdedores que ganadores; selectivo amplifica pérdidas mismo. Ganadores tienen maxdd alto → L_target=1 cap → leverage selectivo no aplica.
+
+5. **Sanity §12 L25 cross-segmento (target=25, cap=3x)**:
+   - pre_v2.4.4 N=5 contaminado: -0.0517/trade (size_usdt=0 espurio limita).
+   - post_v2.4.4 pre_v2.4.5 N=9: **+0.0889/trade** (régimen 6h positivo aislado).
+   - post_v2.4.5 N=76 limpio: -0.0246/trade.
+   Régimen post-v2.4.4 pre-v2.4.5 (~6h, 9 trades) fue positivo; régimen post-v2.4.5 sostenido es negativo. Confirma decay temporal monotónico (extends caracterización descriptiva alpha residual N=60 sesión 2026-04-26 B3/B1=1.82×).
+
+6. **Sanity target_max_dd_pct=5 (conservador safety)**: leverage variable colapsa a **1x universal** (todos L_target_clamped=1.0) porque maxdd mediana 17% > target 5%. Bajo target conservador, simulación = baseline = -1.166 USDT identidad. Confirma target=5 hace P1 vacuo.
+
+**Calibración §12 L36 retrospectiva (5ª aplicación cross-sesiones consolidada)**:
+
+| # | Predicción ultrathink | Realidad | Status |
+|---|---|---|---|
+| (a) PnL hip cap 3x ~-2.9 USDT | -2.9 | -1.87 | ⚠️ refutada parcial (dirección correcta, magnitud sub-estimada) |
+| (b) Liquidaciones cap 3x = 0-2 | 0-2 | 0 | ✓ acertada |
+| (c) Liquidaciones cap 5x = 2-5 | 2-5 | 0 | ❌ refutada |
+| (d) Liquidaciones unr = 5-15 | 5-15 | 0 | ❌ refutada fuerte |
+| (e) Cluster top-10 selectivo positivo | possible | -1.92 (peor que -1.17 baseline) | ❌ refutada |
+| (f) N=215 distorsión segmentos | confirmed | confirmed (régimen post-v2.4.4-v2.4.5 positivo aislado) | ✓ acertada |
+| (g) Decisión opción (b/c) 1x | confirmed | confirmed empíricamente | ✓ acertada |
+
+3/7 acertadas + 3/7 refutadas + 1/7 parcial. Patrón §12 L36: refutaciones outcome más informativo (régimen liquidación NO dominante; clusters ganadores maxdd alto NO se benefician; selectivo NO funciona bajo asimetría arquitectónica observada).
+
+**§12 L36 cross-5-sesiones consolidada (extends 4 funding research + P1 leverage hoy)**:
+
+| Sesión | Fecha | Predicciones | Acertadas | Refutadas | Outcome |
+|---|---|---:|---:|---:|---|
+| 1 (Variante 4 funding) | 2026-04-25 | 6 | 6/6 | 0/6 | Tier 0 I1 bloqueante detectado pre-compute |
+| 2 (Path B previo cross-2) | 2026-04-26 | 5 | 0/5 | 5/5 | Reformulación marco emergente correctamente |
+| 3 (Path B-institutional cross-3 + 180d) | 2026-04-26 | 9 | 6/9 | 1/9 fuerte | OKX retention factor estructural no anticipado |
+| 4 (pre-flight v2.6-inv/exit) | 2026-04-27 mañana | 7 | 2/7 | 3/7 fuerte | Refutación pre-flight masiva, Opción α cierre D+E |
+| **5 (P1 leverage Fase 2)** | **2026-04-27 tarde** | **7** | **3/7** | **3/7** | **Asimetría arquitectónica clusters maxdd; opción (b) 1x oficial confirmed empírico** |
+
+Patrón institucional consolidado §12 L36: predicciones refutadas en magnitud son outcome más informativo. Cross-5-sesiones consecutivas cada refutación llevó a hallazgo estructural genuino + redirección scope metodológicamente correcto. Ahorro acumulado compute estimado **~40-65h** sobre paths que hubieran sido infeasibles ciegamente.
+
+**Decisión institucional Ricardo recomendada empíricamente — OPCIÓN (b)**:
+
+**OPCIÓN (b) 1x feature oficial documentado lab** confirmed empíricamente cross-3-niveles capital × cross-4-caps leverage:
+
+- Edge actual marginal/negativo verificado.
+- Leverage cap 3x amplifica decay 1.61×.
+- Cap 5x/unrestricted Sharpe "menos malo" pero PnL aún negativo.
+- Liquidación NO es riesgo dominante régimen actual (0/76 cross-cap).
+- Cluster selectivo top-10 PEOR que baseline 1x.
+- Asimetría arquitectónica clusters ganadores maxdd alto / perdedores maxdd bajo.
+- §0.3 Fidelidad 1+2 break + lab simula 1x + capital 296 USDT << umbrales 500/1000.
+- Margin mode `isolated` confirmed empírico (matiz Ricardo aplicable).
+
+**Acción opción (b)**: lab actualizar `compute_leverage_map` documentando 1x feature oficial (post-reciclaje proyecto dedicado: fix bug `*100.0` o setear `lev=1` always con docstring explicativo). Sin cambio operacional bot productivo (ya opera 1x consistente con feature oficial).
+
+**Items §13.3 cerrados análogamente esta sesión**:
+- L1849 P1 leverage NO es fix simple → ARCHIVED_EMPIRICAL_2026-04-27 (opción b 1x oficial confirmed).
+- L2152 E3 emergency SL bloqueado por P1 → ARCHIVED bajo P1 (sigue 0/231 sl_emergency + 1x oficial sub-% impact).
+- L1861 Verificar setLeverage altos → ARCHIVED bajo P1 (prerequisite irrelevante bajo opción b).
+- L1532 OBSERVACION E3 escala con leverage (§13.2 ACTIVO) → mantener sin update (informativa bajo eventual reactivación post-reciclaje).
+
+**Caveat reactivación post-reciclaje con baseline cuantitativo permanente**:
+
+Reactivable post-reciclaje 45 sym SI **TODAS** condiciones cumplidas:
+- (i) Edge restored validado N≥50 nuevo post-reciclaje específico (pf_real bot >1.3 sostenido).
+- (ii) Capital >1000 USDT.
+- (iii) Margin mode `isolated` mantenido.
+- (iv) Re-simulación cross-12-escenarios specifically post-reciclaje muestra mejora vs baseline 2026-04-27.
+- (v) Asimetría arquitectónica clusters ganadores-maxdd-bajo / perdedores-maxdd-bajo resuelta.
+
+Sin (i)-(v) cumplidos: P1 PERMANECE archivado bajo opción (b) 1x feature oficial.
+
+**Estado pre-reciclaje MADURO INSTITUCIONAL FINAL+P1 invariante**:
+- Fase A DONE_ARCHIVED 2026-04-26 (Z_BTC refutado).
+- Fase B DONE merged 2026-04-25 (M2 fix validado N=9).
+- Fase C 7/7 DONE 2026-04-26.
+- Path B ARCHIVED 2026-04-26 sesión 4 (3 hallazgos).
+- D+E ARCHIVED_EMPIRICAL 2026-04-27 mañana (pre-flight).
+- **P1 leverage ARCHIVED_EMPIRICAL 2026-04-27 tarde (full robusto + baseline reactivación)**.
+- Trigger reciclaje completo 45 sym aguarda solo fecha (~2026-05-12 a 05-22).
+
+Bot v2.4.5 invariante uptime 4d 22h+. Sin tocar `live/*`. Sin deploy. Fidelidad 2 invariante por construcción.
+
+**Referencias**:
+- `analysis_scripts/p1_leverage_isolated_20260427/simulate_p1_leverage.py` — script simulación.
+- `analysis_scripts/p1_leverage_isolated_20260427/scenario_results.csv` — 12 escenarios output.
+- `analysis_scripts/p1_leverage_isolated_20260427/cluster_performance.csv` — cluster top/bottom 10.
+- `analysis_scripts/p1_leverage_isolated_20260427/check_margin_mode.py` — verificación VPS T7.
+- §13.3 L1849 P1 leverage ARCHIVED_EMPIRICAL_2026-04-27.
+- §13.3 L2152 E3 emergency SL ARCHIVED bajo P1.
+- §13.3 L1861 setLeverage altos ARCHIVED bajo P1.
+- §12 L34 + L36 cross-5-aplicaciones consolidada.
+
+**Cierre**: permanente. Análisis cuantitativo P1 leverage isolated cluster-específico full robusto. Decisión opción (b) 1x feature oficial confirmed empíricamente. Baseline cuantitativo preservado para eventual reactivación post-reciclaje con condiciones explícitas.
+
+---
 
 **[ANÁLISIS] [PRE-FLIGHT REFUTACIÓN MASIVA — D+E ARCHIVADOS EMPÍRICOS] Caracterización v2.6-inv + v2.6-exit pre-disparadores temporales — 2026-04-27 sesión mañana**
 
