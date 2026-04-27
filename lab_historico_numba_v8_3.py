@@ -1269,6 +1269,28 @@ def decode_config(config_id):
 # MOTOR NUMBA (sin cambios vs v6.0)
 # ============================================
 
+# G1.1 Tier 0 I1 Path α — per-trade arrays opcionales — 2026-04-28 Sesión 1B.
+# Reduced enum reason_exit TF kernel (alineado con kernel current granularidad sin
+# refactor invasivo, evita Path γ memory blowup full sweep). Granular sl_hit vs
+# sl_emergency / tf_exit vs zone_exit requeriría kernel code refinement = proyecto
+# refactor dedicado post-reciclaje.
+# Ver §13.4 entrada Sesión 1B Path α 2026-04-28 + §12 L38 nueva (verificación
+# supuestos técnicos pre-implementación).
+REASON_TF_SL_EXIT = 0       # sl_exit_signal: emergency 5% intrabar + sl_level on-close (combinados kernel current)
+REASON_TF_DIV_EXIT = 1      # div_exit_signal: salida por divergencia (bit div_exit + div_type>0)
+REASON_TF_NORMAL_EXIT = 2   # normal_exit_signal: TF filters + zone reverse (combinados kernel current)
+REASON_TF_CANCEL_TF = 3     # cancel_signal: cancel_tf bit 22
+
+# Sentinel arrays para defaults kwargs (pattern Numba @njit con array defaults).
+# Backward compat 100%: existing callers no pasan kwargs per-trade → arrays sentinel
+# (1,1) reciben writes condicionales que nunca se ejecutan (return_per_trade=False
+# default). Flag-driven: solo callers que pasan return_per_trade=True allocaron arrays
+# útiles. Memory protection inherente vía dispatch en run_on_slice wrapper Python.
+_PT_SENTINEL_INT32 = np.zeros((1, 1), dtype=np.int32)
+_PT_SENTINEL_INT8 = np.zeros((1, 1), dtype=np.int8)
+_PT_SENTINEL_FLOAT64 = np.zeros((1, 1), dtype=np.float64)
+_PT_SENTINEL_COUNT = np.zeros(1, dtype=np.int32)
+
 @jit(nopython=True, parallel=True, cache=True)
 def run_simulation_numba(
     configs,
@@ -1281,7 +1303,15 @@ def run_simulation_numba(
     commission_pct,
     accounting_start=100,
     cluster_labels=np.zeros(1, dtype=np.int64),
-    n_clusters=1
+    n_clusters=1,
+    return_per_trade=False,
+    pt_entry_bar=_PT_SENTINEL_INT32,
+    pt_exit_bar=_PT_SENTINEL_INT32,
+    pt_side=_PT_SENTINEL_INT8,
+    pt_pnl=_PT_SENTINEL_FLOAT64,
+    pt_reason=_PT_SENTINEL_INT8,
+    pt_cluster=_PT_SENTINEL_INT8,
+    pt_count=_PT_SENTINEL_COUNT
 ):
     n_configs = len(configs)
     n_bars = len(close_arr)
@@ -1622,6 +1652,38 @@ def run_simulation_numba(
                                 cl_maxdd[cl_idx] = cl_dd
                     # --- fin cluster accounting ---
 
+                    # --- G1.1 Path α 2026-04-28 Sesión 1B — per-trade tracking ---
+                    # Solo si return_per_trade=True. Sentinel arrays (1,1) si flag=False
+                    # → bounds check pt_idx < shape[1] = 1 falla en 2do trade y se omite
+                    # silenciosamente (zero memory impact production callers).
+                    # Reduced enum: priority sl > div > normal > cancel (mutuamente exclusivos
+                    # por construcción kernel current logic).
+                    if return_per_trade:
+                        pt_idx = pt_count[c]
+                        if pt_idx < pt_entry_bar.shape[1]:
+                            pt_entry_bar[c, pt_idx] = entry_bar
+                            pt_exit_bar[c, pt_idx] = t
+                            pt_side[c, pt_idx] = 0 if position == 1 else 1
+                            pt_pnl[c, pt_idx] = trade_pnl
+                            if sl_exit_signal:
+                                pt_reason[c, pt_idx] = 0  # REASON_TF_SL_EXIT
+                            elif div_exit_signal:
+                                pt_reason[c, pt_idx] = 1  # REASON_TF_DIV_EXIT
+                            elif normal_exit_signal:
+                                pt_reason[c, pt_idx] = 2  # REASON_TF_NORMAL_EXIT
+                            else:
+                                pt_reason[c, pt_idx] = 3  # REASON_TF_CANCEL_TF
+                            if has_clusters:
+                                cl_idx_pt = cluster_labels[entry_bar]
+                                if 0 <= cl_idx_pt < n_clusters:
+                                    pt_cluster[c, pt_idx] = cl_idx_pt
+                                else:
+                                    pt_cluster[c, pt_idx] = 0
+                            else:
+                                pt_cluster[c, pt_idx] = 0
+                            pt_count[c] = pt_idx + 1
+                    # --- fin per-trade tracking ---
+
                     if position == 1:
                         div_ctx_bull = False
                     else:
@@ -1846,7 +1908,7 @@ def calc_score_v63(pnl, max_dd, gross_profit, gross_loss, trades, cancels, n_bar
     
     return score, pnl_annual, dd_factor, profit_factor, activity_factor, cancel_rate
 
-def run_on_slice(configs, data, start_bar, end_bar, sl_pct, sl_emergency_pct, ts_pct, cooldown_bars, commission_pct, warmup=100, cluster_labels=None, n_clusters=1):
+def run_on_slice(configs, data, start_bar, end_bar, sl_pct, sl_emergency_pct, ts_pct, cooldown_bars, commission_pct, warmup=100, cluster_labels=None, n_clusters=1, return_per_trade=False, max_trades_per_config=5000):
     """Run simulation on a slice of precalculated data.
 
     warmup: number of bars before start_bar used to build state (div_ctx,
@@ -1856,6 +1918,14 @@ def run_on_slice(configs, data, start_bar, end_bar, sl_pct, sl_emergency_pct, ts
             operable bars.
     cluster_labels: int64 array of cluster IDs per bar (or None for no clustering).
     n_clusters: number of clusters (1 if no clustering).
+    return_per_trade: if True, allocate per-trade arrays (entry_bar, exit_bar, side,
+        pnl, reason, cluster) and append to return tuple. Si False (default): backward
+        compat — returns same 7-element tuple del kernel original. G1.1 Path α
+        2026-04-28 Sesión 1B (ROADMAP_PRE_RECICLAJE.md AGGRESSIVE pura recalibrada).
+    max_trades_per_config: bound conservativo per-config trades count cuando
+        return_per_trade=True. Default 5000 (cubrir kernels 3y con safe margin).
+        Memory: n_configs × max_trades × 6 arrays × ~6 bytes = scope acotado audit/
+        analyzer single specialist (NO walk-forward production sweep masivo).
     """
     n_data = len(data['close'])
     actual_start = max(0, start_bar - warmup)
@@ -1865,7 +1935,35 @@ def run_on_slice(configs, data, start_bar, end_bar, sl_pct, sl_emergency_pct, ts
     ts_i64 = ts_raw.astype('datetime64[ms]').astype(np.int64)
     cl_labels_slice = cluster_labels[s:e] if cluster_labels is not None else np.zeros(e - s, dtype=np.int64)
     n_cl = n_clusters if cluster_labels is not None else 1
-    return run_simulation_numba(
+
+    if not return_per_trade:
+        # Backward compat path: kwargs per-trade reciben sentinel arrays default,
+        # writes condicionales no se ejecutan (return_per_trade=False default kernel).
+        return run_simulation_numba(
+            configs,
+            data['close'][s:e], data['high'][s:e], data['low'][s:e],
+            ts_i64,
+            data['zone_bull'][s:e], data['zone_bear'][s:e],
+            data['filters_forming'][s:e], data['filters_resolved'][s:e],
+            data['div_bits'][s:e],
+            sl_pct, sl_emergency_pct, ts_pct, cooldown_bars,
+            commission_pct,
+            accounting_start,
+            cl_labels_slice,
+            n_cl
+        )
+
+    # Path α return_per_trade=True: pre-allocate per-trade arrays + dispatch
+    n_configs = len(configs)
+    pt_entry_bar = np.zeros((n_configs, max_trades_per_config), dtype=np.int32)
+    pt_exit_bar = np.zeros((n_configs, max_trades_per_config), dtype=np.int32)
+    pt_side = np.zeros((n_configs, max_trades_per_config), dtype=np.int8)
+    pt_pnl = np.zeros((n_configs, max_trades_per_config), dtype=np.float64)
+    pt_reason = np.zeros((n_configs, max_trades_per_config), dtype=np.int8)
+    pt_cluster = np.zeros((n_configs, max_trades_per_config), dtype=np.int8)
+    pt_count = np.zeros(n_configs, dtype=np.int32)
+
+    aggregates = run_simulation_numba(
         configs,
         data['close'][s:e], data['high'][s:e], data['low'][s:e],
         ts_i64,
@@ -1876,8 +1974,23 @@ def run_on_slice(configs, data, start_bar, end_bar, sl_pct, sl_emergency_pct, ts
         commission_pct,
         accounting_start,
         cl_labels_slice,
-        n_cl
+        n_cl,
+        True,  # return_per_trade=True
+        pt_entry_bar, pt_exit_bar, pt_side, pt_pnl, pt_reason, pt_cluster, pt_count
     )
+
+    # Note: arrays modificados in-place. Caller usa pt_count[c] para slice válido:
+    #   trades_cfg_c = pt_entry_bar[c, :pt_count[c]]
+    return aggregates, {
+        "entry_bar": pt_entry_bar,
+        "exit_bar": pt_exit_bar,
+        "side": pt_side,  # 0=long, 1=short
+        "pnl": pt_pnl,
+        "reason": pt_reason,  # enum: 0=sl_exit, 1=div_exit, 2=normal_exit, 3=cancel_tf
+        "cluster": pt_cluster,
+        "count": pt_count,
+        "max_trades_per_config": max_trades_per_config,
+    }
 
 def _load_cluster_labels(symbol, df):
     """Load pre-trained regime model and compute cluster labels for this symbol's data.

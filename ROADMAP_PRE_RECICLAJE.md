@@ -107,7 +107,28 @@ Trigger: A+B+C done + D+E validados o archivados. **Estado 2026-04-27 Sesión 2 
 - [ ] Smoke audit cross-3-símbolos validación
 - [ ] Commit consolidado Sesión 1A.2.
 
-### Sesión 1B — G1.1 Tier 0 I1 dedicada PRIORITARIA próxima (~3-5h Claude Code, ~2026-04-29)
+### Sesión 1B — G1.1 Tier 0 I1 Path α flag-driven DONE 2026-04-28 sesión tarde
+
+- [x] **G1.1 Tier 0 I1 kernel return_per_trade flag-driven** (Path α): TF kernel modify (`lab_historico_numba_v8_3.py:1268-1297` constants + signature + `:1685-1715` per-trade tracking + `:1911-1990` `run_on_slice` dispatch). Backward compat 100% production callers preserved + memory acotada audit/analyzers (~5 KB small config sets) + reduced enum 4 valores TF (sl_exit, div_exit, normal_exit, cancel_tf) matching kernel current logic.
+- [x] **Verificación pre-implementación Parte 0** (4/5 mismatch detectados, decision Path α vs Path γ original): signature parallel prange + 25 callers + reason_exit collapsed + memory blowup 4.8 GB inviable.
+- [x] **EXPECTED_LAB_KERNEL_HASH regenerated**: old `165b2357...` → new `fec1725e...` en `audit_fidelity_v5*.py`.
+- [x] **Tests greenfield**: Test 1 backward compat 7-tuple PASS + Test 2 Path α 2-tuple (aggregates + per_trade dict) PASS + Numba JIT compila signature extendida.
+- [x] **Smoke §0.8 obligatorio cross-cuatro símbolos**: BTC Nivel A diff 0.0000 EXACTO + ONDO Nivel B 22.70% IDÉNTICO baseline + APT Nivel B 1.51% IDÉNTICO baseline + SEI MR Nivel C diff 0.0000 en 7 métricas (MR kernel UNCHANGED) + audit hash parity NO WARN.
+- [x] **Commit consolidado Sesión 1B Path α**.
+
+**Hallazgos institucionales Sesión 1B**:
+- §12 L38 nueva captura formal sexto pilar institucional: verificación supuestos técnicos pre-implementación cross-fuentes primarias. Aplicación recursiva 2-niveles (Claude redactor + Claude Code verificador). Caso origen 2026-04-28 cross-2-sesiones consecutivas (Sesión 1A G2.1 + Sesión 1B G1.1 Parte 0). Total ahorro temporal ~4-7h CC paths infeasibles ciegamente.
+- §12 L36 cross-13-aplicaciones consolidada: 12ª pre-impl + 13ª Smokes = 10/10 acertadas Sesión 1B. Cross-13 ahorro acumulado ~52-90h.
+- MR kernel UNCHANGED Sesión 1B (preserva §12 L25 segmentación). Expansión MR kernel diferida Sesión 2 si Bloque 2c granular emerge necesidad H_strategy análisis cross-strategy.
+- Ver §13.4 entrada Sesión 1B Path α 2026-04-28.
+
+### Sesión 1A.2 — G2.1 Refactor audit_v5.x Opción A clean post-Path α PRIORITARIA próxima (~1-2h Claude Code, ~2026-04-29)
+
+- [ ] **G2.1 Refactor audit_v5.x Opción A** post-Path α: callers `audit_fidelity_v5*.py` + `audit_mr_fidelity_sei.py` + analyzers actualizados para usar `run_on_slice(..., return_per_trade=True)` cuando per-trade tracing necesario. Stateless property preservada por construcción (kernel funciones puras). Eliminate copia python `extract_trades_tf` audit (audit ahora wraps kernel productivo directamente).
+- [ ] Tests greenfield audit pre/post refactor diff 0.0000 cross-3-símbolos
+- [ ] Cross-check `_run_verify_test` ground truth (76 trades 380 mediciones diff 0.0000 baseline 2026-04-26)
+- [ ] Smoke audit cross-3-símbolos validación
+- [ ] Commit consolidado Sesión 1A.2.
 
 - [ ] Análisis profundo callers `run_simulation_numba` (grep + ag-search)
 - [ ] **G1.1 Tier 0 I1 kernel modify**: arrays per-trade + reason_exit enum + signature extension
@@ -218,6 +239,8 @@ Disparador operacional D ~2026-05-01 N≥100 BingX-native sigue método correcto
 §12 L36 validada profilácticamente cross-3 sesiones consecutivas funding research (ahorro compute ~30-45h paths infeasibles ciegamente).
 
 ## Historia
+
+- **2026-04-28 Sesión 1B Path α** (G1.1 Tier 0 I1 kernel return_per_trade flag-driven DONE post-Path A reorder Sesión 1A): bajo plan AGGRESSIVE pura recalibrada commit `8d837af` + reorder Sesión 1A G2.1 mismatch (commit `2270b67`). Implementación Path α flag-driven post-Parte 0 verificación 4/5 mismatch detectados (signature parallel prange + 25 callers + reason_exit collapsed + memory blowup 4.8 GB inviable Path γ original). **Path α adoptado**: `return_per_trade: bool = False` flag default backward compat 100% + reduced enum 4 valores TF kernel-current granularidad sin refactor invasivo + MR kernel UNCHANGED preserva §12 L25 segmentación (expansión MR diferida Sesión 2 si Bloque 2c emerge necesidad). Tests greenfield + Smokes §0.8 obligatorios cross-cuatro símbolos PASS (BTC Nivel A diff 0.0000 EXACTO + ONDO Nivel B 22.70% IDÉNTICO + APT Nivel B 1.51% IDÉNTICO + SEI MR Nivel C diff 0.0000 + audit hash parity NO WARN post fec1725e). **§12 L38 nueva captura formal sexto pilar institucional** (verificación supuestos técnicos pre-implementación cross-fuentes primarias, aplicación recursiva Claude redactor + Claude Code verificador). §12 L36 cross-13-aplicaciones consolidada (10/10 acertadas Sesión 1B). Items §13.3 IMPLEMENTED: L2910 Path α; L1781 READY post-Sesión 1B. Calendario AGGRESSIVE pura recalibrada inalterado: Sesión 1A.2 G2.1 Opción A clean post-Path α próxima (~1-2h CC). Trigger reciclaje launch ~2026-05-06 a 21. Bot v2.4.5 invariante uptime ~5d 7h+ (sin tocar live/* productivo, kernel modify lab-only).
 
 - **2026-04-28 Sesión 1A parcial** (setup base independiente DONE 2/3 + 1/3 BLOQUEADO mismatch revealed): bajo plan AGGRESSIVE pura recalibrada commit `8d837af` 2026-04-27 Sesión 2 D, ejecución Sesión 1A primer dedicada. **Items implementados clean**: G1.3 Lab compute_leverage_map fix → lev=1 always + docstring P1 (b) caveats (i)-(v) (45 sym verificado); G5.11 portfolio correlación min_len threshold 60 + tests no-regression PASS. **Item BLOQUEADO**: G2.1 Refactor audit_v5.x Opción A — investigación pre-cambio reveló dependency mismatch (audit `extract_trades_tf` retorna per-trade vs kernel `run_simulation_numba` retorna agregados; Opción A inherente requiere G1.1 Tier 0 I1 prereq). Decisión Ricardo Path A reorder: Sesión 1A.2 nueva post-G1.1. **Validación cross-cambios**: BTC pre/post N=1000 diff 0.0000 IDÉNTICO (G1.3+G5.11 NO tocan brain path); ONDO pre N=8000 diff_rel 22.70% explicable specialist working tree NEW vs HEAD baseline (no regresión brain/kernel — §12 L25 sub-refinamiento inline aplicado); APT pre N=10000 diff_rel 1.51% PASS triangulación cross-símbolo §12 L26 confirmando JSON HEAD baseline preserved. **§12 L36 9ª aplicación profiláctica funcionó**: G2.1 mismatch detectado pre-implementación (~1-2h CC ahorrados redirección Path A) + ONDO baseline context revealed. Cross-10-aplicaciones consolidada (~52-90h ahorro acumulado). Items §13.3 actualizados: L2370 + L2393 → IMPLEMENTED 2026-04-28; L1781 → BLOQUEADO scope refinado Sesión 1A.2. Calendario refinado 5-6 sesiones cross-1.5-2.5 semanas (vs 4-5 original). Trigger reciclaje launch ~2026-05-07 a 13. Reciclaje completo ~2026-05-22 a 06-05. Bot v2.4.5 invariante uptime 5d 4h+ (sin tocar live/* productivo, G1.3+G5.11 cambios offline preservados).
 

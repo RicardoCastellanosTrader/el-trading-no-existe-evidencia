@@ -1,6 +1,24 @@
 # Sistema de Trading Algorítmico — Contexto Completo del Proyecto
 
-**Última actualización:** 28 Abril 2026 SESIÓN 1A — **Setup base parcial pre-reciclaje: G1.3 lab fix + G5.11 portfolio min_len IMPLEMENTED. G2.1 audit refactor Opción A revealed dependency mismatch G1.1 (Sesión 1A.2 post-G1.1 reorder §12 L25 segmentación)**.
+**Última actualización:** 28 Abril 2026 SESIÓN 1B PATH α — **G1.1 Tier 0 I1 kernel `return_per_trade` flag-driven done (TF kernel only, MR diferido Sesión 2). Backward compat 100% production callers. 4/5 mismatch detectados Parte 0 verificación redirigieron Path γ→α. §12 L38 nueva captura sexto pilar institucional. Smokes §0.8 A+B+C + audit hash parity PASS pre-merge cross-cuatro símbolos**.
+
+Implementación Path α: `lab_historico_numba_v8_3.py` 7 nuevos kwargs (return_per_trade + 6 per-trade arrays + pt_count) + trade closure block per-trade tracking writes IF flag=True + reduced enum 4 valores TF (sl_exit, div_exit, normal_exit, cancel_tf) matching kernel current logic sin refactor invasivo. `run_on_slice` signature extension + dispatch 2-tuple. EXPECTED_LAB_KERNEL_HASH regenerated `165b2357...` → `fec1725e...` en `audit_fidelity_v5*.py`. Tests greenfield Test 1 backward compat + Test 2 Path α PASS.
+
+**Smokes §0.8 obligatorios pre-merge (5/5 PASS)**: BTC Nivel A diff 0.0000 EXACTO + ONDO Nivel B 22.70% IDÉNTICO baseline (specialist working tree NEW invariante) + APT Nivel B 1.51% IDÉNTICO baseline gate PASS + SEI MR Nivel C diff 0.0000 en 7 métricas (MR kernel UNCHANGED) + audit hash parity NO WARN post-update.
+
+**§12 L36 cross-13-aplicaciones consolidada**: 12ª pre-impl + 13ª Smokes = 10/10 acertadas Sesión 1B. Cross-13 ahorro acumulado **~52-90h paths infeasibles ciegamente**.
+
+**§12 L38 nueva sexto pilar institucional**: verificación supuestos técnicos pre-implementación cross-fuentes primarias. Aplicación recursiva 2-niveles (Claude redactor + Claude Code verificador). Caso origen 2026-04-28 cross-2-sesiones consecutivas (Sesión 1A G2.1 + Sesión 1B G1.1 Parte 0 4/5 mismatch). Total ahorro temporal **~4-7h CC paths infeasibles ciegamente**.
+
+Items §13.3 actualizados: **L2910 Tier 0 I1 → IMPLEMENTED Path α flag-driven**; **L1781 Refactor audit_v5.x → READY post-Sesión 1B** (Sesión 1A.2 dedicada próxima).
+
+**Plan refinado AGGRESSIVE pura recalibrada**: Sesión 1B done → **Sesión 1A.2 G2.1 Opción A clean post-Path α PRIORITARIA próxima (~1-2h CC, ~2026-04-29)** → Sesiones 2-5 inalteradas. Trigger reciclaje launch ~2026-05-06 a 21. Reciclaje completo ~2026-05-21 a 06-04.
+
+Estado pre-reciclaje **MADURO INSTITUCIONAL FINAL+P1+TRIAJE+AUDIT-RESCATE+AGGRESSIVE-PRE-RECICLAJE+SESION-1A-PARCIAL+SESION-1B-PATH-α** invariante.
+
+Bot v2.4.5 operacional VPS Tokio uptime 5d 7h+ invariante. Sin tocar `live/*` productivo (kernel modify lab-only). Fidelidad 2 invariante por construcción (Smokes A+B+C + verify_test cross-3-símbolos + audit hash parity confirmed cross-cuatro símbolos pre-merge).
+
+**Actualización previa:** 28 Abril 2026 SESIÓN 1A — **Setup base parcial pre-reciclaje: G1.3 lab fix + G5.11 portfolio min_len IMPLEMENTED. G2.1 audit refactor Opción A revealed dependency mismatch G1.1 (Sesión 1A.2 post-G1.1 reorder §12 L25 segmentación)**.
 
 Smoke §0.8 Nivel B baseline cross-3-símbolos + post-cambios validation: BTC N=1000 pre/post diff 0.0000 EXACTO IDÉNTICO; ONDO N=8000 diff_rel 22.70% **explicable NO regresión** (specialist working tree NEW post-M2-fix smoke 2026-04-24 vs HEAD baseline 2026-04-23); APT N=10000 diff_rel 1.51% PASS triangulación cross-símbolo §12 L26 (JSON HEAD baseline preserved). G1.3+G5.11 NO tocan brain path → BTC post diff 0.0000 IDÉNTICO baseline confirmed.
 
@@ -1125,6 +1143,45 @@ NO sumarlos en una métrica única "Xh" porque (a) y (c) tienen unidades distint
 Cada sesión Claude Code que aplique L37 disciplinadamente producirá calendarios coherentes con enfoque Ricardo "aspirar a lo mejor".
 
 **Aplicabilidad fuera de trading**: cualquier proyecto que combine humano+AI agent con planning calendarios. Estimaciones híbridas requieren decomposición explícita o producen sesgos pragmáticos sub-óptimos.
+
+38. **Verificación supuestos técnicos pre-implementación cross-fuentes primarias — 2026-04-28**. Patrón problemático detectado cross-2-sesiones consecutivas (Sesión 1A G2.1 + Sesión 1B G1.1 Parte 0 verificación): planning derivó supuestos técnicos sobre kernel/audit/portfolio sin verificación contra fuentes primarias completas (CONTEXTO §13.3 items detallados + código actual). Memoria conversacional + reportes parciales + userMemories resumidos NO son fuente primaria suficiente para planning técnico arquitectónico. Aplicación recursiva 2-niveles requerida.
+
+**Caso origen completo cross-2-sesiones**:
+- **Sesión 1A G2.1 Refactor audit_v5.x Opción A** (1/1 mismatch revealed pre-implementación): audit `extract_trades_tf` retorna per-trade list, kernel `run_simulation_numba` retorna agregados — Opción A "importar kernel directo" requiere kernel exporting per-trade = G1.1 prereq. Detected vía code investigation pre-implementación. Ahorro ~1-2h CC redirección Path A reorder.
+- **Sesión 1B G1.1 Tier 0 I1 kernel modify** (4/5 mismatch revealed Parte 0 verificación): signature kernel parallel `prange` + 2D arrays (vs 1D simple); 25 callers cross-codebase (vs 10+ documentados); reason_exit enum collapsed kernel current code (sl_hit+sl_emergency en `sl_exit_signal`; cancel_zona/cancel_ghost MR-only); memory blowup full sweep 480 MB - 4.8 GB peak inviable walk-forward production. Detected vía Parte 0 verificación sistemática ~30-60 min CC. Ahorro ~3-5h CC redirección Path α flag-driven (vs Path γ memory blowup invasive refactor).
+
+Total ahorro cross-2-sesiones consecutivas: **~4-7h CC paths infeasibles ciegamente**.
+
+**Causa raíz**: planning sesión 2 D Parte 4+1 redactó supuestos técnicos sobre kernel/audit/portfolio sin lectura completa fuentes primarias. Conversación Claude redactor leyó §13.3 items resumidos vía userMemories + reportes Sesión 1A previa, NO §13.3 completos + código actual `lab_historico_numba_v8_3.py:1273-1773` + `audit_fidelity_v5_2.py:684+`.
+
+**Aplicación recursiva 2-niveles**:
+
+(a) **Claude redactor prompts**: leer fuentes primarias completas (CONTEXTO sección relevante + ROADMAP + código actual vía grep + view) ANTES de redactar prompts críticos con scope >2h CC. Memoria conversacional + reportes parciales + userMemories resumidos NO son fuente primaria suficiente para planning técnico arquitectónico. Mitigación protocolaria: pre-redacción spec técnico, ejecutar ronda lectura `grep` + `view` cross-archivos relevantes confirmando supuestos técnicos.
+
+(b) **Claude Code verificador**: ejecutar Parte 0 verificación pre-implementación sistemática cuando supuestos técnicos no están documentados explícitamente o cuando planning sugiere scope >2h CC. Mejor detectar mismatch en Parte 0 verificación (~30-60 min CC) que durante implementación (~3-5h CC compute futile + recovery costoso). Costo recovery >5× costo verificación pre-implementación.
+
+**Patrón problemático evitado**: prompts detallados basados en información indirecta producen mismatch sistemático cuando supuestos técnicos no verificados emergen durante implementación. Recovery requiere rollback + re-planning + posible escalación arquitectónica.
+
+**Mitigación protocolaria**:
+- Claude redactor: lee CONTEXTO §13.3 item completo + código relevante (`grep` + `view`) antes de redactar prompt técnico de scope >2h CC.
+- Claude Code: mantiene Parte 0 verificación pre-implementación sistemática para scope >2h CC. Output: tabla supuestos verificados / N mismatch detectados antes de proceder Parte 1 implementación.
+- Comunicación bidireccional: si Parte 0 detecta mismatch, escalar Ricardo decisión refinement scope antes de invertir compute mayor.
+
+**Diferencia con §12 L36**:
+- L36 = predicción cualitativa pre-implementación (estructura razonamiento empírico). Pregunta: "¿qué outcome empírico esperamos?"
+- L38 = verificación supuestos técnicos pre-implementación (estructura planning técnico). Pregunta: "¿son válidos los supuestos técnicos sobre código existente?"
+
+L38 aplicación recursiva al rol Claude redactor prompts protege contra el mismo sesgo que detecta — patrón meta-institucional consolidado. Claude redactor que aplica L38 lee fuentes primarias antes de planning, evitando producir prompts con supuestos técnicos no verificados.
+
+**Sexto pilar metodológico institucional** — completa la quíntuple guardrail (extends L25+L26+L35+L36+L37):
+- L25: segmentación arquitectónica obligatoria sobre ventanas con deploys heterogéneos.
+- L26: validación per-componente además de ecuación global de cierre.
+- L35: test diferencial reactivo contra ground truth (post-alarma de auditor).
+- L36: predicción ultrathink proactiva pre-implementación (estructura razonamiento empírico).
+- L37: calibración temporal Claude Code vs humana (estructura planning calendario).
+- L38: verificación supuestos técnicos pre-implementación cross-fuentes primarias (estructura planning técnico).
+
+**Aplicabilidad fuera de trading**: cualquier proyecto con AI agent multi-step planning donde el LLM redactor planning produce specs técnicos basados en información indirecta (userMemories, reportes parciales, conversación previa). Verificación supuestos técnicos cross-fuentes primarias antes invertir compute es disciplina core para proyectos arquitectónicamente complejos. Aplicación recursiva 2-niveles (LLM redactor + LLM verificador) es protección estructural contra sesgo cognitivo de "trust the summary".
 
 ---
 
@@ -3126,6 +3183,96 @@ Referencias:
 ---
 
 ### 13.4 RESUELTO
+
+**[IMPLEMENTACIÓN] [PRE-RECICLAJE SESIÓN 1B PATH α] G1.1 Tier 0 I1 kernel return_per_trade flag-driven backward-compat — 2026-04-28 sesión tarde**
+
+**Contexto**: Sesión 1B pre-reciclaje AGGRESSIVE pura recalibrada bajo Path A reorder Sesión 1A (commit `2270b67` G2.1 BLOQUEADO mismatch revealed → G1.1 prereq). Implementación Tier 0 I1 kernel modify bajo Path α flag-driven (decisión post-Parte 0 verificación detected 4/5 mismatch supuestos planning sesión 2 D).
+
+**Verificación pre-implementación Parte 0** (4/5 mismatch detectados, lección recursiva Sesión 1A G2.1):
+
+| # | Supuesto | Status | Severidad |
+|---|----------|--------|-----------|
+| 1 | Signature `run_simulation_numba` permite extension arrays | ⚠️ MISMATCH | PARTIAL — kernel usa `prange(n_configs)` parallel + 2D arrays. Per-trade serían 2D `(n_configs, max_trades)` complejo. |
+| 2 | Lista 10+ callers exhaustiva | ⚠️ MISMATCH | PARTIAL — 25 archivos cross-codebase (~15 active prod + 10 archivados). |
+| 3 | Reason_exit enum 0-7 cubre paths | ⚠️ MISMATCH | SUSTANCIAL — TF kernel collapses sl_hit+sl_emergency en `sl_exit_signal`; tf_exit+zone_exit en `normal_exit_signal`. MR tiene cancel_zona/cancel_ghost. Regime_change brain-side. |
+| 4 | Memory chunked allocation viable | ⚠️ MISMATCH | **CRÍTICO** — full sweep 100K-1M configs × 100 trades × 6 arrays × 8 bytes = 480 MB - 4.8 GB peak inviable walk-forward production. |
+| 5 | EXPECTED_LAB_KERNEL_HASH protocol | ✓ CLEAN | SHA256(inspect.getsource) + manual regen documentado L115-121. |
+
+**Mitigación Path α adoptada** (vs Path γ original invasive kernel refactor):
+- `return_per_trade: bool = False` flag default → backward compat 100% production callers
+- Walk-forward callers preservan signature actual + zero memory impact
+- Audit + analyzers callers usan flag=True para small config sets (~5 KB memory acotada)
+- Reduced enum 4 valores TF (sl_exit, div_exit, normal_exit, cancel_tf) matching kernel current logic sin refactor invasivo
+- MR kernel UNCHANGED Sesión 1B (preserva §12 L25 segmentación; expansión MR diferida Sesión 2 si Bloque 2c emerge necesidad)
+
+**Implementación**:
+
+`lab_historico_numba_v8_3.py` (~50 líneas insertadas):
+- Module-level constants: 4 enum reason_exit + 4 sentinel arrays default kwargs
+- `run_simulation_numba` signature extension: 7 kwargs nuevos al final (return_per_trade + 6 per-trade arrays + pt_count) con sentinel defaults
+- Trade closure block per-trade tracking writes condicional `if return_per_trade and pt_idx < pt_entry_bar.shape[1]:` (insertado post-cluster accounting, antes div_ctx reset)
+- `run_on_slice` signature extension: `return_per_trade=False, max_trades_per_config=5000` kwargs + dispatch logic 2-tuple (aggregates + per_trade dict) si flag=True; backward compat path retorna 7-tuple original
+
+`audit_fidelity_v5.py` + `audit_fidelity_v5_2.py`: `EXPECTED_LAB_KERNEL_HASH` regenerated old `165b2357...b4b5028a` → new `fec1725e...4811186f`.
+
+**Tests greenfield**:
+- Test 1 backward compat (flag=False): 7-tuple original IDENTICAL PASS ✓
+- Test 2 Path α (flag=True): 2-tuple aggregates + per_trade dict PASS ✓
+- Numba JIT compila signature extendida sin errores ✓
+- pt_count distribution coherente con n_trades aggregate ✓
+
+**Validación cross-cambios Smoke §0.8 obligatoria pre-merge** (5/5 PASS):
+
+| Smoke | N | Resultado | Veredicto |
+|-------|---|-----------|-----------|
+| G.1 BTC Nivel A | 1000 | diff 0.0000 EXACTO | ✓ PASS invariante baseline 2026-04-28 Sesión 1A |
+| G.2 ONDO Nivel B | 8000 | 425/423 trades, diff_rel 22.70% IDÉNTICO baseline | ✓ PASS (specialist working tree NEW invariante, NO regression) |
+| G.3 APT Nivel B | 10000 | 1786/1801 trades, diff_rel 1.51% IDÉNTICO baseline | ✓ PASS gate Nivel B |
+| G.4 SEI MR Nivel C | 1500 | diff 0.0000 EXACTO en 7 métricas (PnL, Trades, Wins, Cancels, MaxDD, GP, GL) | ✓ PASS (MR kernel UNCHANGED) |
+| G.6 Audit hash parity | — | audit `a93310e4...` OK + lab `fec1725e...` OK | ✓ PASS (NO WARN post-update) |
+
+Backward compat 100% empíricamente validated cross-cuatro símbolos. Brain/kernel fidelity invariante. Path α flag-driven correctly designed.
+
+**§12 L36 cross-13-aplicaciones consolidada** (Sesión 1B 12ª implementation + 13ª Smokes):
+- 12ª aplicación pre-impl: 5/5 predicciones acertadas (Numba viable + in-place arrays preserva backward compat + hash regen + scope ~50 líneas + reduced enum priority)
+- 13ª aplicación Smokes: 5/5 predicciones acertadas (BTC 0.0000 + ONDO IDÉNTICO + APT IDÉNTICO + SEI invariante + hash NO WARN)
+
+Cross-13-aplicaciones ahorro acumulado **~52-90h paths infeasibles ciegamente** (extends cross-12 sesión 1A + cross-11 sesión 2 D Parte 4+5).
+
+**§12 L38 nueva captura formal sexto pilar institucional**: ver §12 sección lecciones. Verificación supuestos técnicos pre-implementación cross-fuentes primarias. Aplicación recursiva 2-niveles (Claude redactor + Claude Code verificador). Caso origen 2026-04-28 cross-2-sesiones consecutivas (Sesión 1A G2.1 + Sesión 1B G1.1 Parte 0 4/5 mismatch). Total ahorro temporal cross-aplicaciones ~4-7h CC paths infeasibles ciegamente.
+
+**Items §13.3 actualizados**:
+- **L2910 Tier 0 I1 kernel reason_exit** → **IMPLEMENTED 2026-04-28 Path α flag-driven** (TF kernel only Sesión 1B; MR kernel UNCHANGED, expansión MR diferida Sesión 2 si Bloque 2c granular emerge necesidad H_strategy análisis cross-strategy).
+- **L1781 Refactor audit_v5.x Opción A** → **READY post-Sesión 1B** (Sesión 1A.2 dedicada próxima ~1-2h CC con `return_per_trade=True` flag-driven dispatch).
+
+**Plan refinado calendario AGGRESSIVE pura recalibrada post-Sesión 1B**:
+
+| Sesión | Días calendario | Sub-fases | Status |
+|--------|-----------------|-----------|--------|
+| 1A | 2026-04-28 | G1.3 + G5.11 + G2.2 baseline (parcial) | DONE PARCIAL commit `2270b67` |
+| **1B** | **2026-04-28 tarde** | **G1.1 Tier 0 I1 kernel Path α flag-driven** | **DONE este commit** |
+| **1A.2** | **~2026-04-29** | **G2.1 Refactor audit_v5.x Opción A clean post-Path α (~1-2h CC con flag=True)** | **PRIORITARIA próxima** |
+| 2 | ~2026-04-30 a 05-01 | G1.2 Bloque 2c + H_M3-M6 hipótesis | inalterada |
+| 3 | ~2026-05-02 a 03 | G3.2 + G3.3 selection-bias-specific subsets | inalterada |
+| 4 | ~2026-05-04 a 05 | G5.3 + G5.1 + G2.2 final pre-launch | inalterada |
+| 5 | ~2026-05-06 a 21 | Reciclaje 45 sym launch + ejecución VPS autónomo | inalterada |
+
+**Estado pre-reciclaje MADURO INSTITUCIONAL FINAL+P1+TRIAJE+AUDIT-RESCATE+AGGRESSIVE-PRE-RECICLAJE+SESION-1A-PARCIAL+SESION-1B-PATH-α invariante**.
+
+**Bot v2.4.5 operacional VPS Tokio uptime 5d 7h+ invariante**. Sin tocar `live/*` productivo (kernel modify lab-only, branch ramificada cleanly merged via working-tree). Fidelidad 2 invariante por construcción (Smokes A+B+C + audit hash parity confirmed pre-merge cross-cuatro símbolos).
+
+**Referencias**:
+- `lab_historico_numba_v8_3.py:1268-1297` (módulo constants + signature extension), `:1685-1715` (per-trade tracking insertion), `:1911-1990` (run_on_slice dispatch).
+- `audit_fidelity_v5.py:128` + `audit_fidelity_v5_2.py:122` (EXPECTED_LAB_KERNEL_HASH regenerated).
+- §12 L38 nueva captura formal sexto pilar institucional (§12 sección lecciones).
+- §13.3 L2910 → IMPLEMENTED Path α; L1781 → READY post-Sesión 1B.
+- ROADMAP_PRE_RECICLAJE.md sub-fase Sesión 1B done + Sesión 1A.2 prioritaria próxima.
+- §13.4 entrada Sesión 1A parcial 2026-04-28 commit `2270b67` (precedente decisión Path A reorder).
+- Conversación Ricardo 2026-04-28 sesión tarde: confirmación Path α + reduced enum + MR diferido + Smokes obligatorias pre-merge + §12 L38 captura formal.
+
+**Cierre Sesión 1B Path α**: permanente. G1.1 Tier 0 I1 implementado flag-driven backward-compat. Próxima Sesión 1A.2 G2.1 Refactor audit_v5.x Opción A clean post-Path α dedicada.
+
+---
 
 **[IMPLEMENTACIÓN] [PRE-RECICLAJE SESIÓN 1A PARCIAL] Setup base independiente G1.3 + G5.11 done + G2.1 dependency mismatch revealed — 2026-04-28**
 
