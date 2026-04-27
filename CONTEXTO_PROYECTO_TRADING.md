@@ -905,6 +905,20 @@ c:\Users\rixip\combolab\
 **Patrón institucional consolidado**: §12 L27 protocolo sistemático cross-backlog-completo es valioso INDEPENDIENTE de turnover rate — incluso 10% archive + 90% refinado representa ~5-10h ahorro acumulado futuras sesiones (sin status update fresco, próxima sesión re-evalúa items con datos viejos). §12 L34 metodológico complementario: predicciones masivas sobre items §13.3 deben distinguir características de items, NO extrapolar patrones locales (sesión 2026-04-26 noche-3 4/4 stale era subset ya-triajado, NO replicable cross-items no-triajados).
 
 **Caso origen completo**: Fase 3 sesión 2026-04-27 cross-20-items §13.3 EN_ESPERA bajo enfoque institucional Ricardo "aspirar a lo mejor". Resultado 0% (a) RESUELTO + 10% (b) ARCHIVED (L1961 R1 dependencia obsoleta + L2295 compute_leverage_map bajo P1 archive) + 90% (c) EN_ESPERA refinado scope/disparador con datos actuales + 0% (d) consolidado. §13.3 EN_ESPERA: 28 → 24 items, todos con marcador 2026-04-27 fresco institucional. Ver §13.4 entrada "TRIAJE §12 L27 sistemático completo" 2026-04-27 sesión tarde-noche.
+
+**Refinamiento V2 2026-04-27 (caso meta-institucional auditoría rescate items archivados)**: aplicación recursiva §12 L27 refinamiento V1 al meta-nivel — auditoría rescate items §13.4 ARCHIVED/RESUELTO bajo enfoque institucional "aspirar a lo mejor" + recursos ilimitados. Predicción ultrathink Claude Code pre-auditoría: "1-2/14 candidatos rescatables, scope rescate spec usuario (5/14, ~31-55h cross-3 sesiones) refleja sesgo momentum institucional post-4-commits-exitosos análogo predicción turnover Fase 3 agresiva". Análisis crítico individual top-5 candidatos top: 7/7 predicciones acertadas (1/5 rescatable B Refactor audit_v5.x bajo argumento independiente timing eficiente; 4/5 refutados — A Path B refutación reforzada hoy + C Tier 0 I1 ya cumplido Path B aggregate + D Walk-forward scope abierto §12 L34 + E Subset §13.3 contradice mi propio triaje Fase 3 recursivo).
+
+**Refinamiento V2 metodológico permanente**: predicción agresiva rescate (post-momentum institucional) es **refutada sistemáticamente** cuando análisis crítico individual reemplaza extrapolación. Items archivados con razones empíricas sólidas son **resilientes a rescate** (turnover rescate ~7-15% análogo items §13.3 disciplinados resilientes a triaje §12 L27 V1). Patrón ahorro compute: ~2-2.5h auditoría sistemática evitada al ejecutar predicción ultrathink pre-implementación + análisis crítico top-5 directo (~30 min).
+
+**Distinción institucional consolidada V1+V2**:
+- **Items susceptibles** §12 L27 (turnover ~50-65% items pre-triajados / drift arquitectónico documentado / reviews previos no documentados).
+- **Items resilientes** §12 L27 (turnover ~10-15% items disciplinados con disparadores válidos no-cumplidos).
+- **Items archived rescatables** (turnover ~7-15% items archived por costo/scope con argumento independiente identificable post-cambio condiciones).
+- **Items archived no-rescatables** (turnover residual mayoría items con refutación empírica sólida sostenida).
+
+**Aplicabilidad**: cualquier proyecto con backlog documental cross-vidas (RESUELTO + ARCHIVED + EN_ESPERA). Sesgo "momentum institucional" post-éxitos consecutivos induce predicciones agresivas turnover/rescate sin análisis crítico individual. **Mitigación protocolaria**: aplicar §12 L36 prophilactic + §12 L27 refinamiento V1+V2 antes invertir compute auditoría sistemática. Predicción ultrathink + análisis crítico top-5 directo es eficiencia ~6-8× sobre auditoría completa.
+
+**Caso origen V2 completo**: auditoría rescate Claude Code 2026-04-27 cierre día post-Fase 4. 7/7 predicciones acertadas (1/5 rescatable + 4/5 refutados). Solo Candidato B Refactor audit_v5.x rescatable bajo argumento independiente timing pre-deploy L1892+L1904 ~2026-05-05 a 05-10 (agrupado eficientemente con deploy operacional natural, evita momentum institucional sesgo ejecución HOY).
 28. **Sincronización implícita incorrecta entre directorios paralelos — 2026-04-23**. Durante sesión 2026-04-22 y 2026-04-23 se detectaron 3+ instancias del mismo patrón: archivos creados/modificados en combolab no se propagaron automáticamente a comboclaude. Claude Code, al detectar asimetría posteriormente, "justificó" la ausencia como intencional en vez de verificar contra convención. **Caso concreto**: al cierre 2026-04-22 se commitaron `audit_fidelity_v5_2.py`, `deploy_boundaries.json`, `signal_price_lookup.py` en combolab; comboclaude no recibió copia. En sesión 2026-04-23, Claude Code reportó 3 veces "archivo X no existe en comboclaude, consistente dejarlo así" antes de detectarse como oversight acumulado. Sync retroactivo reveló **13 archivos desincronizados al inicio de 2026-04-23** (3 código + 10 tests que no existían en comboclaude). **Causa raíz**: ausencia de convención explícita documentada sobre sync 2-way. Claude Code infiere convención en cada sesión, y la inferencia por defecto es "preservar estado actual" (asume asimetría = intencional). **Mitigación adoptada 2026-04-23**: convención explícita en §0.7 ("Convención de sincronización combolab ↔ comboclaude"). Protocolo al cierre de tarea: MD5 2-way verification de TODOS los archivos modificados. Anti-patrón explicitado: "El archivo no estaba antes en comboclaude, consistente dejarlo así" es asunción INCORRECTA por defecto. **Aplicabilidad**: cualquier proyecto con múltiples checkouts o directorios paralelos del mismo código. La regla general es SYNC-BY-DEFAULT con excepciones listadas explícitamente, no PRESERVE-BY-DEFAULT con sync como excepción. Ver §0.7 para regla operativa + §13.4 entrada A34 2026-04-23 para cierre que aplicó protocolo retroactivo.
 
 29. **Walk-forward con N_fwd pequeño puede producir expected PF significativamente inflado vs régimen futuro — 2026-04-22**. Caso empírico: ONDO/USDT C0 walk-forward arrojó pf_fwd=7.945 con N=17 OOS (pf_combined=5.5 reportado como expected en specialist_score). En operación real 2026-04-14 → 2026-04-21 sobre OHLCV ONDO real (16 trades bot, 7 efectivo matchable post-Fase II.B), PF observado=1.08 (fidelidad bot↔kernel 100% match expandido confirmada en Fase II.B). El gap NO es de ejecución (fidelidad OK), es **gap entre "edge inferred on small OOS sample" vs "edge reproduced in live régimen"**. Caveat §13.3 W3 (CI bootstrap en pf_fwd) era especulativo pre-2026-04-22; este caso lo valida empíricamente como necesario. **Generalización en Fase II.C global mismo día**: 2 candidatos exclusión adicionales (ONDO C2, SAND C1) + 17 símbolos con WARN_neg_res + edge_erosion alert direccional. NO es caso aislado, es patrón.
@@ -3042,6 +3056,80 @@ Referencias:
 ---
 
 ### 13.4 RESUELTO
+
+**[AUDITORÍA] [RESCATE ARCHIVED — META-INSTITUCIONAL §12 L27/L36 RECURSIVO] Auditoría rescate items archivados bajo enfoque "aspirar a lo mejor" — 2026-04-27 cierre día**
+
+**Contexto**: Sesión institucional excepcional 2026-04-27 ya cerrada con 4 commits + estado MADURO INSTITUCIONAL FINAL+P1+TRIAJE. Pregunta crítica Ricardo cierre día: "¿Cuántos temas archivados por costosos/ambiciosos podrían rescatarse bajo aspirar a lo mejor?". Patrón precedente HOY: P1 leverage iba a archivarse γ' directo (~30 min) hasta cuestionamiento Ricardo "¿de verdad archivarlo sin más?". Análisis β' full robusto produjo baseline cuantitativo permanente + hallazgo asimetría arquitectónica clusters. **Pregunta institucional**: ¿cuántos otros items archivados merecen ese mismo cuestionamiento?
+
+**Aplicación §12 L36 prophilactic + §12 L27 refinamiento V1 (capturado Fase 4 HOY) al meta-nivel del spec rescate**: Claude Code aplicó análisis crítico ultrathink al spec usuario (5/14 candidatos rescatables, ~31-55h cross-3 sesiones pre-reciclaje) ANTES de invertir 2-2.5h auditoría sistemática.
+
+**Predicción §12 L36 7ª aplicación pre-auditoría**: scope spec refleja sesgo momentum institucional post-4-commits-exitosos análogo predicción turnover Fase 3 (50-65% real 10%). Predicho 1-2/14 candidatos genuinamente rescatables. Análisis crítico individual top-5 candidatos directo (~30 min) reemplaza auditoría sistemática (~2-2.5h compute) → eficiencia ~6-8×.
+
+**Análisis crítico individual top-5 candidatos**:
+
+| Candidato | Veredicto | Razón crítica |
+|---|---|---|
+| A. Path B funding Sesión 2-6 retoma | ❌ MANTENER | Refutación archive REFORZADA Fase 1 mañana (subset 0/72 N=72 post-v2.4.5 validó "extremo raro régimen actual" cross-arquitectura limpia). Re-ejecutar cross-régimen retrospective NO altera característica estructural régimen actual. |
+| **B. Refactor audit_v5.x pre-reciclaje** | ✅ **RESCATABLE** | **Timing eficiente** (refactor pre-reciclaje evita bottleneck audit primer JSON post-reciclaje + sesión dedicada compite con stress-tests reciclaje). **Valor permanente** auditor consolidado independiente timing. **Mitigación riesgo regresión** viable (tests greenfield + cross-check `_run_verify_test` ground truth 76 trades 380 mediciones diff 0.0000). |
+| C. Tier 0 I1 subset aggregate | ❌ MANTENER | **Ya cumplido** por Path B Sesión 1-3 archive 2026-04-26 (Variante 4 pivotó Opción C aggregate-level cross-régimen). Re-rescatar = duplicación. Per-trade granular sigue post-reciclaje categórico. |
+| D. Walk-forward bias continuación | ❌ MANTENER | **Scope abierto sin mecanismo concreto** identificado pre-rescate. §12 L34 anti-patrón "investigación dedicada" sin hipótesis específica. M2 fix Fase B done valida residual 2.41× estructural; multi-testing CASO B archived (Holm/BH redundante W4+flag_sospechoso). Mecanismos 3+4 NO identificados — buscar "más" sin hipótesis = riesgo §12 L34. |
+| E. Subset items §13.3 implementables | ❌ MANTENER | **Refutado por mi triaje Fase 3 propio** (recursivo) — L2210/L2219 scope reciclaje julio inalterado, L2253 disparador 1/2 cumplido, L2362 verify_test parcialmente cumplido sesión 2026-04-26. Aplicación recursiva refinamiento §12 L27 V1 capturado HOY: items disciplinados con disparadores válidos no-cumplidos resilientes. |
+
+**Calibración §12 L36 7ª aplicación retrospectiva**:
+
+| # | Predicción ultrathink pre-auditoría | Realidad análisis crítico | Status |
+|---|---|---|---|
+| 1 | 1-2/14 candidatos rescatables | 1/5 top (B) | ✓ acertada |
+| 2 | Spec 5/14 análogo turnover Fase 3 agresivo | refutado 4/5 top | ✓ acertada |
+| 3 | A Path B refutación sostenida + reforzada | confirmed | ✓ |
+| 4 | B Refactor audit_v5.x rescatable timing | confirmed | ✓ |
+| 5 | C Tier 0 I1 ya cumplido Path B | confirmed | ✓ |
+| 6 | D Walk-forward scope abierto §12 L34 | confirmed | ✓ |
+| 7 | E Subset §13.3 refutado triaje propio | confirmed | ✓ |
+
+**7/7 predicciones acertadas**. Validación profiláctica más estricta §12 L36 prophilactic + análisis crítico individual reemplaza auditoría sistemática con eficiencia 6-8×.
+
+**Decisión Ricardo confirmada — OPCIÓN α' refinada**:
+
+**Candidato B único rescatable** + **timing diferido sesión dedicada deploy L1892+L1904 ~2026-05-05 a 05-10**:
+- Sesión próxima dedicada agrupada con deploy operacional natural → evita momentum institucional sesgo ejecución HOY/mañana.
+- Output: refactor audit_v5.x + tests greenfield + cross-check verify_test ground truth.
+- Beneficio: validación 45 JSONs nuevos post-reciclaje sin bottleneck refactor concurrent + auditor consolidado pre-reciclaje.
+
+**§12 L27 refinamiento V2 capturado** (ver §12 L27 sub-bloque "Refinamiento V2 2026-04-27 caso meta-institucional"): aplicación recursiva §12 L27 V1 al meta-nivel — items archivados con razones empíricas sólidas son **resilientes a rescate** (turnover rescate ~7-15% análogo items §13.3 disciplinados resilientes triaje §12 L27 V1). Patrón institucional consolidado: predicción agresiva rescate (post-momentum institucional) es refutada sistemáticamente cuando análisis crítico individual reemplaza extrapolación.
+
+**§12 L36 cross-7-aplicaciones consolidada (extends cross-6 Fase 3)**:
+
+| Sesión/Aplicación | Predicciones | Acertadas | Refutadas | Outcome |
+|---|---:|---:|---:|---|
+| 1. Variante 4 funding 2026-04-25 | 6 | 6/6 | 0/6 | Tier 0 I1 bloqueante |
+| 2. Path B previo 2026-04-26 | 5 | 0/5 | 5/5 | Reformulación marco |
+| 3. Path B-institutional 2026-04-26 | 9 | 6/9 | 3/9 | OKX retention factor |
+| 4. Pre-flight v2.6-inv/exit 2026-04-27 mañana | 7 | 2/7 | 4/7 | Refutación masiva opción α |
+| 5. P1 leverage Fase 2 2026-04-27 tarde | 7 | 3/7 | 3/7 | Asimetría arquitectónica clusters |
+| 6. Triaje §13.3 Fase 3 2026-04-27 tarde-noche | 10 | 3/10 | 5/10 | Items disciplinados resilientes |
+| **7. Auditoría rescate Fase 5 2026-04-27 cierre** | **7** | **7/7** | **0/7** | **Análisis crítico individual reemplaza auditoría sistemática 6-8× eficiencia** |
+
+Cross-7-aplicaciones ahorro acumulado compute estimado **~52-82h** (extends ~50-80h Fase 3, +2-2.5h Fase 5 evitada).
+
+**Estado pre-reciclaje MADURO INSTITUCIONAL FINAL+P1+TRIAJE+AUDIT-RESCATE invariante**:
+- A done_archived + B done merged + C 7/7 done + Path B archive + D archived + E archived + P1 archived + triaje §13.3 sistemático + **auditoría rescate cross-archived (1/5 rescatable B diferido pre-deploy)**.
+- §12 L27 V1+V2 refinamiento permanente capturado.
+- Refactor audit_v5.x rescatado (único) diferido ~2026-05-05 a 05-10.
+- Trigger reciclaje completo 45 sym aguarda solo fecha calendario (~2026-05-12 a 05-22).
+
+Bot v2.4.5 invariante uptime 4d 23h+. Sin tocar `live/*`. Sin deploy. Sin compute productivo. Análisis crítico read-only sobre §13.4/§13.3 entries existentes.
+
+**Referencias**:
+- §12 L27 sub-bloque "Refinamiento V2 2026-04-27 caso meta-institucional" (lección permanente capturada).
+- §13.4 entrada Fase 3 triaje sistemático (caso origen V1).
+- §13.4 entrada Fase 2 P1 leverage (precedente cuestionamiento Ricardo "¿de verdad archivarlo sin más?").
+- ROADMAP_PRE_RECICLAJE.md update Candidato B diferido.
+- Conversación Ricardo cierre día 2026-04-27: confirmación análisis crítico ultrathink + Opción α' refinada timing diferido.
+
+**Cierre**: permanente. Auditoría rescate items archived completa con captura institucional. §12 L27 V2 refinamiento permanente. Único candidato rescatable (B Refactor audit_v5.x) diferido sesión dedicada deploy L1892+L1904. Estado pre-reciclaje culminación día institucional excepcional.
+
+---
 
 **[TRIAJE] [§12 L27 SISTEMÁTICO COMPLETO — 20 items §13.3] Cleanup pre-reciclaje + status update 2026-04-27 — 2026-04-27 sesión tarde-noche**
 

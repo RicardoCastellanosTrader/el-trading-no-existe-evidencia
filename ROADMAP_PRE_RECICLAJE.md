@@ -80,6 +80,7 @@ Trigger: A+B+C done + D+E validados o archivados. **Estado 2026-04-27 cierre dí
 
 **Disparadores temporales próximos**:
 - Deploy L1892 active_config_id + L1904 multipliers SIGNALS_DISCARDED (commit `3727366`): fecha límite ~2026-05-05 a 05-10 aislado pre-reciclaje. Procedure standard validada v2.4.4/v2.4.5 (~20-47s downtime + Smoke §0.8 Nivel A único requerido). Item L2869 scope refinado Fase 3 2026-04-27.
+- **Refactor audit_v5.x pre-reciclaje** (~4-12h sesión dedicada agrupada con deploy L1892+L1904 ~2026-05-05 a 05-10): único candidato rescatable identificado por auditoría rescate items archived 2026-04-27 cierre día (Fase 5). Output: auditor limpio + tests greenfield + cross-check `_run_verify_test` ground truth (76 trades 380 mediciones diff 0.0000 baseline). Beneficio: validación 45 JSONs nuevos post-reciclaje sin bottleneck refactor concurrent. Ver §13.4 entrada "AUDITORÍA RESCATE ARCHIVED" 2026-04-27 cierre día.
 - Reciclaje completo 45 sym ETA ~2026-05-12 a 05-22 (~180-225h compute VPS, 8-10 días).
 
 **Reactivación condicional items archivados** (no requieren acción pre-reciclaje):
@@ -129,6 +130,8 @@ Disparador operacional D ~2026-05-01 N≥100 BingX-native sigue método correcto
 §12 L36 validada profilácticamente cross-3 sesiones consecutivas funding research (ahorro compute ~30-45h paths infeasibles ciegamente).
 
 ## Historia
+
+- **2026-04-27 cierre día Fase 5** (auditoría rescate archived items): bajo enfoque institucional Ricardo "aspirar a lo mejor" + recursos ilimitados, auditoría sistemática cross-14-archived items con análisis crítico ultrathink top-5 candidatos. **7/7 predicciones acertadas** Claude Code pre-auditoría: solo 1/5 rescatable (B Refactor audit_v5.x bajo argumento independiente timing eficiente) + 4/5 refutados (A Path B refutación reforzada hoy + C Tier 0 I1 ya cumplido + D Walk-forward scope abierto §12 L34 + E Subset §13.3 contradice triaje Fase 3 propio). Aplicación recursiva §12 L27 V1 al meta-nivel produjo §12 L27 refinamiento V2 permanente: items archivados con razones empíricas sólidas son resilientes a rescate (turnover ~7-15% análogo items §13.3 disciplinados V1). Candidato B diferido sesión dedicada deploy L1892+L1904 ~2026-05-05 a 05-10 (evita momentum institucional sesgo + agrupa eficientemente). §12 L36 cross-7-aplicaciones consolidada (~52-82h ahorro acumulado).
 
 - **2026-04-27 cierre día consolidado** (Fase 4 administrativa): §12 L27 refinamiento permanente capturado (distinción items susceptibles vs resilientes, predicción turnover diferenciada, valor institucional update sistemático ≠ exclusivamente turnover). Header L3 entrada SESIÓN COMPLETA DÍA cierre. ROADMAP final post-archive D+E+P1+triaje. Único pendiente pre-reciclaje: deploy L1892+L1904 fecha límite ~2026-05-05 a 05-10. 4 commits día completo (3eb937c + 06e30fb + d1d2859 + Fase 4). Estado pre-reciclaje MADURO INSTITUCIONAL FINAL+P1+TRIAJE invariante.
 
