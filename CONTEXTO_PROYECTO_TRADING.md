@@ -1,6 +1,27 @@
 # Sistema de Trading Algorítmico — Contexto Completo del Proyecto
 
-**Última actualización:** 27 Abril 2026 SESIÓN TARDE — **P1 leverage Fase 2 análisis cuantitativo FULL ROBUSTO → opción (b) 1x feature oficial confirmed empíricamente + baseline reactivación post-reciclaje**: simulación isolated cluster-específico cross-12-escenarios (capital 296/500/1000 × cap 1x/3x/5x/unrestricted) sobre N=76 limpio post-v2.4.5 + sanity cross-segmento §12 L25. Mitigaciones T1-T9 explícitas: T7 margin mode `isolated` VERIFIED empírico VPS BingX (matiz Ricardo aplicable); T1 cluster_id mapping 100% coverage post-v2.4.5 vía SIGNALS_RAW logs parse; T2 fees+funding lineales con notional → fórmula `pnl_neto_hyp = L × pnl_real` matemáticamente correcta isolated; T3 liquidación criterio worst-case observado. **Hallazgos**: (1) cap 3x AMPLIFICA decay 1.61× vs baseline (-0.0246 vs -0.0153 PnL/trade); (2) 0 liquidaciones cross-12-escenarios (régimen lateral-alcista pnl_pct intra-trade modesto + leverage 1-5x = no llega 99% margin call); (3) cluster leverage selectivo top-10 cap 3x = -1.92 USDT PEOR que baseline 1x universal -1.17 USDT (asimetría arquitectónica clusters ganadores maxdd alto / perdedores maxdd bajo); (4) cap 5x/unrestricted Sharpe "menos malo" (-0.41 vs -1.32) pero PnL aún negativo; (5) §12 L25 sanity cross-segmento confirma decay temporal monotónico (post-v2.4.4 pre-v2.4.5 N=9 +0.089/trade vs post-v2.4.5 N=76 -0.025/trade). **Decisión Ricardo OPCIÓN (b) 1x feature oficial documentado lab** confirmed empíricamente. Items §13.3 archivados: **L1849 P1 leverage + L2152 E3 + L1861 setLeverage altos → ARCHIVED_EMPIRICAL_2026-04-27**. ROADMAP post-reciclaje proyecto dedicado P1 (~2-4h) actualizar lab `compute_leverage_map`. **Caveat reactivación post-reciclaje** con baseline cuantitativo permanente preservado: condiciones (i)-(v) explícitas (edge restored N≥50 nuevo + capital >1000 + isolated mantenido + re-simulación mejora vs baseline + asimetría resuelta). **§12 L36 cross-5-sesiones consolidada** (3/7 acertadas + 3/7 refutadas + 1/7 parcial; ~40-65h ahorro acumulado). **Estado pre-reciclaje MADURO INSTITUCIONAL FINAL+P1 invariante**: A done_archived + B done merged + C 7/7 done + Path B archive + D+E archived + **P1 archived empírico**. Trigger reciclaje completo 45 sym aguarda solo fecha calendario (~2026-05-12 a 05-22). Bot v2.4.5 invariante uptime 4d 22h+. Sin tocar `live/*`. Sin deploy. Fidelidad 2 invariante por construcción.
+**Última actualización:** 27 Abril 2026 SESIÓN COMPLETA DÍA — **Día institucional excepcional bajo enfoque "aspirar a lo mejor" Ricardo: cierre empírico D+E + análisis cuantitativo P1 leverage full robusto + triaje sistemático §13.3 §12 L27 cross-20-items**.
+
+Acumulado día (3 fases secuenciales + commits):
+
+1. **Fase 1 ~mañana** (commit `3eb937c`): cierre empírico v2.6-inv (subset 0/72 vacuo) + v2.6-exit (Spearman triple-refutado signo OPUESTO post-v2.4.5 N=72) post-pre-flight refutación masiva. §13.3 L2342 + L2399 → ARCHIVED_EMPIRICAL.
+
+2. **Fase 2 ~tarde temprano** (commit `06e30fb`): análisis P1 leverage full robusto isolated cluster-específico cross-12-escenarios. T7 margin mode `isolated` VERIFIED empírico VPS BingX. Decisión empírica opción (b) 1x feature oficial confirmada cross-N=76 limpio. Hallazgos: cap 3x AMPLIFICA decay 1.61× vs baseline; 0 liquidaciones cross-12-escenarios; cluster leverage selectivo top-10 PEOR que baseline (-1.92 vs -1.17 USDT) por asimetría arquitectónica clusters ganadores maxdd alto (L_target≤1) vs perdedores maxdd bajo (L_target alto leverage amplifica pérdidas). Baseline cuantitativo permanente preservado para reactivación post-reciclaje con condiciones (i)-(v) explícitas. §13.3 L1849 P1 + L2152 E3 + L1861 setLeverage altos → ARCHIVED.
+
+3. **Fase 3 ~tarde-noche** (commit `[hash]`): triaje sistemático §13.3 EN_ESPERA cross-20-items bajo §12 L27 protocolo. Categorización: 2 ARCHIVED (L1961 R1 dependencia + L2295 compute_leverage_map heurística bajo P1) + 18 EN_ESPERA refinados scope/disparador con marcador 2026-04-27 + 0 RESUELTO + 0 consolidados. **§12 L34 metodológico crítico**: predicción agresiva turnover backlog (50-65% reducción) REFUTADA empíricamente (real 10% archived) — items §13.3 son **robustos**, disparadores empíricos válidos pero no cumplidos. Backlog institucionalmente **fresco** (todos status update 2026-04-27).
+
+§13.3 EN_ESPERA: 28 inicial → **24 final** (2 archived + 18 refinados con marcador 2026-04-27 + 8 categóricos skip).
+
+§12 L36 cross-6-aplicaciones consolidada hoy (extends cross-5 ayer): predicciones registradas pre-implementación + validación mínima + redireccionamiento scope cuando refutadas. Ahorro acumulado estimado **~50-80h** paths infeasibles ciegamente.
+
+**Estado pre-reciclaje MADURO INSTITUCIONAL FINAL+P1+TRIAJE invariante**:
+- A done_archived + B done merged + C 7/7 done + Path B archive + D archived + E archived + P1 archived + **triaje §13.3 sistemático cross-20-items**.
+- §13.3 EN_ESPERA reducido 28 → 24 (todos items refinados con marcador hoy).
+- Trigger reciclaje completo 45 sym aguarda solo fecha calendario (~2026-05-12 a 05-22).
+
+Bot v2.4.5 invariante uptime 4d 23h+. Sin tocar `live/*`. Sin deploy. Fidelidad 2 invariante por construcción.
+
+**Actualización previa:** 27 Abril 2026 SESIÓN TARDE — **P1 leverage Fase 2 análisis cuantitativo FULL ROBUSTO → opción (b) 1x feature oficial confirmed empíricamente + baseline reactivación post-reciclaje**: simulación isolated cluster-específico cross-12-escenarios (capital 296/500/1000 × cap 1x/3x/5x/unrestricted) sobre N=76 limpio post-v2.4.5 + sanity cross-segmento §12 L25. Mitigaciones T1-T9 explícitas: T7 margin mode `isolated` VERIFIED empírico VPS BingX (matiz Ricardo aplicable); T1 cluster_id mapping 100% coverage post-v2.4.5 vía SIGNALS_RAW logs parse; T2 fees+funding lineales con notional → fórmula `pnl_neto_hyp = L × pnl_real` matemáticamente correcta isolated; T3 liquidación criterio worst-case observado. **Hallazgos**: (1) cap 3x AMPLIFICA decay 1.61× vs baseline (-0.0246 vs -0.0153 PnL/trade); (2) 0 liquidaciones cross-12-escenarios (régimen lateral-alcista pnl_pct intra-trade modesto + leverage 1-5x = no llega 99% margin call); (3) cluster leverage selectivo top-10 cap 3x = -1.92 USDT PEOR que baseline 1x universal -1.17 USDT (asimetría arquitectónica clusters ganadores maxdd alto / perdedores maxdd bajo); (4) cap 5x/unrestricted Sharpe "menos malo" (-0.41 vs -1.32) pero PnL aún negativo; (5) §12 L25 sanity cross-segmento confirma decay temporal monotónico (post-v2.4.4 pre-v2.4.5 N=9 +0.089/trade vs post-v2.4.5 N=76 -0.025/trade). **Decisión Ricardo OPCIÓN (b) 1x feature oficial documentado lab** confirmed empíricamente. Items §13.3 archivados: **L1849 P1 leverage + L2152 E3 + L1861 setLeverage altos → ARCHIVED_EMPIRICAL_2026-04-27**. ROADMAP post-reciclaje proyecto dedicado P1 (~2-4h) actualizar lab `compute_leverage_map`. **Caveat reactivación post-reciclaje** con baseline cuantitativo permanente preservado: condiciones (i)-(v) explícitas (edge restored N≥50 nuevo + capital >1000 + isolated mantenido + re-simulación mejora vs baseline + asimetría resuelta). **§12 L36 cross-5-sesiones consolidada** (3/7 acertadas + 3/7 refutadas + 1/7 parcial; ~40-65h ahorro acumulado). **Estado pre-reciclaje MADURO INSTITUCIONAL FINAL+P1 invariante**: A done_archived + B done merged + C 7/7 done + Path B archive + D+E archived + **P1 archived empírico**. Trigger reciclaje completo 45 sym aguarda solo fecha calendario (~2026-05-12 a 05-22). Bot v2.4.5 invariante uptime 4d 22h+. Sin tocar `live/*`. Sin deploy. Fidelidad 2 invariante por construcción.
 
 **Actualización previa:** 27 Abril 2026 SESIÓN MAÑANA — **Opción α cierre empírico v2.6-inv + v2.6-exit pre-flight refutación masiva → estado pre-reciclaje MADURO INSTITUCIONAL FINAL**: pre-flight enrichment local N=72 trades post-v2.4.5 (~17s compute) reveló (a) v2.6-inv subset trades `|rate|≥5e-4` = **0/72** (Path B caveat "extremo raro régimen actual" VALIDADO operacionalmente cross-arquitectura limpia, no solo cross-180d retrospective); (b) v2.6-exit Spearman ρ(n_bars_contrarian, pnl) = **+0.020 p=0.87** signo OPUESTO + magnitud nula triple-refutación vs Bloque 2 N=50 ρ=-0.32 (artefacto ventana 4d + contaminación pre-v2.4.4 size_usdt=0 + pre-v2.4.5 entry_ms=0 + clusters S2+S3 sub-window concentración confirmado). **Aplicación §12 L36 prophilactic en variante más estricta** ahorró ~6-10h compute + 2 días tiempo (pre-flight ~17s vs framework completo + ~30min Welch + 1-2 días esperando disparadores). Hallazgo descriptivo emergente NO escalado §12 L34: aligned -0.246% PEOR contrarian -0.149% post-v2.4.5 N=72 (signo OPUESTO §9.3 refutación N=50; Welch p=0.77 NS) — sugiere edge degradación o régimen anti-trend-following emergente, consistente caracterización N=60 sesión 2026-04-26 B3/B1=1.82× monotónica. Cross-boundary 8h funding 34.7% trades vs predicción 6-12% (refutación magnitud 3-5× — distribución hold post-v2.4.5 más amplia). Items §13.3 archivados: **L2342 v2.6-inv + L2399 v2.6-exit → ARCHIVED_EMPIRICAL_2026-04-27**. ROADMAP_PRE_RECICLAJE.md categorías D+E archivadas. **§12 L36 cross-4-sesiones funding research consolidada** (sesión 4ª: 2/7 acertadas + 3/7 refutadas fuerte + 1/7 parcial + 1/7 N/A; ahorro acumulado ~36-55h cross-4-sesiones consecutivas). **Estado pre-reciclaje MADURO INSTITUCIONAL FINAL invariante**: A done_archived + B done merged + C 7/7 done + Path B archive + **D+E archived empírico**. Trigger reciclaje completo 45 sym solo aguarda fecha (~2026-05-12 a 05-22). Bot v2.4.5 invariante uptime 4d 21h+. Sin tocar `live/*`. Sin deploy. Fidelidad 2 invariante por construcción.
 
@@ -1652,7 +1673,11 @@ Ver §13.4 entrada RESUELTO 2026-04-23 "_run_verify_test CLI parametrizable --n-
 
 ---
 
-**[POLÍTICA] [EN_ESPERA] Adelantar reciclaje por criterio empírico degradación clusters — 2026-04-22**
+**[POLÍTICA] [EN_ESPERA — TRIAJE 2026-04-27 reciclaje calendario ya inminente, política operacionalmente subsumida] Adelantar reciclaje por criterio empírico degradación clusters — 2026-04-22**
+
+**Update triaje §12 L27 2026-04-27 (Fase 3 sesión institucional)**: estado pre-reciclaje MADURO INSTITUCIONAL FINAL+P1 declarado 2026-04-27. Trigger reciclaje calendario aguarda solo fecha (~2026-05-12 a 05-22, ~2-3 semanas restantes). Disparadores adelantar (automático/semi-automático) **prácticamente irrelevantes** — calendario reciclaje ya está cerca calendárico. Sub-decisión política aplicable solo si emerge degradación catastrófica próximas 2-3 semanas (PnL turn negativo agresivo + clusters flagged crecen >5+). Caracterización descriptiva alpha residual N=60 sesión 2026-04-26 mostró decay monotónico B3/B1=1.82× pero NO catastrófico. Mantener EN_ESPERA hasta reciclaje ejecutado (~2026-05-12 a 05-22) → cierre por opción (a) "reciclaje adelantado ejecutado" o (c) "calendario julio aceptando degradación marginal" se decidirá orgánicamente al ejecutar reciclaje.
+
+
 
 Contexto: Fase II.C (§13.4 2026-04-22) reveló patrón de degradación edge generalizada antes del calendario reciclaje original julio:
 - 3 clusters flagged (ONDO C0 health_monitor + ONDO C2 + SAND C1 candidatos exclusión analyzer).
@@ -1835,7 +1860,11 @@ Referencias:
 - §12 Lección 24 (mocks que replican asunciones del código propio, caso origen ccxt format).
 - Patrón observado cycles 154-161 del 2026-04-20 + cycles 166-178 del 2026-04-21 + cycle 182 (validación).
 
-**[MEJORA] [EN_ESPERA] v2.3.11 Opción B2 — forming fetch tardío para residual 6s→2s — 2026-04-19**
+**[MEJORA] [EN_ESPERA — TRIAJE 2026-04-27 disparador empírico no cumplido + virtualmente improbable] v2.3.11 Opción B2 — forming fetch tardío para residual 6s→2s — 2026-04-19**
+
+**Update triaje §12 L27 2026-04-27 (Fase 3)**: disparador "≥N≥50 trades post-v2.3.11 con residual 6s sesgo sistemático detectable en slippage_entry". Estado actual N=138 post-v2.3.11 con slippage_entry post-v2.4.4 fix (size_usdt correcto) sin patrón sistemático sesgo 6s detectado. B1 ya capturó 99.8% del sesgo original — beneficio marginal B2 NO justifica refactor arquitectónico frágil. Mantener EN_ESPERA pero clasificación "virtualmente improbable se active" mantenida.
+
+
 Contexto: v2.3.11 aplicó Opción B1 (forming fetch en paralelo al inicio del cycle, ~6s antes del cierre). Opción B2 (forming fetch tardío tras sleep, ~2s antes del cierre) captura 4 segundos adicionales de proximidad con complejidad arquitectónica no justificada por el beneficio marginal dada la proporción ya capturada por B1 (99.8% del sesgo original eliminado). B2 requiere refactor de _run_cycle_inner con split download + sleep + coordinación temporal frágil.
 Disparo: si tras ≥N≥50 trades post-v2.3.11, el residual de 6s muestra sesgo sistemático detectable en slippage_entry del analyzer v2.4.1. Virtualmente improbable — documentado para completitud del marco de decisiones.
 Cierre: decisión tomada tras datos empíricos, o aceptación permanente del residual B1 como suficiente.
@@ -1958,7 +1987,14 @@ Disparo: al arrancar proyecto P1 tras primer reporte audit v5.1 con N≥50. Incl
 Cierre: test completado, setLeverage verificado con valores altos, o documentación de limitaciones encontradas.
 Referencias: execution_manager.py setLeverage invocación, fix histórico §2.6 sobre side=BOTH, Fase 1 C2 bloqueo 2026-04-19.
 
-**[DECISION] [EN_ESPERA] Dependencia: test diferencial brain vs kernel es prerrequisito de fix R1 — 2026-04-17**
+**[DECISION] [ARCHIVED 2026-04-27 — R1 dependencia obsoleta] Dependencia: test diferencial brain vs kernel es prerrequisito de fix R1 — 2026-04-17 → archivado por R1 RESUELTO**
+
+**Cierre triaje §12 L27 2026-04-27**: R1 (cooldown divergence brain vs kernel) RESUELTO 2026-04-22 cooldown_unify (kernel TF+MR refactorizado uniforme expresión Pine canónica, commit `9389af9`, ver §13.4 entrada cooldown unify). Test diferencial era prerequisite del fix R1 — con R1 resuelto sin necesidad de test diferencial dedicado (decisión Opción A Ricardo "cooldown=1 siempre operacional Pine, diferenciación código muerto"), prerequisite irrelevante. Item L2362 "test diferencial brain vs kernel" sigue independientemente para verificación general (separado de R1 dependencia).
+
+(Bloque histórico original preservado abajo para trazabilidad)
+---
+
+**[DECISION HISTÓRICO] Dependencia: test diferencial brain vs kernel es prerrequisito de fix R1 — 2026-04-17**
 Contexto: En el ultra review de brain_engine.py, el ítem "Test diferencial brain vs kernel sobre histórico" (MEJORA en 13.3) es prerrequisito del análisis que bloquea el fix R1 (cooldown divergence). Sin el test diferencial, no tenemos forma de medir el impacto del fix R1 en trades y PnL, y por tanto no podemos aplicar R1 con evidencia. El orden correcto es: primer reporte v5.1 con N≥50 → test diferencial _run_verify_test sobre BTC/ETH 10k+ barras → análisis de impacto de R1 pre/post fix → decisión sobre aplicar R1 o documentar la divergencia aceptada.
 Disparo: al tener primer reporte v5.1 disponible.
 Cierre: test diferencial ejecutado, impacto de R1 medido y fix aplicado o justificadamente diferido.
@@ -2204,7 +2240,11 @@ Referencias:
 
 Cierre: **IMPLEMENTADO 2026-04-24**. Fase B ROADMAP done. Siguiente: Fase A (Z_BTC) per orden secuencial Ricardo 2026-04-24.
 
-**[MEJORA] [EN_ESPERA] data_feed: attach stops redundante en get_open_positions — 2026-04-17 (v2.3.8 investigado, no aplicado)**
+**[MEJORA] [EN_ESPERA — TRIAJE 2026-04-27 scope refinado post-reciclaje cleanup] data_feed: attach stops redundante en get_open_positions — 2026-04-17 (v2.3.8 investigado, no aplicado)**
+
+**Update triaje §12 L27 2026-04-27 (Fase 3)**: investigado v2.3.8 — close_position consume el attach (mantenido por dependencia). Fix requiere coordinación con execution_manager (item separado). Sin disparador empírico nuevo emergente últimos 5+ días. Mantener EN_ESPERA scope post-reciclaje cleanup arquitectónico (cuando refactor data_feed/execution_manager se ejecute).
+
+
 Contexto: Ultra review D3. get_open_positions líneas 242-251 hacen get_open_orders y attachean stop_order_id. Pero reconcile_state (execution_manager) usa su propia llamada a get_open_orders desde live_engine línea 424. Dos fetches por ciclo de fetch_open_orders.
 VERIFICADO 2026-04-19 (B6 Fase 3): el attach SI tiene consumer real — `close_position` en execution_manager.py linea 258: `stop_order_id = position.get("stop_order_id")` — se usa para cancelar el stop vinculado al cerrar posicion. La eliminacion trivial rompe close_position. Refactor alternativo (eliminar la llamada separada en live_engine y mantener attach como single source of truth) no es viable porque reconcile_state necesita la orders list completa, no solo stop_order_id por simbolo.
 Redundancia real: 2 llamadas fetch_open_orders por ciclo. Coste minimal.
@@ -2286,31 +2326,54 @@ Disparo: N/A (arquitectura cambió).
 Cierre: ARCHIVADO permanente 2026-04-26.
 Referencias: execution_manager.py L684-734 (update_trailing_stop no-op), §13.4 v2.4.0 deploy 2026-04-20, §13.2 HALLAZGO Fidelidad 2 TS RESUELTO, §12 L27 (caso de estudio item §13.3 obsoleto por review previo).
 
-**[MEJORA] [EN_ESPERA] portfolio_manager: vol_weight puede neutralizar dd_multiplier en low-vol — 2026-04-17**
+**[MEJORA] [EN_ESPERA — TRIAJE 2026-04-27 disparador empírico no cumplido (DD breaker no activado)] portfolio_manager: vol_weight puede neutralizar dd_multiplier en low-vol — 2026-04-17**
+
+**Update triaje §12 L27 2026-04-27 (Fase 3)**: disparador "primer evento DD breaker activo + posición BTC, observar si BTC mantiene 5% o se reduce". DD breaker activo requiere DD≥5% capital. Estado actual: DD=1.32% (peak 298.39 → current 294.44), `dd_multiplier=1.0`, `circuit_breaker_active=false`. Disparador empírico **NO cumplido**. Mantener EN_ESPERA — riesgo identificado válido pero no observable hasta DD breaker active (improbable régimen actual decay sostenido pero modesto).
+
+
 Contexto: Ultra review S1. Líneas 387-396: effective_max_pos_pct aplica dd_multiplier, pero el cap max_allowed usa max_single_position_pct SIN dd. Con vw=2 (símbolo low-vol típicamente BTC) y dd=0.5, adjusted = min(2.5% × 2, 5%) = 5% — DD neutralizado. Ambigüedad de diseño: si el 5% cap es "risk-equivalent" entonces OK, si es "dollar exposure bajo cualquier condición" entonces OK actual, si es "dd_reduced%" entonces bug. Impacto real: BTC (principal símbolo low-vol) escapa al DD reduce.
 Disparo: cuando haya primer evento DD breaker activo + posición BTC, observar si BTC mantiene 5% o se reduce.
 Cierre: decidir semántica canónica (probablemente: cap debe respetar dd también) y documentar en CONTEXTO; aplicar fix si necesario.
 Referencias: portfolio_manager.py allocate_positions líneas 387-396.
 
-**[MEJORA] [EN_ESPERA] portfolio_manager: compute_leverage_map "último operable" heurística — 2026-04-17**
+**[MEJORA] [ARCHIVED 2026-04-27 — bajo P1 opción (b) 1x feature oficial] portfolio_manager: compute_leverage_map "último operable" heurística — 2026-04-17 → archivado por P1 archive**
+
+**Cierre triaje §12 L27 2026-04-27**: P1 leverage ARCHIVED_EMPIRICAL_2026-04-27 bajo opción (b) 1x feature oficial documentado lab. Bajo opción b, `compute_leverage_map` post-reciclaje proyecto dedicado actualizará para setear `lev=1` always con docstring explicativo. Heurística "último operable" (líneas 680-684) es **irrelevante bajo lev=1 always** (no se computa leverage variable). Item ARCHIVED por sobreescritura completa de la lógica subyacente. Reactivable solo si P1 re-evaluado post-reciclaje con condiciones (i)-(v) cumplidas (ver §13.3 P1 cierre 2026-04-27).
+
+(Bloque histórico original preservado abajo para trazabilidad)
+---
+
+**[MEJORA HISTÓRICO] portfolio_manager: compute_leverage_map "último operable" heurística — 2026-04-17**
 Contexto: Ultra review S3. Líneas 623-627 iteran clusters operables y el if/else es vestigial (ambos asignan `best_maxdd = maxdd`). El cluster activo en producción puede tener maxdd muy distinto del "último operable iterado". Leverage desalineado del cluster real. Inactivo hasta que P1 se fixee (mientras lev=1x, esto no importa).
 Disparo: al aplicar fix de P1 (leverage variable), este issue se vuelve relevante.
 Cierre: usar maxdd del cluster actual activo (state.current_cluster) en tiempo de ejecución, o del cluster con mejor specialist_score.
 Referencias: portfolio_manager.py compute_leverage_map líneas 623-627.
 
-**[MEJORA] [EN_ESPERA] portfolio_manager: block_reduction agrupa 3 factores distintos — 2026-04-17**
+**[MEJORA] [EN_ESPERA — TRIAJE 2026-04-27 scope refinado post-reciclaje refactor analyzer] portfolio_manager: block_reduction agrupa 3 factores distintos — 2026-04-17**
+
+**Update triaje §12 L27 2026-04-27 (Fase 3)**: disparador "analyzer factor_portfolio alto sin claridad qué componente domina". Régimen actual edge degradado, factor_portfolio NO bottleneck observado (alpha_residual decay temporal monotónico domina, no portfolio constraints). Disparador no cumplido. Refactor scope post-reciclaje cleanup analyzer/portfolio integration. Mantener EN_ESPERA.
+
+
 Contexto: Ultra review S6. Campo `block_reduction` en allocation dict es realmente `block × sector × global`, no solo block. Analyzer v2.4.1 y logs SIGNALS_EXECUTED usan "br" pero no pueden separar los 3 sub-factores. Afecta granularidad de atribución.
 Disparo: si analyzer v2.4.1 reporta factor_portfolio alto sin claridad sobre qué componente domina (block, sector o global).
 Cierre: exponer en allocations `block_factor`, `sector_factor`, `global_factor` por separado; analyzer los consume.
 Referencias: portfolio_manager.py líneas 418, 433-436, 494-496, 521, analyze_performance_attribution.py coste_block_reduct.
 
-**[MEJORA] [EN_ESPERA] portfolio_manager: correlación con min_len bajo silenciosamente — 2026-04-17**
+**[MEJORA] [EN_ESPERA — TRIAJE 2026-04-27 disparador inminente reciclaje calendario] portfolio_manager: correlación con min_len bajo silenciosamente — 2026-04-17**
+
+**Update triaje §12 L27 2026-04-27 (Fase 3)**: disparador "añadir símbolos nuevos al MASTER_SYMBOLS o primer reciclaje". Reciclaje calendario ~2026-05-12 a 05-22 INMINENTE (~2-3 semanas). Item se cierra orgánicamente al ejecutar reciclaje (decisión: excluir símbolos con N<60 samples vs truncate). Mantener EN_ESPERA scope claro pre-reciclaje aplicar fix.
+
+
 Contexto: Ultra review S7. Líneas 104-105: si un símbolo recién entra con 20 barras y otros tienen 168, todos se truncan a 20. Correlación EWMA con 20 samples y halflife=24 es esencialmente peso uniforme. Latente hasta futuro reciclaje con símbolos nuevos.
 Disparo: añadir símbolos nuevos al MASTER_SYMBOLS o en primer reciclaje.
 Cierre: excluir símbolos con muy poca historia (threshold min_samples >= 60 p.ej.) en lugar de truncar el resto.
 Referencias: portfolio_manager.py compute_correlation_matrix líneas 104-109.
 
-**[MEJORA] [EN_ESPERA] brain_engine: prev_zone asimetria TF vs MR — 2026-04-19**
+**[MEJORA] [EN_ESPERA — TRIAJE 2026-04-27 scope reciclaje julio inalterado] brain_engine: prev_zone asimetria TF vs MR — 2026-04-19**
+
+**Update triaje §12 L27 2026-04-27 (Fase 3)**: investigado Fase I v2.3.9 + DIFERIDO. Disparador "refactor compute_regime_features o reciclaje julio con test diferencial" sigue válido. Reciclaje calendario ~2026-05-12 a 05-22 ahora inminente (~2-3 semanas). Item se cerrará orgánicamente cuando se ejecute reciclaje (decisión arquitectónica cross-strategy prev_zone aplicada o documentada explícita). Sin cambios scope.
+
+
 Contexto: B2 de Fase 3 (investigado y DIFERIDO). Asimetria observada: TF lee `zone_bull_arr[t-1]` localmente cuando t>0 (ruta normal live con t=1499), fallback a `state.prev_zone_bull` solo cuando t==0; escritura persistente al final (brain_engine.py:1027-1028). MR lee `state.prev_zone_bull` siempre (linea 1787); escritura al final (2108-2109).
 VERIFICADO 2026-04-19 (Fase I v2.3.9): premise del ultra review INCORRECTA. El ultra review afirmo "TF nunca lee state.prev_zone" pero TF SI lo lee en fallback t==0 (lineas 678-683). Aunque en operacion normal t=1499 siempre, el fallback existe por robustez y no debe romperse.
 Complicacion adicional: state.prev_zone tiene SEMANTICA DISTINTA TF vs MR. TF zone se computa con fast/slow/trend (una formula). MR zone es `fast < slow` INVERTED (linea 1783). Si un symbol swapea TF↔MR (como GRT el 2026-04-17), state.prev_zone escrito por TF no es valido para MR al siguiente ciclo, y viceversa. Aunque swap es raro, es deuda tecnica real.
@@ -2319,7 +2382,11 @@ Disparo: al refactorizar compute_regime_features o al proximo reciclaje con test
 Cierre: decision arquitectonica sobre semantica cross-strategy tomada y aplicada.
 Referencias: brain_engine.py lineas 678-683 (TF fallback), 1027-1028 (TF escritura), 1787 (MR lectura), 1780-1784 (MR zone INVERTED), 2108-2109 (MR escritura), Fase I v2.3.9 del 2026-04-19.
 
-**[MEJORA] [EN_ESPERA] brain_engine: TF locals vs MR state directo para div_ctx — 2026-04-19**
+**[MEJORA] [EN_ESPERA — TRIAJE 2026-04-27 scope reciclaje julio inalterado] brain_engine: TF locals vs MR state directo para div_ctx — 2026-04-19**
+
+**Update triaje §12 L27 2026-04-27 (Fase 3)**: investigado Fase I v2.3.9 + DIFERIDO. Refactor quirúrgico API interna requiere test diferencial completo. `_run_verify_test` cross-3-símbolos ejecutado sesión 2026-04-26 (76 trades 380 mediciones diff 0.0000) provee infra base. Reciclaje julio ~2026-05-12 a 05-22 oportunidad natural para evaluación pre/post refactor. Sin cambios scope.
+
+
 Contexto: B3 de Fase 3 (investigado y DIFERIDO). Asimetria: TF usa variables locales div_ctx_bull/bear durante el loop de _evaluate_bar (mutaciones en lineas 699-719, snapshot en 712-713, resets locales en 885-893, uso en 930) y persiste al final (1031-1032: `state.div_ctx_X = div_ctx_X`). MR muta state directamente durante el loop (1803-1823, 1984-1992).
 VERIFICADO 2026-04-19 (Fase I v2.3.9): cambiar TF al estilo MR no es trivial. Requiere modificar signature de `compute_divergences(df, bits, state)` que retorna tuple `(div_bull_now, div_bear_now, div_ctx_bull, div_ctx_bear)` (linea 689). Afecta los callers en lineas 1171 y 1266 (fallback `return state.div_ctx_X` dentro de compute_divergences), y 14+ lecturas de div_ctx locales en TF. Es refactor quirurgico en API interna del camino critico de generacion de senales TF, donde fidelidad vs kernel Numba es 91% y cualquier regresion sutil es costosa de detectar.
 Sin test diferencial completo incluido kernel Numba parity, riesgo no justificado para ganar solo consistencia estilistica. Funcionalmente equivalente (state persiste entre ciclos en ambos casos).
@@ -2333,7 +2400,11 @@ Ver §13.4 entrada "[MEJORA] [RESUELTO] L1839 batch fix cp1252 runtime-critical 
 
 Resumen: scope real revelado por grep Python (420 chars no-ASCII en 188 líneas vs "14" documentado en §13.4 A27 por subestimación). Análisis separó runtime-critical (print/logger/f.write) de comments/docstrings. Aplicado fix solo en 68 líneas runtime-critical (mapping ASCII estándar brackets + flechas `->` + box drawings `-`). Comments/docstrings preservados (UTF-8 seguro Python 3). Smoke §0.8 Nivel A+C diff 0.0000 exacto — lógica invariante. master.py --recycle habilitado Windows cp1252.
 
-**[MEJORA] [EN_ESPERA] brain_engine: hidden divergence asimetría TF vs MR — 2026-04-17**
+**[MEJORA] [EN_ESPERA — TRIAJE 2026-04-27 scope reciclaje v3.0 inalterado] brain_engine: hidden divergence asimetría TF vs MR — 2026-04-17**
+
+**Update triaje §12 L27 2026-04-27 (Fase 3)**: NO bug operacional (verificado Fase 1 C3 2026-04-19 — 67/138 configs activos usan interpretación invertida coherentemente WF↔brain). Deuda semántica que se resuelve naturalmente al regenerar WF en reciclaje. Reciclaje calendario ~2026-05-12 a 05-22 inminente. Sin cambios scope.
+
+
 Contexto: Ultra review S8. TF relee hid_inv del config_id para decidir interpretación (confía en WF haber seleccionado hid_inv=1 para compensar bug histórico). MR aplica pre-swap de bits 1↔3 antes de evaluar. Ambos producen resultado correcto SI los configs TF tienen hid_inv=1. VERIFICADO 2026-04-19 (C3 de Fase 1): 67 de 138 configs activos (48.5%) usan interpretación invertida (hid_inv=0 con div_type∈{2,3}): 9 configs pure HIDDEN only (BCH C2, IMX C2, LTC C2, TRX C0+C1, UNI C0, VET C1, XLM C2, XRP C2) + 58 configs BOTH mode. Símbolos con 3/3 clusters afectados: SOL, NEAR, AAVE, SUI. Escáner verificado: `div_type = (config_id >> 12) & 0x3`, `hid_inv = (config_id >> 25) & 0x1`.
 Semántica exacta verificada: TF hid_inv=0 → `ind_bull=(bits&8), ind_bear=(bits&2)` (brain_engine.py:1216-1217) = interpretación "invertida"/pre-fix. MR post-pre-swap → `ind_bull=(bits&2), ind_bear=(bits&8)` (línea 1622) = interpretación "corrected". TF hid_inv=1 == MR post-swap.
 No es bug operacional: consistencia interna WF↔brain (WF validó estos configs con interpretación invertida y brain los aplica consistentemente). Es deuda semántica — si se regenera WF unificando semántica con MR, los 67 configs cambiarán comportamiento y dejarán de ser óptimos.
@@ -2341,31 +2412,51 @@ Disparo: reciclaje v3.0 julio.
 Cierre: al regenerar WF en julio, decidir unificar pipeline TF con MR (aplicar pre-swap en WF también o reentrenar con div_features corregidos). Evaluar comparativamente rendimiento pre/post unificación.
 Referencias: brain_engine.py líneas 1214-1220 (TF) y 1597-1604 (MR), Fase 1 C3 del 2026-04-19.
 
-**[MEJORA] [EN_ESPERA] brain_engine: símbolo con datos insuficientes salta evaluación — 2026-04-17**
+**[MEJORA] [EN_ESPERA — TRIAJE 2026-04-27 disparador empírico no cumplido] brain_engine: símbolo con datos insuficientes salta evaluación — 2026-04-17**
+
+**Update triaje §12 L27 2026-04-27 (Fase 3)**: disparador "data_feed falla para símbolo con posición abierta O trade muestra PnL inesperadamente malo por falta de TS update". 0 incidentes detectados últimos 5+ días post-v2.4.5. Logs engine.log no muestran patrón "símbolo saltó evaluación con posición abierta". Mantener EN_ESPERA disparador empírico inalterado. NO bloquea reciclaje.
+
+
 Contexto: Ultra review S9. En classify_regimes líneas 286-288, símbolos con len(df) < LOOKBACK_SHORT+10 hacen `continue`, por lo que no entran en regimes dict y tampoco en active_configs/signals. Si el símbolo tiene posición abierta, brain no evalúa exit/TS; el SL emergencia 5% del exchange es la única red de seguridad. Gaps del data_feed pueden dejar posiciones sin TS updates temporalmente.
 Disparo: si data_feed falla para un símbolo con posición abierta (ya ha ocurrido una vez en producción), o si un trade muestra PnL inesperadamente malo por falta de TS actualización.
 Cierre: en classify_regimes, cuando datos insuficientes y hay posición abierta, emitir al menos signal mínimo (HOLD) con TS update si posible, o alerta al orquestador.
 Referencias: brain_engine.py classify_regimes líneas 286-288, live_engine.py manejo de datos faltantes.
 
-**[MEJORA] [EN_ESPERA] Comments 'forming/resolved' en brain_engine mis-etiquetados — 2026-04-19**
+**[MEJORA] [EN_ESPERA — TRIAJE 2026-04-27 cosmético post-reciclaje] Comments 'forming/resolved' en brain_engine mis-etiquetados — 2026-04-19**
+
+**Update triaje §12 L27 2026-04-27 (Fase 3)**: cosmético sin afectar correctitud. Disparador "refactor _evaluate_bar (ítem S10) o reciclaje" — ambos vinculados al ciclo post-reciclaje (refactor S10 también ARCHIVED bajo lección §12 L27 si reciclaje regenera código). Mantener EN_ESPERA, esperar contexto refactor o cleanup post-reciclaje.
+
+
 Contexto: Descubierto durante Parte A de Fase 1. Líneas 1274, 1276, 1284, 1525, 1529, 1534, 1540 en brain_engine.py llaman "forming" a iloc[-1] de df_ts y de los resampleos 4h/1d. Empíricamente iloc[-1] es la ÚLTIMA CERRADA — BingX con `since` (path paginado que usa el bot con OHLCV_LIMIT=1500) excluye forming candles. Los comments son vestigiales del path no-paginado original (pre-upgrade OHLCV_LIMIT 120→1500, §2.6 data_feed fix #4). Cosmético — no afecta correctitud de la evaluación — pero engaña a futuros lectores sobre lo que realmente evalúa brain.
 Disparo: al refactor de _evaluate_bar/_evaluate_bar_mr (ver ítem S10 de ultra review), o al próximo reciclaje.
 Cierre: rename variables de `tfN_bull_forming` a `tfN_bull_current` (o similar) y actualizar comments para reflejar "iloc[-1] = última barra cerrada".
 Referencias: brain_engine.py líneas 1274, 1276, 1279, 1284, 1287, 1525, 1529, 1534, 1540, HALLAZGO "Lag estructural de 1 bar" en §13.2.
 
-**[MEJORA] [EN_ESPERA] brain_engine: _evaluate_bar y _evaluate_bar_mr son >360 líneas con duplicación pesada — 2026-04-17**
+**[MEJORA] [EN_ESPERA — TRIAJE 2026-04-27 disparador empírico no cumplido (1/2 bugs)] brain_engine: _evaluate_bar y _evaluate_bar_mr son >360 líneas con duplicación pesada — 2026-04-17**
+
+**Update triaje §12 L27 2026-04-27 (Fase 3)**: disparador "2+ bugs del mismo tipo replicados TF/MR". Bug acumulado 1: R1 cooldown (RESUELTO 2026-04-22 cooldown_unify TF+MR refactor uniforme). Bug acumulado 2: ninguno detectado adicional. **Disparador 1/2 cumplido**. Mantener EN_ESPERA — refactor estructural _evaluate_bar* es proyecto post-reciclaje cuando emerge segundo bug O en limpieza arquitectónica post-reciclaje masiva.
+
+
 Contexto: Ultra review S10. Las dos funciones principales del kernel duplican emergency SL, fixed SL, cooldown logic, entry blocks, cancel dispatching. Cualquier bug (como R1 de cooldown) se replica en ambos. Refactor a helpers compartidos (_check_emergency_sl, _check_fixed_sl, _process_exit_cooldown, _entry_tf_filters) reduciría superficie de bugs.
 Disparo: al acumular 2+ bugs del mismo tipo replicados TF/MR.
 Cierre: refactor aplicado con verificación diferencial brain vs kernel pre/post refactor.
 Referencias: brain_engine.py líneas 627-1015 (TF) y 1734-2093 (MR).
 
-**[MEJORA] [EN_ESPERA] brain_engine: test diferencial brain vs kernel sobre histórico — 2026-04-17**
+**[MEJORA] [EN_ESPERA — TRIAJE 2026-04-27 disparador parcialmente cumplido, scope refinado] brain_engine: test diferencial brain vs kernel sobre histórico — 2026-04-17**
+
+**Update triaje §12 L27 2026-04-27 (Fase 3)**: disparador original "antes del primer reciclaje O regresión fidelidad audit v5.1". `_run_verify_test` ejecutado múltiples veces sesión 2026-04-26 (audit Fase C item 1: 76 trades 380 mediciones BTC+ONDO+SEI cross-3-símbolos diff 0.0000 EXACTO — Fidelidad 2 confirmed bit-a-bit). Disparador "antes primer reciclaje" SUSTANCIALMENTE cumplido por verify_test cross-3-símbolos. Scope refinado: ejecución cross-N=10000+ documentada per BTC/ETH (item original) sigue como verificación adicional opcional pre-reciclaje masivo (Smoke §0.8 Nivel B). NO bloqueante reciclaje. Item se cierra orgánicamente cuando se ejecute Smoke Nivel B pre-reciclaje (~ pocos días antes ~2026-05-10 a 05-12).
+
+
 Contexto: La calibración de probabilidad de críticos latentes (35-45%) estaba dominada por áreas 5 (fidelidad vs walk-forward) y 7 (casos borde) que requieren ejecución sobre miles de barras para descartar divergencias finas (tipo ALMA p1/p2 original que fue bug histórico). El test `_run_verify_test` ya existe (líneas 2219+) pero es ad-hoc — no parte de CI ni reportado.
 Disparo: antes del primer reciclaje o si alguna regresión de fidelidad aparece en audit v5.1.
 Cierre: ejecutar _run_verify_test sobre BTC/ETH (representativos) con N>=10000 barras, documentar % diff trades y PnL vs kernel. Si diff >0.1%, investigar.
 Referencias: brain_engine.py _run_verify_test líneas 2219-2432.
 
-**[MEJORA] [EN_ESPERA] Multiples eventos mismo-simbolo mismo-ciclo — 2026-04-17**
+**[MEJORA] [EN_ESPERA — TRIAJE 2026-04-27 disparador empírico no cumplido] Multiples eventos mismo-simbolo mismo-ciclo — 2026-04-17**
+
+**Update triaje §12 L27 2026-04-27 (Fase 3)**: disparador "pattern close+reopen mismo ciclo en logs producción O analyzer reporta slippage_entry nulo inesperado". 0 incidentes detectados últimos 5+ días post-v2.4.5 ni en histórico bot completo (231 trades). Edge case raro arquitectónicamente. Mantener EN_ESPERA disparador empírico inalterado.
+
+
 Contexto: Ultra review S9. En dict de eventos por (cycle_ts, sym), si un simbolo aparece con CLOSE_LONG y luego LONG en el mismo ciclo (raro pero posible en close+reopen), el segundo sobrescribe el primero. Perdida silenciosa de informacion.
 Disparo: si se observa un trade con pattern close+reopen mismo ciclo en logs de produccion, o si el analyzer comienza a reportar trades con slippage_entry nulo inesperadamente.
 Cierre: cambiar dict a list de eventos por clave, consumidores manejan multiples.
@@ -2385,7 +2476,11 @@ Bot v2.4.5 invariante hasta próximo restart. Deploy puede esperar ventana mante
 
 Referencias: live_engine.py L565-577 (modificado), brain_engine.py select_active_configs (fuente config_id), analyze_performance_attribution.py attribute_trade (consumer downstream).
 
-**[MEJORA] [EN_ESPERA] Ejecución parcial de órdenes no manejada en reconcile — 2026-04-16**
+**[MEJORA] [EN_ESPERA — TRIAJE 2026-04-27 disparador empírico parcialmente mitigado v2.3.8 B7] Ejecución parcial de órdenes no manejada en reconcile — 2026-04-16**
+
+**Update triaje §12 L27 2026-04-27 (Fase 3)**: v2.3.8 B7 fix aplicado (stop y emergency_close usan `entry_order.filled` real, validado APT cycle 134 partial fill 8.5/8.59 capturado correctamente). Edge case partial fills mitigado parcialmente. 0 incidentes adicionales detectados últimos 5+ días post-v2.4.5. Mantener EN_ESPERA con scope refinado: gap restante = manejo en `reconcile` (no en open_position que ya está cubierto v2.3.8). Disparador empírico improbable régimen actual liquidez razonable.
+
+
 Contexto: Fix de Bug #1 asume que si BingX tiene contracts>0 la posición es real. No maneja explícitamente el caso raro de ejecución fraccional (BingX abre, digamos, 60% del size pedido por insufficient margin o slippage extremo). Raro con balance 297 USDT, más probable al escalar capital.
 Disparo: al escalar capital (>1000 USDT) o si aparece algún trade con size real significativamente distinto del size pedido en los logs.
 Cierre: reconcile extendido para detectar y manejar parcialidades, o decisión documentada de aceptar el caso como edge raro y no manejarlo.
@@ -2503,7 +2598,11 @@ Hallazgo Path B preserva: rasgo agregado mercado genuino X=5e-4 cross-3-exchange
 
 Referencias: §13.4 entrada "Observabilidad funding per-trade" 2026-04-22 + ampliación bar-a-bar; §13.4 entrada Path B archive 2026-04-26 (threshold empírico X=5e-4); §9.3 v2.6 (refutado); §12 Lección 33; §12 L36 (validación cross-3 sesiones funding research); `funding_context.py` (reemplaza `funding_observability.py` borrado; analyzer enriquecido definitivo).
 
-**[OBSERVACION] [EN_ESPERA] engine_state.json nomenclature — consumers usan `dict.get("positions", {})` con default silencioso — 2026-04-22**
+**[OBSERVACION] [EN_ESPERA — TRIAJE 2026-04-27 mantener cosmético post-reciclaje v3.0] engine_state.json nomenclature — consumers usan `dict.get("positions", {})` con default silencioso — 2026-04-22**
+
+**Update triaje §12 L27 2026-04-27 (Fase 3 sesión institucional)**: cosmético consolidado. 0 código productivo lee `state["positions"]` (verificado grep §13.3 nota). Convención `symbols` mantenida operacionalmente sin issues. Item permanece EN_ESPERA con scope claro: rename-futuro opcional consolidar terminología en v3.0 refactor post-reciclaje. NO bloquea reciclaje. NO requiere acción pre-reciclaje. Sin cambios scope.
+
+
 
 Contexto: durante reconocimiento inicio sesión 2026-04-22 (análisis N trades acumulado), la query `d.get("positions", {})` sobre `engine_state.json` retornó default `{}` y se reportó como "positions vacío pese a 5 posiciones abiertas" (sospecha bug). Diagnóstico Micro-item 2 mismo día reveló: **la key `positions` no existe**. El estado se persiste bajo la key `symbols` (live_engine.py `_save_state` L1159-1211; `_load_state` L1213+). 45 entries en `symbols`, 5 con `position != 0` — consistente con las posiciones reales.
 
@@ -2588,7 +2687,11 @@ Ver §13.4 entrada Path B archive 2026-04-26 sesión 4 + `docs/funding_pathb_ses
 
 Referencias: §13.4 entrada "Observabilidad funding bar-a-bar — integración permanente" 2026-04-22; §13.4 entrada Path B archive 2026-04-26; §9.3 v2.6 refutada; §13.3 v2.6-inv (candidato paralelo, threshold empírico análogo); §12 Lección 33 + L36; `funding_context.py`.
 
-**[DECISION] [EN_ESPERA] Funding rate NO es feature del GMM — rechazo explícito 2026-04-23**
+**[DECISION] [EN_ESPERA — TRIAJE 2026-04-27 decisión arquitectónica permanente, NO requiere acción] Funding rate NO es feature del GMM — rechazo explícito 2026-04-23**
+
+**Update triaje §12 L27 2026-04-27 (Fase 3 sesión institucional)**: decisión arquitectónica permanente fundamentada (funding exógeno al régimen técnico, contaminaría clasificación con posicionamiento mercado). Filter runtime alternativa también archived empíricamente 2026-04-27 (v2.6-inv ARCHIVED por subset 0/72 vacuo + v2.6-exit Spearman triple-refutado). Ambas opciones arquitectónicas (feature GMM rechazada + filter runtime archived) confirmadas empíricamente régimen actual. Mantener EN_ESPERA como referencia decisión permanente — item es trazabilidad arquitectónica, NO disparador acción. Sin cambios scope.
+
+
 Contexto: durante discusión 2026-04-23 sobre cómo integrar funding rate al sistema, se evaluaron dos opciones arquitectónicas:
 
 **Opción descartada**: funding como feature del GMM. El GMM de cada símbolo recibiría funding rate como input adicional junto con las features técnicas actuales. Clusters capturarían "régimen técnico + estado de funding" como variable compuesta del régimen.
@@ -2866,7 +2969,11 @@ Cierre: Análisis B ejecutado con N_trades ≥15 per config + veredicto cross-cl
 
 ---
 
-**[OPERACIONAL] [EN_ESPERA] Deploy L1892 active_config_id + L1904 multipliers SIGNALS_DISCARDED — 2026-04-26 sesión 2**
+**[OPERACIONAL] [EN_ESPERA — TRIAJE 2026-04-27 scope refinado disparador único fecha límite] Deploy L1892 active_config_id + L1904 multipliers SIGNALS_DISCARDED — 2026-04-26 sesión 2**
+
+**Update triaje §12 L27 2026-04-27 (Fase 3 sesión institucional)**: D+E ARCHIVED_EMPIRICAL_2026-04-27 mañana → disparadores (a) y (b) **YA NO APLICABLES** (no habrá deploy operacional Fase D ~2026-05-01 ni Fase E ~2026-05-10; ambas archivadas pre-flight refutación masiva). Solo disparador (c) **fecha límite ~2026-05-10 inmediato pre-reciclaje aislado** queda relevante. Scope refinado: deploy L1892+L1904 **debe ejecutarse aislado en ventana ~2026-05-05 a 05-10** (~2-7 días antes reciclaje completo 45 sym ~2026-05-12 a 05-22) bajo procedure standard validada (~20-47s downtime). Mantener EN_ESPERA con disparador único explícito.
+
+
 
 Contexto: cambios `live/live_engine.py` L565-577 (campo `cfg` en SIGNALS_RAW) + L607-625 (campos `vw/bf/br/dd` en SIGNALS_DISCARDED) implementados commit `3727366` (sesión NOCHE 2026-04-26). Sanity §0.8 Nivel A `_run_verify_test BTC/USDT --n-bars 1000` post-cambios: diff **0.0000 EXACTO** en 5 métricas (Trades 11, Wins 3, PnL -0.6215, GP 2.1589, GL 2.7804). Fidelidad 2 invariante por construcción (cambios solo enriquecen logs diagnóstico, NO tocan lógica generación signals brain ni portfolio allocation logic). Bot v2.4.5 operacional VPS Tokio invariante hasta restart (cambios pendientes activación al próximo deploy/restart).
 
@@ -2918,6 +3025,112 @@ Referencias:
 ---
 
 ### 13.4 RESUELTO
+
+**[TRIAJE] [§12 L27 SISTEMÁTICO COMPLETO — 20 items §13.3] Cleanup pre-reciclaje + status update 2026-04-27 — 2026-04-27 sesión tarde-noche**
+
+**Contexto**: Sesión institucional 2026-04-27 día completo Ricardo recursos ilimitados Fase 3 — triaje sistemático §12 L27 protocolo aplicado a TODOS los items §13.3 EN_ESPERA restantes post-archive Fases 1+2 (D+E archived empírico + P1 archived empírico). 28 items §13.3 EN_ESPERA inventariados, 8 categóricos skip (post-reciclaje proyectos dedicados + manual operativo + ya-triajados sesión 2026-04-26 noche-3), **20 items para triaje activo**.
+
+**Categorización resultado cross-20-items**:
+
+| Categoría | N items | % | Items |
+|---|---:|---:|---|
+| (a) RESUELTO fix ya aplicado | 0 | 0% | — |
+| (b) ARCHIVED arquitectura/dependencia obsoleta | 2 | 10% | L1961 R1 dependencia + L2295 compute_leverage_map heurística |
+| (c) EN_ESPERA refinado scope/disparador actualizado | 18 | 90% | brain_engine 8 + portfolio 3 + data_feed/execution 2 + operacionales 3 + políticas 2 |
+| (d) consolidado/duplicado | 0 | 0% | — |
+
+**Hallazgos triaje individual**:
+
+**Bloque 1 — Items dependencia D/E/P1/R1 archived Fases 1+2 (3 items)**:
+- L1961 Test diferencial brain vs kernel pre-R1 → **ARCHIVED** (R1 cooldown RESUELTO 2026-04-22 cooldown_unify; prerequisite irrelevante).
+- L2295 portfolio compute_leverage_map "último operable" heurística → **ARCHIVED** (P1 archived bajo opción b 1x oficial; heurística leverage variable irrelevante).
+- L2869 Deploy L1892+L1904 → **EN_ESPERA refinado** disparador único fecha límite ~2026-05-05 a 05-10 pre-reciclaje aislado (D+E archived → opciones a/b ya no aplicables).
+
+**Bloque 2 — Items operacionales/políticas (3 items)**:
+- L1655 POLÍTICA Adelantar reciclaje empírico → **EN_ESPERA refinado** subsumido por reciclaje calendario inminente (~2-3 semanas).
+- L2506 engine_state nomenclature → **EN_ESPERA mantener cosmético** post-reciclaje v3.0 refactor.
+- L2591 Funding NO feature GMM → **EN_ESPERA mantener** decisión arquitectónica permanente trazabilidad.
+
+**Bloque 3 — Items brain_engine SERIOS pre-reciclaje (8 items)**:
+- L2331 prev_zone asimetría TF/MR → **EN_ESPERA scope reciclaje julio inalterado**.
+- L2340 TF locals vs MR state div_ctx → **EN_ESPERA scope reciclaje julio inalterado**.
+- L2354 hidden divergence asimetría → **EN_ESPERA scope reciclaje v3.0** (67/138 configs interpretación invertida coherente WF↔brain).
+- L2362 símbolo datos insuficientes → **EN_ESPERA disparador empírico no cumplido** (0 incidentes 5+ días post-v2.4.5).
+- L2368 Comments forming/resolved mis-etiquetados → **EN_ESPERA cosmético post-reciclaje**.
+- L2374 _evaluate_bar 360 líneas duplicación → **EN_ESPERA disparador 1/2 cumplido** (R1 cooldown único bug del mismo tipo replicado TF/MR; refactor estructural cuando emerja segundo bug).
+- L2380 test diferencial brain vs kernel histórico → **EN_ESPERA disparador parcialmente cumplido** (`_run_verify_test` cross-3-símbolos sesión 2026-04-26 76 trades 380 mediciones diff 0.0000 EXACTO; Smoke Nivel B pre-reciclaje pendiente ~2026-05-10 a 05-12).
+- L2386 Múltiples eventos mismo-símbolo mismo-ciclo → **EN_ESPERA disparador empírico no cumplido** (0 incidentes histórico 231 trades).
+
+**Bloque 4 — Items portfolio_manager (3 items)**:
+- L2300 vol_weight neutraliza dd_multiplier → **EN_ESPERA disparador empírico no cumplido** (DD breaker NO activo histórico, max DD 1.32%).
+- L2319 block_reduction 3 factores → **EN_ESPERA scope post-reciclaje refactor analyzer**.
+- L2325 correlación min_len bajo silencioso → **EN_ESPERA disparador inminente reciclaje calendario** (~2-3 semanas).
+
+**Bloque 5 — Items data_feed/execution (2 items)**:
+- L2207 attach stops redundante → **EN_ESPERA scope post-reciclaje cleanup arquitectónico**.
+- L2417 ejecución parcial órdenes no manejada → **EN_ESPERA mitigación parcial v2.3.8 B7** (stop/emergency_close usan filled real; gap reconcile residual).
+
+**Bloque 6 — Item v2.3.11 (1 item)**:
+- L1842 v2.3.11 Opción B2 forming fetch tardío → **EN_ESPERA disparador empírico no cumplido** + clasificación "virtualmente improbable se active" (B1 ya capturó 99.8% sesgo original; N=138 post-v2.3.11 sin patrón sesgo 6s detectado).
+
+**Calibración §12 L36 retrospectiva 6ª aplicación cross-sesiones**:
+
+| # | Predicción | Realidad | Status |
+|---|---|---|---|
+| Cat (a) RESUELTO 30-45% | 0% | ❌ refutada fuerte (0 items con fix oculto) |
+| Cat (b) ARCHIVED 15-25% | 10% (2/20) | ⚠️ refutada parcial (lower bound) |
+| Cat (c) EN_ESPERA refinado 30-45% | 90% (18/20) | ❌ refutada fuerte (mucho más alto) |
+| Cat (d) consolidado 5-15% | 0% | ❌ refutada |
+| Items finales 6-12 | 24 (28-2 archived+0 RESUELTO) | ❌ refutada (mucho menos turnover) |
+| L1961 R1 dependencia → ARCHIVED | confirmed | ✓ acertada |
+| L2295 compute_leverage_map → ARCHIVED bajo P1 | confirmed | ✓ acertada |
+| L2869 deploy → scope refinado fecha límite única | confirmed | ✓ acertada |
+| L2436 funding NO feature GMM → permanente | confirmed | ✓ acertada |
+| L2678 Análisis B edge decay → disparador temporal | (skip categórico post-reciclaje) | N/A |
+
+3 acertadas + 5 refutadas + 1 parcial + 1 N/A. Outcome más informativo (refutaciones).
+
+**Hallazgo §12 L34 metodológico crítico**: predicción agresiva de turnover backlog (50-65% reduction) **REFUTADA empíricamente**. Realidad: items §13.3 son **robustos** — disparadores empíricos válidos pero no cumplidos. Patrón "stale 9 días post-ultra-review 4/4" sesión 2026-04-26 noche-3 NO se replica cross-22-items porque aquellos 4 eran items YA triajados ese día. Estos 20 items son items NO triajados previamente — más resilientes a §12 L27. Disparadores empíricos en items §13.3 son **conservadores y robustos** — solo ~10% archive cuando dependencias obvias (D/E/P1/R1) se eliminan. Mayoría items requieren verdaderamente esperar disparador o reciclaje.
+
+**§12 L36 cross-6-aplicaciones consolidada (extends cross-5 ayer)**:
+
+| Sesión/Aplicación | Predicciones | Acertadas | Refutadas | Outcome |
+|---|---:|---:|---:|---|
+| 1. Variante 4 funding 2026-04-25 | 6 | 6/6 | 0/6 | Tier 0 I1 bloqueante |
+| 2. Path B previo 2026-04-26 | 5 | 0/5 | 5/5 | Reformulación marco |
+| 3. Path B-institutional 2026-04-26 | 9 | 6/9 | 3/9 | OKX retention factor |
+| 4. Pre-flight v2.6-inv/exit 2026-04-27 mañana | 7 | 2/7 | 4/7 | Refutación masiva opción α |
+| 5. P1 leverage Fase 2 2026-04-27 tarde | 7 | 3/7 | 3/7 | Asimetría arquitectónica clusters |
+| 6. **Triaje §13.3 Fase 3 2026-04-27 tarde-noche** | **10** | **3/10** | **5/10** | **Backlog robusto, predicción turnover refutada** |
+
+Patrón institucional consolidado §12 L36 cross-6-aplicaciones: predicciones refutadas en magnitud son outcome más informativo. Cross-6-sesiones consecutivas cada refutación llevó a hallazgo estructural genuino. Ahorro acumulado compute estimado **~50-80h** sobre paths que hubieran sido infeasibles ciegamente.
+
+**Items §13.3 EN_ESPERA finales post-Fase 3 (24 items totales)**:
+
+| Bloque | N | Detalle |
+|---|---:|---|
+| Categóricos post-reciclaje (skip triaje) | 8 | L1725 audit_v5.x + L1844 git+GitHub + L2215 orphan reconstruction + L2231 funding fallback + L2713+L2731 walk-forward bias + L2776 Tier 0 I1 + L2833 Análisis B edge decay |
+| Refinados scope/disparador 2026-04-27 | 16 | brain_engine 8 + portfolio 3 + data_feed/execution 2 + operacionales 3 |
+
+**Estado pre-reciclaje MADURO INSTITUCIONAL FINAL+P1+TRIAJE invariante**:
+- A done_archived + B done merged + C 7/7 done + Path B archive + D archived + E archived + P1 archived + **triaje §13.3 sistemático completo cross-20-items**.
+- §13.3 EN_ESPERA reducido 28 → 24 (2 archived + 0 RESUELTO + 18 refinados con marcador 2026-04-27).
+- TODOS items con status update 2026-04-27 — backlog institucionalmente **fresco**, NO stale.
+- Trigger reciclaje completo 45 sym aguarda solo fecha calendario (~2026-05-12 a 05-22).
+
+Bot v2.4.5 invariante uptime 4d 23h+. Sin tocar `live/*`. Sin deploy. Fidelidad 2 invariante por construcción.
+
+**Referencias**:
+- §13.3 items L1961 + L2295 archived + 18 items refinados con bloque "Update triaje §12 L27 2026-04-27".
+- §12 L27 protocolo individual (caso de estudio cross-20-items).
+- §12 L34 metodológico (predicción turnover agresiva refutada empíricamente).
+- §12 L36 cross-6-aplicaciones consolidada (~50-80h ahorro acumulado).
+- ROADMAP_PRE_RECICLAJE.md update final.
+- Conversación Ricardo 2026-04-27: opción β' análisis full robusto + triaje sistemático completo bajo enfoque "aspirar a lo mejor".
+
+**Cierre**: permanente. Triaje §13.3 sistemático completo pre-reciclaje. Estado pre-reciclaje MADURO INSTITUCIONAL FINAL+P1+TRIAJE confirmed.
+
+---
 
 **[ANÁLISIS] [P1 LEVERAGE QUANTITATIVE FULL ROBUSTO — opción (b) 1x feature oficial confirmada empíricamente] Simulación isolated cluster-específico cross-12-escenarios + baseline permanente — 2026-04-27 sesión tarde**
 
