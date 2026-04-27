@@ -1,6 +1,20 @@
 # Sistema de Trading Algorítmico — Contexto Completo del Proyecto
 
-**Última actualización:** 27 Abril 2026 SESIÓN COMPLETA DÍA — **Día institucional excepcional bajo enfoque "aspirar a lo mejor" Ricardo: cierre empírico D+E + análisis cuantitativo P1 leverage full robusto + triaje sistemático §13.3 §12 L27 cross-20-items**.
+**Última actualización:** 27 Abril 2026 SESIÓN 2 DÍA — **Auditoría exhaustiva pre-reciclaje + decisión Ricardo AGGRESSIVE pura recalibrada bajo enfoque "al margen de lo que cueste, aspirar a lo mejor reciclaje"**.
+
+Reformulación timing categórico items "post-reciclaje" como pre-reciclaje aspirable: **14 items pre-reciclaje confirmados** (CORE 6 + 4 hipótesis Mec 3+4 + Deflated SR + k-fold CV subsets + G5.3 + G5.11) cross-4-5 sesiones Claude Code cross-1.5-2 semanas calendario (~18-26h Claude Code real).
+
+Recalibración temporal: estimaciones humanas (89-135h cross-3-semanas) → tiempo Claude Code (20-35h cross-1.5-2-semanas). Bot obsoleto adicional ~1-2 semanas vs ~5-6 semanas plan original.
+
+Plan Sesión 1A próxima ~2026-04-28: G1.3 + G2.1 + G5.11 + G2.2 baseline (~3-4h Claude Code).
+
+**§12 L37 nuevo refinamiento permanente capturado**: "Estimaciones temporales Claude Code calibrar contra procesamiento+ejecución técnica, NO patrones humanos. Aplicación errónea infla scope 3-5× + produce decisiones calendario conservadoras subóptimas". Caso origen: Sesión 2 D recalibración.
+
+Estado pre-reciclaje **MADURO INSTITUCIONAL FINAL+P1+TRIAJE+AUDIT-RESCATE+AGGRESSIVE-PRE-RECICLAJE** invariante. Trigger reciclaje launch ~2026-05-06 a 12 cuando Sesiones 1A+1B+2+3+4 done. Reciclaje completo ~2026-05-22 a 06-05.
+
+Bot v2.4.5 operacional VPS Tokio uptime 5d 3h+ invariante. Sin tocar `live/*` hasta G5.1 deploy + reciclaje launch. Fidelidad 2 invariante por construcción.
+
+**Actualización previa:** 27 Abril 2026 SESIÓN COMPLETA DÍA — **Día institucional excepcional bajo enfoque "aspirar a lo mejor" Ricardo: cierre empírico D+E + análisis cuantitativo P1 leverage full robusto + triaje sistemático §13.3 §12 L27 cross-20-items**.
 
 Acumulado día (3 fases secuenciales + commits):
 
@@ -1061,6 +1075,38 @@ Las cuatro se aplican secuencialmente: L25+L26 protegen interpretación de métr
 **Caveat metodológico**: la predicción debe ser **cualitativa estructural** (signo, dirección, mecanismo) no necesariamente cuantitativa fina. La cuantificación fina pre-investigación tiende a falsa precisión; lo predictivo de calidad es el **framing** del problema (qué mecanismo, qué dirección, qué magnitud orden). Caso 2026-04-26 Fase 2 pnl_recon: predicción cualitativa (signo negativo + drift mark/fill + fees parciales) fue robusta; predicción cuantitativa fina específica habría sido frágil.
 
 **Caso origen completo**: sesión Fase C item 1 audit institucional N≥50 doble 2026-04-26. Test discriminatorio Ricardo's solicitud aplicada en ~10 min, evitó 2-3h investigación falsa alarma. Resultado: Fidelidad 2 confirmada, item §13.3 reformulado, item nuevo "Refactor audit_v5.x herramienta auditor" creado para tracking sin alarma operacional.
+
+37. **Estimaciones temporales para tareas Claude Code calibrar contra procesamiento+ejecución técnica, NO patrones humanos — 2026-04-27**. Aplicación errónea estimaciones humanas a tareas Claude Code infla scope ~3-5× porque incluye tiempos muertos, pausas cognitivas, context switches, coordinación equipo, distracciones — penalizaciones que NO aplican a Claude Code (procesamiento paralelo, throughput tokens constantes, sin pausas cognitivas, sin context switches que penalicen). Recalibración honesta produce reformulación categórica trade-offs calendario.
+
+**Diferencia temporal estructural**:
+- Estimación humana: tarea X "20-25h cross-3 días humanos" implica ~5-8h productivos efectivos día (resto pausas cognitivas + context switches + coordinación + distracciones).
+- Estimación Claude Code: tarea X "~2-4h Claude Code interacción + compute batch" implica throughput continuo sin pausas + tokens constantes + ejecución técnica acotada.
+
+Diferencia ~3-5× temporal cross-tareas → calendario humano "3 semanas" es equivalente Claude Code "3-5 días calendario".
+
+**Patrón problemático evitado**: aplicar estimaciones humanas a tareas Claude Code → recomendaciones conservadoras pragmáticas SUB-óptimas bajo recursos ilimitados ("MODERATE pragmático" cuando AGGRESSIVE pura es viable). Bias categórico de prudencia humana penaliza recursos Claude Code que NO son humanos.
+
+**Mitigación protocolaria**: pre-redacción spec o calendario, separar explícitamente:
+- (a) Tiempo Claude Code interacción (lectura + escritura + análisis token-bound).
+- (b) Tiempo compute batch (kernel runs, smokes, sweeps autónomos).
+- (c) Tiempo calendario humano (tomar decisiones intermedias, validar reportes, supervisión Ricardo).
+
+NO sumarlos en una métrica única "Xh" porque (a) y (c) tienen unidades distintas (Claude Code horas vs calendario humano horas).
+
+**Caso origen completo**: Sesión 2 día 2026-04-27 D auditoría pre-reciclaje. Mi recomendación inicial AGGRESSIVE 89-135h cross-3-semanas estimadas humanas → Ricardo cuestionó honestamente "estimaciones basadas proyectos humanos, ignora tiempo humano, estima solo procesamiento+ejecución Claude Code" → recalibración 20-35h Claude Code cross-1.5-2 semanas calendario → AGGRESSIVE pura confirmada viable bajo "aspirar a lo mejor reciclaje".
+
+**Aplicabilidad**: cualquier sesión Claude Code futura. Cualquier spec con estimaciones temporales humanas debe re-calibrarse contra tiempo Claude Code real antes de comprometerse calendario. Cross-aplicación L37 evita sub-óptimas decisiones conservadoras pragmáticas bajo recursos ilimitados.
+
+**Quinto pilar metodológico institucional** (extiende cuádruple guardrail L25+L26+L35+L36 + nuevo L37):
+- L25: segmentación arquitectónica obligatoria sobre ventanas con deploys heterogéneos.
+- L26: validación per-componente además de ecuación global de cierre.
+- L35: test diferencial contra ground truth productivo ANTES de investigar causa raíz por hipótesis (reactivo).
+- L36: predicción cualitativa explícita ANTES de implementación o investigación de scope significativo (proactivo).
+- L37: recalibrar estimaciones temporales contra tiempo Claude Code real, NO humano (planning).
+
+Cada sesión Claude Code que aplique L37 disciplinadamente producirá calendarios coherentes con enfoque Ricardo "aspirar a lo mejor".
+
+**Aplicabilidad fuera de trading**: cualquier proyecto que combine humano+AI agent con planning calendarios. Estimaciones híbridas requieren decomposición explícita o producen sesgos pragmáticos sub-óptimos.
 
 ---
 
@@ -3056,6 +3102,90 @@ Referencias:
 ---
 
 ### 13.4 RESUELTO
+
+**[AUDITORÍA] [PRE-RECICLAJE COMPLETO AGGRESSIVE PURA RECALIBRADA] Re-evaluación items "post-reciclaje" categóricos bajo enfoque "aspirar a lo mejor reciclaje" + recalibración temporal Claude Code — 2026-04-27 Sesión 2 D**
+
+**Contexto**: Sesión 2 día 2026-04-27 reformuló timing categórico items "post-reciclaje" bajo enfoque Ricardo "al margen de lo que cueste, aspirar a lo mejor reciclaje". Reciclaje cuesta 15 días + bot opera JSONs obsoletos + reciclaje oportunidad única → resolver gaps simulado↔operacional **PRE-RECICLAJE**.
+
+Auditoría exhaustiva 4-fase (Parte 0+1+2+3+4): inventario gaps F1/F2/F3 cross-25-items + re-evaluación individual + mapping dependencias + calendarios A/M/F + riesgos+mitigaciones específicas.
+
+**Reformulaciones timing categóricas reveladas**:
+
+1. **G1.1 Tier 0 I1 kernel**: timing "post-reciclaje" asumía specialists actuales valiosos. Specialists actuales obsoletos → reciclaje regenera con kernel mejorado. **PRE-RECICLAJE candidato fuerte**.
+
+2. **G1.3 Lab compute_leverage_map fix**: timing inversión literal. SIN fix pre-reciclaje → specialists con bug `*100.0` + bot 1x = **F1 break silencioso post-reciclaje permanente**. **PRE-RECICLAJE ESENCIAL** bajo P1 opción (b) confirmed.
+
+3. **G2.1 Refactor audit_v5.x**: ya rescatado sesión 1 Fase 5. PRE-RECICLAJE confirmado.
+
+**Recalibración temporal Claude Code**: estimaciones humanas (89-135h cross-3-semanas calendario) → tiempo Claude Code real (20-35h cross-4-5 sesiones cross-1.5-2 semanas calendario). Diferencia ~2-3 semanas calendario REAL. Bot obsoleto adicional reducido categóricamente (~1-2 semanas vs ~5-6 semanas).
+
+**Decisión Ricardo CONFIRMADA**: **AGGRESSIVE PURA RECALIBRADA**.
+
+**Items pre-reciclaje confirmados (14 items)**:
+
+CORE confirmados (6 items):
+- G1.1 Tier 0 I1 kernel reason_exit per-trade arrays (~2-4h Claude Code + Smoke compute).
+- G1.2 Bloque 2c granular H1+H_funding+H_strategy cross-régimen (~1-2h kernel runs).
+- G1.3 Lab compute_leverage_map fix → lev=1 always docstring (~30-45 min).
+- G2.1 Refactor audit_v5.x Opción A importar kernel directo (~1-2h).
+- G2.2 Smoke §0.8 Nivel B sistemático cross-cambios + pre-launch (~15-30 min ejecución).
+- G5.1 Deploy L1892+L1904 multipliers SIGNALS_DISCARDED (~10 min + procedure VPS).
+
+Hipótesis Walk-forward Mec 3+4 (4 hipótesis):
+- H_M3 Selection bias cross-cluster (~1h + 30 min análisis).
+- H_M4 Régimen-temporal bias subset+full (~1h + 30 min análisis).
+- H_M5 GMM regime classification noise P_threshold sensitivity (~1h + 30-60 min sweep).
+- H_M6 Cross-exchange Binance↔BingX residual contribution (~1-2h + 30-60 min kernel runs).
+
+Selection-bias-specific tools subset (2 items):
+- G3.2 Deflated SR core formula + validación cross-9 (~2-3h).
+- G3.3 k-fold CV walk-forward subset (~2-3h).
+
+Operacionales rescatables (2 items):
+- G5.3 brain prev_zone B2 + TF locals B3 con análisis profundo lecciones v2.3.9 (~3-5h + Smoke A+B+C).
+- G5.11 portfolio correlación min_len arquitectónica simple (~10-20 min).
+
+**Calendario AGGRESSIVE pura recalibrada cross-Claude-Code-sesiones**:
+
+| Sesión | Días calendario | Sub-fases | Scope CC |
+|--------|-----------------|-----------|----------|
+| 1A | ~2026-04-28 | G1.3 + G2.1 + G5.11 + G2.2 baseline | ~3-4h |
+| 1B | ~2026-04-29 | G1.1 Tier 0 I1 kernel + Smoke A+B+C | ~3-5h |
+| 2 | ~2026-04-30 a 05-01 | G1.2 + H_M3 + H_M4 + H_M5 + H_M6 | ~4-6h |
+| 3 | ~2026-05-02 a 03 | G3.2 + G3.3 selection-bias-specific | ~5-6h |
+| 4 | ~2026-05-04 a 05 | G5.3 + G5.1 + G2.2 final pre-launch | ~3-5h |
+| 5 | ~2026-05-06 a 12 | Reciclaje 45 sym launch + ejecución VPS autónomo | 30 min preparation + 10-15 días compute |
+
+Total pre-reciclaje cross-Claude-Code-sesiones: **~18-26h cross-1.5-2 semanas calendario** + reciclaje 10-15 días = **~3-4 semanas total**.
+
+Bot obsoleto adicional: ~1-2 semanas vs plan minimalista sesión 1 Fase 5 (~3-4 días). Trade-off aceptable bajo enfoque Ricardo "al margen de lo que cueste, aspirar a lo mejor reciclaje".
+
+**Riesgos cross-items + mitigaciones específicas**: ver `docs/audit_pre_reciclaje_calendar_20260427_sesion2.md` Sección 5 detallada.
+
+**§12 L36 9ª aplicación retrospectiva**: 6/7 acertadas + 1 refinada Parte 0 (emergencia 4 hipótesis específicas H_M3-M6 cambia evaluación G3.1). Cross-9-aplicaciones consolidada (~52-90h ahorro acumulado paths infeasibles ciegamente extends cross-8 Parte 0 + cross-7 sesión 1 cierre día).
+
+**§12 L37 nuevo refinamiento permanente capturado** (ver §12 sección lecciones): "Estimaciones temporales Claude Code calibrar contra procesamiento+ejecución técnica, NO patrones humanos. Aplicación errónea infla scope 3-5× y produce decisiones calendario conservadoras subóptimas bajo recursos ilimitados". Caso origen: Sesión 2 D recalibración 89-135h humanas → 20-35h Claude Code real.
+
+**Items NO rescatables (~14 items §13.3 EN_ESPERA)** confirmados refutaciones individual:
+- Disparadores empíricos no cumplidos vigentes (8 items): G5.6/5.7/5.8/5.9/5.10/L1894/L2486/L2446.
+- Cosméticos no urgentes (3 items): L2456/L2632/L1904.
+- Riesgos demasiado altos / viability blockers (3 items): G1.4 Hidden divergence asimetría TF↔MR diferido v3.0 + G1.5 Análisis B edge decay viability blocker post-reciclaje + G4.1 edge erosion caracterización no accionable.
+
+**Estado pre-reciclaje MADURO INSTITUCIONAL FINAL+P1+TRIAJE+AUDIT-RESCATE+AGGRESSIVE-PRE-RECICLAJE invariante**. Plan Sesión 1A próxima dedicada ~mañana 2026-04-28: G1.3 + G2.1 + G5.11 + G2.2 baseline.
+
+Bot v2.4.5 operacional VPS Tokio uptime 5d 3h+ invariante. Sin tocar `live/*` hasta Sesión 4 G5.1 deploy + Sesión 5 reciclaje launch. Fidelidad 2 invariante por construcción (auditoría read-only sobre §13.4+§13.3+análisis posterior; documentación + planning).
+
+**Referencias**:
+- `docs/audit_pre_reciclaje_calendar_20260427_sesion2.md` (documento detallado 8 secciones).
+- §12 L37 nuevo (§12 sección lecciones).
+- ROADMAP_PRE_RECICLAJE.md sección "Pre-reciclaje AGGRESSIVE pura recalibrada" (planning ejecución).
+- §13.4 entrada Fase 5 sesión 1 (auditoría rescate META-INSTITUCIONAL §12 L27 V2 — precedente).
+- §13.4 entrada Fase 3 sesión 1 (triaje §12 L27 sistemático cross-20-items §13.3 — precedente).
+- Conversación Ricardo 2026-04-27 Sesión 2: confirmación enfoque "al margen de lo que cueste" + recalibración temporal honesta + decisión AGGRESSIVE pura recalibrada.
+
+**Cierre**: permanente. Auditoría exhaustiva pre-reciclaje completa con captura institucional decisión Ricardo + calendario operacional. Próximo natural: Sesión 1A próxima dedicada ~2026-04-28 G1.3 + G2.1 + G5.11 + G2.2 baseline.
+
+---
 
 **[AUDITORÍA] [RESCATE ARCHIVED — META-INSTITUCIONAL §12 L27/L36 RECURSIVO] Auditoría rescate items archivados bajo enfoque "aspirar a lo mejor" — 2026-04-27 cierre día**
 

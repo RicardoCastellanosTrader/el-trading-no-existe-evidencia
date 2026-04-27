@@ -74,7 +74,80 @@ Reactivable post-reciclaje 45 sym + k-fold CV proyecto dedicado podría re-evalu
 
 ## Reciclaje completo 45 símbolos
 
-Trigger: A+B+C done + D+E validados o archivados. **Estado 2026-04-27 cierre día MADURO INSTITUCIONAL FINAL+P1+TRIAJE**: A done_archived + B done merged + C 7/7 done + Path B archive 2026-04-26 + D+E ARCHIVED_EMPIRICAL 2026-04-27 mañana + P1 ARCHIVED_EMPIRICAL 2026-04-27 tarde + triaje §13.3 sistemático cross-20-items 2026-04-27 tarde-noche. A+B+C+D+E+P1+triaje completo. **Único pendiente pre-reciclaje**: deploy L1892+L1904 fecha límite ~2026-05-05 a 05-10 aislado pre-reciclaje (item L2869 scope refinado). Trigger reciclaje 45 sym solo aguarda fecha calendario ~2026-05-12 a 05-22.
+Trigger: A+B+C done + D+E validados o archivados. **Estado 2026-04-27 Sesión 2 D MADURO INSTITUCIONAL FINAL+P1+TRIAJE+AUDIT-RESCATE+AGGRESSIVE-PRE-RECICLAJE**: A done_archived + B done merged + C 7/7 done + Path B archive 2026-04-26 + D+E ARCHIVED_EMPIRICAL 2026-04-27 mañana + P1 ARCHIVED_EMPIRICAL 2026-04-27 tarde + triaje §13.3 sistemático cross-20-items 2026-04-27 tarde-noche + auditoría rescate archived 2026-04-27 cierre día + **auditoría exhaustiva pre-reciclaje + decisión Ricardo AGGRESSIVE pura recalibrada 2026-04-27 Sesión 2 D**. **Pre-reciclaje recalibrado**: 14 items pre-reciclaje confirmados cross-4-5 sesiones Claude Code (~18-26h). Trigger reciclaje 45 sym launch ~2026-05-06 a 12 cuando Sesiones 1A+1B+2+3+4 done. Reciclaje completo ~2026-05-22 a 06-05.
+
+## Pre-reciclaje AGGRESSIVE pura recalibrada — 2026-04-27 Sesión 2 D
+
+**Estado**: PLANIFICACIÓN INSTITUCIONAL PERMANENTE bajo enfoque Ricardo "al margen de lo que cueste, aspirar a lo mejor reciclaje".
+
+**Total**: 14 items pre-reciclaje cross-4-5 sesiones Claude Code cross-1.5-2 semanas calendario.
+
+**Recalibración temporal §12 L37**: estimaciones humanas (89-135h cross-3-semanas) → tiempo Claude Code real (20-35h cross-1.5-2 semanas calendario). Bot obsoleto adicional ~1-2 semanas vs ~5-6 semanas estimación original. Diferencia categórica trade-offs.
+
+### Sesión 1A — Setup base independiente (~3-4h Claude Code, ~2026-04-28)
+
+- [ ] **G1.3 Lab compute_leverage_map fix** → `lev=1` always + docstring P1 opción (b) confirmed (~30-45 min)
+- [ ] **G2.1 Refactor audit_v5.x Opción A** (importar kernel directo, preservar stateless property) (~1-2h)
+- [ ] **G5.11 portfolio correlación min_len** arquitectónica simple (~10-20 min)
+- [ ] **G2.2 Smoke §0.8 Nivel B baseline** pre-cambios (BTC + ONDO N=8000 + APT N=10000) (~15-30 min)
+- [ ] Commit consolidado Sesión 1A.
+
+### Sesión 1B — G1.1 Tier 0 I1 dedicada (~3-5h Claude Code, ~2026-04-29)
+
+- [ ] Análisis profundo callers `run_simulation_numba` (grep + ag-search)
+- [ ] **G1.1 Tier 0 I1 kernel modify**: arrays per-trade + reason_exit enum + signature extension
+- [ ] Update 10+ callers: `_run_verify_test`, `regime_walk_forward.py`, `lab_lite_zonas_v5e.py`, `audit_fidelity_v5.py` + `audit_fidelity_v5_2.py`, `master.py`, `audit_mr_fidelity_sei.py`
+- [ ] Update `EXPECTED_LAB_KERNEL_HASH` audit + checksum regen
+- [ ] Tests greenfield per-trade tracing
+- [ ] **Smoke §0.8 Nivel A+B+C obligatorio** (BTC N=1000 + ONDO N=8000 + APT N=10000 + SEI MR)
+- [ ] Cross-check `_run_verify_test` baseline (76 trades 380 mediciones diff 0.0000 baseline 2026-04-26)
+- [ ] Commit consolidado Sesión 1B.
+
+### Sesión 2 — G1.2 Bloque 2c + Hipótesis Mec 3+4 (~4-6h Claude Code, ~2026-04-30 a 05-01)
+
+- [ ] **G1.2 Bloque 2c granular** H1+H_funding+H_strategy cross-régimen (44 sym × 3 clusters × top-5 cross-régimen 3y BTC macro)
+- [ ] **H_M3 Selection bias cross-cluster** (matriz correlation MA preset families top-1 cross-44-sym)
+- [ ] **H_M4 Régimen-temporal bias** subset+full (segmentación régimen GMM BTC × top-1 specialist)
+- [ ] **H_M5 GMM regime classification noise** (sensitivity sweep P_threshold ∈ {0.50, 0.65, 0.80, 0.95})
+- [ ] **H_M6 Cross-exchange Binance↔BingX residual** (kernel runs 9 specialists top-1 cross-exchange)
+- [ ] Calibración §12 L36 9ª aplicación retrospectiva
+- [ ] Commit consolidado Sesión 2.
+
+### Sesión 3 — Selection-bias-specific tools subsets (~5-6h Claude Code, ~2026-05-02 a 03)
+
+- [ ] **G3.2 Deflated SR core formula** + validación numérica + cross-9 cross-symbol M2 fix baseline (Q1+W1 2026-04-23)
+- [ ] **G3.3 k-fold CV walk-forward subset** + validación tests
+- [ ] Aplicación al ranking selection (input para Sesión 4 reciclaje preparation)
+- [ ] Commit consolidado Sesión 3.
+
+### Sesión 4 — G5.3 brain refactors + cierre pre-reciclaje (~3-5h Claude Code, ~2026-05-04 a 05)
+
+- [ ] Análisis profundo lecciones v2.3.9 prev_zone B2 + TF locals B3 (subtarea explícita pre-implementar). Output: documento decisión arquitectónica (a/b/c) prev_zone.
+- [ ] **G5.3 prev_zone B2 + TF locals B3** implementación (~3-5h Claude Code)
+- [ ] **Smoke §0.8 Nivel A+B+C obligatorio** cross-cambios brain camino crítico
+- [ ] **G5.1 Deploy L1892+L1904** (procedure standard 8 pasos)
+- [ ] **G2.2 Smoke §0.8 Nivel B sistemático final** pre-launch
+- [ ] Documentación final pre-reciclaje
+- [ ] Commit consolidado Sesión 4.
+
+### Sesión 5 — Reciclaje 45 sym launch (~30 min preparation + ~10-15 días compute autónomo VPS, ~2026-05-06 a 05-22)
+
+- [ ] Validation gates: bot v2.4.5 invariante + audit refactored + Smoke Nivel B sistemático done + Deploy L1892+L1904 done
+- [ ] Reciclaje 45 sym launch
+- [ ] Reciclaje ejecución autónoma VPS (~10-15 días compute)
+- [ ] Reciclaje completo: ~2026-05-22 a 06-05
+
+**Trigger reciclaje launch**: cuando Sesiones 1A+1B+2+3+4 done todas. Estimación temporal: ~2026-05-06 a 12.
+
+**Bot obsoleto adicional bajo AGGRESSIVE pura recalibrada**: ~1-2 semanas vs plan minimalista sesión 1 Fase 5 (~3-4 días). Trade-off aceptable bajo enfoque Ricardo "al margen de lo que cueste, aspirar a lo mejor reciclaje".
+
+**Riesgos + mitigaciones cross-items**: ver §13.4 entrada Sesión 2 D + `docs/audit_pre_reciclaje_calendar_20260427_sesion2.md`.
+
+**Reciclaje "aspirar a lo mejor" empíricamente sustentado**:
+- Gaps F1 resueltos: G1.1 + G1.2 + G1.3.
+- Gaps F2 resueltos: G2.1 + G2.2 + G5.1.
+- Gaps F3 caracterizados: 4 hipótesis Walk-forward Mec 3+4 + Deflated SR + k-fold CV.
+- Operacionales cleanup: G5.3 + G5.11.
 
 ## Próximas sesiones — pendientes operacionales
 
@@ -130,6 +203,8 @@ Disparador operacional D ~2026-05-01 N≥100 BingX-native sigue método correcto
 §12 L36 validada profilácticamente cross-3 sesiones consecutivas funding research (ahorro compute ~30-45h paths infeasibles ciegamente).
 
 ## Historia
+
+- **2026-04-27 Sesión 2 D** (auditoría exhaustiva pre-reciclaje + decisión Ricardo AGGRESSIVE pura recalibrada): bajo enfoque Ricardo "al margen de lo que cueste, aspirar a lo mejor reciclaje", auditoría 4-fase exhaustiva (Parte 0 inventario gaps F1/F2/F3 cross-25-items + Parte 1 re-evaluación individual + Parte 2 mapping dependencias + Parte 3 calendarios A/M/F + Parte 4 riesgos+mitigaciones específicas). Reformulaciones timing categóricas reveladas: G1.1 Tier 0 I1 + G1.3 Lab compute_leverage_map + G2.1 Refactor audit_v5.x conceptualmente PRE-RECICLAJE (sesión 1 Fase 5 timing inversión). Recalibración temporal §12 L37 capturado: estimaciones humanas (89-135h cross-3-semanas) → tiempo Claude Code real (20-35h cross-1.5-2 semanas calendario). Decisión Ricardo confirmada AGGRESSIVE pura recalibrada: 14 items pre-reciclaje cross-Sesiones 1A+1B+2+3+4 (~18-26h Claude Code). Bot obsoleto adicional ~1-2 semanas vs ~5-6 semanas plan original. §12 L36 9ª aplicación cross-9-aplicaciones consolidada (~52-90h ahorro acumulado). 4 hipótesis Walk-forward Mec 3+4 §12 L34 compatible formuladas (H_M3+H_M4+H_M5+H_M6). 5 commits acumulados día + 1 Sesión 2 D = 6 commits día completo. Estado pre-reciclaje MADURO INSTITUCIONAL FINAL+P1+TRIAJE+AUDIT-RESCATE+AGGRESSIVE-PRE-RECICLAJE invariante.
 
 - **2026-04-27 cierre día Fase 5** (auditoría rescate archived items): bajo enfoque institucional Ricardo "aspirar a lo mejor" + recursos ilimitados, auditoría sistemática cross-14-archived items con análisis crítico ultrathink top-5 candidatos. **7/7 predicciones acertadas** Claude Code pre-auditoría: solo 1/5 rescatable (B Refactor audit_v5.x bajo argumento independiente timing eficiente) + 4/5 refutados (A Path B refutación reforzada hoy + C Tier 0 I1 ya cumplido + D Walk-forward scope abierto §12 L34 + E Subset §13.3 contradice triaje Fase 3 propio). Aplicación recursiva §12 L27 V1 al meta-nivel produjo §12 L27 refinamiento V2 permanente: items archivados con razones empíricas sólidas son resilientes a rescate (turnover ~7-15% análogo items §13.3 disciplinados V1). Candidato B diferido sesión dedicada deploy L1892+L1904 ~2026-05-05 a 05-10 (evita momentum institucional sesgo + agrupa eficientemente). §12 L36 cross-7-aplicaciones consolidada (~52-82h ahorro acumulado).
 
