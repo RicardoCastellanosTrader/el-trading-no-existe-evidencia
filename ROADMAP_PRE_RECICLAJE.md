@@ -74,7 +74,20 @@ Reactivable post-reciclaje 45 sym + k-fold CV proyecto dedicado podría re-evalu
 
 ## Reciclaje completo 45 símbolos
 
-Trigger: A+B+C done + D+E validados o archivados. **Estado 2026-04-27 MADURO INSTITUCIONAL FINAL**: A done_archived + B done merged + C 7/7 done + Path B archive 2026-04-26 + **D+E ARCHIVED_EMPIRICAL 2026-04-27 (pre-flight refutación masiva)**. A+B+C+D+E completo. Trigger reciclaje 45 sym solo aguarda fecha calendario.
+Trigger: A+B+C done + D+E validados o archivados. **Estado 2026-04-27 cierre día MADURO INSTITUCIONAL FINAL+P1+TRIAJE**: A done_archived + B done merged + C 7/7 done + Path B archive 2026-04-26 + D+E ARCHIVED_EMPIRICAL 2026-04-27 mañana + P1 ARCHIVED_EMPIRICAL 2026-04-27 tarde + triaje §13.3 sistemático cross-20-items 2026-04-27 tarde-noche. A+B+C+D+E+P1+triaje completo. **Único pendiente pre-reciclaje**: deploy L1892+L1904 fecha límite ~2026-05-05 a 05-10 aislado pre-reciclaje (item L2869 scope refinado). Trigger reciclaje 45 sym solo aguarda fecha calendario ~2026-05-12 a 05-22.
+
+## Próximas sesiones — pendientes operacionales
+
+**Disparadores temporales próximos**:
+- Deploy L1892 active_config_id + L1904 multipliers SIGNALS_DISCARDED (commit `3727366`): fecha límite ~2026-05-05 a 05-10 aislado pre-reciclaje. Procedure standard validada v2.4.4/v2.4.5 (~20-47s downtime + Smoke §0.8 Nivel A único requerido). Item L2869 scope refinado Fase 3 2026-04-27.
+- Reciclaje completo 45 sym ETA ~2026-05-12 a 05-22 (~180-225h compute VPS, 8-10 días).
+
+**Reactivación condicional items archivados** (no requieren acción pre-reciclaje):
+- v2.6-inv re-evaluable solo si régimen mercado cambia drásticamente (bear extremo, eventos macro, shock funding) → re-evaluar threshold X empírico + frecuencia subset operacional.
+- v2.6-exit re-evaluable post-reciclaje + k-fold CV proyecto dedicado.
+- P1 leverage re-evaluable post-reciclaje SOLO con condiciones (i)-(v) explícitas (edge restored N≥50 nuevo + capital >1000 USDT + isolated mantenido + re-simulación cross-12-escenarios mejora vs baseline 2026-04-27 + asimetría arquitectónica clusters resuelta).
+
+**Items §13.3 EN_ESPERA finales (24 totales)**: 8 categóricos skip post-reciclaje (audit_v5.x, git+GitHub, walk-forward bias, Tier 0 I1, Análisis B edge decay, orphan reconstruction triage, funding fallback triage) + 16 refinados scope/disparador 2026-04-27 (brain_engine 8 items reciclaje julio, portfolio 3 disparadores empíricos no cumplidos, data_feed/execution 2 post-reciclaje cleanup, operacionales 3 cosmético/permanente/inminente reciclaje).
 Scope compute: ~180-225h VPS (8-10 días).
 Estimación fecha: ~2026-05-12 a 05-22.
 
@@ -116,6 +129,8 @@ Disparador operacional D ~2026-05-01 N≥100 BingX-native sigue método correcto
 §12 L36 validada profilácticamente cross-3 sesiones consecutivas funding research (ahorro compute ~30-45h paths infeasibles ciegamente).
 
 ## Historia
+
+- **2026-04-27 cierre día consolidado** (Fase 4 administrativa): §12 L27 refinamiento permanente capturado (distinción items susceptibles vs resilientes, predicción turnover diferenciada, valor institucional update sistemático ≠ exclusivamente turnover). Header L3 entrada SESIÓN COMPLETA DÍA cierre. ROADMAP final post-archive D+E+P1+triaje. Único pendiente pre-reciclaje: deploy L1892+L1904 fecha límite ~2026-05-05 a 05-10. 4 commits día completo (3eb937c + 06e30fb + d1d2859 + Fase 4). Estado pre-reciclaje MADURO INSTITUCIONAL FINAL+P1+TRIAJE invariante.
 
 - **2026-04-27 sesión tarde-noche** (Fase 3): triaje sistemático §13.3 §12 L27 cross-20-items. Categorización: 2 ARCHIVED (L1961 R1 dependencia obsoleta + L2295 compute_leverage_map bajo P1) + 18 EN_ESPERA refinados scope/disparador marcador 2026-04-27 + 0 RESUELTO + 0 consolidados. §12 L34 metodológico: predicción turnover backlog 50-65% REFUTADA (real 10%) — items §13.3 son robustos, disparadores válidos pero no cumplidos. §13.3 EN_ESPERA reducido 28 → 24 (todos items refinados marcador hoy). §12 L36 cross-6-aplicaciones consolidada (~50-80h ahorro acumulado). Estado pre-reciclaje MADURO INSTITUCIONAL FINAL+P1+TRIAJE.
 
