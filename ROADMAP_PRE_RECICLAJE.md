@@ -53,12 +53,17 @@ Scope: ~4-6h total distribuido. Estado actualizado:
 
 ## Dependencias y post-reciclaje
 
-### Categoría D — Espera datos operacionales N≥100 (~2026-05-01)
-- v2.6-inv entry filter candidato — validación Welch p<0.05 S4 homogéneo obligatorio (§13.3 actualizado Fase 3 stress-test). **Update 2026-04-26 sesión 4 Path B archive**: threshold empírico **X=5e-4** identificado cross-3-exchanges (96.5% unanimidad pooled) REEMPLAZA §9.3 arbitrario `|rate| > 0.001`. Análisis Welch post-N≥100 sobre subset trades `|funding_rate_at_entry| ≥ 5e-4` aligned vs contrarian. Caveat: subset esperado pequeño régimen actual (concentración SEI/DOT/SOL/NEAR primary; mega/large-caps 0 eventos cross-180d Path B).
-- ~~Cache funding extender a origen dataset (prerequisito VPS ~30 min).~~ **DONE 2026-04-26 sesión 2 §12 L27** — cache local ya cubría 2026-03-01 → 2026-04-23 08:00 desde refresh previo no documentado; sesión 2 ejecutó refresh forward gap real 2026-04-23 → 2026-04-26T16:00 (~42s VPS, 78/78 trades duration>1h cobertura 100%). Stress-tests v2.6-inv NO bloqueados por gap cache. Ver §13.4 entrada cache funding refresh 2026-04-26 sesión 2.
+### Categoría D — ARCHIVED_EMPIRICAL 2026-04-27 (pre-flight refutación)
 
-### Categoría E — Espera datos operacionales N≥150 (~2026-05-10)
-- v2.6-exit filter candidato (cerrar contrarian losing trades).
+**v2.6-inv momentum filter archivado empíricamente**: pre-flight enrichment N=72 trades post-v2.4.5 reveló **subset trades `|rate|≥5e-4` = 0/72** (cobertura cache 95% N=76). Path B Sesión 3 caveat "rasgo extremo raro régimen actual" validado operacionalmente cross-arquitectura limpia. Filter NUNCA se activaría régimen actual. Extrapolación lineal N=100 disparador D ~mañana 2026-04-28: subset esperado ~0 trades. Disparador NO cambia conclusión.
+
+Reactivable solo con cambio régimen mercado significativo (bear extremo, eventos macro, shock funding). Path B framework cross-3-exchanges metodológicamente disponible para re-validación. §13.3 L2342 ARCHIVED_EMPIRICAL_2026-04-27. Ver §13.4 entrada 2026-04-27 sesión mañana.
+
+### Categoría E — ARCHIVED_EMPIRICAL 2026-04-27 (pre-flight refutación)
+
+**v2.6-exit filter archivado empíricamente**: pre-flight Spearman ρ(n_bars_contrarian, pnl_pct) post-v2.4.5 N=72 = **+0.020 p=0.87** — signo OPUESTO + magnitud nula vs Bloque 2 N=50 ρ=-0.32. Triple-refutación cross-régimen confirmó Bloque 2 era artefacto contaminación pre-v2.4.4 (size_usdt=0) + pre-v2.4.5 (entry_ms=0) + ventana temporal estrecha + clusters S2+S3 sub-window concentración. Hipótesis "más tiempo contrarian = peor PnL" NO sostenida cross-arquitectura limpia.
+
+Reactivable post-reciclaje 45 sym + k-fold CV proyecto dedicado podría re-evaluar correlación n_bars_contrarian vs PnL sobre specialists nuevos régimen mercado distinto. §13.3 L2399 ARCHIVED_EMPIRICAL_2026-04-27. Ver §13.4 entrada 2026-04-27 sesión mañana.
 
 ### Post-reciclaje
 - Tier 0 I1 kernel reason_exit + Bloque 2c H1+H_funding+H_strategy (proyecto dedicado ~20-30h).
@@ -68,7 +73,7 @@ Scope: ~4-6h total distribuido. Estado actualizado:
 
 ## Reciclaje completo 45 símbolos
 
-Trigger: A+B+C done + D+E validados o archivados. **Estado 2026-04-26**: A done (DONE_ARCHIVED refutado empírico) + B done (merged) + C done (7/7) — A+B+C completo. Pendiente solo D+E disparadores temporales (~2026-05-01 / ~2026-05-10).
+Trigger: A+B+C done + D+E validados o archivados. **Estado 2026-04-27 MADURO INSTITUCIONAL FINAL**: A done_archived + B done merged + C 7/7 done + Path B archive 2026-04-26 + **D+E ARCHIVED_EMPIRICAL 2026-04-27 (pre-flight refutación masiva)**. A+B+C+D+E completo. Trigger reciclaje 45 sym solo aguarda fecha calendario.
 Scope compute: ~180-225h VPS (8-10 días).
 Estimación fecha: ~2026-05-12 a 05-22.
 
@@ -110,6 +115,8 @@ Disparador operacional D ~2026-05-01 N≥100 BingX-native sigue método correcto
 §12 L36 validada profilácticamente cross-3 sesiones consecutivas funding research (ahorro compute ~30-45h paths infeasibles ciegamente).
 
 ## Historia
+
+- **2026-04-27 sesión mañana**: D+E ARCHIVED_EMPIRICAL pre-disparadores. Pre-flight enrichment N=72 trades post-v2.4.5 (~17s compute local) reveló refutación masiva: v2.6-inv subset `|rate|≥5e-4` = 0/72 (Path B caveat "extremo raro régimen actual" validado operacionalmente cross-arquitectura limpia); v2.6-exit Spearman ρ=+0.020 p=0.87 signo OPUESTO triple-refutado vs Bloque 2 -0.32. Aplicación §12 L36 prophilactic ahorró ~6-10h compute + 2 días tiempo (validación mínima vs framework completo + Welch + esperar disparadores). §13.3 L2342 + L2399 → ARCHIVED_EMPIRICAL. §12 L36 cross-4-sesiones funding research consolidada (ahorro acumulado ~36-55h). Estado pre-reciclaje MADURO INSTITUCIONAL FINAL — A+B+C+D+E completo, trigger reciclaje 45 sym aguarda solo fecha calendario.
 
 - **2026-04-22** (`roadmap_2026-04-22.md.archived-20260424`): roadmap original categorización §13.3 N/R/C (29 items). Sustituido por criterio institucional 2026-04-24 "todas mejoras A+B+C pre-reciclaje".
 - **2026-04-24**: roadmap consolidado A+B+C+D+E post-smoke reciclaje Bloque 5 + refinamiento §13.2 marco mecánico canónico.
