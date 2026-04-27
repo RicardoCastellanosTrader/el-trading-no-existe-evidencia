@@ -1,25 +1,47 @@
 # Sistema de Trading Algorítmico — Contexto Completo del Proyecto
 
-**Última actualización:** 28 Abril 2026 SESIÓN 0 FRAME 2 METODOLÓGICA FUNDAMENTAL — **Walk-forward methodology redesign post-cuestionamiento Ricardo "patada hacia delante" (refinamientos pospuestos repetidamente L1721+L2336+L2621). Sesión 1A.2 Path β3 EMPIRICAL FAIL 2.7% match rate vs gate 80% → ROLLBACK clean baseline Sesión 1B amendment preservado. Frame 2 SUPERSEDE AGGRESSIVE pura recalibrada: refinamientos selection-bias-specific (R1 Deflated SR + R2 k-fold CV) PRE-RECICLAJE no post; Tier 0 I1 Path γ kernel granular sustituye Path α reduced enum; Gates A+B+C cross-9 N=9 cierre empírico (mean ratio J/B + 0/9 colapso fuerte + Spearman ρ stable cross-cluster)**.
+**Última actualización:** 28 Abril 2026 SESIÓN 1 FRAME 2 ANÁLISIS ARQUITECTÓNICO COMPLETO — **regime_walk_forward.py mapeo exhaustivo + decisión Ricardo (C) descartar R2 k-fold CV (H2 mal-formulada vs realidad episode-based per cluster chronological + cross-9 ONDO 0/3 R2-eligible orphan) + R6_γ defer post-reciclaje (state evolution divergence Path β3 fail empírica validó) + spec R3 Path γ kernel granular TF (6 valores) + MR (8 valores) ASIMÉTRICO refinada Sesión 2 + 5+ sub-decisiones técnicas (m+n+o+p+P1+q) + 6 operacionales (r+s+t+u+v) + 3 escenarios Sesión 4 Gates evaluation (PASS+PASS+PASS ~30-40% reciclaje confidence / PASS+PASS+FAIL_C ~40-50% reciclaje honesto + decisión strategic capital scale-up vs Frame 3 / FAIL_A ~15-25% Frame 3 redesign mandatory)**.
 
-**Frame 2 sesiones 5 cross-1.5-2 semanas calendario, ~12-19h CC real (§12 L37)**:
-1. **Sesión 1 Frame 2** (~2026-04-28 noche): R1 Deflated SR (López de Prado 2014) + R2 k-fold CV walk-forward 5-fold rolling (~2-4h CC).
-2. **Sesión 2 Frame 2** (~2026-04-29): R3 Tier 0 I1 Path γ kernel granular + R6 audit refactor Opción A clean post-Path γ (~4-7h CC).
-3. **Sesión 3 Frame 2** (~2026-04-30 a 05-01): R4 Bloque 2c granular cross-régimen + R5 condicional H_M3+H_M4+H_M5+H_M6 (~2-5h CC).
-4. **Sesión 4 Frame 2** (~2026-05-02 a 03): Gates evaluation cross-9 N=9 (~1-2h CC).
-5. **Sesión 5 Frame 2** (~2026-05-03 a 05): Reciclaje 45 sym launch.
+**Frame 2 reformulado calendar reciclaje launch ~2026-05-03 invariante**:
+1. **Sesión 1 Frame 2** (HOY 2026-04-28): análisis arquitectónico completo + decisiones Ricardo (C)+R6_γ DONE.
+2. **Sesión 2 Frame 2** (~2026-04-29): R3 Path γ TF+MR ambos kernels (~5-6h CC, 2 sub-fases 2A TF + 2B MR §12 L25 segmentación).
+3. **Sesión 2.5 Frame 2** (~2026-04-29 tarde o 30): R1 DSR rigurosa con per-trade returns post-Path γ (~1-2h CC).
+4. **Sesión 3 Frame 2** (~2026-04-30 a 05-01): R4 Bloque 2c granular cross-strategy + R5 Reduced parameter space + ensemble combinados (~4-6h CC + compute background).
+5. **Sesión 4 Frame 2** (~2026-05-01 a 02): Gates A+B+C cross-9/cross-15 + decisión Ricardo strategic post-Escenario 1/2/3.
+6. **Sesión 5 Frame 2** (~2026-05-03): Reciclaje launch + 15 días background.
+7. **Post-reciclaje proyecto dedicado**: R6 audit refactor Path β1 entries-filter (~6-10h CC).
 
-**Path β3 EMPIRICAL FAIL causa raíz**: state evolution divergence — kernel cross-cluster + post-filter brain-side NO preserva state machine equivalence con audit pre-refactor cluster-by-cluster (cooldown/sl_level/div_ctx evolution cross-trade). Hipótesis "semánticamente equivalente por construcción" confundió trade output equivalence con state evolution equivalence. ROLLBACK clean: branch deleted + audit_fidelity_v5_2.py restaurado main `f8205fa` + EXPECTED_LAB_KERNEL_HASH revertido `02f9c480...` (Sesión 1B amendment baseline preservado).
+**Asimetría enum TF (6) ≠ MR (8) Path γ** (hallazgo §12 L38 disciplinada): spec Sesión 0 invertida (asumió 8 TF + 6 MR). Real: TF 6 valores (sl_hit, sl_emergency, div_exit, tf_exit, zone_exit, cancel_tf) + MR 8 valores (sl_hit, sl_emergency, div_exit, tf_exit, zone_exit_mr, cancel_zona, cancel_tf, cancel_ghost). `regime_change` y `cancel_mr` spurious paths spec original — no existen kernel TF current code. MR kernel UNCHANGED Sesión 1B → Path γ Sesión 2 introduce per-trade tracking PRIMERA VEZ MR (~3-4h CC) replicando Path α' supplement pattern Sesión 1B amendment.
 
-**§12 L36 16ª aplicación retrospectiva refutada**: predicción "Path β3 by construction equivalent ~5-10 min validación" REFUTADA empíricamente (real 2.7% match rate). Cross-16-aplicaciones consolidada (~55-95h ahorro acumulado).
+**Path γ SUSTITUYE Path α + Path α' supplement Sesión 1B** (no amend) — decisión arquitectónica honesta post-Path β3 fail empírica validó Path α reduced enum subóptimo. Commits 9282e79 + f8205fa preservan git history trazabilidad.
 
-**§12 L34 captura**: hipótesis "semánticamente equivalente por construcción" sin validación empírica ANTES invertir compute = costo evitable ~3-4h CC. Mitigación futura: gate visible empírico ANTES merge full implementation arquitectural Opción.
+**Hallazgos críticos Sesión 1 análisis arquitectónico** (§12 L38 disciplinada):
+- `extract_validated_specialists(sym_result, output_dir)` arquitectura parts files on disk (NOT df-flow spec original).
+- Parts files TRANSITORIAS cleanup post-extract (NOT persistent — refactor R2/R3 single pipeline run).
+- `build_regime_labels` episode-based per-cluster chronological (NOT bar-uniform sliding window).
+- `train_ratio` default 0.70 (NOT 0.67 hardcoded asumido spec original).
+- `run_on_slice(start_bar, end_bar)` slice approach feasible warmup=100 rebuild state.
+- Cross-9 ONDO 0/3 clusters R2-eligible + SEI C2 orphan = 5/9 R2-eligible insuficiente Gate A power.
 
-**§12 L38 10ª aplicación recursiva**: state evolution divergence es categoría riesgo distinta a output equivalence — verificar AMBOS pre-implementation arquitectural decision.
+**Math sostenibilidad capital allocation Escenario 2** (PASS+PASS+FAIL_C ~40-50% probabilidad):
+- Conservative (edge homogeneous mean cross-138 clusters): 10K USDT × 1.2 PF × turnover × retention ≈ +$240-1200/año.
+- Selective (edge concentrado top-quartile clusters operables post-Frame 2): 10K USDT × 1.4-1.6 PF excess × 12 trades/mes × 70% retention ≈ +$450-900/año.
+- Comparable ETF/bonds/staking baseline +5-12% anual. **Decisión NO técnica — strategic Ricardo basada en tolerancia riesgo + capital disponible + confianza edge ~1.2 PF estructural sostenible cross-meses + alternativas inversión opportunity cost**.
 
-**Próximo**: Sesión 1 Frame 2 R1 Deflated SR rama `sesion-1-frame2-r1-deflated-sr` (~1-2h CC).
+**Frame 2 alcance honesto explícito**: refinements pre-reciclaje (R1+R3+R4+R5) **NO mejoran edge real disponible mercado** — atacan sobrestimación métricas walk-forward para selección honesta configs reciclaje. Si edge real ~1.2 PF estructural, reciclaje sobre methodology honest produce specialists JSON pf_fwd ~1.2 (no 4-7 inflado actual M2 fix baseline 2.41×) + bot operacional reproduce ~1.2 fielmente = **gap simulated↔operacional ~0** = consistencia methodology.
 
-Estado pre-reciclaje **MADURO INSTITUCIONAL FINAL+P1+TRIAJE+AUDIT-RESCATE+FRAME-2-WALK-FORWARD-COMPLETO** invariante.
+**§12 L34+L36+L37+L38 aplicadas disciplinadamente cross-Sesión 0+1**: ~12-18h CC futile prevenido cumulative + reformulación honesta alcance Frame 2 cross-evidencia disponible. §12 L34 aplicación recursiva al roadmap Frame 2 propio: H2 hipótesis Sesión 0 mal-formulada refutada empíricamente vía análisis arquitectónico → roadmap reformulado disciplinadamente. NO regresión Frame 1 implícito — disciplina aspirar-a-lo-mejor literal aplicada incluso al propio plan cuando emerge evidencia. §12 L36 cross-18-aplicaciones consolidada.
+
+**Items §13.3 reformulados**:
+- L1916 audit_v5.x → POST-RECICLAJE proyecto dedicado (R6_γ defer).
+- L3051 Tier 0 I1 → Sesión 2 R3 Path γ TF (6) + MR (8) ambos.
+- L2336 Multi-testing correction → Sesión 2.5 R1 DSR rigurosa post-Path γ.
+- R5 Reduced parameter space + ensemble → Sesión 3 promovido pre-reciclaje (combinado R4).
+- R2 k-fold CV → DESCARTADO pre-reciclaje (H2 mal-formulada vs realidad episode-based).
+
+**Próximo**: Sesión 2 Frame 2 R3 Path γ kernel granular TF+MR standalone (~5-6h CC, 2 sub-fases 2A+2B §12 L25 segmentación) cuando Ricardo confirme disponibilidad ~2026-04-29.
+
+Estado pre-reciclaje **MADURO INSTITUCIONAL FINAL+P1+TRIAJE+AUDIT-RESCATE+FRAME-2-REFORMULADO** invariante.
 
 Bot v2.4.5 operacional VPS Tokio uptime 5d 9h+ invariante. Sin tocar `live/*` productivo (kernel modify lab-only). Fidelidad 2 invariante por construcción.
 
@@ -1275,6 +1297,23 @@ Referencias: §9.2.1 rollback GRT, §3.3 tabla MR rescates, §13.4 RESUELTO audi
 
 **Caveat permanente §13.2 residual ratio 2.41× M2 fix baseline**: superseded by Frame 2 — refinamientos R1+R2 atacan residual estructural directamente pre-reciclaje (no diferidos post). Ver §13.4 entrada Sesión 0 Frame 2 metodológica fundamental 2026-04-28 sesión noche.
 
+**[REFORMULACIÓN HONESTA 2026-04-28 sesión noche-2 — Frame 2 alcance refinado post-Sesión 1 análisis arquitectónico]**
+
+Sesión 1 análisis arquitectónico exhaustivo cross-§12 L38 disciplinada reveló Frame 2 alcance original Sesión 0 contenía 2 hipótesis pre-validation imperfectas:
+
+- **H2 train/fwd split single fwd-window-luck mal-formulada** vs realidad arquitectónica `build_regime_labels` episode-based per cluster CHRONOLOGICAL (`regime_walk_forward.py:279-403`). Train/fwd split es per-cluster aislado, NO bar-uniform sliding window. Cross-9 ONDO 0/3 clusters R2-eligible orphan empírico (10.14% clusters orphan global cross-138). **R2 k-fold CV DESCARTADO pre-reciclaje**.
+- **R6 audit refactor Opción A pre-reciclaje state evolution divergence** audit pre-refactor entries-filter NO replicable Path γ alone (Path β3 fail empírica 2.7% match rate validó). **R6 diferido post-reciclaje** per L1721 disparador original.
+
+**Frame 2 reformulado pre-reciclaje calendar invariante reciclaje launch ~2026-05-03**:
+- R1 DSR rigurosa post-Path γ (Sesión 2.5).
+- R3 Path γ kernel granular TF (6 valores) + MR (8 valores) ASIMÉTRICO Sesión 2 ambos kernels (~5-6h CC, 2 sub-fases 2A TF + 2B MR §12 L25 segmentación).
+- R4 Bloque 2c granular cross-strategy + R5 Reduced parameter space + ensemble combinados Sesión 3 (~4-6h CC + compute background).
+- R6 audit refactor diferido post-reciclaje proyecto dedicado.
+
+**Frame 2 alcance honesto explícito**: refinements pre-reciclaje (R1+R3+R4+R5) **NO mejoran edge real disponible mercado** — atacan sobrestimación métricas walk-forward para selección honesta configs reciclaje. 3 escenarios Sesión 4 Gates evaluation 3-way documentados (PASS+PASS+PASS ~30-40% / PASS+PASS+FAIL_C ~40-50% reciclaje honesto + decisión Ricardo strategic capital scale-up vs Frame 3 / FAIL_A ~15-25% Frame 3 redesign mandatory). Ver §13.4 entrada Sesión 1 análisis arquitectónico 2026-04-28 sesión noche-2.
+
+**Disciplina §12 L34 aplicada al roadmap Frame 2 propio**: hipótesis emergentes refutadas vía análisis arquitectónico Parte 1+2+3 → roadmap reformulado disciplinadamente. NO regresión Frame 1 implícito — disciplina aspirar-a-lo-mejor literal aplicada incluso al propio plan cuando emerge evidencia.
+
 **[REFINAMIENTO CRÍTICO 2026-04-24 post-smoke reciclaje + conversación Ricardo]**
 
 La interpretación inicial post-Smoke C "walk-forward selection rule noise-dominated" era **framing categórico incorrecto**. Conversación Ricardo 2026-04-24 establece marco mecánico preciso que DEBE usarse como referencia en sesiones futuras para evitar re-derivar mismo debate.
@@ -1931,9 +1970,11 @@ Cierre: permanente. Caracterización resuelta empíricamente. Histéresis P≥0.
 
 Referencias: §13.4 RESUELTO Fase C item 1 audit institucional 2026-04-26, §13.4 RESUELTO primer audit 2026-04-21, §13.2 "opción C", §12 L25 + L35.
 
-**[INFRA] [REFORMULADO FRAME 2 2026-04-28 sesión noche — Sesión 2 R6 post-Path γ kernel granular pre-reciclaje, Path β3 EMPIRICAL FAIL ROLLBACK] Refactor audit_v5.x herramienta auditor + reconciliación con kernel productivo Numba — 2026-04-26**
+**[INFRA] [DIFERIDO POST-RECICLAJE 2026-04-28 sesión noche-2 — Sesión 1 análisis arquitectónico R6_γ defer per L1721 disparador original confirmed Ricardo] Refactor audit_v5.x herramienta auditor + reconciliación con kernel productivo Numba — 2026-04-26**
 
-**Update Frame 2 2026-04-28 sesión noche (Sesión 2 R6 post-Path γ kernel granular)**: Sesión 1A.2 Path β3 EMPIRICAL FAIL 2.7% match rate vs gate 80% (kernel cross-cluster + post-filter brain-side NO preserva state evolution equivalence con audit pre-refactor cluster-by-cluster). ROLLBACK clean main `f8205fa` baseline Sesión 1B amendment. **Reformulación Frame 2**: Path γ kernel granular (sustituye Path α reduced enum) implementada Sesión 2 Frame 2 → audit refactor Opción A clean ejecutable post-Path γ (kernel ahora exporta enum granular real sl_emergency/sl_hit/cancel_zone/cancel_ghost/tf_exit/zone_exit/regime_change separados sin reduced enum collapse). Audit `extract_trades_tf` reemplazable directo por `run_on_slice(..., return_per_trade=True)` cluster-by-cluster (preserva state evolution per-cluster). Tests greenfield diff 0.0000 cross-3-símbolos pre-merge gate empírico mandatory (lección §12 L34 captura Path β3). Ver §13.4 entrada Sesión 0 Frame 2 2026-04-28 sesión noche + §13.4 entrada Path β3 ROLLBACK 2026-04-28 sesión noche.
+**Update R6_γ defer 2026-04-28 sesión noche-2 (Sesión 1 análisis arquitectónico Parte 3.1)**: spec original Sesión 0 promovió R6 audit refactor pre-reciclaje Sesión 2 post-Path γ. **§12 L38 disciplinada Sesión 1 análisis Parte 3.1 reveló R6 specification incompleta**: state evolution divergence audit pre-refactor entries-filter NO replicable Path γ alone — Path γ habilita per-trade enum granular pero NO replica filter post-call cluster-by-cluster equivalence con audit pre-refactor. Path β3 fail empírica 2.7% match rate validó dependency mismatch crítico (`audit_fidelity_v5_2.py` arquitectura entries-filter pre-refactor stateless property NO preservable kernel cross-cluster + cluster_labels=-1 approach). **R6 diferido post-reciclaje proyecto dedicado** per L1721 disparador original confirmed Ricardo (R6_γ decisión arquitectónica honesta). Sesión 0 promoción R6 pre-reciclaje fue sesgo confidence pre-verificación arquitectónica completa. Ver §13.4 entrada Sesión 1 análisis arquitectónico 2026-04-28 sesión noche-2.
+
+**Update Frame 2 2026-04-28 sesión noche (Sesión 2 R6 post-Path γ kernel granular) — HISTÓRICO superseded por R6_γ defer**: Sesión 1A.2 Path β3 EMPIRICAL FAIL 2.7% match rate vs gate 80% (kernel cross-cluster + post-filter brain-side NO preserva state evolution equivalence con audit pre-refactor cluster-by-cluster). ROLLBACK clean main `f8205fa` baseline Sesión 1B amendment. Reformulación Sesión 0: Path γ kernel granular Sesión 2 → audit refactor Opción A clean post-Path γ. **Reformulación honesta R6_γ Sesión 1 análisis**: Path γ habilita per-trade enum granular Sesión 2 R3 (TF 6 + MR 8 valores asimétrico) pero R6 audit refactor requiere arquitectura stateless filter post-call NO replicable Path γ alone — proyecto dedicado post-reciclaje L1721 disparador original.
 
 **Update Sesión 1A 2026-04-28 (G2.1 BLOQUEADO mismatch revealed §12 L36 9ª profiláctica) — HISTÓRICO**: investigación pre-cambio reveló dependency mismatch crítico. `audit_fidelity_v5_2.py:684` `extract_trades_tf` (700+ líneas python re-implementation kernel TF logic) **retorna per-trade list** (entry_bar, exit_bar, side, pnl, reason_exit per trade); `lab_historico_numba_v8_3.py:1849` `run_on_slice` → `run_simulation_numba` **retorna AGREGADOS** (pnl, trades, wins, gp, gl, maxdd) sin per-trade arrays. **API contracts incompatibles**: Opción A "importar kernel directo" inherentemente requiere kernel exporting per-trade data = **G1.1 Tier 0 I1 prereq**. Path A reorder Sesión 1A.2 post-G1.1 inicialmente, posteriormente Path β3 attempted+FAILED → reformulación Frame 2 Sesión 2 R6 post-Path γ.
 
@@ -3068,9 +3109,11 @@ Referencias:
 
 ---
 
-**[INFRA] [REFORMULADO FRAME 2 2026-04-28 sesión noche — Sesión 2 R3 Path γ kernel granular pre-reciclaje sustituye Sesión 1B Path α reduced enum + Sesión 3 R4 Bloque 2c granular cross-régimen pre-reciclaje] Tier 0 I1 kernel reason_exit tracing + Bloque 2c H1 + H_funding + H_strategy full cross-régimen — 2026-04-23**
+**[INFRA] [REFORMULADO FRAME 2 2026-04-28 sesión noche-2 — Sesión 2 R3 Path γ kernel granular TF (6 valores) + MR (8 valores) ASIMÉTRICO ambos kernels pre-reciclaje + Sesión 3 R4 Bloque 2c granular cross-strategy + R5 Reduced parameter space + ensemble combinados] Tier 0 I1 kernel reason_exit tracing + Bloque 2c H1 + H_funding + H_strategy full cross-régimen — 2026-04-23**
 
-**Update Frame 2 2026-04-28 sesión noche (reformulación post-Path β3 EMPIRICAL FAIL)**: Sesión 1B Path α reduced enum 4 valores TF (sl_exit, div_exit, normal_exit, cancel_tf) + amendment Path α' (entry_price + exit_price arrays) implementaron version flag-driven backward-compat (commits `9282e79` + `2270b67`). Sesión 1A.2 Path β3 audit refactor cross-cluster + post-filter brain-side EMPIRICAL FAIL 2.7% match rate vs gate 80% reveló reduced enum collapse + cross-cluster state evolution divergence inhabilitan equivalencia by-construction audit pre-refactor. **Frame 2 Sesión 2 R3 Path γ kernel granular sustituye Path α**: enum extendido sl_emergency/sl_hit + cancel_zone/cancel_ghost + tf_exit/zone_exit separados + regime_change brain-side propagación. Path γ preserva state evolution per-cluster (audit refactor Opción A clean post-Path γ R6 Sesión 2 ejecutable cluster-by-cluster sin filter post-call). **Frame 2 Sesión 3 R4 Bloque 2c granular cross-régimen** ejecutable pre-reciclaje con kernel Path γ (no diferido post-reciclaje como original 2026-04-23). Ver §13.4 entrada Sesión 0 Frame 2 2026-04-28 sesión noche.
+**Update Frame 2 reformulado 2026-04-28 sesión noche-2 (Sesión 1 análisis arquitectónico Parte 3.1)**: spec Sesión 0 enum 8 valores TF + 6 valores MR REVISADO empíricamente cross-código real `lab_historico_numba_v8_3.py:1500-1715` (TF) + `mean_reversion_kernel.py:213-419` (MR). **Asimetría enum TF (6) ≠ MR (8) confirmed**: spec original invertida — `regime_change` (brain-side) + `cancel_mr` (no aplica TF) spurious paths. Real TF 6 valores (sl_hit, sl_emergency, div_exit, tf_exit, zone_exit, cancel_tf) + MR 8 valores (sl_hit, sl_emergency, div_exit, tf_exit, zone_exit_mr, cancel_zona, cancel_tf, cancel_ghost). MR kernel UNCHANGED Sesión 1B → Path γ Sesión 2 introduce per-trade tracking PRIMERA VEZ MR (~3-4h CC) replicando Path α' supplement pattern. TF scope ~1.5-2h CC. **TOTAL ~5-6h CC ambos kernels Sesión 2**. Path γ SUSTITUYE Path α + Path α' supplement Sesión 1B (NO amend) — decisión arquitectónica honesta P1 confirmed Ricardo (Path α reduced enum subóptima validada empíricamente Path β3 fail). **Frame 2 Sesión 3 R4 Bloque 2c granular cross-strategy + R5 Reduced parameter space + ensemble combinados** ejecutable pre-reciclaje con kernel Path γ. Ver §13.4 entrada Sesión 1 análisis arquitectónico 2026-04-28 sesión noche-2.
+
+**Update Frame 2 2026-04-28 sesión noche (reformulación post-Path β3 EMPIRICAL FAIL) — HISTÓRICO superseded por Sesión 1 análisis**: Sesión 1B Path α reduced enum 4 valores TF (sl_exit, div_exit, normal_exit, cancel_tf) + amendment Path α' (entry_price + exit_price arrays) implementaron version flag-driven backward-compat (commits `9282e79` + `f8205fa`). Sesión 1A.2 Path β3 audit refactor cross-cluster + post-filter brain-side EMPIRICAL FAIL 2.7% match rate vs gate 80% reveló reduced enum collapse + cross-cluster state evolution divergence inhabilitan equivalencia by-construction audit pre-refactor. Sesión 0 reformulación Path γ Sesión 2 + R6 audit refactor Sesión 2 post-Path γ. **Sesión 1 análisis Parte 3.1 reformuló spec enum asimétrico TF (6) + MR (8)** + R6_γ defer post-reciclaje (state evolution divergence Path γ alone NO replica audit pre-refactor entries-filter).
 
 Contexto: Bloque 2c Opción Q1 sesión 2026-04-23 ejecutó W3 divergencia validation cuantitativa (§13.4 entrada nueva, 10 clusters × 3y Binance Futures). H1 + H_funding + H_strategy diferidos por limitación estructural del kernel Numba output: aggregates-only, sin per-trade side/entry_ts/reason_exit.
 
@@ -3219,6 +3262,141 @@ Referencias:
 ---
 
 ### 13.4 RESUELTO
+
+**[ANÁLISIS ARQUITECTÓNICO INSTITUCIONAL] [PRE-RECICLAJE FRAME 2 SESIÓN 1] regime_walk_forward.py mapeo exhaustivo + spec R3 Path γ refinada TF+MR asimétrico + 3 escenarios Sesión 4 Gates + reformulación honesta Frame 2 — 2026-04-28 sesión noche-2**
+
+**Contexto**: Sesión 1 Frame 2 Opción γ' (confirmada Ricardo) — análisis arquitectónico exhaustivo `regime_walk_forward.py` + `lab_historico_numba_v8_3.py` (TF kernel) + `mean_reversion_kernel.py` (MR kernel) post-Sesión 1 R2 Parte 0 detected 6/5 mismatches sustanciales spec R2 original. Frame 2 reformulado disciplinadamente cross-Parte 1+2+3 análisis = ~12-18h CC futile prevenido cumulative + reformulación honesta alcance pre-reciclaje cross-evidencia disponible.
+
+**§12 L38 disciplinada cross-Sesión 0+1 aplicaciones recursivas sucesivas**:
+1. Sesión 0: R1 DSR approximation matemática cuestionable detectada + cuestionamiento "patada hacia delante" Ricardo.
+2. Sesión 1 R2 Parte 0: 6/5 mismatches arquitectónicos sustanciales (signature parts files on disk + pipeline kernel call estructura per-variant + cluster_labels=-1 state contamination + build_regime_labels episode-based + train_ratio CLI + tests pytest pattern).
+3. Sesión 1 análisis Parte 1: train_ratio default 0.70 (NOT 0.67) + parts files transitorias cleanup post-extract + run_on_slice slice approach feasible warmup=100.
+4. Sesión 1 análisis Parte 2: H2 hipótesis Sesión 0 mal-formulada vs realidad arquitectónica episode-based per cluster chronological + cross-9 ONDO 0/3 R2-eligible orphan empírico (10.14% clusters orphan global cross-138).
+5. Sesión 1 análisis Parte 3.1: asimetría enum TF (6) ≠ MR (8) — spec Sesión 0 invertida; `regime_change` + `cancel_mr` spurious paths spec original.
+6. Sesión 1 análisis Parte 3.2: documentación honestidad alcance Frame 2 (refinements NO mejoran edge real mercado) + 3 escenarios Sesión 4 Gates + math capital scale-up.
+
+**Decisiones Ricardo Sesión 1 análisis confirmadas**:
+- **(C) Descartar R2 k-fold CV pre-reciclaje + promover R5 Reduced parameter space + ensemble**: H2 hipótesis fwd-window-luck classical mal-formulada vs realidad episode-based per cluster chronological. R5 atacar parameter space excessive es metodológicamente robusto + complementario R4 Bloque 2c granular cross-strategy.
+- **(R6_γ) R6 audit refactor diferido post-reciclaje proyecto dedicado**: per L1721 disparador original. Sesión 0 promoción R6 pre-reciclaje fue sesgo confidence pre-verificación arquitectónica completa (Path β3 fail empírica 2.7% match rate validó state evolution divergence audit pre-refactor entries-filter NO replicable Path γ alone).
+- **(P1) Path γ SUSTITUYE Path α + Path α' supplement Sesión 1B (NO amend)**: decisión arquitectónica honesta — Path α reduced enum validada subóptima empíricamente (Path β3 fail + R6 inviable Path γ alone). Path γ corrige decisión arquitectónica. Commits 9282e79 + f8205fa preserved git history trazabilidad pero overwritten en branch main.
+
+**Mapeo arquitectónico Parte 1** (`regime_walk_forward.py` 2366 líneas, 36 funciones):
+- Pipeline flow `main()` sequential: parse_args → for symbol → load_full_history + load_regime_model + load_presets → process_symbol (build_regime_labels → variant loop kernel calls → flush parts per cluster) → extract_validated_specialists (read parts → train+fwd filter → SQN haircut → W3 bootstrap → W4 → sort M2 fix → JSON + report) → cleanup parts.
+- Parts files: `{output_dir}/_parts_{sc}/part_{variant_idx:04d}_C{k}.parquet` TRANSITORIAS — cleanup `shutil.rmtree(parts_dir)` post-extract.
+- 9 CLI args (--symbols, --train-ratio default 0.70, --min-episode-bars 50, --output-dir, --presets-dir, --toxic-tail '50' o 'dynamic', --max-toxic-tail 100, --min-toxic-tail 5, --confirm-threshold 0.75).
+- Constants críticos: TRAIN_RATIO=0.70, MIN_EPISODES_VALIDATE=5, _TRAIN_MIN_TRADES=30, _FWD_MIN_TRADES=25, _FWD_MIN_PF=1.1.
+
+**Mapeo `build_regime_labels` Parte 2** (`regime_walk_forward.py:279-403`):
+- Episode-based per-cluster CHRONOLOGICAL: `n_train = max(1, int(n_eps × train_ratio))` primeras n_train episodes train, rest fwd.
+- Doubled labels: train k [0..K-1], fwd k+n_clusters [K..2K-1].
+- Toxic_tail dynamic: scan post-episode hasta `gmm_probs[t, j] ≥ confirm_threshold=0.75` (other cluster), bounds [min_toxic_tail=5, max_toxic_tail=100].
+- valid=False cuando n_eps < MIN_EPISODES_VALIDATE=5 (cluster orphan global single-fold).
+- Distribución empírica N_episodes cross-46-sym: median 74, Q25=45, Q75=102, **10.14% clusters orphan R2 5-fold (N <25)** — incluye **ONDO 0/3 R2-eligible** + SEI C2 orphan + ENA C1 + 11 más.
+
+**Spec R3 Path γ refinada Parte 3.1** (asimetría TF ≠ MR confirmada):
+
+```
+TF kernel granular (6 valores, lab_historico_numba_v8_3.py):
+  REASON_TF_SL_HIT       = 0   # sl_exit_signal=True, sl_emergency_signal=False
+  REASON_TF_SL_EMERGENCY = 1   # sl_exit_signal=True, sl_emergency_signal=True
+  REASON_TF_DIV_EXIT     = 2   # div_exit_signal
+  REASON_TF_TF_EXIT      = 3   # NEW flag tf_exit_signal (split de normal_exit_signal L1562-1577)
+  REASON_TF_ZONE_EXIT    = 4   # NEW flag zone_exit_signal (split de normal_exit_signal L1579-1585)
+  REASON_TF_CANCEL_TF    = 5   # cancel_signal
+
+MR kernel granular (8 valores, mean_reversion_kernel.py):
+  REASON_MR_SL_HIT       = 0
+  REASON_MR_SL_EMERGENCY = 1
+  REASON_MR_DIV_EXIT     = 2
+  REASON_MR_TF_EXIT      = 3   # NEW flag tf_exit_signal_mr
+  REASON_MR_ZONE_EXIT    = 4   # NEW flag zone_exit_signal_mr
+  REASON_MR_CANCEL_ZONA  = 5   # NEW flag (split cancel_signal)
+  REASON_MR_CANCEL_TF    = 6   # NEW flag (split cancel_signal)
+  REASON_MR_CANCEL_GHOST = 7   # NEW flag (split cancel_signal)
+```
+
+**MR kernel UNCHANGED Sesión 1B confirmed** — Path γ Sesión 2 introduce per-trade tracking PRIMERA VEZ MR (~3-4h CC) replicando Path α' supplement pattern (sentinel arrays + flag-driven dispatch + per-trade arrays 9 fields + count). TF scope ~1.5-2h CC. **TOTAL ~5-6h CC ambos kernels Sesión 2**.
+
+**5+ sub-decisiones técnicas confirmadas Ricardo turn**:
+- (m) MR kernel modify Sesión 2 ambos kernels — habilita R4 Bloque 2c cross-strategy granular.
+- (n) Asimetría enum TF (6) ≠ MR (8) documentada explícitamente.
+- (o) `audit_mr_fidelity_sei.py` hash check verificación Sesión 2 Parte 0 obligatoria — agregar análogo TF audit si NO existe.
+- (p) MR Path γ replicate Path α' supplement pattern (sentinel arrays + flag-driven dispatch + per-trade arrays 9 fields + count).
+- (P1) Path γ SUSTITUYE Path α + α' (NO amend) — decisión arquitectónica honesta.
+- (q) 2 sub-fases Sesión 2A TF (~1.5-2h) + 2B MR (~3-4h) §12 L25 segmentación — preserva rollback granular.
+
+**6 sub-decisiones operacionales adicionales** (r+s+t+u+v):
+- (r) Callers update cross-codebase REASON_TF_*/REASON_MR_* imports actualizar Path α reduced → Path γ granular mapping (audit, analyzers, analysis_scripts).
+- (s) `_run_verify_test` ground truth post-Path γ flag=False default: backward compat preserva diff 0.0000 baseline 2026-04-26 IDÉNTICO. Si diff != 0 → ROLLBACK.
+- (t) Tests greenfield estructura standalone scripts pattern (NOT pytest): 7 tests TF + MR + backward compat ambos + Path γ flag=True ambos + W3+W4 no-regression.
+- (u) Smoke §0.8 cross-cuatro símbolos pre-merge mandatory: BTC Nivel A + ONDO Nivel B + APT Nivel B + SEI MR Nivel C + audit hash parity (TF + MR).
+- (v) Cooldown uniforme preserved: condición `if sl_emergency_signal or sl_exit_signal or div_exit_signal or cancel_signal` invariante post-Path γ split (cooldown=1 always operational Pine canónica).
+
+**3 escenarios Sesión 4 Gates evaluation 3-way Parte 3.2** (cross-9 BTC+ONDO+SEI × C0+C1+C2 ± cross-15 expansión):
+
+| Escenario | Spearman ρ | Ratio J/B | pf_fwd top-1 mean | Probabilidad | Decisión Ricardo |
+|-----------|-----------|-----------|-------------------|--------------|------------------|
+| **1 — PASS+PASS+PASS** | ≥+0.30 sig | ≤1.5× | ≥1.5 | **~30-40%** | Reciclaje launch ~2026-05-03 confidence alta |
+| **2 — PASS+PASS+FAIL_C** | ≥+0.30 sig | ≤1.5× | <1.5 | **~40-50%** (most likely) | (i) Reciclaje sobre methodology honest + capital scale-up; o (ii) Frame 3 pivot |
+| **3 — FAIL_A** | <+0.30 NO sig | (irrelevante) | (irrelevante) | **~15-25%** | Frame 3 redesign mandatory + reciclaje pospuesto ≥3 meses |
+
+**Asimetría Gates A+B (methodology refinement) vs Gate C (edge real revealed)**: PASS A+B + FAIL C es escenario coherente "methodology honesta + edge real ~1.0-1.4 PF estructural" (H3 mercado eficiente partial confirmation). NO regresión methodology — refinements funcionaron.
+
+**Math sostenibilidad capital allocation Escenario 2 documentado rangos**:
+- Conservative (edge homogeneous mean cross-138 clusters): 10K USDT × 1.2 PF × turnover × retention ≈ +$240-1200/año.
+- Selective (edge concentrado top-quartile clusters operables post-Frame 2): 10K USDT × 1.4-1.6 PF excess × 12 trades/mes × 70% retention ≈ +$450-900/año.
+- Comparable ETF/bonds/staking baseline +5-12% anual.
+- DD peak histórico cross-régimen mean ~15-25% capital + tolerancia 25-40% temporal (ratio Calmar ~1.0-2.0).
+
+**Frame 3 pivot alternativas exploradas** (si Escenario 3 OR Escenario 2 opción ii): ensemble adaptive online weighting + Bayesian regime-conditional uncertainty-aware sizing + online learning incremental updates. Diferido decisión Sesión 4 post-Gates evaluation con datos empíricos.
+
+**Frame 2 alcance honesto explícito**:
+- Refinements pre-reciclaje (R1+R3+R4+R5) **NO mejoran edge real disponible mercado** — mercado no cambia por refinement metodológico interno.
+- Refinements **atacan sobrestimación métricas walk-forward para selección honesta configs reciclaje** — eliminan inflation by selection bias en pf_fwd reportado JSON.
+- Si edge real estructural ~1.5+ PF (Escenario 1): specialists post-reciclaje JSON pf_fwd ~1.5 + bot reproduce ~1.5 = gap ~0 = consistencia methodology.
+- Si edge real estructural ~1.2 PF (Escenario 2): specialists pf_fwd ~1.2 + bot reproduce ~1.2 = gap ~0 = decisión Ricardo strategic capital allocation.
+- Si edge real estructural < 1.0 PF (sub-escenario 3): specialists pf_fwd ~0.9-1.0 + bot reproduce sin edge = methodology honest revela edge inexistente → NO reciclaje launch + Frame 3 redesign.
+
+**Predicciones §12 L36 18ª Sesión 2 implementación Path γ**:
+- 0/8 clean Parte 0: 25-35%.
+- 1-2/8 mismatches (most likely): 45-55%. Mismatches probables: `audit_mr_fidelity_sei.py` NO tiene hash check separate + callers cross-codebase reason_exit string mappings.
+- 3+/8 mismatches críticos: 15-25%.
+- Sub-fase 2A TF success ~85-90% + Sub-fase 2B MR success ~65-75% + Combined ~55-70%.
+
+**Items §13.3 reformulados Sesión 1 análisis**:
+- L1916 audit_v5.x → POST-RECICLAJE proyecto dedicado (R6_γ defer).
+- L3051 Tier 0 I1 → Sesión 2 R3 Path γ TF (6) + MR (8) ambos.
+- L2336 Multi-testing correction → Sesión 2.5 R1 DSR rigurosa post-Path γ.
+- R5 Reduced parameter space + ensemble → Sesión 3 promovido pre-reciclaje (combinado R4).
+- R2 k-fold CV → DESCARTADO pre-reciclaje (H2 mal-formulada vs realidad episode-based).
+
+**§12 L34 aplicación recursiva Sesión 1**: H2 hipótesis Sesión 0 mal-formulada refutada empíricamente vía análisis arquitectónico Parte 2 → roadmap Frame 2 reformulado disciplinadamente. NO regresión Frame 1 implícito — disciplina aspirar-a-lo-mejor literal aplicada incluso al propio plan cuando emerge evidencia. Compromiso operacional registrado memoria persistente activo cross-conversaciones.
+
+**§12 L36 cross-18-aplicaciones consolidada** (~58-100h ahorro acumulado paths infeasibles ciegamente).
+
+**§12 L37 calibración temporal Claude Code real**: ~3-4h CC total Sesión 1 análisis arquitectónico vs ~30-50h estimación humana inflated sesión 0 inicial. Factor 8-15× más rápido vs estimación humana naive Frame 2 R2.
+
+**§12 L38 disciplinada cross-Sesión 0+1 = ~12-18h CC futile prevenido cumulative** + reformulación honesta alcance Frame 2 cross-evidencia disponible.
+
+**Ricardo framing honesto problema raíz registrado memoria persistente**: gap simulated↔operacional. Refinements pre-reciclaje NO mejoran edge real mercado — atacan sobrestimación métricas walk-forward para selección honesta configs reciclaje.
+
+**Estado pre-reciclaje FRAME 2 REFORMULADO invariante**: bot v2.4.5 operacional VPS Tokio uptime ~5d 11h+. Sin tocar `live/*` productivo. Fidelidad 2 invariante por construcción (Sesión 1 read-only análisis arquitectónico + documentación institucional).
+
+**Próximo Sesión 2 Frame 2 R3 Path γ kernel granular TF+MR standalone** (~5-6h CC, 2 sub-fases 2A+2B §12 L25 segmentación) cuando Ricardo confirme disponibilidad ~2026-04-29.
+
+**Referencias**:
+- `regime_walk_forward.py:279-403` (build_regime_labels), `:465-689` (process_symbol), `:1588+` (extract_validated_specialists), `:2231-2264` (parse_args).
+- `lab_historico_numba_v8_3.py:1273-1282` (Path α reduced enum a sustituir), `:1500-1715` (TF trade closure block + flags), `:1924+` (run_on_slice slice approach feasible).
+- `mean_reversion_kernel.py:213-419` (MR trade closure block + flags + 3 cancel paths colapsados), 812 líneas total.
+- `regime_wf/*_specialists_report.txt` (cross-46-sym distribución empírica N_episodes 138 cluster-sym pairs).
+- §13.4 entrada Sesión 0 Frame 2 metodológica fundamental 2026-04-28.
+- §13.4 entrada Sesión 1A.2 Path β3 ROLLBACK 2026-04-28 (state evolution divergence empírica validada).
+- López de Prado, M. (2014). "The Deflated Sharpe Ratio". J. Portfolio Management.
+- ROADMAP_PRE_RECICLAJE.md sección Frame 2 reformulada.
+
+**Cierre Sesión 1 Frame 2 análisis arquitectónico**: permanente. Walk-forward methodology refinement scope honesto pre-reciclaje empíricamente justificado cross-Parte 1+2+3. Próximo Sesión 2 Path γ TF+MR ambos.
+
+---
 
 **[REFORMULACIÓN INSTITUCIONAL] [SESIÓN 0 METODOLÓGICA FUNDAMENTAL] Frame 2 walk-forward methodology redesign post-cuestionamiento Ricardo "patada hacia delante" — 2026-04-28 sesión noche**
 
