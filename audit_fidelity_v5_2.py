@@ -120,7 +120,7 @@ DEFAULT_TIMING_TOLERANCE = 1
 # recomputar hash con `python -c "import hashlib,inspect; import ..."`
 # y actualizar constante.
 EXPECTED_AUDIT_KERNEL_HASH = "a93310e41213967bfe57bc7e94942178589ac2802a3a071f786eb5a7d3ba4167"
-EXPECTED_LAB_KERNEL_HASH = "fec1725ebe34f013e7063e0e6b237bb3626a09b01ee6d479be830f294811186f"  # G1.1 Path α 2026-04-28 Sesión 1B
+EXPECTED_LAB_KERNEL_HASH = "02f9c480a9462c5e99e49f306b8d966700ca1702ae823aeae2bcfe9becd36b71"  # Sesión 1B amendment Path α' supplement entry_price+exit_price 2026-04-28
 
 # Umbrales v5
 CROSS_EXCHANGE_DIFF_PCT_THRESHOLD = 0.3

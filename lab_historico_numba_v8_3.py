@@ -1311,7 +1311,14 @@ def run_simulation_numba(
     pt_pnl=_PT_SENTINEL_FLOAT64,
     pt_reason=_PT_SENTINEL_INT8,
     pt_cluster=_PT_SENTINEL_INT8,
-    pt_count=_PT_SENTINEL_COUNT
+    pt_count=_PT_SENTINEL_COUNT,
+    # Sesión 1B amendment Path α' supplement 2026-04-28 — entry_price + exit_price
+    # output arrays para audit refactor Opción A clean (Sesión 1A.2 prereq).
+    # Reduced enum collapsa sl_emergency vs sl_hit; exit_price kernel-output preserva
+    # info necesaria audit (entry_price = close[entry_bar] siempre; exit_price =
+    # emerg_level si sl_emergency intrabar O close[exit_bar] otherwise).
+    pt_entry_price=_PT_SENTINEL_FLOAT64,
+    pt_exit_price=_PT_SENTINEL_FLOAT64
 ):
     n_configs = len(configs)
     n_bars = len(close_arr)
@@ -1681,6 +1688,12 @@ def run_simulation_numba(
                                     pt_cluster[c, pt_idx] = 0
                             else:
                                 pt_cluster[c, pt_idx] = 0
+                            # Sesión 1B amendment Path α' supplement 2026-04-28
+                            # entry_price siempre = close_p al abrir; exit_price = emerg_level
+                            # si sl_emergency intrabar O close_p otherwise (kernel current code
+                            # variables locales preservan distinción info incluso bajo reduced enum).
+                            pt_entry_price[c, pt_idx] = entry_price
+                            pt_exit_price[c, pt_idx] = exit_price
                             pt_count[c] = pt_idx + 1
                     # --- fin per-trade tracking ---
 
@@ -1954,6 +1967,8 @@ def run_on_slice(configs, data, start_bar, end_bar, sl_pct, sl_emergency_pct, ts
         )
 
     # Path α return_per_trade=True: pre-allocate per-trade arrays + dispatch
+    # Sesión 1B amendment Path α' supplement 2026-04-28: agregadas entry_price +
+    # exit_price arrays para audit refactor Opción A clean (Sesión 1A.2 prereq).
     n_configs = len(configs)
     pt_entry_bar = np.zeros((n_configs, max_trades_per_config), dtype=np.int32)
     pt_exit_bar = np.zeros((n_configs, max_trades_per_config), dtype=np.int32)
@@ -1962,6 +1977,8 @@ def run_on_slice(configs, data, start_bar, end_bar, sl_pct, sl_emergency_pct, ts
     pt_reason = np.zeros((n_configs, max_trades_per_config), dtype=np.int8)
     pt_cluster = np.zeros((n_configs, max_trades_per_config), dtype=np.int8)
     pt_count = np.zeros(n_configs, dtype=np.int32)
+    pt_entry_price = np.zeros((n_configs, max_trades_per_config), dtype=np.float64)
+    pt_exit_price = np.zeros((n_configs, max_trades_per_config), dtype=np.float64)
 
     aggregates = run_simulation_numba(
         configs,
@@ -1976,7 +1993,8 @@ def run_on_slice(configs, data, start_bar, end_bar, sl_pct, sl_emergency_pct, ts
         cl_labels_slice,
         n_cl,
         True,  # return_per_trade=True
-        pt_entry_bar, pt_exit_bar, pt_side, pt_pnl, pt_reason, pt_cluster, pt_count
+        pt_entry_bar, pt_exit_bar, pt_side, pt_pnl, pt_reason, pt_cluster, pt_count,
+        pt_entry_price, pt_exit_price
     )
 
     # Note: arrays modificados in-place. Caller usa pt_count[c] para slice válido:
@@ -1989,6 +2007,8 @@ def run_on_slice(configs, data, start_bar, end_bar, sl_pct, sl_emergency_pct, ts
         "reason": pt_reason,  # enum: 0=sl_exit, 1=div_exit, 2=normal_exit, 3=cancel_tf
         "cluster": pt_cluster,
         "count": pt_count,
+        "entry_price": pt_entry_price,  # Sesión 1B amendment Path α' supplement
+        "exit_price": pt_exit_price,    # Sesión 1B amendment Path α' supplement
         "max_trades_per_config": max_trades_per_config,
     }
 

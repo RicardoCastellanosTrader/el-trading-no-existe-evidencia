@@ -1,6 +1,20 @@
 # Sistema de Trading Algorítmico — Contexto Completo del Proyecto
 
-**Última actualización:** 28 Abril 2026 SESIÓN 1B PATH α — **G1.1 Tier 0 I1 kernel `return_per_trade` flag-driven done (TF kernel only, MR diferido Sesión 2). Backward compat 100% production callers. 4/5 mismatch detectados Parte 0 verificación redirigieron Path γ→α. §12 L38 nueva captura sexto pilar institucional. Smokes §0.8 A+B+C + audit hash parity PASS pre-merge cross-cuatro símbolos**.
+**Última actualización:** 28 Abril 2026 SESIÓN 1B AMENDMENT — **Path α' supplement entry_price + exit_price arrays kernel completo audit-ready. EXPECTED_LAB_KERNEL_HASH `02f9c480...` regen. Re-Smoke §0.8 5/5 PASS invariante baselines Sesión 1B. §12 L38 9ª aplicación recursiva validada (Sesión 1A.2 Parte 0 detectó gap exit_price derivability → amendment corrige ANTES audit refactor)**.
+
+Amendment scope minimal additive: kernel core algorithm UNCHANGED, solo 2 nuevos kwargs `pt_entry_price` + `pt_exit_price` (float64 arrays sentinel reusados existing `_PT_SENTINEL_FLOAT64`) + 2 lines write trade closure block + run_on_slice dispatch extension (per_trade_dict ahora 10 keys). Memory flag=False zero impact; flag=True ~6.6 KB audit single specialist.
+
+Re-Smoke §0.8 cross-cuatro símbolos invariante baselines Sesión 1B: BTC Nivel A diff 0.0000 EXACTO + ONDO Nivel B 22.70% IDÉNTICO + APT Nivel B 1.51% IDÉNTICO + SEI MR Nivel C diff 0.0000 en 7 métricas + audit hash parity NO WARN.
+
+**§12 L36 14ª aplicación retrospectiva**: predicción Parte 0 Sesión 1A.2 0/4 clean refutada (real 2/4 mismatch supuesto B exit_price + supuesto C reduced enum). Cross-14-aplicaciones consolidada (~52-90h ahorro acumulado).
+
+**Próximo**: Sesión 1A.2 Parte B audit refactor Opción A clean post-amendment (~1-1.5h CC) — kernel exporta 9 fields completos audit-ready.
+
+Estado pre-reciclaje **MADURO INSTITUCIONAL FINAL+P1+TRIAJE+AUDIT-RESCATE+AGGRESSIVE-PRE-RECICLAJE+SESION-1A-PARCIAL+SESION-1B-PATH-α+SESION-1B-AMENDMENT** invariante.
+
+Bot v2.4.5 operacional VPS Tokio uptime 5d 9h+ invariante. Sin tocar `live/*` productivo (kernel modify lab-only). Fidelidad 2 invariante por construcción.
+
+**Actualización previa:** 28 Abril 2026 SESIÓN 1B PATH α — **G1.1 Tier 0 I1 kernel `return_per_trade` flag-driven done (TF kernel only, MR diferido Sesión 2). Backward compat 100% production callers. 4/5 mismatch detectados Parte 0 verificación redirigieron Path γ→α. §12 L38 nueva captura sexto pilar institucional. Smokes §0.8 A+B+C + audit hash parity PASS pre-merge cross-cuatro símbolos**.
 
 Implementación Path α: `lab_historico_numba_v8_3.py` 7 nuevos kwargs (return_per_trade + 6 per-trade arrays + pt_count) + trade closure block per-trade tracking writes IF flag=True + reduced enum 4 valores TF (sl_exit, div_exit, normal_exit, cancel_tf) matching kernel current logic sin refactor invasivo. `run_on_slice` signature extension + dispatch 2-tuple. EXPECTED_LAB_KERNEL_HASH regenerated `165b2357...` → `fec1725e...` en `audit_fidelity_v5*.py`. Tests greenfield Test 1 backward compat + Test 2 Path α PASS.
 
@@ -3183,6 +3197,65 @@ Referencias:
 ---
 
 ### 13.4 RESUELTO
+
+**[IMPLEMENTACIÓN] [PRE-RECICLAJE SESIÓN 1B AMENDMENT PATH α' SUPPLEMENT] entry_price + exit_price arrays kernel completo — 2026-04-28 sesión noche**
+
+**Contexto**: Amendment Sesión 1B Path α post-Sesión 1A.2 Parte 0 verificación detectó gap arquitectónico oversight original Sesión 1B planning: reduced enum 4 valores Path α colapsa sl_emergency vs sl_hit → exit_price NO derivable post-call cuando sl_emergency intrabar (kernel internally distinguishes vía `sl_emergency_signal` flag separate, exit_price = `emerg_level` vs `close_p`). Audit refactor Opción A clean (Sesión 1A.2) requería per-trade entry_price + exit_price para preservar 1:1 mapping kernel → audit trade dict (9 fields).
+
+**Lección §12 L38 9ª aplicación recursiva validada**: lectura fuentes primarias completas durante Sesión 1A.2 Parte 0 (`audit_fidelity_v5_2.py:684-954` extract_trades_tf trade dict completo + `lab_historico_numba_v8_3.py:1524-1545` sl_emergency_signal flag separate) reveló gap kernel Path α original. Path α' supplement corrige oversight ANTES audit refactor invertir compute futile.
+
+**Cambio condiciones desde Sesión 1B Path α (commit 9282e79)**:
+- Reduced enum Path α fue decisión deliberada NO necessity técnica kernel.
+- Kernel internal code distingue sl_emergency vs sl_hit (lines 1524-1545); collapse en enum output fue planning oversight no kernel constraint.
+- Path α' supplement preserva info intrabar/on-close vía exit_price array (entry_price = close[entry_bar] siempre, exit_price = emerg_level si sl_emergency O close_p otherwise).
+
+**Implementación amendment** (additive, kernel core algorithm UNCHANGED):
+- `lab_historico_numba_v8_3.py:1314-1320`: 2 nuevos kwargs `pt_entry_price=_PT_SENTINEL_FLOAT64` + `pt_exit_price=_PT_SENTINEL_FLOAT64` reusing existing sentinel array (NO need new sentinel constants — float64 reusable).
+- `:1700-1706`: 2 lines write entry_price + exit_price en trade closure block IF flag=True (post pt_cluster write).
+- `:1969-2015`: `run_on_slice` dispatch extension — 2 array allocations + 2 dispatch params + 2 dict keys. Per-trade dict ahora **10 keys** (entry_bar, exit_bar, side, pnl, reason, cluster, count, max_trades_per_config, **entry_price**, **exit_price**).
+- `audit_fidelity_v5.py:128` + `audit_fidelity_v5_2.py:122`: `EXPECTED_LAB_KERNEL_HASH` regenerated `fec1725e...4811186f` → `02f9c480...cd36b71`.
+
+**Memory impact**:
+- flag=False: zero (sentinel arrays no escriben, bounds check pt_idx < shape[1] = 1 falla en 2do trade).
+- flag=True: 2 × float64 × N_trades adicional. Audit single specialist ~100 trades = ~1.6 KB. Future Bloque 2c full sweep ~700K trades = ~11 MB. Trivial vs reduced enum-only Path α (~5 KB → ~6.6 KB).
+
+**Tests greenfield amendment**:
+- Test 1 backward compat (flag=False default): 7-tuple original IDÉNTICO PASS ✓
+- Test 2 Path α + amendment (flag=True): 2-tuple aggregates + per_trade_dict 10 keys (including entry_price + exit_price float64 arrays) PASS ✓
+- Numba JIT recompila signature extendida sin errores ✓
+
+**Re-Smoke §0.8 obligatorio post-amendment** (5/5 PASS invariante baselines Sesión 1B):
+
+| Smoke | N | Resultado | Veredicto |
+|-------|---|-----------|-----------|
+| BTC Nivel A | 1000 | diff 0.0000 EXACTO IDÉNTICO baseline Sesión 1B | ✓ PASS backward compat preserved |
+| ONDO Nivel B | 8000 | 425/423 trades, diff_rel 22.70% IDÉNTICO baseline Sesión 1B | ✓ PASS (specialist working tree NEW invariante) |
+| APT Nivel B | 10000 | 1786/1801 trades, diff_rel 1.51% IDÉNTICO baseline Sesión 1B | ✓ PASS gate Nivel B |
+| SEI MR Nivel C | 1500 | diff 0.0000 EXACTO en 7 métricas | ✓ PASS (MR kernel UNCHANGED) |
+| Audit hash parity | — | audit `a93310e4...` OK + lab `02f9c480...` OK | ✓ PASS NO WARN post-update |
+
+Backward compat 100% empíricamente validated cross-cuatro símbolos vs Sesión 1B baselines. Amendment es additive kernel modify sin afectar core algorithm.
+
+**§12 L36 14ª aplicación retrospectiva**: predicción 0/4 clean Parte 0 Sesión 1A.2 (~30-40%) refutada (real 2/4 mismatch detectados — supuesto B exit_price + supuesto C reduced enum collapse). Refutación informativa = scope refinement amendment supplement. Cross-14-aplicaciones consolidada (~52-90h ahorro acumulado paths infeasibles ciegamente). Amendment supplement evita ~2-3h CC recovery + diagnostic confusion durante audit refactor con interface incompleto.
+
+**Items §13.3**: NO actualizados — Sesión 1B + amendment misma sub-fase arquitectónica (G1.1 Tier 0 I1 kernel modify Path α' supplement extends Path α flag-driven).
+
+**Estado pre-reciclaje MADURO INSTITUCIONAL FINAL+P1+TRIAJE+AUDIT-RESCATE+AGGRESSIVE-PRE-RECICLAJE+SESION-1A-PARCIAL+SESION-1B-PATH-α+SESION-1B-AMENDMENT invariante**.
+
+**Bot v2.4.5 operacional VPS Tokio uptime 5d 9h+ invariante**. Sin tocar `live/*` productivo (kernel modify lab-only). Fidelidad 2 invariante por construcción (Smokes A+B+C + audit hash parity confirmed pre-merge cross-cuatro símbolos).
+
+**Próximo**: Sesión 1A.2 Parte B audit refactor Opción A clean post-amendment (~1-1.5h CC) — kernel ahora exporta 9 fields completos audit-ready (entry_bar, exit_bar, side, pnl_pct, reason→audit_string, cluster, entry_ts via timestamps[entry_bar], exit_ts via timestamps[exit_bar], entry_price, exit_price).
+
+**Referencias**:
+- `lab_historico_numba_v8_3.py:1314-1320` (signature extension), `:1700-1706` (per-trade tracking), `:1969-2015` (run_on_slice dispatch).
+- `audit_fidelity_v5.py:128` + `audit_fidelity_v5_2.py:122` (EXPECTED_LAB_KERNEL_HASH `02f9c480...`).
+- §13.4 entrada Sesión 1B Path α 2026-04-28 (commit `9282e79`, baseline reduced enum + arrays original).
+- §13.4 entrada Sesión 1A parcial 2026-04-28 (commit `2270b67`, decisión Path A reorder).
+- §12 L38 sexto pilar institucional (verificación supuestos técnicos pre-implementación cross-fuentes primarias).
+
+**Cierre Sesión 1B amendment**: permanente. Kernel Path α' supplement ready audit refactor. Próximo Sesión 1A.2 Parte B inmediato post-commit amendment.
+
+---
 
 **[IMPLEMENTACIÓN] [PRE-RECICLAJE SESIÓN 1B PATH α] G1.1 Tier 0 I1 kernel return_per_trade flag-driven backward-compat — 2026-04-28 sesión tarde**
 

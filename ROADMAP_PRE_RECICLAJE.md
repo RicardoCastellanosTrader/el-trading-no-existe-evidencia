@@ -107,6 +107,16 @@ Trigger: A+B+C done + D+E validados o archivados. **Estado 2026-04-27 Sesión 2 
 - [ ] Smoke audit cross-3-símbolos validación
 - [ ] Commit consolidado Sesión 1A.2.
 
+### Sesión 1B Amendment — Path α' supplement entry_price + exit_price arrays DONE 2026-04-28 sesión noche
+
+- [x] **Path α' supplement**: kernel `run_simulation_numba` extended con 2 arrays adicionales (`pt_entry_price` + `pt_exit_price`, float64) — corrige oversight Sesión 1B planning original (reduced enum colapsa sl_emergency vs sl_hit → exit_price NO derivable post-call).
+- [x] **EXPECTED_LAB_KERNEL_HASH regenerated**: `fec1725e...` → `02f9c480...` en `audit_fidelity_v5*.py`.
+- [x] **Re-Smoke §0.8 obligatorio post-amendment**: 5/5 PASS (BTC Nivel A diff 0.0000 + ONDO Nivel B 22.70% IDÉNTICO + APT Nivel B 1.51% IDÉNTICO + SEI MR Nivel C diff 0.0000 + audit hash parity NO WARN). Backward compat 100% empíricamente validated.
+- [x] Tests greenfield Test 1 backward compat + Test 2 Path α + amendment (10 keys per_trade_dict) PASS.
+- [x] Commit consolidado Sesión 1B amendment.
+
+**Hallazgo**: Sesión 1A.2 Parte 0 verificación §12 L38 detectó gap arquitectónico Sesión 1B planning (reduced enum collapse decisión deliberada NO necessity técnica → reversible vía supplement). Path α' corrige ANTES audit refactor invertir compute futile. Aplicación recursiva §12 L38 cross-2-aplicaciones cross-2-sesiones.
+
 ### Sesión 1B — G1.1 Tier 0 I1 Path α flag-driven DONE 2026-04-28 sesión tarde
 
 - [x] **G1.1 Tier 0 I1 kernel return_per_trade flag-driven** (Path α): TF kernel modify (`lab_historico_numba_v8_3.py:1268-1297` constants + signature + `:1685-1715` per-trade tracking + `:1911-1990` `run_on_slice` dispatch). Backward compat 100% production callers preserved + memory acotada audit/analyzers (~5 KB small config sets) + reduced enum 4 valores TF (sl_exit, div_exit, normal_exit, cancel_tf) matching kernel current logic.
