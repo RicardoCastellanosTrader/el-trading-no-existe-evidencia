@@ -1,6 +1,8 @@
-# Roadmap pre-reciclaje — consolidado 2026-04-24
+# Roadmap pre-reciclaje — consolidado 2026-04-24 (FRAME 2 SUPERSEDE 2026-04-28 sesión noche)
 
 **Criterio institucional Ricardo 2026-04-24**: todas las mejoras (A+B+C) implementadas antes de lanzar reciclaje completo 45 sym. Categorías D+E esperan datos operacionales temporales. Reciclaje se lanza cuando A+B+C done + D+E validados/archivados.
+
+**FRAME 2 UPDATE 2026-04-28 sesión noche** (SUPERSEDE AGGRESSIVE pura recalibrada): walk-forward methodology refinements (Deflated SR + k-fold CV) reformulados **PRE-RECICLAJE** post-cuestionamiento Ricardo "patada hacia delante" + Sesión 1A.2 Path β3 EMPIRICAL FAIL evidence (2.7% match rate vs gate 80%). Tier 0 I1 Path γ kernel granular sustituye Path α reduced enum. Cierre criterio empírico Gates A+B+C cross-9 N=9 (no calendarico). 5 sesiones Frame 2 cross-1.5-2 semanas calendario, ~12-19h CC real §12 L37. Ver sección "Pre-reciclaje Frame 2" infra + §13.4 entrada Sesión 0 Frame 2 2026-04-28 sesión noche.
 
 ## Categorías
 
@@ -76,9 +78,66 @@ Reactivable post-reciclaje 45 sym + k-fold CV proyecto dedicado podría re-evalu
 
 Trigger: A+B+C done + D+E validados o archivados. **Estado 2026-04-27 Sesión 2 D MADURO INSTITUCIONAL FINAL+P1+TRIAJE+AUDIT-RESCATE+AGGRESSIVE-PRE-RECICLAJE**: A done_archived + B done merged + C 7/7 done + Path B archive 2026-04-26 + D+E ARCHIVED_EMPIRICAL 2026-04-27 mañana + P1 ARCHIVED_EMPIRICAL 2026-04-27 tarde + triaje §13.3 sistemático cross-20-items 2026-04-27 tarde-noche + auditoría rescate archived 2026-04-27 cierre día + **auditoría exhaustiva pre-reciclaje + decisión Ricardo AGGRESSIVE pura recalibrada 2026-04-27 Sesión 2 D**. **Pre-reciclaje recalibrado**: 14 items pre-reciclaje confirmados cross-4-5 sesiones Claude Code (~18-26h). Trigger reciclaje 45 sym launch ~2026-05-06 a 12 cuando Sesiones 1A+1B+2+3+4 done. Reciclaje completo ~2026-05-22 a 06-05.
 
-## Pre-reciclaje AGGRESSIVE pura recalibrada — 2026-04-27 Sesión 2 D
+## Pre-reciclaje Frame 2 — 2026-04-28 Sesión 0 metodológica fundamental (SUPERSEDE AGGRESSIVE pura recalibrada)
 
-**Estado**: PLANIFICACIÓN INSTITUCIONAL PERMANENTE bajo enfoque Ricardo "al margen de lo que cueste, aspirar a lo mejor reciclaje".
+**Estado**: PLANIFICACIÓN INSTITUCIONAL PERMANENTE bajo enfoque Ricardo "al margen de lo que cueste, aspirar a lo mejor reciclaje" + **walk-forward methodology completa pre-reciclaje** (no diferida post como AGGRESSIVE).
+
+**Origen reformulación**: cuestionamiento Ricardo "patada hacia delante" (refinamientos pospuestos repetidamente L1721 audit + L2336 multi-testing + L2621 Tier 0 I1) + Sesión 1A.2 Path β3 EMPIRICAL FAIL (2.7% match rate vs gate 80%, ROLLBACK clean main `f8205fa`). Frame 2 ataca walk-forward methodology completa ANTES no DESPUÉS reciclaje.
+
+**Total**: 6 items pre-reciclaje (R1-R6) cross-5 sesiones Frame 2 cross-1.5-2 semanas calendario, **~12-19h CC real §12 L37** (vs estimación humana naive ~50-100h).
+
+### Sesión 1 Frame 2 — R1 Deflated SR + R2 k-fold CV walk-forward (~2-4h CC, ~2026-04-28 noche)
+
+- [ ] **R1 Deflated SR** (López de Prado 2014): rama `sesion-1-frame2-r1-deflated-sr`. Implementar `_compute_expected_max_sr` + `_compute_deflated_sr_vectorized` + `_apply_deflated_sr` en `regime_walk_forward.py`. Integration post-W3 bootstrap pre-W4 thresholds. Re-sort hybrid `pf_fwd_ci_low + dsr_zscore` tie-breaker. Tests greenfield (7 tests). Dry-run cross-9 over JSONs smoke 2026-04-24.
+- [ ] **R2 k-fold CV walk-forward**: continuar misma rama (R1+R2 commit juntos). Implementar `_compute_kfold_cluster_labels` + `_compute_kfold_specialist_score` + `extract_validated_specialists_kfold`. 5-fold rolling preservación temporal order (no shuffle puro). Backward-compat flag `_R2_USE_KFOLD=False` default. Tests greenfield (5 tests).
+- [ ] Smoke §0.8 obligatorio cross-cuatro símbolos invariante baselines pre-merge.
+- [ ] Commit consolidado Sesión 1 Frame 2 R1+R2.
+
+### Sesión 2 Frame 2 — R3 Tier 0 I1 Path γ kernel granular + R6 audit refactor Opción A clean post-Path γ (~4-7h CC, ~2026-04-29)
+
+- [ ] **R3 Tier 0 I1 Path γ kernel granular** (sustituye Sesión 1B Path α reduced enum): enum extendido sl_emergency/sl_hit + cancel_zone/cancel_ghost + tf_exit/zone_exit separados + regime_change brain-side propagación. Preserva state evolution per-cluster (mitigación causa raíz Path β3 FAIL). Tests greenfield diff 0.0000 cross-3-símbolos pre-merge gate empírico mandatory.
+- [ ] **R6 audit refactor Opción A clean post-Path γ**: callers `audit_fidelity_v5*.py` + `audit_mr_fidelity_sei.py` + analyzers actualizados para usar `run_on_slice(..., return_per_trade=True)` cluster-by-cluster (preserva state evolution). Eliminate copia python `extract_trades_tf` audit (audit ahora wraps kernel productivo directamente cluster-by-cluster).
+- [ ] Tests greenfield audit pre/post refactor diff 0.0000 cross-3-símbolos + cross-check `_run_verify_test` ground truth (76 trades 380 mediciones diff 0.0000 baseline 2026-04-26) **gate empírico antes merge**.
+- [ ] Smoke §0.8 obligatorio cross-cuatro símbolos.
+- [ ] EXPECTED_LAB_KERNEL_HASH regenerated post-Path γ.
+- [ ] Commit consolidado Sesión 2 Frame 2 R3+R6.
+
+### Sesión 3 Frame 2 — R4 Bloque 2c granular cross-régimen + R5 condicional (~2-5h CC, ~2026-04-30 a 05-01)
+
+- [ ] **R4 Bloque 2c granular cross-régimen** (con kernel Path γ): H1+H_funding+H_strategy cross-régimen 44 sym × 3 clusters × top-5 cross-régimen 3y BTC macro. Granularidad H_strategy real cross-strategy disponible vía Path γ enum extendido.
+- [ ] **R5 condicional** (solo si Gate A FAIL Sesión 4): H_M3 selection bias cross-cluster + H_M4 régimen-temporal bias + H_M5 GMM regime classification noise + H_M6 cross-exchange Binance↔BingX residual.
+- [ ] Commit consolidado Sesión 3 Frame 2.
+
+### Sesión 4 Frame 2 — Gates evaluation cross-9 N=9 (~1-2h CC, ~2026-05-02 a 03)
+
+**Gates criterio empírico cierre Frame 2** (cross-9 N=9 BTC+ONDO+SEI × C0+C1+C2):
+- [ ] **Gate A — Magnitud**: mean ratio J/B post-R1+R2 ≤ 1.5× baseline M2 fix 2.41× (target reducción >40% vs baseline single-fold).
+- [ ] **Gate B — Resilencia**: 0/9 colapso fuerte cross-symbol (preservar M2 fix invariante).
+- [ ] **Gate C — Estabilidad cross-cluster**: Spearman ρ stable cross-cluster sin volteos signo (proxy noise ranking).
+- [ ] **PASS Gates A+B+C**: reciclaje launch Sesión 5 Frame 2.
+- [ ] **FAIL Gate A único** (B+C PASS): escalar Sesión 3 R5 condicional adicional.
+- [ ] **FAIL Gate B/C**: pause + diagnóstico arquitectónico §12 L34 (no escalada compute ciega).
+
+### Sesión 5 Frame 2 — Reciclaje 45 sym launch (~30 min preparation + ~10-15 días compute autónomo VPS, ~2026-05-03 a 05)
+
+- [ ] Validation gates: bot v2.4.5 invariante + audit refactored R6 done + Smoke Nivel B sistemático done + Gates A+B+C PASS.
+- [ ] Reciclaje 45 sym launch.
+- [ ] Reciclaje ejecución autónoma VPS (~10-15 días compute).
+- [ ] Reciclaje completo: ~2026-05-15 a 05-22.
+
+**§12 L37 recalibración temporal Frame 2**:
+- Estimación humana naive: ~50-100h cross-3-4 semanas calendario.
+- **Tiempo Claude Code real**: **~12-19h cross-1.5-2 semanas calendario** (factor 5-7× más rápido — patrón cross-Sesiones 1A+1B+1B amendment validated).
+- Bot obsoleto adicional Frame 2 vs AGGRESSIVE pura recalibrada: **+0-2 días** (negligible vs valor refinamientos pre-reciclaje).
+- Trade-off: invertir 2-4 días CC real adicional Frame 2 evita rotación 45 specialists post-reciclaje con methodology defectuosa = ahorro ~10-15 días calendario futuro.
+
+**Riesgos + mitigaciones cross-items**: ver §13.4 entrada Sesión 0 Frame 2 2026-04-28 sesión noche + §13.4 entrada Path β3 ROLLBACK 2026-04-28 sesión noche (lección §12 L34 + L38 captura).
+
+---
+
+## Pre-reciclaje AGGRESSIVE pura recalibrada — 2026-04-27 Sesión 2 D (SUPERSEDED 2026-04-28 sesión noche por Frame 2)
+
+**Estado**: PLANIFICACIÓN INSTITUCIONAL PERMANENTE bajo enfoque Ricardo "al margen de lo que cueste, aspirar a lo mejor reciclaje". **Sesiones 1A+1A.2 Path β3 mantenidas como historial done/failed** (Sesión 1A 2/3 implementadas + Sesión 1B Path α + amendment done; Sesión 1A.2 Path β3 ROLLBACK clean). Sesiones 1B+2+3+4+5 redefinidas Frame 2 supra.
 
 **Total**: 14 items pre-reciclaje cross-4-5 sesiones Claude Code cross-1.5-2 semanas calendario.
 
@@ -249,6 +308,8 @@ Disparador operacional D ~2026-05-01 N≥100 BingX-native sigue método correcto
 §12 L36 validada profilácticamente cross-3 sesiones consecutivas funding research (ahorro compute ~30-45h paths infeasibles ciegamente).
 
 ## Historia
+
+- **2026-04-28 Sesión 0 Frame 2 metodológica fundamental + Sesión 1A.2 Path β3 ROLLBACK** (sesión noche): post-Sesión 1A.2 Path β3 EMPIRICAL FAIL 2.7% match rate vs gate 80% (kernel cross-cluster + post-filter brain-side NO preserva state evolution equivalence con audit pre-refactor cluster-by-cluster — causa raíz cooldown/sl_level/div_ctx evolution cross-trade). ROLLBACK clean: branch `feature-audit-refactor-path-beta3` deleted + audit_fidelity_v5_2.py restaurado main `f8205fa` + EXPECTED_LAB_KERNEL_HASH revertido `02f9c480...` (Sesión 1B amendment baseline preservado). **Cuestionamiento Ricardo "patada hacia delante"**: refinamientos pospuestos repetidamente L1721 audit + L2336 multi-testing + L2621 Tier 0 I1 — AGGRESSIVE pura recalibrada heredó patrón al diferir Deflated SR + k-fold CV post-reciclaje. **Frame 2 redesign SUPERSEDE**: walk-forward methodology completa pre-reciclaje (R1 Deflated SR + R2 k-fold CV Sesión 1 + R3 Path γ kernel granular sustituye Path α reduced enum + R6 audit refactor Opción A clean post-Path γ Sesión 2 + R4 Bloque 2c granular cross-régimen + R5 condicional Sesión 3 + Gates A+B+C cross-9 N=9 cierre empírico Sesión 4 + reciclaje launch Sesión 5). Total 5 sesiones cross-1.5-2 semanas calendario, ~12-19h CC real §12 L37 (vs estimación humana naive ~50-100h, factor 5-7× más rápido). Bot obsoleto adicional vs AGGRESSIVE: +0-2 días negligible. **§12 L36 16ª aplicación retrospectiva refutada**: predicción Path β3 by-construction equivalent → real 2.7% REFUTADA. **§12 L34 captura**: hipótesis "semánticamente equivalente por construcción" sin validación empírica ANTES = costo evitable ~3-4h CC. **§12 L38 10ª aplicación recursiva**: state evolution divergence categoría riesgo distinta a output equivalence. Estado pre-reciclaje MADURO INSTITUCIONAL FINAL+P1+TRIAJE+AUDIT-RESCATE+FRAME-2-WALK-FORWARD-COMPLETO invariante. Bot v2.4.5 operacional VPS Tokio uptime ~5d 11h+ invariante.
 
 - **2026-04-28 Sesión 1B Path α** (G1.1 Tier 0 I1 kernel return_per_trade flag-driven DONE post-Path A reorder Sesión 1A): bajo plan AGGRESSIVE pura recalibrada commit `8d837af` + reorder Sesión 1A G2.1 mismatch (commit `2270b67`). Implementación Path α flag-driven post-Parte 0 verificación 4/5 mismatch detectados (signature parallel prange + 25 callers + reason_exit collapsed + memory blowup 4.8 GB inviable Path γ original). **Path α adoptado**: `return_per_trade: bool = False` flag default backward compat 100% + reduced enum 4 valores TF kernel-current granularidad sin refactor invasivo + MR kernel UNCHANGED preserva §12 L25 segmentación (expansión MR diferida Sesión 2 si Bloque 2c emerge necesidad). Tests greenfield + Smokes §0.8 obligatorios cross-cuatro símbolos PASS (BTC Nivel A diff 0.0000 EXACTO + ONDO Nivel B 22.70% IDÉNTICO + APT Nivel B 1.51% IDÉNTICO + SEI MR Nivel C diff 0.0000 + audit hash parity NO WARN post fec1725e). **§12 L38 nueva captura formal sexto pilar institucional** (verificación supuestos técnicos pre-implementación cross-fuentes primarias, aplicación recursiva Claude redactor + Claude Code verificador). §12 L36 cross-13-aplicaciones consolidada (10/10 acertadas Sesión 1B). Items §13.3 IMPLEMENTED: L2910 Path α; L1781 READY post-Sesión 1B. Calendario AGGRESSIVE pura recalibrada inalterado: Sesión 1A.2 G2.1 Opción A clean post-Path α próxima (~1-2h CC). Trigger reciclaje launch ~2026-05-06 a 21. Bot v2.4.5 invariante uptime ~5d 7h+ (sin tocar live/* productivo, kernel modify lab-only).
 

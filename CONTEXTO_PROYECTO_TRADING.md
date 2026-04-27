@@ -1,16 +1,25 @@
 # Sistema de Trading Algorítmico — Contexto Completo del Proyecto
 
-**Última actualización:** 28 Abril 2026 SESIÓN 1B AMENDMENT — **Path α' supplement entry_price + exit_price arrays kernel completo audit-ready. EXPECTED_LAB_KERNEL_HASH `02f9c480...` regen. Re-Smoke §0.8 5/5 PASS invariante baselines Sesión 1B. §12 L38 9ª aplicación recursiva validada (Sesión 1A.2 Parte 0 detectó gap exit_price derivability → amendment corrige ANTES audit refactor)**.
+**Última actualización:** 28 Abril 2026 SESIÓN 0 FRAME 2 METODOLÓGICA FUNDAMENTAL — **Walk-forward methodology redesign post-cuestionamiento Ricardo "patada hacia delante" (refinamientos pospuestos repetidamente L1721+L2336+L2621). Sesión 1A.2 Path β3 EMPIRICAL FAIL 2.7% match rate vs gate 80% → ROLLBACK clean baseline Sesión 1B amendment preservado. Frame 2 SUPERSEDE AGGRESSIVE pura recalibrada: refinamientos selection-bias-specific (R1 Deflated SR + R2 k-fold CV) PRE-RECICLAJE no post; Tier 0 I1 Path γ kernel granular sustituye Path α reduced enum; Gates A+B+C cross-9 N=9 cierre empírico (mean ratio J/B + 0/9 colapso fuerte + Spearman ρ stable cross-cluster)**.
 
-Amendment scope minimal additive: kernel core algorithm UNCHANGED, solo 2 nuevos kwargs `pt_entry_price` + `pt_exit_price` (float64 arrays sentinel reusados existing `_PT_SENTINEL_FLOAT64`) + 2 lines write trade closure block + run_on_slice dispatch extension (per_trade_dict ahora 10 keys). Memory flag=False zero impact; flag=True ~6.6 KB audit single specialist.
+**Frame 2 sesiones 5 cross-1.5-2 semanas calendario, ~12-19h CC real (§12 L37)**:
+1. **Sesión 1 Frame 2** (~2026-04-28 noche): R1 Deflated SR (López de Prado 2014) + R2 k-fold CV walk-forward 5-fold rolling (~2-4h CC).
+2. **Sesión 2 Frame 2** (~2026-04-29): R3 Tier 0 I1 Path γ kernel granular + R6 audit refactor Opción A clean post-Path γ (~4-7h CC).
+3. **Sesión 3 Frame 2** (~2026-04-30 a 05-01): R4 Bloque 2c granular cross-régimen + R5 condicional H_M3+H_M4+H_M5+H_M6 (~2-5h CC).
+4. **Sesión 4 Frame 2** (~2026-05-02 a 03): Gates evaluation cross-9 N=9 (~1-2h CC).
+5. **Sesión 5 Frame 2** (~2026-05-03 a 05): Reciclaje 45 sym launch.
 
-Re-Smoke §0.8 cross-cuatro símbolos invariante baselines Sesión 1B: BTC Nivel A diff 0.0000 EXACTO + ONDO Nivel B 22.70% IDÉNTICO + APT Nivel B 1.51% IDÉNTICO + SEI MR Nivel C diff 0.0000 en 7 métricas + audit hash parity NO WARN.
+**Path β3 EMPIRICAL FAIL causa raíz**: state evolution divergence — kernel cross-cluster + post-filter brain-side NO preserva state machine equivalence con audit pre-refactor cluster-by-cluster (cooldown/sl_level/div_ctx evolution cross-trade). Hipótesis "semánticamente equivalente por construcción" confundió trade output equivalence con state evolution equivalence. ROLLBACK clean: branch deleted + audit_fidelity_v5_2.py restaurado main `f8205fa` + EXPECTED_LAB_KERNEL_HASH revertido `02f9c480...` (Sesión 1B amendment baseline preservado).
 
-**§12 L36 14ª aplicación retrospectiva**: predicción Parte 0 Sesión 1A.2 0/4 clean refutada (real 2/4 mismatch supuesto B exit_price + supuesto C reduced enum). Cross-14-aplicaciones consolidada (~52-90h ahorro acumulado).
+**§12 L36 16ª aplicación retrospectiva refutada**: predicción "Path β3 by construction equivalent ~5-10 min validación" REFUTADA empíricamente (real 2.7% match rate). Cross-16-aplicaciones consolidada (~55-95h ahorro acumulado).
 
-**Próximo**: Sesión 1A.2 Parte B audit refactor Opción A clean post-amendment (~1-1.5h CC) — kernel exporta 9 fields completos audit-ready.
+**§12 L34 captura**: hipótesis "semánticamente equivalente por construcción" sin validación empírica ANTES invertir compute = costo evitable ~3-4h CC. Mitigación futura: gate visible empírico ANTES merge full implementation arquitectural Opción.
 
-Estado pre-reciclaje **MADURO INSTITUCIONAL FINAL+P1+TRIAJE+AUDIT-RESCATE+AGGRESSIVE-PRE-RECICLAJE+SESION-1A-PARCIAL+SESION-1B-PATH-α+SESION-1B-AMENDMENT** invariante.
+**§12 L38 10ª aplicación recursiva**: state evolution divergence es categoría riesgo distinta a output equivalence — verificar AMBOS pre-implementation arquitectural decision.
+
+**Próximo**: Sesión 1 Frame 2 R1 Deflated SR rama `sesion-1-frame2-r1-deflated-sr` (~1-2h CC).
+
+Estado pre-reciclaje **MADURO INSTITUCIONAL FINAL+P1+TRIAJE+AUDIT-RESCATE+FRAME-2-WALK-FORWARD-COMPLETO** invariante.
 
 Bot v2.4.5 operacional VPS Tokio uptime 5d 9h+ invariante. Sin tocar `live/*` productivo (kernel modify lab-only). Fidelidad 2 invariante por construcción.
 
@@ -1255,7 +1264,16 @@ Referencias: §9.2.1 rollback GRT, §3.3 tabla MR rescates, §13.4 RESUELTO audi
 
 ### 13.2 ACTIVO
 
-**[HALLAZGO ESTRUCTURAL] [ACTIVO] Walk-forward methodology — cuantificación gap simulado↔operativo — 2026-04-23/24**
+**[HALLAZGO ESTRUCTURAL] [ACTIVO — FRAME 2 PRE-RECICLAJE COMPLETO 2026-04-28 sesión noche] Walk-forward methodology — cuantificación gap simulado↔operativo — 2026-04-23/24**
+
+**[FRAME 2 UPDATE 2026-04-28 sesión noche]** Refinamientos selection-bias-specific antes solo deferred post-reciclaje (Deflated SR + k-fold CV) ahora reformulados **PRE-RECICLAJE** bajo Frame 2 (5 sesiones cross-1.5-2 semanas calendario, ~12-19h CC real §12 L37) post-cuestionamiento Ricardo "patada hacia delante" + Sesión 1A.2 Path β3 EMPIRICAL FAIL evidence (2.7% match rate vs gate 80%):
+- **R1 Deflated SR** (Sesión 1 Frame 2 ~2026-04-28 noche, ~1-2h CC): López de Prado 2014 selection bias correction. Re-sort hybrid `pf_fwd_ci_low + dsr_zscore` tie-breaker post-W3 bootstrap pre-W4 thresholds.
+- **R2 k-fold CV walk-forward** (Sesión 1 Frame 2 ~2026-04-28 noche, ~1-2h CC): 5-fold rolling preservación temporal order. Backward-compat flag `_R2_USE_KFOLD=False` default.
+- **R3 Tier 0 I1 Path γ kernel granular** (Sesión 2 Frame 2 ~2026-04-29, sustituye Path α reduced enum): enum extendido sl_emergency/sl_hit + cancel_zone/cancel_ghost + tf_exit/zone_exit + regime_change. Preserva state evolution per-cluster (audit refactor R6 ejecutable post-Path γ sin filter post-call).
+- **R4 Bloque 2c granular cross-régimen** (Sesión 3 Frame 2 ~2026-04-30 a 05-01) ejecutable PRE-RECICLAJE con kernel Path γ.
+- **Cierre criterio empírico Frame 2**: Gates A+B+C cross-9 N=9 BTC+ONDO+SEI × C0+C1+C2 (A: mean ratio J/B post-R1+R2 ≤ 1.5× baseline 2.41 + B: 0/9 colapso fuerte + C: Spearman ρ stable cross-cluster). PASS Gates A+B+C → reciclaje launch (~2026-05-03 a 05). FAIL Gate A único (B+C PASS) → R5 condicional H_M3+H_M4+H_M5+H_M6. FAIL Gate B/C → pause + diagnóstico arquitectónico §12 L34.
+
+**Caveat permanente §13.2 residual ratio 2.41× M2 fix baseline**: superseded by Frame 2 — refinamientos R1+R2 atacan residual estructural directamente pre-reciclaje (no diferidos post). Ver §13.4 entrada Sesión 0 Frame 2 metodológica fundamental 2026-04-28 sesión noche.
 
 **[REFINAMIENTO CRÍTICO 2026-04-24 post-smoke reciclaje + conversación Ricardo]**
 
@@ -1913,9 +1931,11 @@ Cierre: permanente. Caracterización resuelta empíricamente. Histéresis P≥0.
 
 Referencias: §13.4 RESUELTO Fase C item 1 audit institucional 2026-04-26, §13.4 RESUELTO primer audit 2026-04-21, §13.2 "opción C", §12 L25 + L35.
 
-**[INFRA] [BLOQUEADO 2026-04-28 — Sesión 1A G2.1 mismatch revealed, scope refinado Sesión 1A.2 post-G1.1] Refactor audit_v5.x herramienta auditor + reconciliación con kernel productivo Numba — 2026-04-26**
+**[INFRA] [REFORMULADO FRAME 2 2026-04-28 sesión noche — Sesión 2 R6 post-Path γ kernel granular pre-reciclaje, Path β3 EMPIRICAL FAIL ROLLBACK] Refactor audit_v5.x herramienta auditor + reconciliación con kernel productivo Numba — 2026-04-26**
 
-**Update Sesión 1A 2026-04-28 (G2.1 BLOQUEADO mismatch revealed §12 L36 9ª profiláctica)**: investigación pre-cambio reveló dependency mismatch crítico. `audit_fidelity_v5_2.py:684` `extract_trades_tf` (700+ líneas python re-implementation kernel TF logic) **retorna per-trade list** (entry_bar, exit_bar, side, pnl, reason_exit per trade); `lab_historico_numba_v8_3.py:1849` `run_on_slice` → `run_simulation_numba` **retorna AGREGADOS** (pnl, trades, wins, gp, gl, maxdd) sin per-trade arrays. **API contracts incompatibles**: Opción A "importar kernel directo" inherentemente requiere kernel exporting per-trade data = **G1.1 Tier 0 I1 prereq**. **Decisión Ricardo Path A reorder**: Sesión 1B G1.1 dedicada próxima sesión, Sesión 1A.2 nueva G2.1 Opción A clean post-G1.1 (~1-2h CC). §12 L25 segmentación arquitectónica respetada. Ahorro ~1-2h CC compute futile + redirección Path A correcto. Ver §13.4 entrada Sesión 1A parcial 2026-04-28.
+**Update Frame 2 2026-04-28 sesión noche (Sesión 2 R6 post-Path γ kernel granular)**: Sesión 1A.2 Path β3 EMPIRICAL FAIL 2.7% match rate vs gate 80% (kernel cross-cluster + post-filter brain-side NO preserva state evolution equivalence con audit pre-refactor cluster-by-cluster). ROLLBACK clean main `f8205fa` baseline Sesión 1B amendment. **Reformulación Frame 2**: Path γ kernel granular (sustituye Path α reduced enum) implementada Sesión 2 Frame 2 → audit refactor Opción A clean ejecutable post-Path γ (kernel ahora exporta enum granular real sl_emergency/sl_hit/cancel_zone/cancel_ghost/tf_exit/zone_exit/regime_change separados sin reduced enum collapse). Audit `extract_trades_tf` reemplazable directo por `run_on_slice(..., return_per_trade=True)` cluster-by-cluster (preserva state evolution per-cluster). Tests greenfield diff 0.0000 cross-3-símbolos pre-merge gate empírico mandatory (lección §12 L34 captura Path β3). Ver §13.4 entrada Sesión 0 Frame 2 2026-04-28 sesión noche + §13.4 entrada Path β3 ROLLBACK 2026-04-28 sesión noche.
+
+**Update Sesión 1A 2026-04-28 (G2.1 BLOQUEADO mismatch revealed §12 L36 9ª profiláctica) — HISTÓRICO**: investigación pre-cambio reveló dependency mismatch crítico. `audit_fidelity_v5_2.py:684` `extract_trades_tf` (700+ líneas python re-implementation kernel TF logic) **retorna per-trade list** (entry_bar, exit_bar, side, pnl, reason_exit per trade); `lab_historico_numba_v8_3.py:1849` `run_on_slice` → `run_simulation_numba` **retorna AGREGADOS** (pnl, trades, wins, gp, gl, maxdd) sin per-trade arrays. **API contracts incompatibles**: Opción A "importar kernel directo" inherentemente requiere kernel exporting per-trade data = **G1.1 Tier 0 I1 prereq**. Path A reorder Sesión 1A.2 post-G1.1 inicialmente, posteriormente Path β3 attempted+FAILED → reformulación Frame 2 Sesión 2 R6 post-Path γ.
 
 Contexto: emergente del audit institucional Fase C item 1 2026-04-26. audit_v5_2 reportó match rate 48.1% post-v2.4.5 mientras `_run_verify_test` reportó 100% bit-a-bit (380 mediciones diff 0.0000). Divergencia confirmada herramienta auditor (audit_fidelity_v5_2.py mantiene copia python estática `extract_trades_tf` con SHA256 hash) vs kernel Numba productivo (`lab_historico_numba_v8_3.py`).
 
@@ -3048,7 +3068,9 @@ Referencias:
 
 ---
 
-**[INFRA] [EN_ESPERA] Tier 0 I1 kernel reason_exit tracing + Bloque 2c H1 + H_funding + H_strategy full cross-régimen — proyecto dedicado post-reciclaje — 2026-04-23**
+**[INFRA] [REFORMULADO FRAME 2 2026-04-28 sesión noche — Sesión 2 R3 Path γ kernel granular pre-reciclaje sustituye Sesión 1B Path α reduced enum + Sesión 3 R4 Bloque 2c granular cross-régimen pre-reciclaje] Tier 0 I1 kernel reason_exit tracing + Bloque 2c H1 + H_funding + H_strategy full cross-régimen — 2026-04-23**
+
+**Update Frame 2 2026-04-28 sesión noche (reformulación post-Path β3 EMPIRICAL FAIL)**: Sesión 1B Path α reduced enum 4 valores TF (sl_exit, div_exit, normal_exit, cancel_tf) + amendment Path α' (entry_price + exit_price arrays) implementaron version flag-driven backward-compat (commits `9282e79` + `2270b67`). Sesión 1A.2 Path β3 audit refactor cross-cluster + post-filter brain-side EMPIRICAL FAIL 2.7% match rate vs gate 80% reveló reduced enum collapse + cross-cluster state evolution divergence inhabilitan equivalencia by-construction audit pre-refactor. **Frame 2 Sesión 2 R3 Path γ kernel granular sustituye Path α**: enum extendido sl_emergency/sl_hit + cancel_zone/cancel_ghost + tf_exit/zone_exit separados + regime_change brain-side propagación. Path γ preserva state evolution per-cluster (audit refactor Opción A clean post-Path γ R6 Sesión 2 ejecutable cluster-by-cluster sin filter post-call). **Frame 2 Sesión 3 R4 Bloque 2c granular cross-régimen** ejecutable pre-reciclaje con kernel Path γ (no diferido post-reciclaje como original 2026-04-23). Ver §13.4 entrada Sesión 0 Frame 2 2026-04-28 sesión noche.
 
 Contexto: Bloque 2c Opción Q1 sesión 2026-04-23 ejecutó W3 divergencia validation cuantitativa (§13.4 entrada nueva, 10 clusters × 3y Binance Futures). H1 + H_funding + H_strategy diferidos por limitación estructural del kernel Numba output: aggregates-only, sin per-trade side/entry_ts/reason_exit.
 
@@ -3197,6 +3219,142 @@ Referencias:
 ---
 
 ### 13.4 RESUELTO
+
+**[REFORMULACIÓN INSTITUCIONAL] [SESIÓN 0 METODOLÓGICA FUNDAMENTAL] Frame 2 walk-forward methodology redesign post-cuestionamiento Ricardo "patada hacia delante" — 2026-04-28 sesión noche**
+
+**Contexto**: post-Sesión 1A.2 Path β3 EMPIRICAL FAIL (2.7% match rate vs gate 80%) + ROLLBACK clean (branch `feature-audit-refactor-path-beta3` deleted + `audit_fidelity_v5_2.py` restaurado main `f8205fa`), Ricardo cuestionó patrón sistemático "patada hacia delante" en refinamientos pospuestos repetidamente: L1721 Refactor audit_v5.x (3 ciclos posponed → finalmente Sesión 1A.2), L2336 Multi-testing correction (CASO B archivado pero residual 2.41× explícitamente diferido), L2621 Tier 0 I1 + Bloque 2c (proyecto dedicado post-reciclaje). **Hallazgo metodológico**: AGGRESSIVE pura recalibrada (Sesión 2 D 2026-04-27) heredó ese patrón — atacaba gaps F1+F2 (Tier 0 I1 + audit refactor) pero diferia refinamientos selection-bias-specific (Deflated SR + k-fold CV) post-reciclaje. Reciclaje "aspirar a lo mejor" requiere atacar **walk-forward methodology completa** ANTES no DESPUÉS.
+
+**Frame 2 redesign — supersede AGGRESSIVE pura recalibrada**:
+
+| Aspecto | AGGRESSIVE pura recalibrada (2026-04-27) | Frame 2 (2026-04-28 sesión noche) |
+|---------|------------------------------------------|------------------------------------|
+| Refinamientos walk-forward | Diferidos post-reciclaje (Deflated SR + k-fold CV) | **Pre-reciclaje (R1+R2 Sesiones 1+2 Frame 2)** |
+| Tier 0 I1 Path | Path α reduced enum 4 valores TF | **Path γ kernel granular** (sustituye Path α post-fail Sesión 1A.2 evidence 2.7% match) |
+| Audit refactor | Sesión 1A.2 Opción A clean post-Path α | **Sesión 2 R6 post-Path γ kernel granular** (ahora con per-trade fields completos) |
+| Bloque 2c granular | Sesión 2 G1.2 con kernel Path α | **Sesión 3 R4 con kernel Path γ** (granularidad H_strategy real cross-strategy) |
+| Cierre criterio | Calendarico (Sesiones 1A+1B+2+3+4 done) | **Empírico cross-9 N=9 Gates A+B+C** (mean ratio J/B + Spearman ρ + colapso fuerte) |
+
+**Sesión 1A.2 Path β3 EMPIRICAL FAIL — origen reformulación**:
+- **Path β3 hipótesis Ricardo** (override Path β1 recommendation): kernel cross-cluster + post-filter "semánticamente equivalente por construcción" a audit pre-refactor.
+- **Refutación empírica**: 2.7% match rate (vs gate 80%, vs baseline 48.1% audit pre-refactor). Causa raíz: **state evolution divergence** — kernel cross-cluster cooldown/sl_level evoluciona distinto a brain-side filter. Equivalencia "por construcción" NO se sostiene cuando state machine kernel ≠ state machine audit Python.
+- **Lección §12 L34**: hipótesis "semánticamente equivalente por construcción" sin validación empírica ANTES invertir compute fue costo evitable (~3-4h CC). Cross-validation contra `_run_verify_test` ground truth N=76 trades 0.0000 baseline previno escalada — fail visible inmediato.
+- **ROLLBACK clean**: branch `feature-audit-refactor-path-beta3` deleted + audit_fidelity_v5_2.py restaurado main `f8205fa` + EXPECTED_LAB_KERNEL_HASH revertido `02f9c480...` (Sesión 1B amendment baseline).
+
+**Frame 2 sesiones (5 sesiones cross-1.5-2 semanas, ~12-19h CC real §12 L37)**:
+
+| Sesión | Fecha estimada | Items | Tiempo CC |
+|--------|----------------|-------|-----------|
+| **Sesión 1 Frame 2** | **~2026-04-28 noche** | **R1 Deflated SR (López de Prado 2014) + R2 k-fold CV walk-forward 5-fold rolling** | **~2-4h** |
+| **Sesión 2 Frame 2** | **~2026-04-29** | **R3 Tier 0 I1 Path γ kernel granular (sustituye Path α reduced enum) + R6 audit refactor Opción A clean post-Path γ** | **~4-7h** |
+| **Sesión 3 Frame 2** | **~2026-04-30 a 05-01** | **R4 Bloque 2c granular cross-régimen (con Path γ kernel) + R5 condicional H_M3+H_M4+H_M5+H_M6** | **~2-5h** |
+| **Sesión 4 Frame 2** | **~2026-05-02 a 05-03** | **Gates evaluation cross-9 N=9** (A: mean ratio J/B post-R1+R2 ≤ 1.5× baseline 2.41 + B: 0/9 colapso fuerte + C: Spearman ρ stable cross-cluster) | **~1-2h** |
+| **Sesión 5 Frame 2** | **~2026-05-03 a 05** | **Reciclaje 45 sym launch** (post-Gates A+B+C PASS) | **~30 min preparation** |
+
+**Gate criterio empírico cierre Frame 2** (cross-9 N=9 BTC+ONDO+SEI × C0+C1+C2):
+- **Gate A — Magnitud**: mean ratio J/B post-R1+R2 ≤ 1.5× baseline M2 fix 2.41× (target reducción >40% vs baseline single-fold).
+- **Gate B — Resilencia**: 0/9 colapso fuerte cross-symbol (preservar M2 fix invariante).
+- **Gate C — Estabilidad cross-cluster**: Spearman ρ stable cross-cluster sin volteos signo (proxy noise ranking).
+- **PASS Gates A+B+C**: reciclaje launch (~2026-05-03 a 05).
+- **FAIL Gate A único** (B+C PASS): proyecto dedicado adicional Bloque 2c granular Path γ — escalable Sesión 3 R5 condicional.
+- **FAIL Gate B/C**: pause + diagnóstico arquitectónico (no escalada compute ciega §12 L34).
+
+**§12 L37 recalibración temporal Frame 2**:
+- Estimación humana naive: ~50-100h cross-3-4 semanas calendario.
+- **Tiempo Claude Code real**: **~12-19h cross-1.5-2 semanas calendario** (factor 5-7× más rápido — patrón cross-Sesiones 1A+1B+1B amendment validated).
+- Bot obsoleto adicional Frame 2 vs AGGRESSIVE pura recalibrada: **+0-2 días** (negligible vs valor refinamientos pre-reciclaje).
+- Trade-off: invertir 2-4 días CC real adicional Frame 2 evita rotación 45 specialists post-reciclaje con methodology defectuosa = ahorro ~10-15 días calendario futuro.
+
+**§12 L36 captura recursiva**: predicción Sesión 1A.2 Path β3 "match rate ≥80% by construction" REFUTADA empíricamente (real 2.7%). Refutación informativa = scope refinement Path γ kernel granular sustituye Path α reduced enum. Cross-15-aplicaciones consolidada (~55-95h ahorro acumulado paths infeasibles ciegamente). Frame 2 redesign es captura institucional explícita patrón "patada hacia delante" que evita repetición futura.
+
+**§12 L38 captura recursiva profilactica Frame 2**: verificación supuestos técnicos pre-implementación cross-fuentes primarias Frame 2:
+- R1 Deflated SR: lectura López de Prado (2014) "The Deflated Sharpe Ratio" formula `DSR = SR_observed - E[max(SR_iid)] / σ_SR` + numerical implementation cross-libraries (no asumir convención).
+- R2 k-fold CV: 5-fold rolling con preservación temporal order (no shuffle puro — leakage forward-looking) + validación contra single train/fwd split N=9 baseline.
+- R3 Path γ kernel granular: enum extendido sl_emergency/sl_hit + cancel_zone/cancel_ghost + tf_exit/zone_exit separados + regime_change brain-side propagación. Tests greenfield diff 0.0000 cross-3-símbolos pre-merge.
+- R6 audit refactor Opción A clean post-Path γ: kernel ahora exporta enum granular real (no reduced enum collapse) → audit `extract_trades_tf` reemplazable directo por `run_on_slice(..., return_per_trade=True)` sin filter post-call.
+
+**Items §13.3 reformulaciones Frame 2** (ver entries individuales actualizadas L1916+L3051+nuevo R1+R2 sub-items):
+- L1916 **Refactor audit_v5.x** → BLOQUEADO Sesión 1A.2 Path β3 FAIL → **REFORMULADO Frame 2 Sesión 2 R6 post-Path γ** (Opción A clean post-kernel granular, no reduced enum).
+- L3051 **Tier 0 I1 + Bloque 2c** → reformulado **Frame 2 Sesión 2 R3 Path γ kernel granular pre-reciclaje** (sustituye Path α post-fail evidence). Bloque 2c cross-régimen reformulado **Frame 2 Sesión 3 R4 con kernel Path γ**.
+- Nuevo sub-item **R1 Deflated SR pre-reciclaje** (Frame 2 Sesión 1, ~1-2h CC).
+- Nuevo sub-item **R2 k-fold CV walk-forward pre-reciclaje** (Frame 2 Sesión 1, ~1-2h CC).
+
+**§13.2 bloque ACTIVO walk-forward methodology** actualizado con Frame 2 update — refinamientos pre-reciclaje (R1+R2+R3 cross-Sesiones 1+2 Frame 2) + Gates A+B+C cross-9 N=9 cierre empírico.
+
+**ROADMAP_PRE_RECICLAJE.md** actualizado: AGGRESSIVE pura recalibrada SUPERSEDED por Frame 2 (5 sesiones, R1-R6 items, Gates A+B+C cierre empírico). Sesiones AGGRESSIVE 1A+1A.2 mantenidas como historial done; Sesiones 1B+2+3+4 redefinidas Frame 2.
+
+**Estado pre-reciclaje MADURO INSTITUCIONAL FINAL+P1+TRIAJE+AUDIT-RESCATE+FRAME-2-WALK-FORWARD-COMPLETO invariante**.
+
+**Bot v2.4.5 operacional VPS Tokio uptime 5d 11h+ invariante**. Sin tocar `live/*` productivo (Frame 2 cambios kernel modify lab-only + walk-forward refinements lab-only). Fidelidad 2 invariante por construcción.
+
+**Próximo Parte 1**: Sesión 1 Frame 2 R1 Deflated SR implementation rama `sesion-1-frame2-r1-deflated-sr` (~1-2h CC).
+
+**Referencias**:
+- §13.4 entrada Sesión 1B Path α 2026-04-28 + Sesión 1B amendment 2026-04-28 (baselines preservados).
+- §13.4 entrada Sesión 1A.2 Path β3 ROLLBACK 2026-04-28 sesión noche (causa raíz Frame 2 redesign).
+- §12 L34 (hipótesis sin validación empírica), §12 L36 (predicciones profilácticas), §12 L37 (calibración temporal CC), §12 L38 (verificación supuestos pre-implementación).
+- López de Prado, M. (2014). "The Deflated Sharpe Ratio: Correcting for Selection Bias, Backtest Overfitting, and Non-Normality". J. Portfolio Management.
+- ROADMAP_PRE_RECICLAJE.md sesión Frame 2 (5 sesiones cross-1.5-2 semanas calendario).
+
+**Cierre Sesión 0 Frame 2 metodológica**: permanente. Walk-forward methodology refinements pre-reciclaje empíricamente justificados. Próximo Parte 1 R1 Deflated SR inmediato post-commit administrativo.
+
+---
+
+**[IMPLEMENTACIÓN] [PRE-RECICLAJE SESIÓN 1A.2 PATH β3 ROLLBACK] EMPIRICAL FAIL match rate 2.7% vs gate 80% — 2026-04-28 sesión noche**
+
+**Contexto**: Sesión 1A.2 Refactor audit_v5.x Opción A clean post-Sesión 1B Path α + amendment. Ricardo override Path β1 recommendation (kernel-direct + post-filter intra-cluster) → confirmó **Path β3** (kernel cross-cluster + post-filter brain-side) bajo argumento "semánticamente equivalente por construcción" a audit pre-refactor.
+
+**Implementación Path β3** (rama `feature-audit-refactor-path-beta3`):
+- `audit_fidelity_v5_2.py` reescrita: `extract_trades_tf` reemplazada por wrapper que llama `run_on_slice(..., return_per_trade=True)` cross-cluster + post-filter brain-side por `cluster_filter` array.
+- Lógica filter: trades con `entry_cluster ≠ target_cluster` descartados post-call.
+- `EXPECTED_LAB_KERNEL_HASH` actualizado `02f9c480...` (kernel UNCHANGED, audit-side refactor only).
+
+**Validación empírica cross-3-símbolos** (BTC+ONDO+SEI × `_run_verify_test` baseline N=76 trades 380 mediciones diff 0.0000 baseline 2026-04-26):
+
+| Símbolo | Trades baseline pre-refactor | Trades post-Path β3 | Match rate | Veredicto |
+|---------|------------------------------|---------------------|------------|-----------|
+| BTC | 23 | 1 (fortuito) | **4.3%** | ✗ FAIL gate 80% |
+| ONDO | 32 | 0 | **0%** | ✗ FAIL |
+| SEI | 21 | 1 (fortuito) | **4.8%** | ✗ FAIL |
+| **Mean cross-3** | **76 baseline** | **2/76** | **2.7%** | **✗ FAIL critical** |
+
+Baseline audit pre-refactor (cross-cluster + filter Python intra-process): 48.1% match rate (N=76 baseline). Path β3 (kernel cross-cluster + filter brain-side): 2.7% match rate. **Regresión categórica vs baseline pre-refactor** — no equivalencia por construcción.
+
+**Causa raíz state evolution divergence**:
+- Kernel cross-cluster ejecuta state machine completa cross-todos-los-clusters simultáneamente: cooldown counters, sl_level evolution, div_ctx accumulation, position state propagation.
+- Audit pre-refactor ejecutaba state machine **per-cluster aislada**: extract_trades_tf invocado cluster-by-cluster con state limpio inicial.
+- Filter brain-side post-call descarta trades cross-cluster — pero **state evolution diverged ya antes** (cooldown stuck cross-trade A cluster X bloqueando trade B cluster Y posterior; sl_level levantado trade C cluster X afectando intrabar bar emergency cluster Y).
+- Hipótesis "semánticamente equivalente por construcción" Ricardo confundió **trade output equivalence** (lo que filter post-call lograría) con **state evolution equivalence** (que kernel cross-cluster NO preserva).
+
+**ROLLBACK clean**:
+- Branch `feature-audit-refactor-path-beta3` deleted (`git branch -D`).
+- `audit_fidelity_v5_2.py` restaurado main `f8205fa` (pre-Path β3).
+- `EXPECTED_LAB_KERNEL_HASH` revertido `02f9c480...` (Sesión 1B amendment baseline preservado).
+- Smoke §0.8 cross-cuatro símbolos PASS post-rollback (baselines Sesión 1B amendment intactos).
+- 0 commits Path β3 mergeados a main (clean rollback).
+
+**Lección §12 L34 captura**: hipótesis "semánticamente equivalente por construcción" sin validación empírica ANTES invertir compute fue costo evitable. Cross-check `_run_verify_test` baseline N=76 trades 0.0000 fue gate visible inmediato (~10 min compute) que detectó FAIL — pero solo se ejecutó POST-implementación full Path β3 (~3-4h CC). Mitigación futura: gate visible empírico ANTES merge full implementation Opción arquitectónica decidida sobre hipótesis "by construction".
+
+**Lección §12 L38 captura recursiva 10ª aplicación**: verificación supuestos técnicos pre-implementación cross-fuentes primarias falló prevención Path β3 — supuesto "kernel cross-cluster + filter post-call equivalente a audit pre-refactor cluster-by-cluster" NO verificado contra state machine kernel real (cooldown/sl_level/div_ctx evolution cross-trade). Caso de origen aplicación recursiva FUTURA: state evolution divergence es categoría riesgo distinta a output equivalence — verificar AMBOS pre-implementation arquitectural decision.
+
+**§12 L36 16ª aplicación retrospectiva refutada**: predicción "Path β3 by construction equivalent (~5-10 min validación cross-_run_verify_test)" → real 2.7% match rate REFUTADA. Refutación informativa = origen Frame 2 redesign + Path γ kernel granular adoption (sustituye Path α reduced enum como solución arquitectónica directa state evolution preservada). Cross-16-aplicaciones consolidada (~55-95h ahorro acumulado paths infeasibles ciegamente, considerando ahora costo Path β3 ~3-4h CC inversión refutada empíricamente).
+
+**Items §13.3**: NO actualizados directamente (Sesión 1A.2 Path β3 ROLLBACK clean = stato quo ante baseline Sesión 1B amendment). Reformulación Frame 2 capturada en entry separado §13.4 "Sesión 0 metodológica fundamental".
+
+**Estado pre-reciclaje preserva MADURO INSTITUCIONAL FINAL+P1+TRIAJE+AUDIT-RESCATE+SESION-1B-AMENDMENT** (rollback restaura baseline Sesión 1B amendment).
+
+**Bot v2.4.5 operacional VPS Tokio uptime 5d 10h+ invariante**. Sin tocar `live/*` productivo (audit refactor lab-only intentado + revertido).
+
+**Próximo**: Sesión 0 Frame 2 captura institucional metodológica (§13.4 entry separado) + Sesión 1 Frame 2 R1 Deflated SR (Path γ kernel granular postpone Sesión 2 Frame 2 R3 post-R1+R2 walk-forward refinements primero).
+
+**Referencias**:
+- `audit_fidelity_v5_2.py` main `f8205fa` (baseline restaurado).
+- §13.4 entrada Sesión 1B amendment 2026-04-28 (baseline preservado).
+- §12 L34 (hipótesis sin validación empírica), §12 L36 (predicción 16ª retrospectiva refutada), §12 L38 (verificación supuestos pre-implementación falló prevención).
+- §13.4 entrada Sesión 0 Frame 2 2026-04-28 sesión noche (reformulación institucional consecuencia).
+
+**Cierre Sesión 1A.2 Path β3 ROLLBACK**: permanente. Path β3 refutado empíricamente. Reformulación Frame 2 captura institucional permanente lección.
+
+---
 
 **[IMPLEMENTACIÓN] [PRE-RECICLAJE SESIÓN 1B AMENDMENT PATH α' SUPPLEMENT] entry_price + exit_price arrays kernel completo — 2026-04-28 sesión noche**
 
