@@ -1,6 +1,8 @@
 # Sistema de Trading Algorítmico — Contexto Completo del Proyecto
 
-**Última actualización:** 29 Abril 2026 SESIÓN 4.5 FRAME 2 CONCLUSION — **Gate C rigorous analytical FAIL detected empirically robust (0/9 ≥+0.30 sig + 3/9 sign reversals + 2/9 STRONG NEGATIVE over-fit phenomenon ONDO C2 ρ=-0.502 p<0.001 *** + SEI C1 ρ=-0.363 p<0.001 ***) → Escenario 3 detectado empíricamente → Frame 3 redesign mandatory + reciclaje launch ~2026-05-03 DEFERRED. Disciplina aspirar-a-lo-mejor literal applied al own Frame 2 conclusion via Sesión 4.5 rigorous refinement (Gate C upgraded Sesión 4 PARTIAL analytical proxy → Sesión 4.5 FAIL rigorous per-cluster). §12 L34 cross-20ª aplicación recursiva al own Frame 2 conclusion + L36 23ª retrospectiva calibrada + L37 V2 cumulative cross-aplicaciones validated (precalculate_all_data upstream cost dominante NO escapable bg mode cross-3 intentos refutados Sesión 2.5 + 3 + 3.5) + L38 cross-13ª recursivas consolidated robustamente. Frame 2 methodology refinements infrastructure DEPLOYABLE post-Frame 3 redesign integrate: M2 fix sort + W3 bootstrap CI + W4 thresholds + R3 Path γ kernel granular ASIMÉTRICO TF (6) + MR (8) + R1 DSR rigurosa diagnostic flagged_dsr + R4 standalone analytical cross-strategy decomposition. Walk-forward ranking selectivity within survivor pool unchanged empíricamente — Frame 3 redesign requires architectural changes fundamental (NO walk-forward methodology refinement scope). Bot v2.4.5 invariante uptime ~6d 5h+. Sin tocar live/* productivo. Próxima Frame 3 redesign session arquitectura análisis fundamental cuando Ricardo confirme.**
+**Última actualización:** 29 Abril 2026 SESIÓN 0 FRAME 3 METODOLÓGICA FUNDAMENTAL — **Frame 3 redesign mandatory post-Frame 2 conclusion empírica robust (Sesión 4.5 Gate C rigorous FAIL Escenario 3 detected) + decisión Ricardo strategic Opción E sequential focused (γ) → (β) → (δ) priority order. Frame 3 alcance fundamental edge mejora real architectural changes — NO walk-forward methodology refinement scope (Frame 2 alcance). Frame 3.A focused (γ) régimen detection methodology refinement foundation primary (3-4 sesiones ~10-20h CC) + Frame 3.B focused (β) strategy architectural refinements post-Frame 3.A (3-4 sesiones ~15-25h CC) + Frame 3.C focused (δ) methodology selection redesign post-Frame 3.A + 3.B (3-5 sesiones ~15-30h CC). Calendar TBD post-Sesión 1 Frame 3.A análisis arquitectónica fundamental. §12 L34 cross-21ª aplicación recursiva al own roadmap propio applied + L36 prophilactic + L37 V2 cumulative + L38 disciplinada cross-iteraciones consolidated robustamente Frame 2 → Frame 3 transition. Methodology refinements infrastructure DEPLOYABLE post-Frame 3 OR independent reciclaje (escenario F3.3 confirmation): M2 fix + W3 + W4 + R3 Path γ + R1 DSR diagnostic + R4 standalone. Bot v2.4.5 invariante uptime ~6d 5h+. Sin tocar live/* productivo. Próxima Sesión 1 Frame 3.A análisis arquitectónica fundamental cuando Ricardo confirme.**
+
+PREVIA — 29 Abril 2026 SESIÓN 4.5 FRAME 2 CONCLUSION — **Gate C rigorous analytical FAIL detected empirically robust (0/9 ≥+0.30 sig + 3/9 sign reversals + 2/9 STRONG NEGATIVE over-fit phenomenon ONDO C2 ρ=-0.502 p<0.001 *** + SEI C1 ρ=-0.363 p<0.001 ***) → Escenario 3 detectado empíricamente → Frame 3 redesign mandatory + reciclaje launch ~2026-05-03 DEFERRED. Disciplina aspirar-a-lo-mejor literal applied al own Frame 2 conclusion via Sesión 4.5 rigorous refinement (Gate C upgraded Sesión 4 PARTIAL analytical proxy → Sesión 4.5 FAIL rigorous per-cluster). §12 L34 cross-20ª aplicación recursiva al own Frame 2 conclusion + L36 23ª retrospectiva calibrada + L37 V2 cumulative cross-aplicaciones validated (precalculate_all_data upstream cost dominante NO escapable bg mode cross-3 intentos refutados Sesión 2.5 + 3 + 3.5) + L38 cross-13ª recursivas consolidated robustamente. Frame 2 methodology refinements infrastructure DEPLOYABLE post-Frame 3 redesign integrate: M2 fix sort + W3 bootstrap CI + W4 thresholds + R3 Path γ kernel granular ASIMÉTRICO TF (6) + MR (8) + R1 DSR rigurosa diagnostic flagged_dsr + R4 standalone analytical cross-strategy decomposition. Walk-forward ranking selectivity within survivor pool unchanged empíricamente — Frame 3 redesign requires architectural changes fundamental (NO walk-forward methodology refinement scope). Bot v2.4.5 invariante uptime ~6d 5h+. Sin tocar live/* productivo. Próxima Frame 3 redesign session arquitectura análisis fundamental cuando Ricardo confirme.**
 
 PREVIA — 29 Abril 2026 SESIÓN 4 FRAME 2 GATES A+B+C CROSS-9 EVALUATION → ESCENARIO 1 PASS+PASS+PASS|PARTIAL → RECICLAJE LAUNCH VIABLE ~2026-05-03 — **Sesión 4 Gates analytical evaluation R1+R3+R4 combinados methodology refinada cross-9 BTC+ONDO+SEI × C0+C1+C2 con M2 fix baseline 2026-04-25 + R1 DSR Sesión 2.5 + R3 Path γ infrastructure + R4 analytical proxy. Gate A mean ratio J/B = 2.408 ≤ 3.62 PASS. Gate B 0/9 colapso fuerte (ratio > 5.0) PASS. Gate C cross-9 Spearman ρ = -0.17 NS PARTIAL (per-cluster ρ unavailable, weak proxy). Escenario 1 determined → R5 NOT NEEDED, reciclaje launch viable. Sesión 3.5 R4 dry-run cross-3 launched background bg `bno9hiw92` pero compute exceeded session capacity (~90-225 min cumulative, §12 L37 V2 captura recurrente). Empirical R4 results DEFERRED Ricardo manual analysis post-compute. Frame 2 escenarios preserved. Bot v2.4.5 invariante uptime ~6d 4h+. Próxima Sesión 5 reciclaje launch ~2026-05-03.**
 
@@ -8,7 +10,15 @@ PREVIA — 29 Abril 2026 SESIÓN 3 FRAME 2 R4 BLOQUE 2c GRANULAR CROSS-STRATEGY 
 
 PREVIA — 29 Abril 2026 SESIÓN 2.5 FRAME 2 R1 DSR RIGUROSA LÓPEZ DE PRADO 2014 + STANDALONE SCRIPT JSONS-BASED DRY-RUN CROSS-3 DONE — **R1 DSR rigurosa post-Path γ Sesión 2 + Opción γ→C standalone script synthetic returns approach (Multi-testing Caso B precedent). Compute estimate refinado §12 L37 V2: full pipeline cross-3 ~30-45h infeasible, synthetic returns standalone ~5 segundos viable. Backward compat absoluto `_R1_DSR_METHOD='none'` default (verify_test BTC diff 0.0000 EXACTO PASS). Tests greenfield 7/7 PASS + 27/27 no-regression preserved. Empirical dry-run cross-3 BTC+ONDO+SEI: 1/9 top-1 changes DSR vs M2 fix (11.1%) + 88.9% flagged_dsr cross-clusters (selection bias structural confirmed). ONDO C0 §12 L29 canonical case detected (z_median=-1.72 + 100% flagged cluster-level). VALIDACIÓN PARCIAL H1 (NOT refutación pura análoga Caso B BH 0/9): DSR provee diagnostic value flagged_dsr beyond top-1 ranking changes; M2 fix ya captura mayoría DSR-favored configs. R1 NOT archived. §12 L37 V2 captura permanente: spec compute estimates Frame 2 deben distinguir implementation pure compute vs full pipeline upstream cost. §12 L36 20ª aplicación retrospectiva (predicción 30-50% changes refutada parcial; 88.9% flagged refutación fuerte magnitud — outcome más informativo). §12 L38 12ª aplicación recursiva fix DSR formula one-tailed validated empíricamente. Habilita Sesión 3 R4 Bloque 2c granular cross-strategy + R5 Reduced parameter space + ensemble combinados. Bot v2.4.5 invariante uptime ~6d 3h+**.
 
-**Frame 2 calendar SUSPENDED post-Sesión 4.5 Gate C rigorous FAIL → Frame 3 redesign trigger**:
+**Frame 3 redesign sequential focused (γ) → (β) → (δ) priority order — calendar TBD post-Sesión 1 Frame 3.A**:
+1. **Sesión 0 Frame 3 metodológica fundamental** (HOY 2026-04-29): Claude redactor preliminary spec + 4 hipótesis arquitectónicas evaluadas + Opción E sequential focused decisión Ricardo + Sub-Frames 3.A/3.B/3.C scope estimated ✅ DONE.
+2. **Sesión 1 Frame 3.A** (PRÓXIMA cuando Ricardo confirme): análisis arquitectónica fundamental régimen detection methodology refinement candidatos (análoga Sesión 1 Frame 2).
+3. **Sub-sesiones Frame 3.A** (~3-4 sesiones cumulative): GMM regime classification refinement + adaptive thresholds + Z_ATR_BTC + cross-exchange consistency. Total ~10-20h CC + compute background.
+4. **Frame 3.B focused (β)** (post-Frame 3.A conclusion): strategy architectural refinements + ensemble combinaciones R5 L162 + funding-aware. ~15-25h CC + compute.
+5. **Frame 3.C focused (δ)** (post-Frame 3.A + 3.B): walk-forward methodology fundamental redesign + Bayesian optimization + adaptive reciclaje calendar. ~15-30h CC + compute.
+6. **Reciclaje launch new calendar TBD post-Frame 3 redesign + validation gates analogous Frame 2 Gates A+B+C cross-9 evaluation rigorous**.
+
+**Frame 2 calendar SUSPENDED post-Sesión 4.5 Gate C rigorous FAIL → Frame 3 redesign trigger** (preserved trazabilidad):
 1. **Sesión 1 Frame 2** (2026-04-28): análisis arquitectónico completo + decisiones Ricardo (C)+R6_γ ✅ DONE.
 2. **Sesión 2 Frame 2** (2026-04-29): R3 Path γ TF+MR ambos kernels (~5-6h CC) ✅ DONE — 14 tests PASS + Smokes §0.8 cross-cuatro PASS + verify_test cross-3-símbolos diff 0.0000.
 3. **Sesión 2.5 Frame 2** (2026-04-29): R1 DSR rigurosa post-Path γ Opción γ→C standalone script synthetic returns ✅ DONE — 7 tests + dry-run cross-3 1/9 changes (validación parcial H1, NOT archived; 88.9% flagged_dsr diagnostic).
@@ -3294,6 +3304,124 @@ Referencias:
 ---
 
 ### 13.4 RESUELTO
+
+**[METODOLÓGICA FUNDAMENTAL] [PRE-RECICLAJE FRAME 3 SESIÓN 0] Frame 3 redesign mandatory — alcance fundamental edge mejora real architectural changes (NO walk-forward methodology refinement scope) — sequential focused (γ) → (β) → (δ) priority order — 2026-04-29 sesión post-Frame 2 conclusion**
+
+**Contexto**: Sesión 0 Frame 3 metodológica fundamental Claude redactor preliminary spec post-Frame 2 conclusion empírica robust (Sesión 4.5 commit `806cdee` Gate C rigorous analytical FAIL detected empirically robust → Escenario 3 → Frame 3 redesign mandatory) + decisión Ricardo strategic Opción E sequential focused.
+
+**Framing honest Frame 3 alcance fundamental diferente Frame 2**:
+
+Frame 2 (commits `3fb4ebd → db3edc8 → d575de4 → 71777a9 → 3fe0245 → d130cce → 806cdee`) atacó **sobrestimación métricas walk-forward** (ratio J/B 8.235 baseline → 2.408 M2 fix). Methodology refinements infrastructure deployable: M2 fix sort + W3 bootstrap CI + W4 thresholds + R3 Path γ kernel granular ASIMÉTRICO TF (6) + MR (8) + R1 DSR rigurosa diagnostic flagged_dsr column + R4 standalone analytical cross-strategy decomposition. Walk-forward ranking selectivity within survivor pool unchanged empíricamente Gate C rigorous FAIL — refinements NO mejoran edge real disponible mercado per §13.2 framing honest documented.
+
+**Frame 3 redesign ataca edge real disponible mercado architectural changes** — alcance fundamentalmente diferente Frame 2 selection methodology refinement.
+
+**Edge real disponible mercado caracterizado empíricamente** (§13.4 + §13.2 hallazgos previos):
+- A.1 N=26 + audit institucional N=60 alpha residual edge erosion -5.76 USDT cumulative bot v2.4.5 4 días.
+- Cross-universe 20/20 configs PF_3y<1.5 (Bloque 2c Q1 cross-3y Binance Futures 2026-04-23).
+- 9/9 edge real positivo Binance pf_fwd>1.0 mean 1.83 — edge real EXISTE pero MARGINAL.
+- Edge erosion confirmed monotónico B3/B1 1.82× decay temporal sostenido.
+- Bot operacional v2.4.5 PnL acumulado ~-0.18/día — edge real marginal en current capital balance ~10K USDT requirement.
+
+**4 hipótesis arquitectónicas Frame 3 candidatas evaluadas Sesión 0**:
+
+| # | Hipótesis | Ataca |
+|---|-----------|-------|
+| α | Edge fundamental marginal limit estructural strategy actual | Limit fundamental |
+| β | Strategy architectural refinements potential capture mayor edge | Strategy infrastructure |
+| γ | Régimen detection methodology current limita capture | Régimen detection |
+| δ | Methodology selection (walk-forward + parameter sweep + reciclaje calendar) limita capture | Methodology pipeline |
+
+**Decisión Ricardo Opción E sequential focused (γ) → (β) → (δ) priority order**:
+
+Sequential disciplina aspirar-a-lo-mejor literal applied al Frame 3 spec preliminary. Cada sub-Frame produces commit hito permanente + validation gates antes proceder next sub-Frame. NO scope expansion sin evidence necessity per sub-Frame.
+
+**Frame 3.A focused (γ) régimen detection methodology refinement** (Sub-Frame 3 sesiones múltiples planeadas):
+- **Foundation primary** (γ refinement antes (β) + (δ) build upon).
+- GMM regime classification refinement candidatos:
+  - Adaptive cluster N (3 → 4-6 clusters) per pair characteristics.
+  - GMM 3-cluster current methodology coarse vs adaptive cluster identification.
+  - Cross-exchange régimen consistency (Binance↔BingX H_M6 deferred Frame 2 → Frame 3.A activation).
+- Régimen confirmation thresholds refinement candidatos:
+  - Adaptive P_threshold per régimen / per pair (current 0.75 fixed).
+  - Régimen transition handling refinement (toxic_tail dynamic Sesión 2 Path γ MR foundation reusable).
+- Z_ATR_BTC cross-symbol feature refinement (Frame 2 Fase A documented pero NO empirical validation Frame 2 — Frame 3.A activation).
+- **Scope estimated**: 3-4 sesiones cumulative (~10-20h CC + compute background substantial).
+
+**Frame 3.B focused (β) strategy architectural refinements** (post-Frame 3.A):
+- Build on régimen detection improved Frame 3.A.
+- Cross-strategy ensemble combinaciones (R5 L162 architectural diferidos Frame 2 → Frame 3.B activation):
+  - Reduced parameter space hyper-grid (preset families × hyst) ~50% reducción configs sweep.
+  - Ensemble cross-top-N specialists per cluster brain/portfolio_manager deployment.
+- Indicator selection criteria architectural refinement.
+- Multi-timeframe filter refinement architectural per régimen.
+- Funding-aware strategy selection (H_funding architectural Frame 3.B activation).
+- **Scope estimated**: 3-4 sesiones cumulative (~15-25h CC + compute background substantial).
+
+**Frame 3.C focused (δ) methodology selection redesign** (post-Frame 3.A + 3.B):
+- Incorporate previous Frame 3.A + 3.B refinements.
+- Walk-forward methodology fundamental redesign:
+  - Train/fwd ratio refinement architectural (current 0.70 default).
+  - Multi-window walk-forward (rolling vs static fwd window).
+  - Cross-validation methodology integrated (k-fold CV reformulado post-Frame 3.A + 3.B refinements).
+- Parameter sweep architectural redesign:
+  - Reduced parameter space + smart sampling (Frame 3.B integration).
+  - Bayesian optimization vs exhaustive search ~4M combinations.
+- Reciclaje calendar architectural refinement:
+  - Adaptive reciclaje trigger per pair drift detection.
+  - Continuous learning architectural changes.
+- **Scope estimated**: 3-5 sesiones cumulative (~15-30h CC + compute background substantial).
+
+**Frame 3 calendar TBD post-Sesión 1 Frame 3.A análisis arquitectónica fundamental**:
+- Sesión 1 Frame 3.A análisis arquitectónica fundamental: análoga Sesión 1 Frame 2 (Parte 1+2+3 análisis código real + hipótesis emergentes + reformulación spec).
+- Sub-sesiones Frame 3.A subsequent: análoga Frame 2 Sesión 2/2.5/3/3.5/4/4.5 patrón institucional consolidated.
+- Frame 3.B + Frame 3.C calendar TBD post-Frame 3.A conclusion empírica.
+- Reciclaje launch new calendar TBD post-Frame 3 redesign architectural deployment + validation gates analogous Frame 2 Gates A+B+C cross-9 evaluation rigorous.
+
+**Frame 3 alcance honesto explícito**:
+- Frame 3 ataca **edge mejora real architectural changes** — NO walk-forward methodology refinement scope (Frame 2 alcance).
+- Cumulative Frame 3 scope substantial: ~30-50h CC + compute background substantial cross-Sub-Frames 3.A + 3.B + 3.C.
+- Cada Sub-Frame produces validation gates — Frame 3 sequential disciplina aspirar-a-lo-mejor literal applied (NO scope expansion sin evidence necessity per Sub-Frame).
+
+**Frame 3 conclusion outcomes posibles documented**:
+
+| Escenario | Outcome | Decisión |
+|-----------|---------|----------|
+| **F3.1** | Edge mejora real validated empíricamente robust cross-Sub-Frames | Reciclaje launch new methodology + bot operacional reproduces edge mejora real |
+| **F3.2** | Edge mejora real validated parcial | Frame 3 refinements infrastructure deployable + decisión Ricardo strategic capital scale-up vs continued Frame 3 refinement |
+| **F3.3** | Edge mejora real refutado empíricamente robust cross-Sub-Frames | Frame 3 conclusion honest = edge fundamental marginal disponible mercado confirmed (Hipótesis α validated) + decisión Ricardo strategic capital scale-up + reciclaje launch methodology Frame 2 refinements deployable + monitoring decision |
+
+**Frame 2 methodology refinements infrastructure DEPLOYABLE post-Frame 3 OR independent reciclaje (escenario F3.3 confirmation)**:
+- M2 fix sort + W3 bootstrap CI + W4 thresholds (Fase A+B pre-reciclaje done 2026-04-25 Frame 2 commit `f8205fa`).
+- R3 Path γ kernel granular ASIMÉTRICO TF (6) + MR (8) (Frame 2 commit `d575de4`).
+- R1 DSR rigurosa diagnostic flagged_dsr column + filter optional `_R1_DSR_REQUIRE_NOT_FLAGGED=True` reciclaje activable (Frame 2 commit `71777a9`).
+- R4 standalone analytical cross-strategy decomposition (Frame 2 commit `3fe0245`).
+
+**§12 cross-aplicaciones consolidated robust cross-Frame 2 cumulative applicable Frame 3**:
+- **§12 L34 cross-21ª aplicación recursiva al own roadmap propio** applied (cross-20ª Frame 2 + 21ª Frame 3 transition): disciplina aspirar-a-lo-mejor literal applied al Frame 3 spec preliminary sequential focused preserves NO scope expansion sin evidence necessity per Sub-Frame.
+- **§12 L36 prophilactic predicción + escrutinio recursivo cross-23ª aplicaciones Frame 2** → Frame 3 each sub-Frame predicción + evaluación rigorous.
+- **§12 L37 V2 cumulative cross-aplicaciones validated Frame 2** → Frame 3 compute estimate distinguish implementation pure vs full pipeline upstream cost (precalculate_all_data dominante NO escapable bg mode).
+- **§12 L38 disciplinada cross-iteraciones cross-13ª aplicaciones Frame 2** → Frame 3 lectura código real + escrutinio recursivo cumulative.
+
+**Bot v2.4.5 invariante uptime ~6d 5h+** durante Frame 3 redesign sessions subsequent. Sin tocar `live/*` productivo (Frame 3 lab-only analysis + architectural changes deployment defer post-validation gates).
+
+**Items §13.3 actualizados**:
+- L1296 Frame 2 alcance honesto: Frame 2 CONCLUSION done Sesión 4.5 → Frame 3 redesign mandatory sequential focused (γ) → (β) → (δ) priority order activated post-Sesión 0 Frame 3 metodológica fundamental.
+
+**Estado pre-reciclaje FRAME 2 CONCLUSION + transición Frame 3 redesign + Sesión 0 Frame 3 metodológica fundamental**: hito histórico cierre Frame 2 + apertura Frame 3. Bot v2.4.5 operacional VPS Tokio uptime ~6d 5h+ invariante. Sin tocar `live/*` productivo. Fidelidad 2 invariante por construcción.
+
+**23 commits acumulados Frame 2 + Frame 3 transición** (cross-3-días).
+
+**Próxima Sesión 1 Frame 3.A análisis arquitectónica fundamental**: GMM régimen detection methodology refinement candidatos arquitectónicos cuando Ricardo confirme disponibilidad continuación. Análoga estructuralmente Sesión 1 Frame 2 (Parte 1+2+3 análisis código real + hipótesis emergentes + reformulación spec). Calendar TBD post-Sesión 1 Frame 3.A análisis arquitectónica fundamental.
+
+**Referencias**:
+- Frame 2 conclusion entrada Sesión 4.5 (commit `806cdee`).
+- §13.2 walk-forward methodology bloque (Frame 2 conclusion update + Frame 3 trigger).
+- §12 cross-aplicaciones consolidated robustas Frame 2 cumulative applicable Frame 3.
+- ROADMAP_PRE_RECICLAJE.md (Frame 3 redesign sequential structure).
+
+**Cierre Sesión 0 Frame 3 metodológica fundamental**: permanente. Frame 3 redesign mandatory + sequential focused (γ) → (β) → (δ) priority order activated. Próxima Sesión 1 Frame 3.A análisis arquitectónica fundamental.
+
+---
 
 **[CIERRE METODOLÓGICO] [PRE-RECICLAJE FRAME 2 CONCLUSION SESIÓN 4.5] Gate C rigorous analytical FAIL → Escenario 3 detected empirically robust → Frame 3 redesign mandatory + reciclaje launch DEFERRED — 2026-04-29 sesión**
 
