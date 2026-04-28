@@ -1,6 +1,8 @@
 # Sistema de Trading Algorítmico — Contexto Completo del Proyecto
 
-**Última actualización:** 29 Abril 2026 SESIÓN 1 FRAME 3.A ANÁLISIS ARQUITECTÓNICA FUNDAMENTAL — **Sesión 1 Frame 3.A análisis arquitectónica fundamental DONE post-Sesión 0 Frame 3 metodológica fundamental commit `d3993a9`. 6 candidatos γ.1-γ.6 evaluation comprehensive Parte 1 (GMM cluster N adaptive + P_threshold adaptive + cross-exchange H_M6 + régimen transition + Z_ATR_BTC + HMM/regime-switching) + scoring refined Parte 2 + hipótesis emergentes H1+H2+H3 evaluated + Sub-Frame 3.A roadmap detailed. Decisiones Ricardo Parte 2: ablation matrix mandatory Sub-Frame 3.A.1 (4 condiciones baseline + γ.1 only + γ.2 only + Joint) + Opción γ gated-marginal decision rule (STRONG signal ρ>0.4 early-exit / marginal [0.3, 0.4] reinforcement / FAIL Sub-Frame 3.A.4 conditional) + 5% drift threshold tiered γ.3 (<1% confident / 1-5% caveat / ≥5% honest-abandoned). Sub-Frame 3.A.1 priority#1 (combined γ.1+γ.2 H1 architectural coupling) trigger documented + ~3-4 sesiones cumulative ~12-18h CC + ~30-60h compute background. Sub-Frame 3.A.2 γ.4 toxic_tail dynamic default + Sub-Frame 3.A.3 γ.3+γ.5 sequential coupled + Sub-Frame 3.A.4 γ.6 HMM CONDITIONAL Frame 3.D defer last-resort. Frame 3.A cumulative scope total refined ~28-44h CC + ~50-100h compute background. Validation gates analogía Frame 2 stricter criterion: ≥6/9 stable+POSITIVE + 0/9 STRONG NEGATIVE + PF empírica cross-9 ≥1.2 baseline. §12 L34 cross-22ª aplicación recursiva al own roadmap propio applied + L36 24ª calibrada acertada lower bound (0/7 mismatches CLEAN Parte 0) + L37 V2 cumulative + L38 disciplinada cross-iteraciones consolidated robustamente Frame 2 → Frame 3.A análisis. Bot v2.4.5 invariante uptime ~6d 8h+. Sin tocar live/* productivo. Próxima Sub-fase 3.A.1.0 Parte 0 verificación pre-implementación combined γ.1 + γ.2 retrain + ablation matrix mandatory cuando Ricardo confirme.**
+**Última actualización:** 28 Abril 2026 SUB-FRAME 3.A.1 ARCHIVED_EMPIRICAL — **§12 L37 V2 17ª aplicación catastrophic factor 20-30× refutación spec methodology original (smoke 10.7h single-cell + ~307 GB per cell + ~900h full grid + ~25 TB cumulative I/O empírico cross-Sub-fase 3.A.1.2 bg `b1euswpru` killed SIGTERM mid-execution variant 8/64 ~14% progress). Decisión Ricardo strategic Opción F NEW: Sub-Frame 3.A.1 (combined γ.1+γ.2 H1 architectural coupling) ARCHIVED_EMPIRICAL + Frame 3.A methodology fundamental redesign mandatory + reciclaje launch SUSPENDED + Sesión 2 Frame 3.A análisis arquitectónica fundamental redesign methodology trigger documented. Pattern institutional consolidated robust cross-Frame 2 → Frame 3 transition reproduced Sub-Frame 3.A.1 internal: empirical evidence forcing methodology redesign analogous Sesión 4.5 Gate C FAIL → Frame 3 redesign mandatory. Sub-fases ejecutadas pre-archive: 3.A.1.0 Parte 0 (6 sustantivos detected + 5 sub-decisiones Ricardo confirmed) + 3.A.1.1 implementación standalone script 664 LOC (commit 4eea4ec) + 3.A.1.2 smoke launched bg killed mid-execution (branch sesion-1-frame-3a1-2 commit 9d3f156 preserved trazabilidad NO merged main) + 3.A.1.3 tests greenfield 12/12 PASS (preserved branch). KILL smoke + cleanup 47 GB disk recovered. Frame 2 methodology refinements infrastructure DEPLOYABLE preserved post-Frame 3.A redesign integrate (M2 fix + W3 + W4 + R3 Path γ + R1 DSR + R4 standalone). §12 L34 cross-26ª aplicación recursiva al own Sub-Frame 3.A.1 scope: empirical evidence compute infeasibility hard forcing honest methodology redesign fundamental. §12 L36 27ª aplicación calibrada empírical catastrophic detection robust. §12 L37 V2 17ª cumulative consolidated permanente: Frame 3 compute estimates require empirical smoke + 5-10× safety factor over JSONs-based projections + storage/compute constraints NOT ilimitados (cognitive + tiempo Ricardo ilimitados, hardware constraints empíricos disco + GPU + RAM + I/O bandwidth finitos). §12 L38 cross-15ª aplicaciones recursivas validated robust. Bot v2.4.5 invariante uptime ~6d 11h+. Sin tocar live/* productivo. Próxima Sesión 2 Frame 3.A análisis arquitectónica fundamental redesign methodology — análoga Sesión 1 Frame 2 análisis arquitectónico estructuralmente cuando Ricardo confirme.**
+
+PREVIA — 29 Abril 2026 SESIÓN 1 FRAME 3.A ANÁLISIS ARQUITECTÓNICA FUNDAMENTAL — **Sesión 1 Frame 3.A análisis arquitectónica fundamental DONE post-Sesión 0 Frame 3 metodológica fundamental commit `d3993a9`. 6 candidatos γ.1-γ.6 evaluation comprehensive Parte 1 + scoring refined Parte 2 + hipótesis emergentes H1+H2+H3 evaluated + Sub-Frame 3.A roadmap detailed. Decisiones Ricardo Parte 2: ablation matrix mandatory Sub-Frame 3.A.1 (4 condiciones) + Opción γ gated-marginal decision rule + 5% drift threshold tiered γ.3. Sub-Frame 3.A.1 priority#1 trigger documented. Bot v2.4.5 invariante uptime ~6d 8h+.**
 
 PREVIA — 29 Abril 2026 SESIÓN 0 FRAME 3 METODOLÓGICA FUNDAMENTAL — **Frame 3 redesign mandatory post-Frame 2 conclusion empírica robust (Sesión 4.5 Gate C rigorous FAIL Escenario 3 detected) + decisión Ricardo strategic Opción E sequential focused (γ) → (β) → (δ) priority order. Frame 3 alcance fundamental edge mejora real architectural changes — NO walk-forward methodology refinement scope (Frame 2 alcance). Frame 3.A focused (γ) régimen detection methodology refinement foundation primary (3-4 sesiones ~10-20h CC) + Frame 3.B focused (β) strategy architectural refinements post-Frame 3.A (3-4 sesiones ~15-25h CC) + Frame 3.C focused (δ) methodology selection redesign post-Frame 3.A + 3.B (3-5 sesiones ~15-30h CC). Calendar TBD post-Sesión 1 Frame 3.A análisis arquitectónica fundamental. §12 L34 cross-21ª aplicación recursiva al own roadmap propio applied + L36 prophilactic + L37 V2 cumulative + L38 disciplinada cross-iteraciones consolidated robustamente Frame 2 → Frame 3 transition. Methodology refinements infrastructure DEPLOYABLE post-Frame 3 OR independent reciclaje (escenario F3.3 confirmation): M2 fix + W3 + W4 + R3 Path γ + R1 DSR diagnostic + R4 standalone. Bot v2.4.5 invariante uptime ~6d 5h+. Sin tocar live/* productivo. Próxima Sesión 1 Frame 3.A análisis arquitectónica fundamental cuando Ricardo confirme.**
 
@@ -1311,6 +1313,8 @@ Referencias: §9.2.1 rollback GRT, §3.3 tabla MR rescates, §13.4 RESUELTO audi
 
 **[FRAME 3.A UPDATE 2026-04-29 sesión Sesión 1]**: Sesión 1 Frame 3.A análisis arquitectónica fundamental done — 6 candidatos γ.1-γ.6 evaluation comprehensive + scoring refined + Sub-Frame 3.A roadmap detailed. Walk-forward methodology Frame 2 refinements infrastructure DEPLOYABLE post-Frame 3.A conclusión OR independent reciclaje (escenario F3.3). Frame 3.A ataca **edge real disponible mercado architectural changes** (régimen detection methodology refinement) — NO walk-forward methodology refinement scope. Sub-Frame 3.A.1 priority#1 (combined γ.1+γ.2 H1) trigger documented. Validation gates stricter criterion ≥6/9 stable+POSITIVE per Sub-Frame. Ver §13.4 entrada Sesión 1 Frame 3.A 2026-04-29.
 
+**[FRAME 3.A SUB-FRAME 3.A.1 ARCHIVED_EMPIRICAL + Frame 3.A methodology redesign mandatory 2026-04-28 sesión continuación]**: Sub-Frame 3.A.1 ablation matrix grid sweep methodology REFUTED empíricamente catastrophic factor 20-30× (smoke single cell ~10.7h + ~307 GB; full grid ~900h + ~25 TB). Frame 3.A methodology fundamental redesign mandatory + Sesión 2 Frame 3.A análisis arquitectónica trigger documented. **Caveat permanente §13.2 Frame 3 methodology compute estimates**: empirical smoke + 5-10× safety factor over JSONs-based projections + storage/compute constraints NOT ilimitados — hardware finitos. Pattern institutional consolidated robust cross-Frame 2 → Frame 3 transition reproduced Sub-Frame 3.A.1 internal: empirical evidence forcing methodology redesign analogous Sesión 4.5 Gate C FAIL → Frame 3 redesign mandatory. Refinements arquitectónicos candidatos Sesión 2 Frame 3.A redesign preliminary: smart sampling Bayesian opt + single-symbol single-cluster prototype + reduced kernel scope + JSON metadata-only analytical. Ver §13.4 entrada Sub-Frame 3.A.1 ARCHIVED_EMPIRICAL 2026-04-28.
+
 **[FRAME 2 UPDATE 2026-04-28 sesión noche]** Refinamientos selection-bias-specific antes solo deferred post-reciclaje (Deflated SR + k-fold CV) ahora reformulados **PRE-RECICLAJE** bajo Frame 2 (5 sesiones cross-1.5-2 semanas calendario, ~12-19h CC real §12 L37) post-cuestionamiento Ricardo "patada hacia delante" + Sesión 1A.2 Path β3 EMPIRICAL FAIL evidence (2.7% match rate vs gate 80%):
 - **R1 Deflated SR** (Sesión 1 Frame 2 ~2026-04-28 noche, ~1-2h CC): López de Prado 2014 selection bias correction. Re-sort hybrid `pf_fwd_ci_low + dsr_zscore` tie-breaker post-W3 bootstrap pre-W4 thresholds.
 - **R2 k-fold CV walk-forward** (Sesión 1 Frame 2 ~2026-04-28 noche, ~1-2h CC): 5-fold rolling preservación temporal order. Backward-compat flag `_R2_USE_KFOLD=False` default.
@@ -1336,6 +1340,8 @@ Sesión 1 análisis arquitectónico exhaustivo cross-§12 L38 disciplinada revel
 **Frame 2 alcance honesto explícito**: refinements pre-reciclaje (R1+R3+R4+R5) **NO mejoran edge real disponible mercado** — atacan sobrestimación métricas walk-forward para selección honesta configs reciclaje. 3 escenarios Sesión 4 Gates evaluation 3-way documentados (PASS+PASS+PASS ~30-40% / PASS+PASS+FAIL_C ~40-50% reciclaje honesto + decisión Ricardo strategic capital scale-up vs Frame 3 / FAIL_A ~15-25% Frame 3 redesign mandatory). Ver §13.4 entrada Sesión 1 análisis arquitectónico 2026-04-28 sesión noche-2.
 
 **[FRAME 3.A UPDATE 2026-04-29 sesión Sesión 1]**: Frame 2 CONCLUSION done Sesión 4.5 → Frame 3 redesign mandatory sequential focused (γ) → (β) → (δ) priority order activated post-Sesión 0 Frame 3 metodológica fundamental. **Sesión 1 Frame 3.A análisis arquitectónica fundamental done** (commit Sesión 1 Frame 3.A 2026-04-29): 6 candidatos γ.1-γ.6 evaluation comprehensive Parte 1 + scoring refined Parte 2 + hipótesis emergentes H1+H2+H3 evaluated + Sub-Frame 3.A roadmap detailed (3 Sub-Frames + 1 conditional). **Sub-Frame 3.A.1 priority#1** (combined γ.1 GMM cluster N adaptive + γ.2 P_threshold adaptive H1 architectural coupling) trigger documented + ablation matrix mandatory 4 condiciones + decision rule Opción γ gated-marginal. **Frame 3.A cumulative scope total**: ~28-44h CC + ~50-100h compute background cross-Sub-Frames 3.A.1 + 3.A.2 + 3.A.3 + Sub-Frame 3.A.4 conditional +25-40h CC IF Sub-Frames 3.A.1 + 3.A.2 + 3.A.3 cumulative FAIL Gate C rigorous re-evaluation. **Validation gates analogía Frame 2 stricter criterion**: ≥6/9 stable+POSITIVE (NOT just |ρ|≥0.3 sign consistent) + 0/9 STRONG NEGATIVE + PF empírica cross-9 ≥1.2 baseline real edge. Ver §13.4 entrada Sesión 1 Frame 3.A 2026-04-29.
+
+**[FRAME 3.A SUB-FRAME 3.A.1 ARCHIVED_EMPIRICAL UPDATE 2026-04-28 sesión continuación]**: Sub-Frame 3.A.1 (combined γ.1+γ.2 H1) ARCHIVED_EMPIRICAL post-Sub-fase 3.A.1.2 smoke empirical reality catastrophic refuted spec methodology original factor 20-30× (single cell BTC baseline ~10.7h compute + ~307 GB transient disk; full grid 84 runs ~900h ≈ 37.5 días + ~25 TB cumulative I/O). Decisión Ricardo strategic Opción F: Frame 3.A methodology fundamental redesign mandatory + Sesión 2 Frame 3.A análisis arquitectónica trigger. Sub-Frame 3.A.2 (γ.4) + 3.A.3 (γ.3+γ.5) + 3.A.4 (γ.6 HMM CONDITIONAL) STATUS pending Frame 3.A methodology redesign — re-evaluable post-Sesión 2 Frame 3.A. **Caveat permanente §13.2 Frame 3 methodology compute estimates**: empirical smoke + 5-10× safety factor over JSONs-based projections + storage/compute constraints NOT ilimitados (cognitive + tiempo Ricardo ilimitados, **hardware constraints empíricos disco + GPU + RAM + I/O bandwidth finitos**). Branch `sesion-1-frame-3a1-2-ablation-matrix-background-launch` preserved git history trazabilidad (4eea4ec + 9d3f156) — NO merged main intencionalmente. KILL smoke SIGTERM PID 1791 + cleanup 47 GB disk recovered. Ver §13.4 entrada Sub-Frame 3.A.1 ARCHIVED_EMPIRICAL 2026-04-28.
 
 **Disciplina §12 L34 aplicada al roadmap Frame 2 propio**: hipótesis emergentes refutadas vía análisis arquitectónico Parte 1+2+3 → roadmap reformulado disciplinadamente. NO regresión Frame 1 implícito — disciplina aspirar-a-lo-mejor literal aplicada incluso al propio plan cuando emerge evidencia.
 
@@ -3310,6 +3316,88 @@ Referencias:
 ---
 
 ### 13.4 RESUELTO
+
+**[CIERRE METODOLÓGICO] [PRE-RECICLAJE FRAME 3.A SUB-FRAME 3.A.1 ARCHIVED_EMPIRICAL] §12 L37 V2 17ª aplicación catastrophic factor 20-30× refutación spec methodology original + Frame 3.A methodology fundamental redesign mandatory + Sesión 2 Frame 3.A análisis arquitectónica trigger documented — 2026-04-28 sesión continuación post-Sesión 1 Frame 3.A**
+
+**Contexto**: Sub-Frame 3.A.1 (combined γ.1 + γ.2 H1 architectural coupling) ARCHIVED_EMPIRICAL post-Sub-fase 3.A.1.2 smoke empirical reality catastrophic refuted spec methodology original factor 20-30×. Decisión Ricardo strategic Opción F NEW: Sub-Frame 3.A.1 archive empírico + Frame 3.A methodology fundamental redesign mandatory.
+
+**Sub-fases ejecutadas pre-archive**:
+- **Sub-fase 3.A.1.0 Parte 0** (commit `4eea4ec` parte): 6 sustantivos detectados pre-implementación (M-A1/A2 architectural code path + M-B2 P_threshold variants + M-C1 compute estimate + M-D1 Sesión 2.5 Opción C reuse + M-F1 determinismo). 5 sub-decisiones Ricardo Opción α + γ + ε + ~12-48h compute calibrated + VPS asumido invariante.
+- **Sub-fase 3.A.1.1 implementación standalone script** (commit `4eea4ec`): `analysis_scripts/sub_frame_3a1_gmm_n_pthreshold_grid.py` 664 LOC. Honest correction §12 L34 cross-24ª: 32→31→28 cells unique deduplicated. GMM smoke pre-commit BIC N=6 (598086) < N=3 (607169) sugería empirical priori favorable γ.1.
+- **Sub-fase 3.A.1.2 ablation matrix execution background launch** (branch `sesion-1-frame-3a1-2-ablation-matrix-background-launch` commit `9d3f156` preserved): smoke single BTC baseline cell launched bg `b1euswpru` PID 1791 + presets_dir fix `output/production/`. Process killed SIGTERM mid-execution post-empirical refutación catastrophic.
+- **Sub-fase 3.A.1.3 tests greenfield paralelo** (commit `9d3f156` preserved branch): 12/12 tests PASS (~3s) — pattern institutional consolidated 39/39 tests cumulative cross-Frame 2 + 3.A.1.
+
+**Empirical reality smoke bg b1euswpru CATASTROPHIC**:
+- Timeline: 21:28 launch + 21:38 first variant complete (10 min Numba JIT warmup) + 22:59 variant 8/64 complete = ~1h 30 min para 9/64 variants ~14% progress.
+- Per variant después JIT warmup: ~10-11 min steady (CUDA enabled NVIDIA RTX 5070 Laptop GPU).
+- Per parts file ~1.6-1.7 GB × 27 parts = ~44 GB transient cumulative actual, scaled extrapolated 64 × 3 × 1.6 GB = **~307 GB transient disk per cell**.
+- **Single cell BTC baseline ~10.7h compute + ~307 GB transient disk**.
+- **Full grid 84 walk-forward runs: ~900h ≈ 37.5 días continuous compute + ~25 TB cumulative I/O**.
+- Spec original Sub-fase 3.A.1.0 ~14-42h compute → realidad ~900h = **factor 20-30× underestimated catastrophic**.
+
+**§12 L37 V2 17ª aplicación cumulative catastrophic captured permanente**:
+- Sesión 2.5 R1 DSR factor 10-15× refutado (full pipeline ~30-45h vs spec ~1.5-4.5h).
+- Sesión 3 R4 standalone factor 6-8× refutado (~90-225 min vs spec ~10-30 min).
+- Sesión 3.5 R4 dry-run bg `bno9hiw92` killed sin completar — empirical compute rejected.
+- Sesión 4.5 Gate C analytical zero compute (favorable — JSONs metadata directly).
+- Sub-Frame 3.A.1 empirical factor 20-30× refutado catastrophic — magnitud sin precedent Frame 2 cumulative.
+- **Pattern recurrent reframed permanente**: Frame 3 compute estimates require **empirical smoke + 5-10× safety factor over JSONs-based projections + storage/compute constraints NOT ilimitados** (cognitive + tiempo Ricardo ilimitados, **hardware constraints empíricos disco + GPU + RAM + I/O bandwidth finitos**).
+
+**§12 L34 cross-26ª aplicación recursiva al own Sub-Frame 3.A.1 scope**: empirical evidence compute infeasibility hard forcing honest methodology redesign fundamental. Disciplina aspirar-a-lo-mejor literal applied al own Sub-Frame 3.A.1 methodology when empirical evidence emerges — **NO scope reduction subset preserving infeasible methodology** (Opción B/C subset rejected), **MANDATORY methodology redesign fundamental** (Opción F).
+
+**Pattern institutional consolidated cross-Frame 2 → Frame 3 transition reproduced Sub-Frame 3.A.1 internal**: empirical evidence forcing methodology redesign analogous Sesión 4.5 Gate C FAIL → Frame 3 redesign mandatory. Each Sesión empirical evidence emerges forces honest roadmap reformulación.
+
+**Decisión Ricardo strategic Opción F NEW**: Sub-Frame 3.A.1 ARCHIVED_EMPIRICAL + Frame 3.A methodology fundamental redesign mandatory:
+- Walk-forward kernel grid sweep ablation matrix methodology REFUTED empíricamente catastrophic.
+- Sub-Frame 3.A.1 archived empírico análogo Multi-testing Caso B BH archive 2026-04-26 (refutación hard pre-decisión empirical).
+- Sesión 2 Frame 3.A análisis arquitectónica fundamental redesign methodology subsequent — análoga Sesión 1 Frame 2 análisis arquitectónico estructuralmente.
+
+**Refinements arquitectónicos candidatos Sesión 2 Frame 3.A redesign** (preliminary):
+- Smart sampling Bayesian optimization vs exhaustive grid sweep (~10-100× compute reduction).
+- Single-symbol single-cluster prototype (NOT 84 runs cross-3 sym × 28 cells).
+- Smaller compute footprint kernel implementation refinement (subset of presets, reduced kernel scope).
+- Empirical-priori-driven targeted experiments (NOT exhaustive ablation).
+- Hipótesis priori H1 architectural coupling validate via reduced experimental approach.
+- JSON metadata-only analytical refinements (Sesión 2.5 Opción C precedent + Sesión 4.5 Gate C rigorous analytical zero compute).
+
+**Branch `sesion-1-frame-3a1-2-ablation-matrix-background-launch` preserved git history trazabilidad** (commits `4eea4ec` standalone script implementation + `9d3f156` tests greenfield 12/12 PASS + presets_dir fix) — code potentially reusable Frame 3.A methodology redesign IF refined approach compatible. NO merged main intencionalmente — main at `4eea4ec` (Sub-Frame 3.A.1.1 only) post-archive Sub-Frame 3.A.1 entire scope.
+
+**KILL smoke + cleanup transient**:
+- SIGTERM PID 1791 effective (exit 143 = 128+15) — process terminated cleanly.
+- `rm -rf sub_frame_3a1_smoke_BTC_baseline/` + log file removed.
+- **47 GB transient disk recovered** (vs ~280 GB ahorrados had smoke continued ~9h more).
+
+**Frame 2 methodology refinements infrastructure DEPLOYABLE preserved post-Frame 3.A redesign integrate OR independent reciclaje (escenario F3.3 confirmation)**:
+- M2 fix sort + W3 bootstrap CI + W4 thresholds (commit `f8205fa`).
+- R3 Path γ kernel granular ASIMÉTRICO TF (6) + MR (8) (commit `d575de4`).
+- R1 DSR rigurosa diagnostic flagged_dsr column (commit `71777a9`).
+- R4 standalone analytical cross-strategy decomposition (commit `3fe0245`).
+- Gate C rigorous analytical zero compute methodology (commit `806cdee`).
+
+**Items §13.3 actualizados**:
+- L1296 Frame 3 alcance honesto: Sub-Frame 3.A.1 ARCHIVED_EMPIRICAL + Frame 3.A methodology fundamental redesign mandatory + Sesión 2 Frame 3.A análisis arquitectónica trigger documented.
+
+**Habilita**:
+- Sesión 2 Frame 3.A análisis arquitectónica fundamental redesign methodology cuando Ricardo confirme disponibilidad continuación.
+- Frame 3.A calendar TBD post-Sesión 2 Frame 3.A análisis redesign.
+- Reciclaje launch new calendar TBD post-Frame 3.A redesign + validation gates evaluation rigorous.
+
+**Estado pre-reciclaje FRAME 3.A SUB-FRAME 3.A.1 ARCHIVED_EMPIRICAL + Frame 3.A methodology redesign trigger**: hito histórico cierre Sub-Frame 3.A.1 + apertura Sesión 2 Frame 3.A redesign methodology. Bot v2.4.5 operacional VPS Tokio uptime ~6d 11h+ invariante. Sin tocar `live/*` productivo. Fidelidad 2 invariante por construcción.
+
+**§12 L36 27ª aplicación calibrada empírical catastrophic detection robust**: smoke bg b1euswpru empirical reality cross-9 variants timeline (1h 30 min/9 variants) → projection ~10.7h/cell + ~900h full grid. Empirical refutación ANTES committing ~25 TB cumulative I/O = aspirar-a-lo-mejor literal applied disciplinadamente.
+
+**§12 L38 cross-15ª aplicaciones recursivas validated robust** cross-Frame 2 cumulative + Frame 3.A internal (Parte 0 Sub-fase 3.A.1.0 6 sustantivos + presets_dir mismatch + smoke empirical reality catastrophic): lectura disciplinada código real + escrutinio recursivo cumulative reveala empirical truth pre-commit catastrophic.
+
+**Referencias**:
+- Sesión 1 Frame 3.A análisis arquitectónica entrada §13.4 (commit `4d622e9`).
+- Sub-fase 3.A.1.1 implementación standalone script entrada (commit `4eea4ec`).
+- Branch `sesion-1-frame-3a1-2-ablation-matrix-background-launch` (commit `9d3f156` preserved).
+- §12 cross-aplicaciones consolidated robust cross-Frame 2 + Sub-Frame 3.A.1.
+- ROADMAP_PRE_RECICLAJE.md (Sub-Frame 3.A.1 ARCHIVED_EMPIRICAL + Frame 3.A redesign trigger).
+
+**Cierre Sub-Frame 3.A.1 ARCHIVED_EMPIRICAL**: permanente. Frame 3.A methodology fundamental redesign mandatory + Sesión 2 Frame 3.A análisis arquitectónica trigger documented. Próxima Sesión 2 Frame 3.A análisis arquitectónica fundamental redesign methodology — análoga Sesión 1 Frame 2 análisis arquitectónico estructuralmente cuando Ricardo confirme.
+
+---
 
 **[ANÁLISIS ARQUITECTÓNICO] [PRE-RECICLAJE FRAME 3.A SESIÓN 1] 6 candidatos γ.1-γ.6 evaluation + priority order refined + Sub-Frame 3.A roadmap detailed — 2026-04-29 sesión post-Sesión 0 Frame 3 metodológica fundamental**
 

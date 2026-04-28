@@ -209,6 +209,24 @@ Trigger: A+B+C done + D+E validados o archivados. **Estado 2026-04-27 Sesión 2 
 
 - [x] **Sesión 1 Frame 3.A análisis arquitectónica fundamental** ✅ DONE 2026-04-29: 6 candidatos γ.1-γ.6 evaluation comprehensive + scoring refined + Sub-Frame 3.A roadmap detailed (3 Sub-Frames + 1 conditional). Decision rule Opción γ gated-marginal + ablation matrix mandatory + drift threshold tiered.
 
+- [⚠] **Sub-Frame 3.A.1 ARCHIVED_EMPIRICAL 2026-04-28** post-Sub-fase 3.A.1.2 smoke empirical reality catastrophic refuted spec methodology factor 20-30× (smoke single cell BTC ~10.7h compute + ~307 GB transient disk; full grid 84 runs ~900h ≈ 37.5 días + ~25 TB cumulative I/O). Decisión Ricardo strategic Opción F: Sub-Frame 3.A.1 archive empírico + Frame 3.A methodology fundamental redesign mandatory.
+  - Sub-fases ejecutadas pre-archive: 3.A.1.0 Parte 0 (6 sustantivos + 5 sub-decisiones Ricardo) + 3.A.1.1 standalone script 664 LOC commit `4eea4ec` + 3.A.1.2 smoke launched bg `b1euswpru` killed SIGTERM PID 1791 + 3.A.1.3 tests greenfield 12/12 PASS commit `9d3f156` preserved branch.
+  - Branch `sesion-1-frame-3a1-2-ablation-matrix-background-launch` preserved git history trazabilidad — NO merged main intencionalmente.
+  - Sub-Frame 3.A.2 (γ.4 toxic_tail dynamic default) STATUS: pending Frame 3.A methodology redesign — re-evaluable post-Sesión 2 Frame 3.A redesign.
+  - Sub-Frame 3.A.3 (γ.3+γ.5 H2 sequential coupled) STATUS: pending Frame 3.A methodology redesign.
+  - Sub-Frame 3.A.4 (γ.6 HMM CONDITIONAL Frame 3.D defer) STATUS: conditional preserved.
+  - Frame 2 methodology refinements infrastructure DEPLOYABLE preserved post-Frame 3.A redesign integrate.
+  - **Caveat permanente Frame 3 methodology compute estimates**: empirical smoke + 5-10× safety factor over JSONs-based projections + storage/compute constraints NOT ilimitados (cognitive + tiempo ilimitados, hardware finitos).
+
+- [ ] **Sesión 2 Frame 3.A análisis arquitectónica fundamental redesign methodology** PRÓXIMA cuando Ricardo confirme — análoga Sesión 1 Frame 2 análisis arquitectónico estructuralmente (Parte 1 análisis código real + Parte 2 hipótesis emergentes redesign + Parte 3 reformulación spec).
+  - Refinements arquitectónicos candidatos preliminary:
+    - Smart sampling Bayesian optimization vs exhaustive grid sweep (~10-100× compute reduction).
+    - Single-symbol single-cluster prototype (NOT 84 runs cross-3 sym × 28 cells).
+    - Smaller compute footprint kernel implementation refinement (subset of presets).
+    - Empirical-priori-driven targeted experiments (NOT exhaustive ablation).
+    - JSON metadata-only analytical refinements (Sesión 2.5 Opción C precedent + Sesión 4.5 Gate C rigorous analytical zero compute).
+  - Frame 3.A calendar TBD post-Sesión 2 Frame 3.A redesign analysis.
+
 **Sub-Frame 3.A roadmap detailed (Sesión 1 Frame 3.A output)**:
 
 ##### Sub-Frame 3.A.1 (γ.1 + γ.2 H1 architectural coupling combined) — PRIORITY#1 PRÓXIMA
