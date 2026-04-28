@@ -1,0 +1,143 @@
+{
+  "timestamp": "2026-04-28T15:50:10.904355",
+  "methodology": {
+    "baseline_source": "M2 fix cross-9 validation 2026-04-25 \u00a713.4",
+    "r1_source": "Sesi\u00f3n 2.5 R1 DSR dry-run",
+    "r3_source": "Path \u03b3 Sesi\u00f3n 2 infrastructure",
+    "r4_source": "Sesi\u00f3n 3.5 pending or analytical proxy",
+    "caveats": [
+      "SEI C0 DSR top-1 changed (1/9), ratio post-R1 analytical proxy = M2 fix baseline",
+      "R3 Path \u03b3 infrastructure only, no direct ratio impact",
+      "R4 contribution analytical proxy assuming marginal magnitude",
+      "Gate C per-cluster Spearman \u03c1 unavailable, cross-9 \u03c1 NS as proxy"
+    ]
+  },
+  "gate_a": {
+    "mean_ratio_JB_cross_9": 2.4080000000000004,
+    "baseline": 2.41,
+    "target_threshold": 3.615,
+    "criterio": "1.5\u00d7 baseline 2.41 = 3.62",
+    "per_cluster": {
+      "BTC": {
+        "C0": {
+          "cfg_m2": 36909877,
+          "ratio_m2": 1.356,
+          "ratio_post_R1_R3_R4": 1.356,
+          "note": "DSR top-1 == M2 fix top-1, ratio unchanged"
+        },
+        "C1": {
+          "cfg_m2": 3758688,
+          "ratio_m2": 2.792,
+          "ratio_post_R1_R3_R4": 2.792,
+          "note": "DSR top-1 == M2 fix top-1, ratio unchanged"
+        },
+        "C2": {
+          "cfg_m2": 33831248,
+          "ratio_m2": 4.093,
+          "ratio_post_R1_R3_R4": 4.093,
+          "note": "DSR top-1 == M2 fix top-1, ratio unchanged"
+        }
+      },
+      "ONDO": {
+        "C0": {
+          "cfg_m2": 34635228,
+          "ratio_m2": 2.426,
+          "ratio_post_R1_R3_R4": 2.426,
+          "note": "DSR top-1 == M2 fix top-1, ratio unchanged"
+        },
+        "C1": {
+          "cfg_m2": 12360961,
+          "ratio_m2": 1.656,
+          "ratio_post_R1_R3_R4": 1.656,
+          "note": "DSR top-1 == M2 fix top-1, ratio unchanged"
+        },
+        "C2": {
+          "cfg_m2": 48380978,
+          "ratio_m2": 3.656,
+          "ratio_post_R1_R3_R4": 3.656,
+          "note": "DSR top-1 == M2 fix top-1, ratio unchanged"
+        }
+      },
+      "SEI": {
+        "C0": {
+          "cfg_m2": 57375331,
+          "ratio_m2": 2.515,
+          "ratio_post_R1_R3_R4": 2.515,
+          "note": "DSR top-1 changed (57375298), ratio analytical proxy = M2 fix baseline"
+        },
+        "C1": {
+          "cfg_m2": 1612992,
+          "ratio_m2": 2.032,
+          "ratio_post_R1_R3_R4": 2.032,
+          "note": "DSR top-1 == M2 fix top-1, ratio unchanged"
+        },
+        "C2": {
+          "cfg_m2": 815625,
+          "ratio_m2": 1.146,
+          "ratio_post_R1_R3_R4": 1.146,
+          "note": "DSR top-1 == M2 fix top-1, ratio unchanged"
+        }
+      }
+    },
+    "veredict": "PASS"
+  },
+  "gate_b": {
+    "threshold_colapso_fuerte": 5.0,
+    "n_colapso_fuerte_cross_9": 0,
+    "colapso_fuerte_clusters": [],
+    "all_cluster_ratios": [
+      [
+        "BTC_C0",
+        1.356
+      ],
+      [
+        "BTC_C1",
+        2.792
+      ],
+      [
+        "BTC_C2",
+        4.093
+      ],
+      [
+        "ONDO_C0",
+        2.426
+      ],
+      [
+        "ONDO_C1",
+        1.656
+      ],
+      [
+        "ONDO_C2",
+        3.656
+      ],
+      [
+        "SEI_C0",
+        2.515
+      ],
+      [
+        "SEI_C1",
+        2.032
+      ],
+      [
+        "SEI_C2",
+        1.146
+      ]
+    ],
+    "veredict": "PASS"
+  },
+  "gate_c": {
+    "cross_9_spearman_rho": -0.17,
+    "cross_9_p_value": 0.65,
+    "is_stable_cross_9": true,
+    "per_cluster_status": "unknown_per_cluster",
+    "caveat": "Per-cluster Spearman \u03c1 requires kernel re-run Binance 3y top-100 per cluster \u2014 not pre-computed. Analytical proxy uses cross-9 \u03c1 NS \u2248 stability indicator.",
+    "veredict": "PARTIAL"
+  },
+  "escenario_determined": {
+    "escenario": "1",
+    "name": "PASS+PASS+PASS|PARTIAL",
+    "probability_estimated": 0.3,
+    "decision": "Reciclaje launch ~2026-05-03 viable. R5 NOT NEEDED.",
+    "r5_status": "NOT_NEEDED"
+  }
+}

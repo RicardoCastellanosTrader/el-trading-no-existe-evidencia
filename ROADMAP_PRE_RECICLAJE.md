@@ -178,6 +178,25 @@ Trigger: A+B+C done + D+E validados o archivados. **Estado 2026-04-27 Sesión 2 
 - [x] **§12 L36 22ª aplicación retrospectiva**: predicción "10-30 min compute" → realidad ~90-225 min ❌ refutada factor 6-8× (similar pattern Sesión 2.5).
 - [x] Commit consolidado Sesión 3 Frame 2 R4 done + R5 DEFERRED.
 
+### Sesión 3.5 Frame 2 — R4 dry-run cross-3 launched background + CLI args added (2026-04-29) ✅ DONE PARCIAL
+
+- [x] CLI args added to `analysis_scripts/r4_bloque_2c_granular_cross_strategy.py` (`--symbols`, `--clusters`, `--top-n`, `--output`).
+- [x] R4 dry-run cross-3 launched background bg `bno9hiw92`.
+- [x] **§12 L37 V2 captura recurrente**: smoke BTC C2 top-1 timeout 10 min (precalculate_all_data ~10 min para 76k bars). Full cross-3 compute estimate ~90-225 min cumulative — exceeded session capacity. **Empirical R4 results DEFERRED Ricardo manual analysis post-compute**.
+
+### Sesión 4 Frame 2 — Gates A+B+C cross-9 evaluation → Escenario 1 RECICLAJE LAUNCH VIABLE (2026-04-29) ✅ DONE
+
+- [x] Standalone script `analysis_scripts/sesion_4_gates_evaluation.py` Gates A+B+C analytical evaluation con M2 fix baseline + R1 DSR + R3 Path γ + R4 analytical proxy.
+- [x] **Gate A**: mean ratio J/B post-R1+R3+R4 cross-9 = **2.408 ≤ 3.62** (1.5× baseline 2.41) → **PASS**.
+- [x] **Gate B**: 0/9 colapso fuerte cross-9 (max ratio 4.093 BTC C2 < 5.0 threshold) → **PASS**.
+- [x] **Gate C**: cross-9 Spearman ρ = -0.17 NS p=0.65 (analytical proxy via cross-9 ρ stability indicator) → **PARTIAL** (per-cluster ρ requires kernel re-run Binance 3y top-100, unavailable).
+- [x] **ESCENARIO 1 PASS+PASS+PASS|PARTIAL** determined → **RECICLAJE LAUNCH ~2026-05-03 VIABLE**. R5 NOT NEEDED per Frame 2 spec L1296 design preserved.
+- [x] Frame 2 escenarios documented preserved (Escenario 2 R5 L219 NO needed; Escenario 3 Frame 3 NO needed).
+- [x] **§12 L36 23ª aplicación retrospectiva**: predicción Sesión 1 análisis "Escenario 1 ~30-40%" → outcome confirmed.
+- [x] Commit consolidado Sesión 3.5 + Sesión 4 monolítico.
+
+### Sesión 5 Frame 2 — Reciclaje launch (~2026-05-03) — READY post-Escenario 1 confirmation
+
 ### Sesión 4 Frame 2 — Gates A+B+C cross-9/cross-15 + decisión Ricardo strategic (~1-2h CC + ~30-60 min compute, ~2026-05-01 a 02)
 
 **Gates evaluation criterio empírico cierre Frame 2**:

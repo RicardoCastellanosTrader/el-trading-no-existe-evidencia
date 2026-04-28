@@ -33,6 +33,7 @@ arrays granular (TF 6 valores + MR 8 valores asimétrico).
 Usage: python -m analysis_scripts.r4_bloque_2c_granular_cross_strategy
 """
 
+import argparse
 import json
 import os
 import re
@@ -316,18 +317,38 @@ def compute_h1_aggregation(per_cluster_data):
 
 
 def main():
+    parser = argparse.ArgumentParser(description='R4 Bloque 2c granular cross-strategy dry-run.')
+    parser.add_argument('--symbols', type=str, default='BTC,ONDO,SEI',
+                        help='Comma-separated symbol bases (default: BTC,ONDO,SEI)')
+    parser.add_argument('--clusters', type=str, default='0,1,2',
+                        help='Comma-separated cluster ids (default: 0,1,2)')
+    parser.add_argument('--top-n', type=int, default=TOP_N_PER_CLUSTER,
+                        help=f'Top-N configs per cluster (default: {TOP_N_PER_CLUSTER})')
+    parser.add_argument('--output', type=str, default='r4_dry_run_cross_3_results.json',
+                        help='Output JSON path')
+    args = parser.parse_args()
+
+    symbols_filter = [s.strip().upper() for s in args.symbols.split(',') if s.strip()]
+    clusters_filter = [s.strip() for s in args.clusters.split(',') if s.strip()]
+    top_n_runtime = args.top_n
+    output_filename = args.output
+
     print(f"R4 Bloque 2c granular cross-strategy dry-run start {datetime.now().isoformat()}")
+    print(f"  Symbols: {symbols_filter}")
+    print(f"  Clusters: {clusters_filter}")
     print(f"  Approach: JSONs-based + kernel re-run Path γ flag=True (Opción C precedent)")
-    print(f"  TOP_N per cluster: {TOP_N_PER_CLUSTER}")
+    print(f"  TOP_N per cluster: {top_n_runtime}")
     print(f"  Hipótesis: H_strategy + H1 (H_funding DEFERRED — funding cache cobertura insuficiente)")
 
     all_results = {}
 
-    for symbol in SYMBOLS:
+    for symbol in symbols_filter:
         sym_full = f"{symbol}/USDT"
         print(f"\nProcessing {symbol}...")
         json_data = load_smoke_json(symbol)
-        top_n_data = gather_top_n_per_cluster(json_data, TOP_N_PER_CLUSTER)
+        top_n_data = gather_top_n_per_cluster(json_data, top_n_runtime)
+        # Apply cluster filter
+        top_n_data = [(cid, cfg) for cid, cfg in top_n_data if cid in clusters_filter]
         if not top_n_data:
             print(f"  ⚠️  No top configs for {symbol}, skipping")
             continue
@@ -413,7 +434,7 @@ def main():
         'values': cancel_tf_pcts,
     }
 
-    output_path = os.path.join(_ROOT, 'r4_dry_run_cross_3_results.json')
+    output_path = os.path.join(_ROOT, output_filename)
     with open(output_path, 'w') as f:
         json.dump(summary, f, indent=2, default=str)
 

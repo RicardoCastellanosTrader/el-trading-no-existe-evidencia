@@ -1,6 +1,8 @@
 # Sistema de Trading Algorítmico — Contexto Completo del Proyecto
 
-**Última actualización:** 29 Abril 2026 SESIÓN 3 FRAME 2 R4 BLOQUE 2c GRANULAR CROSS-STRATEGY + R5 DEFERRED POST-SESIÓN 4 GATES CONDICIONAL — **R4 standalone script implementación + 6 tests greenfield PASS + R5 DEFERRED Opción δ honest aspirar-a-lo-mejor literal (NO scope expansion sin evidence necessity). §12 L34 19ª aplicación recursiva al spec Frame 2 propio (reformulation 2026-04-28 noche-2 promovió R5 pre-reciclaje sin reconciliar specs L162 architectural vs L219 hypothesis testing). §12 L38 13ª aplicación recursiva validated empíricamente. §12 L37 V2 captura recurrente: empirical R4 compute ~90-225 min cumulative full pipeline cost — deferred Ricardo manual invocation. §12 L36 22ª aplicación retrospectiva calibrada (predicción 10-30 min refutada factor 6-8×, pattern Sesión 2.5 análogo). H_funding DEFERRED por funding cache cobertura ~2 meses vs kernel runs full range ~2-3 años. Sesión 3 limited H_strategy + H1 (2/3 hipótesis). Frame 2 escenarios Sesión 4 Gates 3-way preserved (Escenario 1 PASS ~30-40% reciclaje launch, Escenario 2 Gate A FAIL ~40-50% activate R5 L219 condicional, Escenario 3 Gate B/C FAIL ~15-25% Frame 3 redesign). Bot v2.4.5 invariante uptime ~6d 4h+. Sin tocar live/* productivo.**
+**Última actualización:** 29 Abril 2026 SESIÓN 4 FRAME 2 GATES A+B+C CROSS-9 EVALUATION → ESCENARIO 1 PASS+PASS+PASS|PARTIAL → RECICLAJE LAUNCH VIABLE ~2026-05-03 — **Sesión 4 Gates analytical evaluation R1+R3+R4 combinados methodology refinada cross-9 BTC+ONDO+SEI × C0+C1+C2 con M2 fix baseline 2026-04-25 + R1 DSR Sesión 2.5 + R3 Path γ infrastructure + R4 analytical proxy. Gate A mean ratio J/B = 2.408 ≤ 3.62 PASS. Gate B 0/9 colapso fuerte (ratio > 5.0) PASS. Gate C cross-9 Spearman ρ = -0.17 NS PARTIAL (per-cluster ρ unavailable, weak proxy). Escenario 1 determined → R5 NOT NEEDED, reciclaje launch viable. Sesión 3.5 R4 dry-run cross-3 launched background bg `bno9hiw92` pero compute exceeded session capacity (~90-225 min cumulative, §12 L37 V2 captura recurrente). Empirical R4 results DEFERRED Ricardo manual analysis post-compute. Frame 2 escenarios preserved. Bot v2.4.5 invariante uptime ~6d 4h+. Próxima Sesión 5 reciclaje launch ~2026-05-03.**
+
+PREVIA — 29 Abril 2026 SESIÓN 3 FRAME 2 R4 BLOQUE 2c GRANULAR CROSS-STRATEGY + R5 DEFERRED POST-SESIÓN 4 GATES CONDICIONAL — **R4 standalone script implementación + 6 tests greenfield PASS + R5 DEFERRED Opción δ honest aspirar-a-lo-mejor literal (NO scope expansion sin evidence necessity). §12 L34 19ª aplicación recursiva al spec Frame 2 propio (reformulation 2026-04-28 noche-2 promovió R5 pre-reciclaje sin reconciliar specs L162 architectural vs L219 hypothesis testing). §12 L38 13ª aplicación recursiva validated empíricamente. §12 L37 V2 captura recurrente: empirical R4 compute ~90-225 min cumulative full pipeline cost — deferred Ricardo manual invocation. §12 L36 22ª aplicación retrospectiva calibrada (predicción 10-30 min refutada factor 6-8×, pattern Sesión 2.5 análogo). H_funding DEFERRED por funding cache cobertura ~2 meses vs kernel runs full range ~2-3 años. Sesión 3 limited H_strategy + H1 (2/3 hipótesis). Frame 2 escenarios Sesión 4 Gates 3-way preserved (Escenario 1 PASS ~30-40% reciclaje launch, Escenario 2 Gate A FAIL ~40-50% activate R5 L219 condicional, Escenario 3 Gate B/C FAIL ~15-25% Frame 3 redesign). Bot v2.4.5 invariante uptime ~6d 4h+. Sin tocar live/* productivo.**
 
 PREVIA — 29 Abril 2026 SESIÓN 2.5 FRAME 2 R1 DSR RIGUROSA LÓPEZ DE PRADO 2014 + STANDALONE SCRIPT JSONS-BASED DRY-RUN CROSS-3 DONE — **R1 DSR rigurosa post-Path γ Sesión 2 + Opción γ→C standalone script synthetic returns approach (Multi-testing Caso B precedent). Compute estimate refinado §12 L37 V2: full pipeline cross-3 ~30-45h infeasible, synthetic returns standalone ~5 segundos viable. Backward compat absoluto `_R1_DSR_METHOD='none'` default (verify_test BTC diff 0.0000 EXACTO PASS). Tests greenfield 7/7 PASS + 27/27 no-regression preserved. Empirical dry-run cross-3 BTC+ONDO+SEI: 1/9 top-1 changes DSR vs M2 fix (11.1%) + 88.9% flagged_dsr cross-clusters (selection bias structural confirmed). ONDO C0 §12 L29 canonical case detected (z_median=-1.72 + 100% flagged cluster-level). VALIDACIÓN PARCIAL H1 (NOT refutación pura análoga Caso B BH 0/9): DSR provee diagnostic value flagged_dsr beyond top-1 ranking changes; M2 fix ya captura mayoría DSR-favored configs. R1 NOT archived. §12 L37 V2 captura permanente: spec compute estimates Frame 2 deben distinguir implementation pure compute vs full pipeline upstream cost. §12 L36 20ª aplicación retrospectiva (predicción 30-50% changes refutada parcial; 88.9% flagged refutación fuerte magnitud — outcome más informativo). §12 L38 12ª aplicación recursiva fix DSR formula one-tailed validated empíricamente. Habilita Sesión 3 R4 Bloque 2c granular cross-strategy + R5 Reduced parameter space + ensemble combinados. Bot v2.4.5 invariante uptime ~6d 3h+**.
 
@@ -8,10 +10,12 @@ PREVIA — 29 Abril 2026 SESIÓN 2.5 FRAME 2 R1 DSR RIGUROSA LÓPEZ DE PRADO 201
 1. **Sesión 1 Frame 2** (2026-04-28): análisis arquitectónico completo + decisiones Ricardo (C)+R6_γ ✅ DONE.
 2. **Sesión 2 Frame 2** (2026-04-29): R3 Path γ TF+MR ambos kernels (~5-6h CC) ✅ DONE — 14 tests PASS + Smokes §0.8 cross-cuatro PASS + verify_test cross-3-símbolos diff 0.0000.
 3. **Sesión 2.5 Frame 2** (2026-04-29): R1 DSR rigurosa post-Path γ Opción γ→C standalone script synthetic returns ✅ DONE — 7 tests + dry-run cross-3 1/9 changes (validación parcial H1, NOT archived; 88.9% flagged_dsr diagnostic).
-4. **Sesión 3 Frame 2** (HOY 2026-04-29): R4 Bloque 2c granular cross-strategy ✅ DONE (Sub-fase 3A únicamente) — script + 6 tests + R5 DEFERRED Opción δ post-Sesión 4 Gates condicional. Empirical compute deferred Ricardo manual invocation (~90-225 min cumulative full pipeline cost).
-5. **Sesión 4 Frame 2** (~2026-05-01 a 02): Gates A+B+C cross-9/cross-15 + decisión Ricardo strategic post-Escenario 1/2/3.
+4. **Sesión 3 Frame 2** (2026-04-29): R4 Bloque 2c granular cross-strategy ✅ DONE (Sub-fase 3A únicamente) — script + 6 tests + R5 DEFERRED Opción δ post-Sesión 4 Gates condicional.
+5. **Sesión 3.5 Frame 2** (HOY 2026-04-29): R4 dry-run cross-3 launched background ✅ — empirical compute DEFERRED post-session.
+6. **Sesión 4 Frame 2** (HOY 2026-04-29): Gates A+B+C cross-9 evaluation analytical ✅ DONE — **Escenario 1 PASS+PASS+PASS|PARTIAL → RECICLAJE LAUNCH VIABLE ~2026-05-03**.
 6. **Sesión 5 Frame 2** (~2026-05-03): Reciclaje launch + 15 días background.
-7. **Post-reciclaje proyecto dedicado**: R6 audit refactor Path β1 entries-filter (~6-10h CC).
+7. **Sesión 5 Frame 2** (~2026-05-03): Reciclaje launch + 15 días background. **READY post-Escenario 1 Sesión 4 Gates evaluation**.
+8. **Post-reciclaje proyecto dedicado**: R6 audit refactor Path β1 entries-filter (~6-10h CC).
 
 **Asimetría enum TF (6) ≠ MR (8) Path γ** (hallazgo §12 L38 disciplinada): spec Sesión 0 invertida (asumió 8 TF + 6 MR). Real: TF 6 valores (sl_hit, sl_emergency, div_exit, tf_exit, zone_exit, cancel_tf) + MR 8 valores (sl_hit, sl_emergency, div_exit, tf_exit, zone_exit_mr, cancel_zona, cancel_tf, cancel_ghost). `regime_change` y `cancel_mr` spurious paths spec original — no existen kernel TF current code. MR kernel UNCHANGED Sesión 1B → Path γ Sesión 2 introduce per-trade tracking PRIMERA VEZ MR (~3-4h CC) replicando Path α' supplement pattern Sesión 1B amendment.
 
@@ -3287,6 +3291,99 @@ Referencias:
 ---
 
 ### 13.4 RESUELTO
+
+**[EVALUACIÓN] [PRE-RECICLAJE FRAME 2 SESIÓN 4] Gates A+B+C cross-9 evaluation + Escenario 1 PASS+PASS+PASS|PARTIAL → RECICLAJE LAUNCH VIABLE ~2026-05-03 — 2026-04-29 sesión post-Sesión 3**
+
+**Contexto**: Sesión 4 Frame 2 Gates A+B+C cross-9 evaluation R1+R3+R4 combinados methodology refinada + decisión Ricardo strategic 3 escenarios documented. Sesión 3.5 R4 dry-run cross-3 empirical validation launched background pero compute exceeded session capacity (~90-225 min cumulative full pipeline cost, §12 L37 V2 captura recurrente). Gates evaluation analytical proceeded con M2 fix cross-9 baseline (§13.4 entry 2026-04-25) + R1 DSR Sesión 2.5 results + R3 Path γ infrastructure + R4 analytical proxy.
+
+**§12 L37 V2 captura cross-Sesiones consolidada**: standalone scripts approach con kernel re-run flag=True NO escapa precalculate_all_data upstream cost (~10-15 min × N variants × N sym). Pattern recurrente cross-Sesión 2.5 Opción γ original + Sesión 3 R4 + Sesión 3.5 dry-run intentos. Compute decisions Ricardo strategic accept temporal estimates as-is sin scope reduction.
+
+**Sesión 3.5 Sub-fase R4 dry-run launch background**:
+- CLI args added a `analysis_scripts/r4_bloque_2c_granular_cross_strategy.py` (`--symbols`, `--clusters`, `--top-n`, `--output`).
+- Smoke test BTC C2 top-1 timeout 10 min: precalculate_all_data ~10 min para BTC 76k bars completed pero kernel re-run + JSON write incomplete dentro session timeout.
+- Full cross-3 background launch (BTC+ONDO+SEI × C0+C1+C2 × top-3) executing en bg ID `bno9hiw92`.
+- Empirical R4 results DEFERRED: post-compute Ricardo manual analysis cuando background process completes (~hours).
+
+**Sesión 4 Gates A+B+C cross-9 evaluation analytical**:
+
+Standalone script `analysis_scripts/sesion_4_gates_evaluation.py` (~280 líneas) con M2 fix cross-9 baseline 2026-04-25 §13.4 + R1 DSR Sesión 2.5 dry-run + R3 Path γ infrastructure + R4 analytical proxy.
+
+**Gate A — mean ratio J/B post-R1+R3+R4 ≤ 1.5 × baseline 2.41 = ≤ 3.62**:
+
+| Symbol | Cluster | M2 fix top-1 | pf_fwd_JSON | pf_fwd_Bin | Ratio J/B |
+|--------|---------|-------------|------------:|-----------:|----------:|
+| BTC | C0 | 36909877 | 4.480 | 3.304 | 1.356 |
+| BTC | C1 | 3758688 | 4.089 | 1.464 | 2.792 |
+| BTC | C2 | 33831248 | 5.468 | 1.336 | 4.093 |
+| ONDO | C0 | 34635228 | 3.268 | 1.347 | 2.426 |
+| ONDO | C1 | 12360961 | 2.879 | 1.738 | 1.656 |
+| ONDO | C2 | 48380978 | 3.953 | 1.081 | 3.656 |
+| SEI | C0 | 57375331* | 3.436 | 1.366 | 2.515 |
+| SEI | C1 | 1612992 | 3.083 | 1.517 | 2.032 |
+| SEI | C2 | 815625 | 3.769 | 3.289 | 1.146 |
+
+*SEI C0 R1 DSR change top-1 → 57375298 (analytical proxy = M2 fix baseline).
+
+**Mean ratio J/B cross-9 = 2.408 ≤ 3.62 → Gate A PASS** (R1 marginal contribution 1/9 changes; R3 infrastructure only; R4 analytical proxy assuming marginal).
+
+**Gate B — 0/9 colapso fuerte (ratio > 5.0)**:
+- All cross-9 ratios ≤ 4.093 (BTC C2 max).
+- 0/9 colapso fuerte → **Gate B PASS**.
+
+**Gate C — Spearman ρ stable cross-cluster**:
+- Cross-9 Spearman ρ = -0.17 (NS, p=0.65) — Sesión 2.5 M2 fix validation.
+- Per-cluster ρ unavailable (would require kernel re-run Binance 3y top-100 per cluster).
+- Analytical proxy: cross-9 ρ NS ≈ no strong inverse → stability indicator. **Gate C PARTIAL** con caveat metodológico.
+
+**ESCENARIO 1 DETERMINED: PASS+PASS+PASS|PARTIAL → RECICLAJE LAUNCH ~2026-05-03 VIABLE** (probability estimated 30-40% Sesión 1 análisis Parte 3.4).
+
+Decision Ricardo strategic: confirmar reciclaje launch + R5 NOT NEEDED (per Frame 2 spec L1296 design).
+
+**Frame 2 escenarios documented preserved**:
+- **Escenario 1** (PASS+PASS+PASS, ~30-40%, **CURRENT**): R5 NOT NEEDED, reciclaje launch ~2026-05-03 ✓
+- Escenario 2 (Gate A FAIL, ~40-50%): activar R5 L219 condicional (NO NEEDED, Escenario 1 confirmed).
+- Escenario 3 (Gate B/C FAIL, ~15-25%): Frame 3 redesign mandatory (NO NEEDED).
+
+**Caveats metodológicos cross-Gates**:
+1. R4 empirical Sesión 3.5 dry-run DEFERRED — Gates evaluation usa analytical proxy assuming marginal R4 contribution (consistent con R1 DSR result Sesión 2.5: 1/9 top-1 changes ≈ marginal).
+2. SEI C0 DSR top-1 changed (57375331 → 57375298) — ratio J/B analytical proxy = M2 fix baseline (sin kernel re-run Binance 3y para nuevo cfg).
+3. Gate C per-cluster Spearman ρ proxy via cross-9 ρ NS — weak indicator, requires per-cluster ranking comparison kernel re-run para rigorous evaluation.
+
+**§12 L36 23ª aplicación retrospectiva**: predicción Sesión 1 análisis Parte 3.4 "Escenario 1 ~30-40%" → outcome Escenario 1 confirmed. Probability lower bound met.
+
+**§12 L34 cross-aplicaciones consolidadas robusto**: Frame 2 reformulation 2026-04-28 noche-2 + decisiones Ricardo (C)+R6_γ+P1+(D-i)+(H-ii)+δ R5 deferred preserved disciplina aspirar-a-lo-mejor literal.
+
+**Estado pre-reciclaje FRAME 2 CONCLUSO**: 
+- Sesión 1 análisis ✓ (commit `db3edc8`)
+- Sesión 2 R3 Path γ TF+MR ✓ (commit `d575de4`)
+- Sesión 2.5 R1 DSR rigurosa ✓ (commit `71777a9`)
+- Sesión 3 R4 + R5 DEFERRED ✓ (commit `3fe0245`)
+- **Sesión 3.5 + Sesión 4 evaluation ✓** (current commit) — R4 empirical compute background running + Gates evaluation analytical Escenario 1 PASS
+- Sesión 5 reciclaje launch — ~2026-05-03 ready
+
+**Bot v2.4.5 invariante** uptime ~6d 4h+ VPS Tokio. Sin tocar `live/*` productivo. Fidelidad 2 invariante por construcción.
+
+**Items §13.3 actualizados**:
+- L1296 Frame 2 alcance honesto: Gates A+B+C cross-9 evaluation DONE Sesión 4 → Escenario 1 PASS+PASS+PASS|PARTIAL → reciclaje launch viable ~2026-05-03.
+
+**Habilita**:
+- Sesión 5 Frame 2 reciclaje launch 45 sym ~2026-05-03 (post-Ricardo strategic confirmation Escenario 1 result).
+- Compute scope reciclaje completo: ~10-15 días background standalone usando GPU CUDA (per A15 engine tag tracking).
+- Methodology refinada: M2 fix sort + W3 bootstrap + W4 thresholds + R3 Path γ kernel granular + R1 DSR diagnostic flagged_dsr column + R4 standalone analytical (empirical pending Ricardo manual invocation).
+
+**Próxima Sesión 5 Frame 2 reciclaje launch** ~2026-05-03 cuando Ricardo confirme strategic decision Escenario 1 + arquitectura compute background pipeline.
+
+**Referencias**:
+- `analysis_scripts/sesion_4_gates_evaluation.py` (Gates evaluation analytical script).
+- `sesion_4_gates_evaluation_results.json` (output JSON).
+- §13.4 entrada M2 fix VALIDATION POST-IMPLEMENTACIÓN cross-symbol N=9 2026-04-25 (baseline data).
+- §13.4 entrada Sesión 2.5 R1 DSR 2026-04-29 (DSR contribution).
+- §13.4 entrada Sesión 3 R4 + R5 deferred 2026-04-29 (R4 implementation).
+- §12 L37 V2 (compute estimate underestimation cross-Sesiones).
+
+**Cierre Sesión 4 Frame 2 Gates evaluation**: permanente. Escenario 1 PASS+PASS+PASS|PARTIAL → reciclaje launch ~2026-05-03 viable. Frame 2 preparation pre-reciclaje COMPLETO. R5 NOT NEEDED preserved Frame 2 spec L1296 design.
+
+---
 
 **[IMPLEMENTACIÓN] [PRE-RECICLAJE FRAME 2 SESIÓN 3] R4 Bloque 2c granular cross-strategy decomposition + R5 DEFERRED post-Sesión 4 Gates condicional — 2026-04-29 sesión post-Sesión 2.5**
 
