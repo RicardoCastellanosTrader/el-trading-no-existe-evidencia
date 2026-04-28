@@ -207,16 +207,53 @@ Trigger: A+B+C done + D+E validados o archivados. **Estado 2026-04-27 Sesión 2 
 
 #### Frame 3.A focused (γ) régimen detection methodology refinement (foundation primary)
 
-- [ ] Sesión 1 Frame 3.A análisis arquitectónica fundamental (análoga Sesión 1 Frame 2 Parte 1+2+3).
-- [ ] GMM regime classification refinement candidatos:
-  - [ ] Adaptive cluster N (3 → 4-6 clusters) per pair characteristics.
-  - [ ] GMM 3-cluster current methodology coarse vs adaptive cluster identification.
-  - [ ] Cross-exchange régimen consistency (Binance↔BingX H_M6 deferred Frame 2 → Frame 3.A activation).
-- [ ] Régimen confirmation thresholds refinement candidatos:
-  - [ ] Adaptive P_threshold per régimen / per pair (current 0.75 fixed).
-  - [ ] Régimen transition handling refinement (toxic_tail dynamic Sesión 2 Path γ MR foundation reusable).
-- [ ] Z_ATR_BTC cross-symbol feature refinement (Frame 2 Fase A documented pero NO empirical validation).
-- **Scope estimated**: 3-4 sesiones cumulative (~10-20h CC + compute background substantial).
+- [x] **Sesión 1 Frame 3.A análisis arquitectónica fundamental** ✅ DONE 2026-04-29: 6 candidatos γ.1-γ.6 evaluation comprehensive + scoring refined + Sub-Frame 3.A roadmap detailed (3 Sub-Frames + 1 conditional). Decision rule Opción γ gated-marginal + ablation matrix mandatory + drift threshold tiered.
+
+**Sub-Frame 3.A roadmap detailed (Sesión 1 Frame 3.A output)**:
+
+##### Sub-Frame 3.A.1 (γ.1 + γ.2 H1 architectural coupling combined) — PRIORITY#1 PRÓXIMA
+- [ ] **Sub-fase 3.A.1.0 Parte 0** verificación pre-implementación §12 L38.
+- [ ] **Sub-fase 3.A.1.1** standalone retrain script `analysis_scripts/sub_frame_3a1_gmm_n_pthreshold_grid.py`. Grid: N ∈ {4, 5, 6} × P_threshold ∈ {0.55, 0.60, 0.65, 0.70, 0.75, 0.80, 0.85} = 21 cells × 3 sym (BTC + ONDO + SEI) = **63 walk-forward runs**.
+- [ ] **Sub-fase 3.A.1.2 ablation matrix MANDATORY** 4 condiciones (baseline N=3 P=0.75 + γ.1 only + γ.2 only + Joint) — honest disambiguation FAIL atribución per factor + §12 L26 disciplina validación per-componente.
+- [ ] **Sub-fase 3.A.1.3** tests greenfield `tests/test_sub_frame_3a1_combined.py` ~7-10 tests joint γ.1 + γ.2 retrain reproducible determinístico.
+- [ ] **Sub-fase 3.A.1.4** validation gates Frame 3.A.1.A/B/C stricter criterion.
+- [ ] **Sub-fase 3.A.1.5** commit monolítico Sub-Frame 3.A.1.
+- **Scope**: ~3-4 sesiones cumulative ~12-18h CC + ~30-60h compute background.
+- **Decision rule Opción γ post-Sub-Frame 3.A.1**: STRONG signal ρ_mean > 0.4 early-exit / marginal [0.3, 0.4] proceed reinforcement Sub-Frame 3.A.2 + 3.A.3 / FAIL Sub-Frame 3.A.4 conditional activation.
+
+##### Sub-Frame 3.A.2 (γ.4 toxic_tail dynamic default) — POST-Sub-Frame 3.A.1 conditional Opción γ
+- [ ] **Sub-fase 3.A.2.0 Parte 0** verify toxic_tail dynamic implementation Frame 2 baseline (regime_walk_forward.py:282-406).
+- [ ] **Sub-fase 3.A.2.1 activation default mode**: change default `--toxic-tail` arg fixed → dynamic. Defaults `confirm_threshold=0.75, min_toxic_tail=5, max_toxic_tail=100`. Backward compat `--toxic-tail 0` disable.
+- [ ] **Sub-fase 3.A.2.2** walk-forward ablation tests 3 condiciones (fixed=0 baseline + fixed=50 + dynamic) + Spearman ρ stability + empirical edge comparison.
+- [ ] **Sub-fase 3.A.2.3** validation gates Frame 3.A.2.A/B/C stricter.
+- [ ] **Sub-fase 3.A.2.4** commit monolítico.
+- **Scope**: ~1-2 sesiones cumulative ~4-8h CC + ~5-10h compute ablation.
+
+##### Sub-Frame 3.A.3 (γ.3 + γ.5 H2 sequential coupled) — POST-Sub-Frame 3.A.1 + 3.A.2 conditional Opción γ
+- [ ] **Sub-fase 3.A.3.0 Parte 0** verify Z_ATR_BTC = 0 hits source actual + precompute_btc_features.pyc origen.
+- [ ] **Sub-fase 3.A.3.1 γ.3 cross-exchange consistency validation**: download BingX BTC histórico ≥1y + recompute Hurst + Z_ATR + ER cross-exchange Binance vs BingX + quantify drift mean/median/p95 absolute deviation per feature. **Bifurcación crítica gate γ.3 tiered** (Ricardo confirmed): <1% drift confident proceed γ.5 / 1-5% caveat documented proceed γ.5 / ≥5% γ.5 honest-abandoned o restructured BingX-only training.
+- [ ] **Sub-fase 3.A.3.2 γ.5 Z_ATR_BTC implementation CONDITIONAL** (post-γ.3 validation): implement `regime_features.py` USE_4TH_FEATURE redefine (Z_ATR_BTC vs Z_Vol) + decode `precompute_btc_features.pyc` o reimplement source clean + retrain GMM 3-symbols + BIC comparison + Spearman cross-symbol contribution.
+- [ ] **Sub-fase 3.A.3.3** tests + validation gates Frame 3.A.3.A/B/C stricter.
+- [ ] **Sub-fase 3.A.3.4** commit monolítico (incluye γ.3-only outcome si γ.5 abandoned).
+- **Scope**: ~3-4 sesiones cumulative ~12-18h CC + ~15-30h compute moderado.
+
+##### Sub-Frame 3.A.4 (γ.6 HMM CONDITIONAL Frame 3.D defer) — LAST-RESORT IF Sub-Frames 3.A.1 + 3.A.2 + 3.A.3 cumulative FAIL
+- **Activation criterion**: Sub-Frame 3.A.1 + 3.A.2 + 3.A.3 cumulative FAIL Gate C rigorous re-evaluation.
+- **Defer Frame 3.D dedicated session** — NOT within Frame 3.A scope.
+- **Scope**: ~5-8 sesiones cumulative ~25-40h CC + +substantial compute.
+
+##### Decision rule Opción γ gated-marginal documented explícito (Ricardo confirmed Sesión 1 Parte 2)
+- Sub-Frame 3.A.1 ejecuta primero + Gate C rigurous re-evaluation.
+- IF Gate C PASS + STRONG signal (ρ_mean cross-9 > 0.4): early-exit considered + reciclaje launch.
+- ELIF marginal PASS (ρ_mean ∈ [0.3, 0.4]): proceed 3.A.2 + 3.A.3 reinforcement.
+- ELIF FAIL: Sub-Frame 3.A.4 conditional activation last-resort defer Frame 3.D.
+
+##### Validation gates analogía Frame 2 stricter criterion (per Sub-Frame 3.A.X)
+- **Gate Frame 3.A.X.A**: ≥6/9 stable+POSITIVE (NOT just |ρ|≥0.3 sign consistent — stricter than Frame 2 Gate C original).
+- **Gate Frame 3.A.X.B**: 0/9 STRONG NEGATIVE over-fit (vs Sesión 4.5 baseline 2/9).
+- **Gate Frame 3.A.X.C**: PF empírica cross-9 ≥1.2 baseline real edge (§13.2 framing).
+
+- **Frame 3.A cumulative scope total refined**: Sub-Frames 3.A.1 + 3.A.2 + 3.A.3 = ~7-10 sesiones cumulative ~28-44h CC + ~50-100h compute background. Sub-Frame 3.A.4 conditional = +5-8 sesiones cumulative IF needed.
 
 #### Frame 3.B focused (β) strategy architectural refinements (post-Frame 3.A conclusion)
 
