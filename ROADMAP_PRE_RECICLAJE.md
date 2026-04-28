@@ -156,11 +156,27 @@ Trigger: A+B+C done + D+E validados o archivados. **Estado 2026-04-27 Sesión 2 
 - [x] **§12 L37 V2 captura permanente**: spec compute estimates Frame 2 deben distinguir implementation pure compute vs full pipeline upstream cost.
 - [x] Commit consolidado Sesión 2.5 Frame 2 R1.
 
-### Sesión 3 Frame 2 — R4 Bloque 2c granular cross-strategy + R5 Reduced parameter space + ensemble combinados (~4-6h CC + compute background, ~2026-04-30 a 05-01)
+### Sesión 3 Frame 2 — R4 Bloque 2c granular cross-strategy + R5 DEFERRED Opción δ (2026-04-29) ✅ DONE PARCIAL
 
-- [ ] **R4 Bloque 2c granular cross-strategy** con kernel Path γ: H1+H_funding+H_strategy cross-régimen 44 sym × 3 clusters × top-5. Granularidad H_strategy real cross-strategy disponible vía Path γ enum extendido (TF vs MR comparison meaningful).
-- [ ] **R5 Reduced parameter space + ensemble**: reducir parameter space hyper-grid (preset families × hyst variants) → ~50% reducción configs sweep. Ensemble cross-top-N specialists per cluster (vs single top-1) — robustness statistical via aggregation.
-- [ ] Commit consolidado Sesión 3 Frame 2 R4+R5.
+**Decisión Ricardo Parte 0 escalación 3/6 mismatches sustantivos R5 spec ambiguity ROADMAP L162 (architectural changes) vs L219 (hypothesis testing condicional)**: Sub-fase 3A R4 PROCEDE clean + Sub-fase 3B R5 Opción δ DEFERRED post-Sesión 4 Gates condicional (preserva original Frame 2 spec L1296 design + disciplina aspirar-a-lo-mejor literal).
+
+- [x] **R4 Bloque 2c granular cross-strategy** standalone script `analysis_scripts/r4_bloque_2c_granular_cross_strategy.py` (~390 líneas):
+  - Pattern Sesión 2.5 Opción C reusable: JSONs-based + kernel re-run Path γ flag=True.
+  - Hipótesis testables: H_strategy (TF cancel_tf vs MR cancel_zona/cancel_tf/cancel_ghost) + H1 (short/long Cohen d cross-cluster).
+  - **H_funding DEFERRED**: funding cache cobertura ~2 meses (2026-03-01 → 2026-04-26) vs kernel runs full historical range (~2-3 años) → statistical power LOW. Reactivable post-reciclaje con extended funding cache.
+  - Top-3 per cluster sorted por `pf_fwd_ci_low` (M2 fix order) + group por preset variant + per-trade arrays granular extraction (pt_pnl + pt_reason + pt_side).
+- [x] Tests greenfield 6/6 PASS (`tests/test_r4_bloque_2c_granular.py`).
+- [x] **§12 L37 V2 captura recurrente**: empirical compute reveal `precalculate_all_data` ~10-15 min × ~3-5 unique variants × 3 sym = **~90-225 min cumulative** full pipeline cost. Empirical R4 dry-run cross-3 BTC+ONDO+SEI **DEFERRED Ricardo manual invocation** cuando compute resources available. Pattern análogo Sesión 2.5 Opción γ original full pipeline cost trap.
+
+- [x] **R5 DEFERRED Opción δ post-Sesión 4 Gates condicional**:
+  - **L162 R5 architectural changes** (Reduced parameter space hyper-grid + ensemble cross-top-N specialists deployment): DIFERIDOS post-reciclaje proyecto dedicado análogo R6 audit refactor (NO pre-reciclaje validation viable).
+  - **L219 R5 hypothesis testing condicional** (H_M3 selection bias cross-cluster + H_M4 régimen-temporal + H_M5 GMM noise + H_M6 cross-exchange): reactivable post-Sesión 4 IF Gate A FAIL Escenario 2 (~40-50% probabilidad).
+  - Original Frame 2 spec L1296 design "R5 condicional Gate A FAIL" preserved. NO scope expansion sin evidence necessity.
+
+- [x] **§12 L34 19ª aplicación recursiva**: hipótesis emergente "R5 implementable Sesión 3 pre-reciclaje" refutada vía análisis arquitectónico Parte 0 → roadmap reformulado disciplinadamente.
+- [x] **§12 L38 13ª aplicación recursiva validated**: lectura disciplinada ROADMAP cross-references reveló spec internal conflict → corrección pre-implementación previno scope creep R5 architectural changes.
+- [x] **§12 L36 22ª aplicación retrospectiva**: predicción "10-30 min compute" → realidad ~90-225 min ❌ refutada factor 6-8× (similar pattern Sesión 2.5).
+- [x] Commit consolidado Sesión 3 Frame 2 R4 done + R5 DEFERRED.
 
 ### Sesión 4 Frame 2 — Gates A+B+C cross-9/cross-15 + decisión Ricardo strategic (~1-2h CC + ~30-60 min compute, ~2026-05-01 a 02)
 
