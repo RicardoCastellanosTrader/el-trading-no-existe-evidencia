@@ -1,0 +1,95 @@
+{
+  "summary": {
+    "n_clusters_evaluated": 9,
+    "n_stable_cross_9": 2,
+    "n_significant_cross_9": 3,
+    "mean_rho_cross_9": -0.025977197926988126,
+    "std_rho_cross_9": 0.2452619366183611,
+    "median_rho_cross_9": 0.04351520524480006,
+    "min_rho": -0.5022450005513016,
+    "max_rho": 0.22082244238397095,
+    "sign_consistency_pct": 0.6666666666666666,
+    "gate_c_stability_threshold": 0.3,
+    "gate_c_pass_threshold": 6,
+    "gate_c_pass": false,
+    "verdict": "FAIL",
+    "comparison_sesion_4_proxy": {
+      "sesion_4_cross_9_rho_proxy": -0.17,
+      "sesion_4_verdict": "PARTIAL",
+      "sesion_4_5_verdict": "FAIL",
+      "refinement_outcome": "Gate C upgraded from PARTIAL \u2192 FAIL (rigorous per-cluster analysis)"
+    },
+    "timestamp": "2026-04-28T16:02:21.572643"
+  },
+  "per_cluster": {
+    "BTC": {
+      "cluster_0": {
+        "spearman_rho": 0.18508114889767538,
+        "p_value": 0.06525552385759081,
+        "n_specialists": 100,
+        "stable": false,
+        "significant": false
+      },
+      "cluster_1": {
+        "spearman_rho": -0.004060429271761681,
+        "p_value": 0.9680182207022167,
+        "n_specialists": 100,
+        "stable": false,
+        "significant": false
+      },
+      "cluster_2": {
+        "spearman_rho": 0.013135387230924412,
+        "p_value": 0.8967974456627597,
+        "n_specialists": 100,
+        "stable": false,
+        "significant": false
+      }
+    },
+    "ONDO": {
+      "cluster_0": {
+        "spearman_rho": 0.22082244238397095,
+        "p_value": 0.027258772824874038,
+        "n_specialists": 100,
+        "stable": false,
+        "significant": true
+      },
+      "cluster_1": {
+        "spearman_rho": 0.04351520524480006,
+        "p_value": 0.6672794139787334,
+        "n_specialists": 100,
+        "stable": false,
+        "significant": false
+      },
+      "cluster_2": {
+        "spearman_rho": -0.5022450005513016,
+        "p_value": 1.0146475886968752e-07,
+        "n_specialists": 100,
+        "stable": true,
+        "significant": true
+      }
+    },
+    "SEI": {
+      "cluster_0": {
+        "spearman_rho": 0.1271330495396561,
+        "p_value": 0.20750047575169583,
+        "n_specialists": 100,
+        "stable": false,
+        "significant": false
+      },
+      "cluster_1": {
+        "spearman_rho": -0.3629007327892101,
+        "p_value": 0.00020667273732438607,
+        "n_specialists": 100,
+        "stable": true,
+        "significant": true
+      },
+      "cluster_2": {
+        "spearman_rho": 0.04572414797235339,
+        "p_value": 0.6514640745940026,
+        "n_specialists": 100,
+        "stable": false,
+        "significant": false
+      }
+    }
+  }
+}

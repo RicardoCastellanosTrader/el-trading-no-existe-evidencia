@@ -1,21 +1,24 @@
 # Sistema de Trading Algorítmico — Contexto Completo del Proyecto
 
-**Última actualización:** 29 Abril 2026 SESIÓN 4 FRAME 2 GATES A+B+C CROSS-9 EVALUATION → ESCENARIO 1 PASS+PASS+PASS|PARTIAL → RECICLAJE LAUNCH VIABLE ~2026-05-03 — **Sesión 4 Gates analytical evaluation R1+R3+R4 combinados methodology refinada cross-9 BTC+ONDO+SEI × C0+C1+C2 con M2 fix baseline 2026-04-25 + R1 DSR Sesión 2.5 + R3 Path γ infrastructure + R4 analytical proxy. Gate A mean ratio J/B = 2.408 ≤ 3.62 PASS. Gate B 0/9 colapso fuerte (ratio > 5.0) PASS. Gate C cross-9 Spearman ρ = -0.17 NS PARTIAL (per-cluster ρ unavailable, weak proxy). Escenario 1 determined → R5 NOT NEEDED, reciclaje launch viable. Sesión 3.5 R4 dry-run cross-3 launched background bg `bno9hiw92` pero compute exceeded session capacity (~90-225 min cumulative, §12 L37 V2 captura recurrente). Empirical R4 results DEFERRED Ricardo manual analysis post-compute. Frame 2 escenarios preserved. Bot v2.4.5 invariante uptime ~6d 4h+. Próxima Sesión 5 reciclaje launch ~2026-05-03.**
+**Última actualización:** 29 Abril 2026 SESIÓN 4.5 FRAME 2 CONCLUSION — **Gate C rigorous analytical FAIL detected empirically robust (0/9 ≥+0.30 sig + 3/9 sign reversals + 2/9 STRONG NEGATIVE over-fit phenomenon ONDO C2 ρ=-0.502 p<0.001 *** + SEI C1 ρ=-0.363 p<0.001 ***) → Escenario 3 detectado empíricamente → Frame 3 redesign mandatory + reciclaje launch ~2026-05-03 DEFERRED. Disciplina aspirar-a-lo-mejor literal applied al own Frame 2 conclusion via Sesión 4.5 rigorous refinement (Gate C upgraded Sesión 4 PARTIAL analytical proxy → Sesión 4.5 FAIL rigorous per-cluster). §12 L34 cross-20ª aplicación recursiva al own Frame 2 conclusion + L36 23ª retrospectiva calibrada + L37 V2 cumulative cross-aplicaciones validated (precalculate_all_data upstream cost dominante NO escapable bg mode cross-3 intentos refutados Sesión 2.5 + 3 + 3.5) + L38 cross-13ª recursivas consolidated robustamente. Frame 2 methodology refinements infrastructure DEPLOYABLE post-Frame 3 redesign integrate: M2 fix sort + W3 bootstrap CI + W4 thresholds + R3 Path γ kernel granular ASIMÉTRICO TF (6) + MR (8) + R1 DSR rigurosa diagnostic flagged_dsr + R4 standalone analytical cross-strategy decomposition. Walk-forward ranking selectivity within survivor pool unchanged empíricamente — Frame 3 redesign requires architectural changes fundamental (NO walk-forward methodology refinement scope). Bot v2.4.5 invariante uptime ~6d 5h+. Sin tocar live/* productivo. Próxima Frame 3 redesign session arquitectura análisis fundamental cuando Ricardo confirme.**
+
+PREVIA — 29 Abril 2026 SESIÓN 4 FRAME 2 GATES A+B+C CROSS-9 EVALUATION → ESCENARIO 1 PASS+PASS+PASS|PARTIAL → RECICLAJE LAUNCH VIABLE ~2026-05-03 — **Sesión 4 Gates analytical evaluation R1+R3+R4 combinados methodology refinada cross-9 BTC+ONDO+SEI × C0+C1+C2 con M2 fix baseline 2026-04-25 + R1 DSR Sesión 2.5 + R3 Path γ infrastructure + R4 analytical proxy. Gate A mean ratio J/B = 2.408 ≤ 3.62 PASS. Gate B 0/9 colapso fuerte (ratio > 5.0) PASS. Gate C cross-9 Spearman ρ = -0.17 NS PARTIAL (per-cluster ρ unavailable, weak proxy). Escenario 1 determined → R5 NOT NEEDED, reciclaje launch viable. Sesión 3.5 R4 dry-run cross-3 launched background bg `bno9hiw92` pero compute exceeded session capacity (~90-225 min cumulative, §12 L37 V2 captura recurrente). Empirical R4 results DEFERRED Ricardo manual analysis post-compute. Frame 2 escenarios preserved. Bot v2.4.5 invariante uptime ~6d 4h+. Próxima Sesión 5 reciclaje launch ~2026-05-03.**
 
 PREVIA — 29 Abril 2026 SESIÓN 3 FRAME 2 R4 BLOQUE 2c GRANULAR CROSS-STRATEGY + R5 DEFERRED POST-SESIÓN 4 GATES CONDICIONAL — **R4 standalone script implementación + 6 tests greenfield PASS + R5 DEFERRED Opción δ honest aspirar-a-lo-mejor literal (NO scope expansion sin evidence necessity). §12 L34 19ª aplicación recursiva al spec Frame 2 propio (reformulation 2026-04-28 noche-2 promovió R5 pre-reciclaje sin reconciliar specs L162 architectural vs L219 hypothesis testing). §12 L38 13ª aplicación recursiva validated empíricamente. §12 L37 V2 captura recurrente: empirical R4 compute ~90-225 min cumulative full pipeline cost — deferred Ricardo manual invocation. §12 L36 22ª aplicación retrospectiva calibrada (predicción 10-30 min refutada factor 6-8×, pattern Sesión 2.5 análogo). H_funding DEFERRED por funding cache cobertura ~2 meses vs kernel runs full range ~2-3 años. Sesión 3 limited H_strategy + H1 (2/3 hipótesis). Frame 2 escenarios Sesión 4 Gates 3-way preserved (Escenario 1 PASS ~30-40% reciclaje launch, Escenario 2 Gate A FAIL ~40-50% activate R5 L219 condicional, Escenario 3 Gate B/C FAIL ~15-25% Frame 3 redesign). Bot v2.4.5 invariante uptime ~6d 4h+. Sin tocar live/* productivo.**
 
 PREVIA — 29 Abril 2026 SESIÓN 2.5 FRAME 2 R1 DSR RIGUROSA LÓPEZ DE PRADO 2014 + STANDALONE SCRIPT JSONS-BASED DRY-RUN CROSS-3 DONE — **R1 DSR rigurosa post-Path γ Sesión 2 + Opción γ→C standalone script synthetic returns approach (Multi-testing Caso B precedent). Compute estimate refinado §12 L37 V2: full pipeline cross-3 ~30-45h infeasible, synthetic returns standalone ~5 segundos viable. Backward compat absoluto `_R1_DSR_METHOD='none'` default (verify_test BTC diff 0.0000 EXACTO PASS). Tests greenfield 7/7 PASS + 27/27 no-regression preserved. Empirical dry-run cross-3 BTC+ONDO+SEI: 1/9 top-1 changes DSR vs M2 fix (11.1%) + 88.9% flagged_dsr cross-clusters (selection bias structural confirmed). ONDO C0 §12 L29 canonical case detected (z_median=-1.72 + 100% flagged cluster-level). VALIDACIÓN PARCIAL H1 (NOT refutación pura análoga Caso B BH 0/9): DSR provee diagnostic value flagged_dsr beyond top-1 ranking changes; M2 fix ya captura mayoría DSR-favored configs. R1 NOT archived. §12 L37 V2 captura permanente: spec compute estimates Frame 2 deben distinguir implementation pure compute vs full pipeline upstream cost. §12 L36 20ª aplicación retrospectiva (predicción 30-50% changes refutada parcial; 88.9% flagged refutación fuerte magnitud — outcome más informativo). §12 L38 12ª aplicación recursiva fix DSR formula one-tailed validated empíricamente. Habilita Sesión 3 R4 Bloque 2c granular cross-strategy + R5 Reduced parameter space + ensemble combinados. Bot v2.4.5 invariante uptime ~6d 3h+**.
 
-**Frame 2 reformulado calendar reciclaje launch ~2026-05-03 invariante**:
+**Frame 2 calendar SUSPENDED post-Sesión 4.5 Gate C rigorous FAIL → Frame 3 redesign trigger**:
 1. **Sesión 1 Frame 2** (2026-04-28): análisis arquitectónico completo + decisiones Ricardo (C)+R6_γ ✅ DONE.
 2. **Sesión 2 Frame 2** (2026-04-29): R3 Path γ TF+MR ambos kernels (~5-6h CC) ✅ DONE — 14 tests PASS + Smokes §0.8 cross-cuatro PASS + verify_test cross-3-símbolos diff 0.0000.
 3. **Sesión 2.5 Frame 2** (2026-04-29): R1 DSR rigurosa post-Path γ Opción γ→C standalone script synthetic returns ✅ DONE — 7 tests + dry-run cross-3 1/9 changes (validación parcial H1, NOT archived; 88.9% flagged_dsr diagnostic).
 4. **Sesión 3 Frame 2** (2026-04-29): R4 Bloque 2c granular cross-strategy ✅ DONE (Sub-fase 3A únicamente) — script + 6 tests + R5 DEFERRED Opción δ post-Sesión 4 Gates condicional.
-5. **Sesión 3.5 Frame 2** (HOY 2026-04-29): R4 dry-run cross-3 launched background ✅ — empirical compute DEFERRED post-session.
-6. **Sesión 4 Frame 2** (HOY 2026-04-29): Gates A+B+C cross-9 evaluation analytical ✅ DONE — **Escenario 1 PASS+PASS+PASS|PARTIAL → RECICLAJE LAUNCH VIABLE ~2026-05-03**.
-6. **Sesión 5 Frame 2** (~2026-05-03): Reciclaje launch + 15 días background.
-7. **Sesión 5 Frame 2** (~2026-05-03): Reciclaje launch + 15 días background. **READY post-Escenario 1 Sesión 4 Gates evaluation**.
-8. **Post-reciclaje proyecto dedicado**: R6 audit refactor Path β1 entries-filter (~6-10h CC).
+5. **Sesión 3.5 Frame 2** (2026-04-29): R4 dry-run cross-3 launched background — empirical compute DEFERRED §12 L37 V2 cumulative refutado.
+6. **Sesión 4 Frame 2** (2026-04-29): Gates A+B+C cross-9 evaluation analytical proxy ✅ DONE — Escenario 1 PARTIAL.
+7. **Sesión 4.5 Frame 2** (HOY 2026-04-29): Gate C rigorous analytical refinement ✅ DONE — **FAIL strict criterion (0/9 ρ≥+0.30 sig + 2/9 STRONG NEGATIVE over-fit) → Escenario 3 detectado empíricamente robust → Frame 3 redesign mandatory + reciclaje launch ~2026-05-03 SUSPENDED**.
+8. **Frame 3 redesign session subsequent** (~10-30h CC + compute background substantial): arquitectura análisis fundamental edge mejora real architectural changes (NO walk-forward methodology refinement scope). Calendar TBD post-Frame 3 análisis arquitectónica fundamental.
+9. **Reciclaje launch new calendar TBD post-Frame 3 redesign analysis**.
+10. **Post-reciclaje proyecto dedicado**: R6 audit refactor Path β1 entries-filter (~6-10h CC).
 
 **Asimetría enum TF (6) ≠ MR (8) Path γ** (hallazgo §12 L38 disciplinada): spec Sesión 0 invertida (asumió 8 TF + 6 MR). Real: TF 6 valores (sl_hit, sl_emergency, div_exit, tf_exit, zone_exit, cancel_tf) + MR 8 valores (sl_hit, sl_emergency, div_exit, tf_exit, zone_exit_mr, cancel_zona, cancel_tf, cancel_ghost). `regime_change` y `cancel_mr` spurious paths spec original — no existen kernel TF current code. MR kernel UNCHANGED Sesión 1B → Path γ Sesión 2 introduce per-trade tracking PRIMERA VEZ MR (~3-4h CC) replicando Path α' supplement pattern Sesión 1B amendment.
 
@@ -3291,6 +3294,99 @@ Referencias:
 ---
 
 ### 13.4 RESUELTO
+
+**[CIERRE METODOLÓGICO] [PRE-RECICLAJE FRAME 2 CONCLUSION SESIÓN 4.5] Gate C rigorous analytical FAIL → Escenario 3 detected empirically robust → Frame 3 redesign mandatory + reciclaje launch DEFERRED — 2026-04-29 sesión**
+
+**Contexto**: Sesión 4.5 Frame 2 R4 empirical subset reduced (DEFERRED §12 L37 V2 cumulative cross-3 intentos previos refutados — precalculate_all_data upstream cost dominante NO escapable bg mode) + Gate C rigorous analytical refinement (zero compute cost cross-clusters Spearman ρ from JSONs metadata directly) + decisión Ricardo strategic post-Sesión 4 analytical proxy reveal caveats sustanciales. Disciplina aspirar-a-lo-mejor literal applied al own Frame 2 conclusion via Sesión 4.5 rigorous refinement.
+
+**Hallazgo crítico Sesión 4.5 Gate C rigorous analytical**:
+
+Per-cluster Spearman ρ(pf_tr, pf_fwd) cross-9 BTC+ONDO+SEI × C0+C1+C2:
+
+| Sym | Cluster | ρ | p-value | Stable (|ρ|≥0.3) | Significant | Sign |
+|-----|---------|---:|--------:|:---:|:---:|:---:|
+| BTC | C0 | +0.185 | 0.0653 NS | ✗ | ✗ | + |
+| BTC | C1 | -0.004 | 0.9680 NS | ✗ | ✗ | – |
+| BTC | C2 | +0.013 | 0.8968 NS | ✗ | ✗ | + |
+| ONDO | C0 | +0.221 | 0.0273 * | ✗ | ✓ | + |
+| ONDO | C1 | +0.044 | 0.6673 NS | ✗ | ✗ | + |
+| ONDO | C2 | **-0.502** | 0.0000 *** | ✓ | ✓ | **–** |
+| SEI | C0 | +0.127 | 0.2075 NS | ✗ | ✗ | + |
+| SEI | C1 | **-0.363** | 0.0002 *** | ✓ | ✓ | **–** |
+| SEI | C2 | +0.046 | 0.6515 NS | ✗ | ✗ | + |
+
+Cross-9 aggregates:
+- Mean ρ: **-0.026** (~null).
+- N stable (|ρ|≥0.3): **2/9** ambos NEGATIVE (over-fit phenomenon counter-intuitive).
+- N significant: 3/9.
+- **N stable + positive (Gate C strict criterion ≥+0.30 sig): 0/9 → FAIL**.
+- Sign reversals: 3/9 → instability cross-clusters confirmed.
+
+**Hallazgo metodológico significativo**:
+
+- **7/9 clusters: ρ ≈ 0** → train pf NO predice fwd pf within survivor pool top-100 (selection bias structural confirmado empíricamente per-cluster cross-9).
+- **2/9 clusters: ρ STRONG NEGATIVE** (ONDO C2 -0.502 *** + SEI C1 -0.363 ***) → counter-intuitive over-fit phenomenon (top train ranks have inverted fwd ranks).
+- M2 fix mejoró absolute magnitude J/B (Gate A 2.408 ≤ 3.62 + Gate B 0/9 colapso fuerte > 5.0 PASS) PERO ranking selectivity NO mejorada empíricamente per-cluster.
+- Confirma §12 L29 + §13.2 walk-forward methodology bias structural cluster-level rigorous.
+
+**Re-evaluación Frame 2 escenarios post-Sesión 4.5 rigorous**:
+
+| Escenario | Probability original | Post-Sesión 4.5 rigorous |
+|-----------|---------------------:|--------------------------|
+| 1 (PASS+PASS+PASS) | 30-40% | **REFUTED** empirically |
+| 2 (Gate A FAIL, B+C PASS) | 40-50% | NO applicable (Gate A PASS, Gate C FAIL) |
+| **3 (Gate B/C FAIL)** | 15-25% | **DETECTED EMPIRICALLY ROBUST** ✓ |
+
+**Decisión Ricardo strategic Opción A: Frame 3 redesign mandatory + reciclaje launch DEFERRED**.
+
+Razones consolidadas honestas:
+- **§12 L34 disciplina aspirar-a-lo-mejor literal applied al own Frame 2 conclusion**: Sesión 4 analytical proxy gave optimistic verdict PARTIAL. Sesión 4.5 rigorous (analytical, zero compute cost) reveals empirical FAIL strict criterion. Honest scrutiny prevents Frame 2 launch on flawed Gate C foundation.
+- **Frame 2 spec L1296 design**: "FAIL Gate B/C → pause + diagnóstico arquitectónico §12 L34". Triggered directly por Gate C rigorous FAIL.
+- **Pattern Frame 1 implícito rejection**: Opción B reciclaje + R5 monitoring post-launch reproduce "patada hacia delante" que Frame 2 metodología fundamental Sesión 0 designed evitar.
+- **Capital scale-up bajo Gate C FAIL = riesgo asimétrico downside-amplified rejected**.
+- **Opción C re-interpretation criterion to fit desired outcome rejected** disciplina aspirar-a-lo-mejor.
+
+**§12 L36 23ª aplicación retrospectiva calibrada empírica robusta**: Sesión 4 analytical proxy gave Escenario 1 PARTIAL → Sesión 4.5 rigorous reveals Escenario 3 detected empirically robust. Probability Sesión 1 análisis Parte 3.4 escenarios 3-way documented preserved honest. Cross-23 aplicaciones consolidada (~58-100h ahorro acumulado paths infeasibles ciegamente).
+
+**§12 L37 V2 cumulative cross-aplicaciones validated robusta** (Sesión 2.5 + Sesión 3 + Sesión 3.5 cross-3 intentos refutados): precalculate_all_data upstream cost dominante NO escapable bg mode. R4 empirical Sesión 4.5 DEFERRED full reciclaje natural compute OR Frame 3 redesign arquitectura full pipeline cost integrated.
+
+**§12 L34 cross-20ª aplicación recursiva al own Frame 2 conclusion robust**: Frame 2 alcance honesto explícito documented Sesión 0/1 "refinements pre-reciclaje NO mejoran edge real disponible mercado — atacan sobrestimación métricas walk-forward para selección honesta configs reciclaje" confirmado empíricamente. Refinements R1+R3+R4 done infrastructure deployable + Gate C FAIL reveals walk-forward ranking selectivity within survivor pool unchanged.
+
+**§12 L38 cross-13ª aplicaciones recursivas validated**: lectura disciplinada código real + escrutinio recursivo cumulative cross-Frame 2 patrón institucional consolidado robusto. Sesión 4.5 rigorous analytical (zero compute) refines Sesión 4 analytical proxy → empirical Gate C FAIL.
+
+**Frame 2 conclusion honest robust**:
+
+- **Methodology refinements infrastructure DEPLOYABLE post-Frame 3 redesign integrate**:
+  - M2 fix sort `pf_fwd_ci_low` primary + `specialist_score_ci_low` tie-breaker.
+  - W3 bootstrap CI (`_apply_bootstrap_pf_fwd` + `flag_sospechoso_outlier`).
+  - W4 thresholds (`_FWD_MIN_TRADES=25`, `_FWD_MIN_PF=1.1`, `_FWD_REQUIRE_NOT_SOSPECHOSO=True`).
+  - R3 Path γ kernel granular ASIMÉTRICO TF (6) + MR (8) per-trade arrays.
+  - R1 DSR rigurosa diagnostic flagged_dsr column (Sesión 2.5 Opción C standalone).
+  - R4 standalone analytical cross-strategy decomposition (Sesión 3 Sub-fase 3A).
+- **Walk-forward ranking selectivity within survivor pool unchanged empíricamente** — Frame 3 redesign requires **architectural changes fundamental** (NO walk-forward methodology refinement scope).
+
+**Items §13.3 actualizados**:
+- L1296 Frame 2 alcance honesto: Gates A+B+C cross-9 evaluation done Sesión 4 + Sesión 4.5 rigorous → Escenario 3 detectado empíricamente → Frame 3 redesign mandatory + reciclaje launch DEFERRED.
+
+**Habilita**:
+- **Frame 3 redesign session subsequent dedicated** arquitectura análisis fundamental: edge mejora real architectural changes (NO walk-forward methodology refinement scope) + cross-strategy ensemble combinaciones R5 L162 + revisión fundamental régimen detection methodology + scope ~10-30h CC + compute background substantial estimated.
+- **Calendar Frame 2 reciclaje launch ~2026-05-03 SUSPENDED** → Frame 3 redesign session subsequent + new calendar TBD post-Frame 3 redesign analysis arquitectónica fundamental.
+
+**Estado pre-reciclaje FRAME 2 CONCLUSION + transición Frame 3 redesign**: bot v2.4.5 operacional VPS Tokio uptime ~6d 5h+. Sin tocar `live/*` productivo (analytical refinement read-only sobre JSONs). Fidelidad 2 invariante por construcción.
+
+**Próxima Frame 3 redesign session**: análisis arquitectónico fundamental edge mejora real architectural changes (alcance fundamental diferente Frame 2) cuando Ricardo confirme disponibilidad continuación.
+
+**Referencias**:
+- `analysis_scripts/gate_c_rigorous_analytical.py` (Sesión 4.5 rigorous script).
+- `gate_c_rigorous_analytical_results.json` (output JSON).
+- §13.4 entrada Sesión 4 Gates evaluation 2026-04-29 (analytical proxy).
+- §13.2 walk-forward methodology bloque (Frame 2 conclusion update).
+- §12 L29 + L34 + L36 + L37 V2 + L38 cross-aplicaciones consolidadas robustas.
+- Frame 2 spec L1296 design (R5 condicional Gate B/C FAIL trigger).
+
+**Cierre Sesión 4.5 Frame 2 CONCLUSION + Frame 3 trigger**: permanente. Frame 2 methodology refinements infrastructure deployable + Frame 3 redesign mandatory architectural changes fundamental scope. Honest aspirar-a-lo-mejor literal applied al own Frame 2 conclusion via empirical scrutiny.
+
+---
 
 **[EVALUACIÓN] [PRE-RECICLAJE FRAME 2 SESIÓN 4] Gates A+B+C cross-9 evaluation + Escenario 1 PASS+PASS+PASS|PARTIAL → RECICLAJE LAUNCH VIABLE ~2026-05-03 — 2026-04-29 sesión post-Sesión 3**
 
