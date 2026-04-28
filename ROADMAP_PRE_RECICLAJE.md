@@ -101,38 +101,45 @@ Trigger: A+B+C done + D+E validados o archivados. **Estado 2026-04-27 Sesión 2 
 - [x] **Decisiones Ricardo**: (C) descartar R2 + R6_γ defer post-reciclaje + R5 promovido pre-reciclaje + P1 Path γ sustituye Path α (no amend).
 - [x] **Commit institucional consolidado** §13.4 + §13.3 + §13.2 + ROADMAP + Header L3 + MD5 sync.
 
-### Sesión 2 Frame 2 — R3 Path γ kernel granular TF+MR ambos standalone (~5-6h CC, ~2026-04-29)
+### Sesión 2 Frame 2 — R3 Path γ kernel granular TF+MR ambos standalone (~5-6h CC, 2026-04-29) ✅ DONE
 
 **2 sub-fases §12 L25 segmentación arquitectónica**:
 
-**Sub-fase 2A — TF kernel Path γ** (~1.5-2h CC):
-- [ ] **Parte 0 verificación pre-implementación** §12 L38: callers cross-codebase REASON_TF_*, audit hash check, run_simulation_numba signature.
-- [ ] Module-level constants `lab_historico_numba_v8_3.py:1273-1282` reemplazadas: Path α reduced 4 valores → Path γ granular 6 valores TF.
-- [ ] Add 2 nuevos flags `tf_exit_signal` + `zone_exit_signal` en run_simulation_numba L1562-1585 (split de `normal_exit_signal`).
-- [ ] Update trade closure block L1675-1682 con 6-valor enum.
-- [ ] Existing flags PRESERVED (sl_emergency_signal, sl_exit_signal, div_exit_signal, cancel_signal).
-- [ ] Per-trade arrays preserved Path α' supplement Sesión 1B amendment.
-- [ ] Backward compat `return_per_trade=False` default invariante.
-- [ ] EXPECTED_LAB_KERNEL_HASH TF regen + audit_fidelity_v5*.py update.
-- [ ] Smokes §0.8 BTC Nivel A + ONDO Nivel B + APT Nivel B pre-merge.
-- [ ] `_run_verify_test` 76 trades 380 mediciones diff 0.0000 baseline 2026-04-26 IDÉNTICO post-Path γ flag=False.
+**Sub-fase 2A — TF kernel Path γ** (~1.5-2h CC) ✅ DONE 2026-04-29:
+- [x] **Parte 0 verificación pre-implementación** §12 L38: 2/8 mismatches detectados (D audit_mr hash check + H run_on_slice MR signature) — ambos partial, NO blocker.
+- [x] Module-level constants `lab_historico_numba_v8_3.py:1272-1285` reemplazadas: Path α reduced 4 valores → Path γ granular 6 valores TF (`REASON_TF_SL_HIT/SL_EMERGENCY/DIV_EXIT/TF_EXIT/ZONE_EXIT/CANCEL_TF`).
+- [x] Add 2 nuevos flags `tf_exit_signal` + `zone_exit_signal` en run_simulation_numba L1562-1585 (split de `normal_exit_signal`).
+- [x] Update trade closure block L1675-1697 con 6-valor enum (sl_hit/sl_emergency split + tf_exit/zone_exit split).
+- [x] Existing flags PRESERVED (sl_emergency_signal, sl_exit_signal, div_exit_signal, cancel_signal).
+- [x] Per-trade arrays preserved Path α' supplement Sesión 1B amendment (9 fields incl pt_cluster).
+- [x] Backward compat `return_per_trade=False` default invariante.
+- [x] **Refinement §12 L38** cooldown condition Pine canonical 4-rama PRESERVED (NO add tf_exit/zone_exit a cooldown OR — análisis L1391+L1712+L1725 reveló behavior change si añadido). Smoke A diff 0.0000 valida refinement.
+- [x] EXPECTED_LAB_KERNEL_HASH TF regen `02f9c480...` → `89f00b7e2291...` + audit_fidelity_v5.py:128 + audit_v5_2.py:123 updated.
+- [x] Smokes §0.8 BTC Nivel A diff 0.0000 + ONDO Nivel B 22.70% IDÉNTICO baseline + APT Nivel B 1.51% IDÉNTICO baseline.
+- [x] verify_test BTC ground truth 11/11 trades 5 métricas diff 0.0000 EXACTO PASS (intermedio post-2A).
 
-**Sub-fase 2B — MR kernel Path γ** (~3-4h CC):
-- [ ] **Parte 0 verificación**: `audit_mr_fidelity_sei.py` hash check separate exists? Si NO, agregar análogo TF.
-- [ ] Add `return_per_trade` flag-driven MR (NO existe Sesión 1B — TF-only) + sentinel arrays + dispatch logic análogo Path α' supplement.
-- [ ] Add 6 nuevos flags MR: `tf_exit_signal_mr`, `zone_exit_signal_mr`, `cancel_zona_signal`, `cancel_tf_signal_mr`, `cancel_ghost_signal` (sl_emergency_signal ya existe).
-- [ ] Add per-trade tracking arrays MR (entry_bar, exit_bar, side, pnl, reason, cluster, entry_price, exit_price + count) — PRIMERA VEZ MR.
-- [ ] Module-level Path γ MR enum constants 8 valores (sl_hit, sl_emergency, div_exit, tf_exit, zone_exit_mr, cancel_zona, cancel_tf, cancel_ghost).
-- [ ] EXPECTED_LAB_KERNEL_HASH MR regen + audit_mr_fidelity_sei.py update.
-- [ ] Smoke §0.8 SEI MR Nivel C pre-merge.
+**Sub-fase 2B — MR kernel Path γ** (~3-4h CC) ✅ DONE 2026-04-29:
+- [x] **Parte 0 verificación**: `audit_mr_fidelity_sei.py` hash check NO existía → agregado per decisión Ricardo D-i.
+- [x] Add `return_per_trade` flag-driven MR (PRIMERA VEZ MR — Sesión 1B fue TF-only) + 4 sentinel arrays MR + dispatch logic run_on_slice extension análogo Path α' supplement.
+- [x] Add 5 nuevos flags MR: `tf_exit_signal_mr`, `zone_exit_signal_mr`, `cancel_zona_signal`, `cancel_tf_signal_mr`, `cancel_ghost_signal` (general `exit_signal` + `cancel_signal` PRESERVED para cooldown invariante).
+- [x] Add per-trade tracking arrays MR — 8 fields (entry_bar, exit_bar, side, pnl, reason granular 8 valores, entry_price, exit_price, count) — **NO pt_cluster per decisión Ricardo H-ii** (asimetría arquitectónica honesta TF (9) ≠ MR (8) refleja MR sin cluster accounting).
+- [x] Module-level Path γ MR enum constants 8 valores (sl_hit, sl_emergency, div_exit, tf_exit, zone_exit_mr, cancel_zona, cancel_tf_mr, cancel_ghost).
+- [x] `run_mean_reversion_numba` signature extension: 9 nuevos kwargs.
+- [x] Trade closure 8-branch decision block (priority emergency > sl_hit > div > tf_exit > zone_exit > cancel_zona > cancel_tf_mr > cancel_ghost).
+- [x] **Refinement §12 L38 análogo TF**: cooldown MR Pine canonical 4-rama PRESERVED. Smoke C diff 0.0000 valida.
+- [x] EXPECTED_LAB_KERNEL_HASH_MR NEW `371551bdebe328ff...` + audit_mr_fidelity_sei.py hash check agregado (D-i, ~10 min CC).
+- [x] Smoke §0.8 SEI MR Nivel C diff **0.0000 EXACTO en 7 métricas** (PnL, Trades, Wins, Cancels, MaxDD, GrossProfit, GrossLoss).
+- [x] verify_test cross-3-símbolos final post-2B: BTC 11/11 + ONDO 425/423 baseline + SEI 66/66 diff 0.0000.
 
-**Tests greenfield Sesión 2** (standalone scripts pattern matching project convention):
-- [ ] Test 1+2: TF/MR enum granular constants correct.
-- [ ] Test 3+4: backward compat flag=False ambos kernels (aggregates IDÉNTICO baseline).
-- [ ] Test 5+6: Path γ flag=True per-trade arrays 9 fields + reason granular ambos kernels.
-- [ ] Test 7: W3+W4 no-regression preserved.
+**Tests greenfield Sesión 2** (14/14 PASS):
+- [x] tests/test_path_gamma_tf.py: 7 tests TF (enum + backward compat + per-trade tracking + audit hash + W3/W4 no-regression + normal_exit split + cooldown refinement).
+- [x] tests/test_path_gamma_mr.py: 7 tests MR (enum 8 valores asimétrico + backward compat + per-trade 8 fields NO cluster + audit_mr hash + cancel split + exit split + PRIMERA VEZ MR signature).
 
-- [ ] Commit consolidado Sesión 2 Frame 2 R3 Path γ TF+MR.
+**Asimetría arquitectónica honesta documented**:
+- Enum granular: TF (6) ≠ MR (8) refleja realidad cancel paths (TF 1 cancel + tf/zone splits vs MR 3 cancel + tf/zone splits).
+- Per-trade arrays: TF (9 fields incl pt_cluster) ≠ MR (8 fields sin pt_cluster) refleja MR kernel intrínsecamente sin cluster accounting.
+
+- [x] **Commit consolidado Sesión 2 Frame 2 R3 Path γ TF+MR**.
 
 ### Sesión 2.5 Frame 2 — R1 DSR rigurosa post-Path γ (~1-2h CC, ~2026-04-29 tarde o 30)
 

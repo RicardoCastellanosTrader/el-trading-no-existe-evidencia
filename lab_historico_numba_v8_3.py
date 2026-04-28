@@ -1269,17 +1269,20 @@ def decode_config(config_id):
 # MOTOR NUMBA (sin cambios vs v6.0)
 # ============================================
 
-# G1.1 Tier 0 I1 Path α — per-trade arrays opcionales — 2026-04-28 Sesión 1B.
-# Reduced enum reason_exit TF kernel (alineado con kernel current granularidad sin
-# refactor invasivo, evita Path γ memory blowup full sweep). Granular sl_hit vs
-# sl_emergency / tf_exit vs zone_exit requeriría kernel code refinement = proyecto
-# refactor dedicado post-reciclaje.
-# Ver §13.4 entrada Sesión 1B Path α 2026-04-28 + §12 L38 nueva (verificación
-# supuestos técnicos pre-implementación).
-REASON_TF_SL_EXIT = 0       # sl_exit_signal: emergency 5% intrabar + sl_level on-close (combinados kernel current)
-REASON_TF_DIV_EXIT = 1      # div_exit_signal: salida por divergencia (bit div_exit + div_type>0)
-REASON_TF_NORMAL_EXIT = 2   # normal_exit_signal: TF filters + zone reverse (combinados kernel current)
-REASON_TF_CANCEL_TF = 3     # cancel_signal: cancel_tf bit 22
+# G1.1 Tier 0 I1 Path γ — per-trade arrays opcionales — 2026-04-29 Sesión 2 Frame 2.
+# Granular enum reason_exit TF kernel (sustituye Path α reduced enum Sesión 1B per
+# decisión P1 Sesión 1: Path γ SUSTITUYE Path α + Path α' supplement, NO amend).
+# Path γ split normal_exit_signal en tf_exit_signal + zone_exit_signal kernel-side
+# para preservar info granular cross-strategy decomposition (Sesión 3 R4 Bloque 2c).
+# sl_hit vs sl_emergency también separados (reuse sl_emergency_signal flag existente).
+# Commits 9282e79 + f8205fa preserved git history trazabilidad.
+# Ver §13.4 entrada Sesión 2 Frame 2 R3 Path γ + §12 L38 disciplinada.
+REASON_TF_SL_HIT       = 0  # sl_exit_signal=True, sl_emergency_signal=False (on-close 3% TS)
+REASON_TF_SL_EMERGENCY = 1  # sl_exit_signal=True, sl_emergency_signal=True (intrabar 5%)
+REASON_TF_DIV_EXIT     = 2  # div_exit_signal: salida por divergencia (bit div_exit + div_type>0)
+REASON_TF_TF_EXIT      = 3  # tf_exit_signal: TF filters reverse (split de normal_exit_signal)
+REASON_TF_ZONE_EXIT    = 4  # zone_exit_signal: zone z_bull/z_bear (split de normal_exit_signal)
+REASON_TF_CANCEL_TF    = 5  # cancel_signal: cancel_tf bit 22
 
 # Sentinel arrays para defaults kwargs (pattern Numba @njit con array defaults).
 # Backward compat 100%: existing callers no pasan kwargs per-trade → arrays sentinel
@@ -1513,7 +1516,8 @@ def run_simulation_numba(
                 div_exit_signal = False
                 sl_exit_signal = False
                 sl_emergency_signal = False
-                normal_exit_signal = False
+                tf_exit_signal = False
+                zone_exit_signal = False
                 exit_price = close_p
                 
                 if use_ts == 1 and t > entry_bar:
@@ -1571,18 +1575,18 @@ def run_simulation_numba(
                     
                     if position == 1 and exit_count_active > 0 and exit_count_bull == 0:
                         exit_signal = True
-                        normal_exit_signal = True
+                        tf_exit_signal = True
                     elif position == -1 and exit_count_active > 0 and exit_count_bull == exit_count_active:
                         exit_signal = True
-                        normal_exit_signal = True
-                
+                        tf_exit_signal = True
+
                 if not exit_signal:
                     if position == 1 and z_bear:
                         exit_signal = True
-                        normal_exit_signal = True
+                        zone_exit_signal = True
                     elif position == -1 and z_bull:
                         exit_signal = True
-                        normal_exit_signal = True
+                        zone_exit_signal = True
                 
                 if not exit_signal and cancel_tf == 1:
                     cancel_signal = False
@@ -1659,12 +1663,13 @@ def run_simulation_numba(
                                 cl_maxdd[cl_idx] = cl_dd
                     # --- fin cluster accounting ---
 
-                    # --- G1.1 Path α 2026-04-28 Sesión 1B — per-trade tracking ---
+                    # --- G1.1 Path γ 2026-04-29 Sesión 2 Frame 2 — per-trade tracking ---
                     # Solo si return_per_trade=True. Sentinel arrays (1,1) si flag=False
                     # → bounds check pt_idx < shape[1] = 1 falla en 2do trade y se omite
                     # silenciosamente (zero memory impact production callers).
-                    # Reduced enum: priority sl > div > normal > cancel (mutuamente exclusivos
-                    # por construcción kernel current logic).
+                    # Granular enum: priority sl(emergency vs hit) > div > tf_exit > zone_exit
+                    # > cancel (mutuamente exclusivos por construcción kernel current logic).
+                    # Path γ SUSTITUYE Path α reduced enum Sesión 1B (decisión P1 Sesión 1).
                     if return_per_trade:
                         pt_idx = pt_count[c]
                         if pt_idx < pt_entry_bar.shape[1]:
@@ -1673,13 +1678,18 @@ def run_simulation_numba(
                             pt_side[c, pt_idx] = 0 if position == 1 else 1
                             pt_pnl[c, pt_idx] = trade_pnl
                             if sl_exit_signal:
-                                pt_reason[c, pt_idx] = 0  # REASON_TF_SL_EXIT
+                                if sl_emergency_signal:
+                                    pt_reason[c, pt_idx] = 1  # REASON_TF_SL_EMERGENCY
+                                else:
+                                    pt_reason[c, pt_idx] = 0  # REASON_TF_SL_HIT
                             elif div_exit_signal:
-                                pt_reason[c, pt_idx] = 1  # REASON_TF_DIV_EXIT
-                            elif normal_exit_signal:
-                                pt_reason[c, pt_idx] = 2  # REASON_TF_NORMAL_EXIT
+                                pt_reason[c, pt_idx] = 2  # REASON_TF_DIV_EXIT
+                            elif tf_exit_signal:
+                                pt_reason[c, pt_idx] = 3  # REASON_TF_TF_EXIT
+                            elif zone_exit_signal:
+                                pt_reason[c, pt_idx] = 4  # REASON_TF_ZONE_EXIT
                             else:
-                                pt_reason[c, pt_idx] = 3  # REASON_TF_CANCEL_TF
+                                pt_reason[c, pt_idx] = 5  # REASON_TF_CANCEL_TF
                             if has_clusters:
                                 cl_idx_pt = cluster_labels[entry_bar]
                                 if 0 <= cl_idx_pt < n_clusters:
@@ -1688,10 +1698,11 @@ def run_simulation_numba(
                                     pt_cluster[c, pt_idx] = 0
                             else:
                                 pt_cluster[c, pt_idx] = 0
-                            # Sesión 1B amendment Path α' supplement 2026-04-28
-                            # entry_price siempre = close_p al abrir; exit_price = emerg_level
-                            # si sl_emergency intrabar O close_p otherwise (kernel current code
-                            # variables locales preservan distinción info incluso bajo reduced enum).
+                            # Path α' supplement preserved Path γ: entry_price siempre = close_p
+                            # al abrir; exit_price = emerg_level si sl_emergency intrabar O close_p
+                            # otherwise. Granular enum Path γ distingue sl_emergency vs sl_hit
+                            # explícitamente (REASON_TF_SL_EMERGENCY=1 vs REASON_TF_SL_HIT=0); arrays
+                            # entry_price + exit_price preservan precio exacto para audit refactor R6.
                             pt_entry_price[c, pt_idx] = entry_price
                             pt_exit_price[c, pt_idx] = exit_price
                             pt_count[c] = pt_idx + 1

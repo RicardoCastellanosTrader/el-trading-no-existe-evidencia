@@ -43,6 +43,38 @@ DEFAULT_DIV_IND_MASK = 1
 
 
 # ============================================
+# Path γ MR — per-trade arrays opcionales — 2026-04-29 Sesión 2 Frame 2.
+# Granular enum reason_exit MR kernel (PRIMERA VEZ MR per-trade tracking,
+# replicate Path α' supplement TF pattern Sesión 1B amendment).
+# Asimétrico vs TF (6 valores) — 8 valores refleja realidad cancel paths
+# kernel current code (3 cancel paths separate vs TF 1 cancel path) +
+# split exit_signal en tf_exit + zone_exit análogo TF Sub-fase 2A.
+# Per-trade arrays MR: 8 fields (NO pt_cluster per decisión Ricardo H-ii —
+# MR kernel intrínsecamente sin cluster accounting). Asimetría arquitectónica
+# honesta TF (9 fields) ≠ MR (8 fields).
+# Ver §13.4 entrada Sesión 2 Frame 2 R3 Path γ + §12 L38 disciplinada.
+# ============================================
+REASON_MR_SL_HIT       = 0  # sl_exit_signal=True, sl_emergency_signal=False (on-close 3% TS)
+REASON_MR_SL_EMERGENCY = 1  # sl_exit_signal=True, sl_emergency_signal=True (intrabar 5%)
+REASON_MR_DIV_EXIT     = 2  # div_exit_signal: salida por divergencia
+REASON_MR_TF_EXIT      = 3  # tf_exit_signal_mr: TF filters reverse (split exit_mask)
+REASON_MR_ZONE_EXIT    = 4  # zone_exit_signal_mr: zone z_bull/z_bear (split)
+REASON_MR_CANCEL_ZONA  = 5  # cancel_zona_signal: cancel_zona bit 14 (split cancel_signal)
+REASON_MR_CANCEL_TF    = 6  # cancel_tf_signal_mr: cancel_tf bit 15 (split cancel_signal)
+REASON_MR_CANCEL_GHOST = 7  # cancel_ghost_signal: cancel_ghost bit 16 (split cancel_signal)
+
+# Sentinel arrays MR para defaults kwargs (replicate Path α' supplement TF
+# pattern). Backward compat 100%: existing callers no pasan kwargs per-trade
+# → sentinel (1,1) reciben writes condicionales que nunca se ejecutan
+# (return_per_trade=False default). Flag-driven: solo callers con flag=True
+# allocaron arrays útiles. Memory protection inherente vía dispatch run_on_slice.
+_PT_SENTINEL_INT32_MR   = np.zeros((1, 1), dtype=np.int32)
+_PT_SENTINEL_INT8_MR    = np.zeros((1, 1), dtype=np.int8)
+_PT_SENTINEL_FLOAT64_MR = np.zeros((1, 1), dtype=np.float64)
+_PT_SENTINEL_COUNT_MR   = np.zeros(1, dtype=np.int32)
+
+
+# ============================================
 # KERNEL NUMBA
 # ============================================
 
@@ -59,7 +91,21 @@ def run_mean_reversion_numba(
     div_ind_mask,
     sl_pct, sl_emergency_pct, ts_pct,
     cooldown_bars, commission_pct,
-    accounting_start=100
+    accounting_start=100,
+    # Path γ MR additions (Sesión 2 Frame 2 — 2026-04-29).
+    # Backward compat 100%: flag=False default + sentinel arrays → callers
+    # existing producen 7-tuple aggregates IDÉNTICO baseline Sesión 1B.
+    # 8 fields per-trade (NO pt_cluster per decisión Ricardo H-ii — asimetría
+    # arquitectónica TF (9) ≠ MR (8) refleja MR sin cluster accounting).
+    return_per_trade=False,
+    pt_entry_bar=_PT_SENTINEL_INT32_MR,
+    pt_exit_bar=_PT_SENTINEL_INT32_MR,
+    pt_side=_PT_SENTINEL_INT8_MR,
+    pt_pnl=_PT_SENTINEL_FLOAT64_MR,
+    pt_reason=_PT_SENTINEL_INT8_MR,
+    pt_entry_price=_PT_SENTINEL_FLOAT64_MR,
+    pt_exit_price=_PT_SENTINEL_FLOAT64_MR,
+    pt_count=_PT_SENTINEL_COUNT_MR
 ):
     n_configs = len(configs)
     n_bars = len(close_arr)
@@ -217,6 +263,16 @@ def run_mean_reversion_numba(
                 div_exit_signal = False
                 sl_exit_signal = False
                 sl_emergency_signal = False
+                # Path γ MR granular split (Sesión 2 Frame 2):
+                # tf_exit + zone_exit (split exit_signal sites) +
+                # cancel_zona + cancel_tf_mr + cancel_ghost (split cancel_signal).
+                # cancel_signal general PRESERVED para cooldown invariante (Pine
+                # canonical 4-rama: emergency or sl or div or cancel).
+                tf_exit_signal_mr = False
+                zone_exit_signal_mr = False
+                cancel_zona_signal = False
+                cancel_tf_signal_mr = False
+                cancel_ghost_signal = False
                 exit_price = close_p
 
                 # --- Trailing stop update ---
@@ -275,15 +331,19 @@ def run_mean_reversion_numba(
                                 exit_count_bull += 1
                     if position == 1 and exit_count_active > 0 and exit_count_bull == 0:
                         exit_signal = True
+                        tf_exit_signal_mr = True
                     elif position == -1 and exit_count_active > 0 and exit_count_bull == exit_count_active:
                         exit_signal = True
+                        tf_exit_signal_mr = True
 
                 # --- Zone exit (forming) ---
                 if not exit_signal:
                     if position == 1 and z_bear:
                         exit_signal = True
+                        zone_exit_signal_mr = True
                     elif position == -1 and z_bull:
                         exit_signal = True
+                        zone_exit_signal_mr = True
 
                 # =============================================
                 # CANCEL CHECKS (only if no regular exit)
@@ -302,15 +362,19 @@ def run_mean_reversion_numba(
                             # Same day: check if forming zone still matches entry direction
                             if position == 1 and not zone_bull_forming[t]:
                                 cancel_signal = True
+                                cancel_zona_signal = True
                             elif position == -1 and not zone_bear_forming[t]:
                                 cancel_signal = True
+                                cancel_zona_signal = True
                         else:
                             # Day closed: check resolved zone at entry_bar
                             # If resolved disagrees with forming at entry -> entry was repainted
                             if position == 1 and not zone_bull_resolved[entry_bar]:
                                 cancel_signal = True
+                                cancel_zona_signal = True
                             elif position == -1 and not zone_bear_resolved[entry_bar]:
                                 cancel_signal = True
+                                cancel_zona_signal = True
 
                     # --- Cancel TF (bit 15) ---
                     # Forming vs resolved TF filter comparison
@@ -331,18 +395,22 @@ def run_mean_reversion_numba(
                             if entry_4h == now_4h:
                                 if ((eff >> 1) & 1) != ((f_now >> 1) & 1):
                                     cancel_signal = True
+                                    cancel_tf_signal_mr = True
                             else:
                                 if ((eff >> 1) & 1) != ((efr >> 1) & 1):
                                     cancel_signal = True
+                                    cancel_tf_signal_mr = True
 
                         # TF3 (bit 2): compare within daily block
                         if not cancel_signal and (entry_mask >> 2) & 1:
                             if entry_day_tf == current_day_tf:
                                 if ((eff >> 2) & 1) != ((f_now >> 2) & 1):
                                     cancel_signal = True
+                                    cancel_tf_signal_mr = True
                             else:
                                 if ((eff >> 2) & 1) != ((efr >> 2) & 1):
                                     cancel_signal = True
+                                    cancel_tf_signal_mr = True
 
                     # --- Cancel ghost (bit 16) ---
                     # Ghost cross: zone invalidated and recovered during trajectory
@@ -366,9 +434,11 @@ def run_mean_reversion_numba(
 
                             if entry_was_bull and not traj_zone_bull:
                                 cancel_signal = True
+                                cancel_ghost_signal = True
                                 break
                             elif not entry_was_bull and traj_zone_bull:
                                 cancel_signal = True
+                                cancel_ghost_signal = True
                                 break
 
                 # =============================================
@@ -397,6 +467,48 @@ def run_mean_reversion_numba(
                     dd = peak_pnl - pnl
                     if dd > max_dd:
                         max_dd = dd
+
+                    # --- Path γ MR per-trade tracking (Sesión 2 Frame 2) ---
+                    # PRIMERA VEZ MR per-trade tracking infrastructure.
+                    # Solo si return_per_trade=True. Sentinel arrays (1,1) si flag=False
+                    # → bounds check pt_idx < shape[1] = 1 falla en 2do trade y se omite
+                    # silenciosamente (zero memory impact production callers).
+                    # 8 fields (NO pt_cluster per decisión H-ii Sesión 2) — granular
+                    # enum 8 valores priority: emergency > sl_hit > div > tf_exit >
+                    # zone_exit > cancel_zona > cancel_tf_mr > cancel_ghost (mutuamente
+                    # exclusivos por construcción kernel current logic).
+                    if return_per_trade:
+                        pt_idx = pt_count[c]
+                        if pt_idx < pt_entry_bar.shape[1]:
+                            pt_entry_bar[c, pt_idx] = entry_bar
+                            pt_exit_bar[c, pt_idx] = t
+                            pt_side[c, pt_idx] = 0 if position == 1 else 1
+                            pt_pnl[c, pt_idx] = trade_pnl
+                            if sl_exit_signal:
+                                if sl_emergency_signal:
+                                    pt_reason[c, pt_idx] = 1  # REASON_MR_SL_EMERGENCY
+                                else:
+                                    pt_reason[c, pt_idx] = 0  # REASON_MR_SL_HIT
+                            elif div_exit_signal:
+                                pt_reason[c, pt_idx] = 2  # REASON_MR_DIV_EXIT
+                            elif tf_exit_signal_mr:
+                                pt_reason[c, pt_idx] = 3  # REASON_MR_TF_EXIT
+                            elif zone_exit_signal_mr:
+                                pt_reason[c, pt_idx] = 4  # REASON_MR_ZONE_EXIT
+                            elif cancel_zona_signal:
+                                pt_reason[c, pt_idx] = 5  # REASON_MR_CANCEL_ZONA
+                            elif cancel_tf_signal_mr:
+                                pt_reason[c, pt_idx] = 6  # REASON_MR_CANCEL_TF
+                            else:  # cancel_ghost_signal (residual; cancel_signal sin specific flag)
+                                pt_reason[c, pt_idx] = 7  # REASON_MR_CANCEL_GHOST
+                            # entry_price siempre = close_p al abrir; exit_price = emerg_level
+                            # si sl_emergency intrabar O close_p otherwise. Granular enum
+                            # distingue sl_emergency vs sl_hit explícitamente; arrays
+                            # entry_price + exit_price preservan precio exacto para audit.
+                            pt_entry_price[c, pt_idx] = entry_price
+                            pt_exit_price[c, pt_idx] = exit_price
+                            pt_count[c] = pt_idx + 1
+                    # --- fin per-trade tracking ---
 
                     # Reset div_ctx for closed direction
                     if position == 1:
@@ -656,12 +768,24 @@ def run_on_slice(configs, data, start_bar, end_bar,
                  sl_pct=SL_PERCENT, sl_emergency_pct=SL_EMERGENCY_PERCENT,
                  ts_pct=TS_PERCENT, cooldown_bars=COOLDOWN_BARS,
                  commission_pct=COMMISSION_ROUND_TRIP,
-                 div_ind_mask=DEFAULT_DIV_IND_MASK, warmup=100):
+                 div_ind_mask=DEFAULT_DIV_IND_MASK, warmup=100,
+                 return_per_trade=False, max_trades_per_config=5000):
     """
     Ejecuta simulacion sobre un slice de datos precalculados.
 
     warmup: barras antes de start_bar para construir estado (div_ctx, etc.)
     sin abrir trades ni acumular stats.
+
+    Path γ MR (Sesión 2 Frame 2 — 2026-04-29):
+        return_per_trade: si True, retorna 2-tuple (results, per_trade_dict)
+            con 8 fields per trade (entry_bar, exit_bar, side, pnl, reason,
+            entry_price, exit_price, count). NO pt_cluster (decisión H-ii —
+            asimetría arquitectónica TF (9) ≠ MR (8)).
+        max_trades_per_config: bound superior arrays (default 5000 ≈ 1.6 KB
+            por config float64 × 8 fields). Audit single specialist típicamente
+            necesita ~100-200 trades. Bloque 2c granular cross-régimen requeriría
+            5000 según N_bars × N_configs.
+        Si False (default): backward compat 100% — retorna results array sin dict.
     """
     n_data = len(data['close'])
     actual_start = max(0, start_bar - warmup)
@@ -670,6 +794,54 @@ def run_on_slice(configs, data, start_bar, end_bar,
 
     ts_raw = data['timestamps'][s:e]
     ts_i64 = ts_raw.astype('datetime64[ms]').astype(np.int64)
+
+    if return_per_trade:
+        n_configs = len(configs)
+        pt_entry_bar = np.zeros((n_configs, max_trades_per_config), dtype=np.int32)
+        pt_exit_bar = np.zeros((n_configs, max_trades_per_config), dtype=np.int32)
+        pt_side = np.zeros((n_configs, max_trades_per_config), dtype=np.int8)
+        pt_pnl = np.zeros((n_configs, max_trades_per_config), dtype=np.float64)
+        pt_reason = np.zeros((n_configs, max_trades_per_config), dtype=np.int8)
+        pt_entry_price = np.zeros((n_configs, max_trades_per_config), dtype=np.float64)
+        pt_exit_price = np.zeros((n_configs, max_trades_per_config), dtype=np.float64)
+        pt_count = np.zeros(n_configs, dtype=np.int32)
+
+        results = run_mean_reversion_numba(
+            configs,
+            np.ascontiguousarray(data['close'][s:e]),
+            np.ascontiguousarray(data['high'][s:e]),
+            np.ascontiguousarray(data['low'][s:e]),
+            ts_i64,
+            np.ascontiguousarray(data['zone_bull_forming'][s:e]),
+            np.ascontiguousarray(data['zone_bear_forming'][s:e]),
+            np.ascontiguousarray(data['zone_bull_resolved'][s:e]),
+            np.ascontiguousarray(data['zone_bear_resolved'][s:e]),
+            np.ascontiguousarray(data['filters_forming'][s:e].astype(np.uint32)),
+            np.ascontiguousarray(data['filters_resolved'][s:e].astype(np.uint32)),
+            np.ascontiguousarray(data['fast_line'][s:e]),
+            np.ascontiguousarray(data['slow_line_forming'][s:e]),
+            np.ascontiguousarray(data['div_bits'][s:e]),
+            div_ind_mask,
+            sl_pct, sl_emergency_pct, ts_pct,
+            cooldown_bars, commission_pct,
+            accounting_start,
+            True,
+            pt_entry_bar, pt_exit_bar, pt_side, pt_pnl, pt_reason,
+            pt_entry_price, pt_exit_price, pt_count,
+        )
+
+        per_trade = {
+            "entry_bar": pt_entry_bar,
+            "exit_bar": pt_exit_bar,
+            "side": pt_side,
+            "pnl": pt_pnl,
+            "reason": pt_reason,
+            "entry_price": pt_entry_price,
+            "exit_price": pt_exit_price,
+            "count": pt_count,
+            "max_trades_per_config": max_trades_per_config,
+        }
+        return results, per_trade
 
     return run_mean_reversion_numba(
         configs,

@@ -1,11 +1,11 @@
 # Sistema de Trading Algorítmico — Contexto Completo del Proyecto
 
-**Última actualización:** 28 Abril 2026 SESIÓN 1 FRAME 2 ANÁLISIS ARQUITECTÓNICO COMPLETO — **regime_walk_forward.py mapeo exhaustivo + decisión Ricardo (C) descartar R2 k-fold CV (H2 mal-formulada vs realidad episode-based per cluster chronological + cross-9 ONDO 0/3 R2-eligible orphan) + R6_γ defer post-reciclaje (state evolution divergence Path β3 fail empírica validó) + spec R3 Path γ kernel granular TF (6 valores) + MR (8 valores) ASIMÉTRICO refinada Sesión 2 + 5+ sub-decisiones técnicas (m+n+o+p+P1+q) + 6 operacionales (r+s+t+u+v) + 3 escenarios Sesión 4 Gates evaluation (PASS+PASS+PASS ~30-40% reciclaje confidence / PASS+PASS+FAIL_C ~40-50% reciclaje honesto + decisión strategic capital scale-up vs Frame 3 / FAIL_A ~15-25% Frame 3 redesign mandatory)**.
+**Última actualización:** 29 Abril 2026 SESIÓN 2 FRAME 2 R3 PATH γ KERNEL GRANULAR DONE — **TF (6 valores) + MR (8 valores) ASIMÉTRICO ambos kernels implementados bajo 2 sub-fases 2A TF + 2B MR §12 L25 segmentación. Path γ SUSTITUYE Path α + Path α' supplement Sesión 1B (decisión arquitectónica P1). Per-trade tracking PRIMERA VEZ MR replicate Path α' pattern. Asimetría arquitectónica honesta TF (9 fields per-trade) ≠ MR (8 fields sin pt_cluster) refleja MR kernel intrínsecamente sin cluster accounting (decisión H-ii). audit_mr_fidelity_sei.py hash check agregado per decisión D-i (disciplina operacional consistente cross-auditors). Backward compat 100% production. EXPECTED_LAB_KERNEL_HASH TF `02f9c480...` → `89f00b7e2291...` + MR new `371551bdebe3...`. Tests greenfield 14/14 PASS (7 TF + 7 MR). Smokes §0.8 cross-cuatro símbolos PASS + verify_test cross-3-símbolos diff 0.0000 invariante baseline 2026-04-26. §12 L38 12ª aplicación recursiva validated cross-Sub-fases 2A+2B (cooldown Pine canonical 4-rama preserved). §12 L36 19ª aplicación calibrada (predicción 1-2/8 mismatches acertada). Habilita Sesión 2.5 R1 DSR rigurosa per-trade returns + Sesión 3 R4 Bloque 2c granular cross-strategy + R5 Reduced parameter space + ensemble combinados. Bot v2.4.5 invariante uptime ~5d 22h+**.
 
 **Frame 2 reformulado calendar reciclaje launch ~2026-05-03 invariante**:
-1. **Sesión 1 Frame 2** (HOY 2026-04-28): análisis arquitectónico completo + decisiones Ricardo (C)+R6_γ DONE.
-2. **Sesión 2 Frame 2** (~2026-04-29): R3 Path γ TF+MR ambos kernels (~5-6h CC, 2 sub-fases 2A TF + 2B MR §12 L25 segmentación).
-3. **Sesión 2.5 Frame 2** (~2026-04-29 tarde o 30): R1 DSR rigurosa con per-trade returns post-Path γ (~1-2h CC).
+1. **Sesión 1 Frame 2** (2026-04-28): análisis arquitectónico completo + decisiones Ricardo (C)+R6_γ ✅ DONE.
+2. **Sesión 2 Frame 2** (HOY 2026-04-29): R3 Path γ TF+MR ambos kernels (~5-6h CC) ✅ DONE — 14 tests PASS + Smokes §0.8 cross-cuatro PASS + verify_test cross-3-símbolos diff 0.0000.
+3. **Sesión 2.5 Frame 2** (~2026-04-29 tarde o 30): R1 DSR rigurosa con per-trade returns post-Path γ (~1-2h CC) — PRÓXIMA.
 4. **Sesión 3 Frame 2** (~2026-04-30 a 05-01): R4 Bloque 2c granular cross-strategy + R5 Reduced parameter space + ensemble combinados (~4-6h CC + compute background).
 5. **Sesión 4 Frame 2** (~2026-05-01 a 02): Gates A+B+C cross-9/cross-15 + decisión Ricardo strategic post-Escenario 1/2/3.
 6. **Sesión 5 Frame 2** (~2026-05-03): Reciclaje launch + 15 días background.
@@ -1313,6 +1313,22 @@ Sesión 1 análisis arquitectónico exhaustivo cross-§12 L38 disciplinada revel
 **Frame 2 alcance honesto explícito**: refinements pre-reciclaje (R1+R3+R4+R5) **NO mejoran edge real disponible mercado** — atacan sobrestimación métricas walk-forward para selección honesta configs reciclaje. 3 escenarios Sesión 4 Gates evaluation 3-way documentados (PASS+PASS+PASS ~30-40% / PASS+PASS+FAIL_C ~40-50% reciclaje honesto + decisión Ricardo strategic capital scale-up vs Frame 3 / FAIL_A ~15-25% Frame 3 redesign mandatory). Ver §13.4 entrada Sesión 1 análisis arquitectónico 2026-04-28 sesión noche-2.
 
 **Disciplina §12 L34 aplicada al roadmap Frame 2 propio**: hipótesis emergentes refutadas vía análisis arquitectónico Parte 1+2+3 → roadmap reformulado disciplinadamente. NO regresión Frame 1 implícito — disciplina aspirar-a-lo-mejor literal aplicada incluso al propio plan cuando emerge evidencia.
+
+**[IMPLEMENTACIÓN Sesión 2 Frame 2 — Path γ TF+MR ambos kernels DONE 2026-04-29]**
+
+Sesión 2 Frame 2 R3 Path γ kernel granular standalone implementado 2026-04-29 — 2 sub-fases 2A TF + 2B MR §12 L25 segmentación + Sub-decisiones Ricardo H-ii (asimetría arquitectónica honesta) + D-i (audit_mr hash agregado).
+
+Path γ enum granular asimétrico TF (6) + MR (8) sustituye Path α reduced + Path α' supplement Sesión 1B (NO amend per decisión P1).
+
+Per-trade tracking PRIMERA VEZ MR replicate Path α' supplement pattern (sentinel arrays + flag-driven dispatch + per-trade arrays 8 fields sin pt_cluster).
+
+Backward compat 100% production callers preserved (flag=False default). verify_test cross-3-símbolos diff 0.0000 invariante. Smokes A+B+C cross-cuatro símbolos IDÉNTICO baselines Sesión 1B amendment.
+
+§12 L38 12ª aplicación recursiva validated empíricamente cross-Sub-fases 2A+2B: cooldown Pine canonical 4-rama PRESERVED ambos kernels (refinement Claude Code disciplinada detectó ambigüedad spec sub-decisión v + corrección preserva semantics baseline).
+
+Habilita R1 DSR rigurosa Sesión 2.5 (per-trade returns rigurosos disponibles entry_price/exit_price arrays Path γ TF+MR ambos) + R4 Bloque 2c granular cross-strategy decomposition Sesión 3 (per-trade arrays granular TF 6 + MR 8 valores cross-strategy comparison).
+
+Ver §13.4 entrada Sesión 2 Frame 2 R3 Path γ 2026-04-29.
 
 **[REFINAMIENTO CRÍTICO 2026-04-24 post-smoke reciclaje + conversación Ricardo]**
 
@@ -3109,7 +3125,14 @@ Referencias:
 
 ---
 
-**[INFRA] [REFORMULADO FRAME 2 2026-04-28 sesión noche-2 — Sesión 2 R3 Path γ kernel granular TF (6 valores) + MR (8 valores) ASIMÉTRICO ambos kernels pre-reciclaje + Sesión 3 R4 Bloque 2c granular cross-strategy + R5 Reduced parameter space + ensemble combinados] Tier 0 I1 kernel reason_exit tracing + Bloque 2c H1 + H_funding + H_strategy full cross-régimen — 2026-04-23**
+**[INFRA] [IMPLEMENTED 2026-04-29 — Sesión 2 Frame 2 R3 Path γ kernel granular TF+MR ambos done] Tier 0 I1 kernel reason_exit tracing + Bloque 2c H1 + H_funding + H_strategy full cross-régimen — 2026-04-23**
+
+**Update IMPLEMENTED 2026-04-29 (Sesión 2 Frame 2 R3 Path γ done)**: Path γ kernel granular ASIMÉTRICO TF (6 valores) + MR (8 valores) implementado ambos kernels bajo 2 sub-fases 2A TF + 2B MR §12 L25 segmentación. Path γ SUSTITUYE Path α + Path α' supplement Sesión 1B (decisión P1). Per-trade tracking PRIMERA VEZ MR + asimetría arquitectónica honesta TF (9 fields per-trade) ≠ MR (8 fields sin pt_cluster, decisión H-ii). Tests 14/14 PASS + Smokes §0.8 cross-cuatro símbolos PASS + verify_test cross-3-símbolos diff 0.0000 + audit hash parity ambos auditors NO WARN + audit_mr_fidelity_sei.py hash check agregado (D-i). Habilita Sesión 2.5 R1 DSR rigurosa per-trade returns + Sesión 3 R4 Bloque 2c granular cross-strategy decomposition. Bloque 2c H1+H_funding+H_strategy full cross-régimen sigue diferido proyecto dedicado post-reciclaje (Pine v44 manual re-run validation Ricardo). Ver §13.4 entrada Sesión 2 Frame 2 R3 Path γ 2026-04-29.
+
+(Bloque histórico original preservado abajo para trazabilidad)
+---
+
+**[INFRA HISTÓRICO REFORMULADO FRAME 2 2026-04-28 sesión noche-2 — Sesión 2 R3 Path γ kernel granular TF (6 valores) + MR (8 valores) ASIMÉTRICO ambos kernels pre-reciclaje + Sesión 3 R4 Bloque 2c granular cross-strategy + R5 Reduced parameter space + ensemble combinados] Tier 0 I1 kernel reason_exit tracing + Bloque 2c H1 + H_funding + H_strategy full cross-régimen — 2026-04-23**
 
 **Update Frame 2 reformulado 2026-04-28 sesión noche-2 (Sesión 1 análisis arquitectónico Parte 3.1)**: spec Sesión 0 enum 8 valores TF + 6 valores MR REVISADO empíricamente cross-código real `lab_historico_numba_v8_3.py:1500-1715` (TF) + `mean_reversion_kernel.py:213-419` (MR). **Asimetría enum TF (6) ≠ MR (8) confirmed**: spec original invertida — `regime_change` (brain-side) + `cancel_mr` (no aplica TF) spurious paths. Real TF 6 valores (sl_hit, sl_emergency, div_exit, tf_exit, zone_exit, cancel_tf) + MR 8 valores (sl_hit, sl_emergency, div_exit, tf_exit, zone_exit_mr, cancel_zona, cancel_tf, cancel_ghost). MR kernel UNCHANGED Sesión 1B → Path γ Sesión 2 introduce per-trade tracking PRIMERA VEZ MR (~3-4h CC) replicando Path α' supplement pattern. TF scope ~1.5-2h CC. **TOTAL ~5-6h CC ambos kernels Sesión 2**. Path γ SUSTITUYE Path α + Path α' supplement Sesión 1B (NO amend) — decisión arquitectónica honesta P1 confirmed Ricardo (Path α reduced enum subóptima validada empíricamente Path β3 fail). **Frame 2 Sesión 3 R4 Bloque 2c granular cross-strategy + R5 Reduced parameter space + ensemble combinados** ejecutable pre-reciclaje con kernel Path γ. Ver §13.4 entrada Sesión 1 análisis arquitectónico 2026-04-28 sesión noche-2.
 
@@ -3262,6 +3285,79 @@ Referencias:
 ---
 
 ### 13.4 RESUELTO
+
+**[IMPLEMENTACIÓN] [PRE-RECICLAJE FRAME 2 SESIÓN 2] R3 Path γ kernel granular TF (6) + MR (8) ASIMÉTRICO ambos kernels DONE — 2026-04-29 sesión**
+
+**Contexto**: Sesión 2 Frame 2 R3 Path γ kernel granular standalone (~5-6h CC, 2 sub-fases 2A TF + 2B MR §12 L25 segmentación) post-Sesión 1 análisis arquitectónico + decisiones Ricardo (C)+R6_γ+P1+(D-i)+(H-ii).
+
+**Implementación Sub-fase 2A TF Path γ** (~1.5-2h CC):
+- Module constants `lab_historico_numba_v8_3.py:1272-1285`: Path α reduced 4 valores → Path γ granular 6 valores (`REASON_TF_SL_HIT/SL_EMERGENCY/DIV_EXIT/TF_EXIT/ZONE_EXIT/CANCEL_TF`).
+- Trade closure `:1562-1585`: split `normal_exit_signal` en `tf_exit_signal` (2 sites TF filter reverse) + `zone_exit_signal` (2 sites zone reverse).
+- Trade closure decision `:1675-1697`: 4-branch → 6-branch (sl_hit/sl_emergency split + tf_exit/zone_exit split).
+- Per-trade arrays Path α' supplement preservadas (9 fields invariantes con `pt_cluster`).
+- `EXPECTED_LAB_KERNEL_HASH` TF regenerated `02f9c480...d36b71` → `89f00b7e2291...6a07a3` (audit_fidelity_v5.py:128 + audit_fidelity_v5_2.py:123).
+- Tests greenfield 7 tests TF PASS (`tests/test_path_gamma_tf.py`).
+- Smokes A+B BTC+ONDO+APT IDÉNTICO baseline Sesión 1B amendment.
+- Audit hash parity TF audit_v5 + audit_v5_2 NO WARN.
+- verify_test BTC ground truth PASS post-Sub-fase 2A intermedio (11/11 trades, 5 métricas diff 0.0000 EXACTO).
+
+**Implementación Sub-fase 2B MR Path γ** (~3-4h CC):
+- Module constants `mean_reversion_kernel.py`: Path γ granular 8 valores asimétrico vs TF (6) + 4 sentinel arrays MR (`_PT_SENTINEL_INT32_MR/INT8_MR/FLOAT64_MR/COUNT_MR`).
+- Per-trade tracking PRIMERA VEZ MR replicate Path α' supplement pattern (sentinel arrays + flag-driven dispatch + per-trade arrays 8 fields).
+- State flags MR split: `cancel_signal` en `cancel_zona_signal` + `cancel_tf_signal_mr` + `cancel_ghost_signal` + ADD `tf_exit_signal_mr` + `zone_exit_signal_mr` (general `exit_signal` + `cancel_signal` PRESERVED para cooldown invariante).
+- `run_mean_reversion_numba` signature extension: 9 nuevos kwargs (NO `pt_cluster` per decisión H-ii — asimetría arquitectónica honesta).
+- Trade closure 8-branch decision block priority emergency > sl_hit > div > tf_exit > zone_exit > cancel_zona > cancel_tf_mr > cancel_ghost.
+- `run_on_slice` extension: `+return_per_trade` + `max_trades_per_config` kwargs + dispatch 2-tuple (aggregates + per_trade dict) flag-driven.
+- `EXPECTED_LAB_KERNEL_HASH_MR` NEW `371551bdebe328ff...675414a`.
+- `audit_mr_fidelity_sei.py` hash check agregado per decisión D-i (~10 min CC) — patrón análogo audit_fidelity_v5.py (`_verify_mr_kernel_hash()` + `EXPECTED_LAB_KERNEL_HASH_MR` constant). Complementario al runtime parity check (no redundante).
+- Tests greenfield 7 tests MR PASS (`tests/test_path_gamma_mr.py`).
+- Smoke C SEI MR diff **0.0000 EXACTO en 7 métricas** (PnL, Trades, Wins, Cancels, MaxDD, GrossProfit, GrossLoss) — IDÉNTICO baseline Sesión 1B (MR kernel UNCHANGED Sesión 1B; Path γ flag=False default backward compat preserved).
+- Audit hash parity MR audit_mr_sei NO WARN.
+- verify_test cross-3-símbolos final post-Sub-fase 2B: BTC 11/11 + ONDO 425/423 baseline preserved + SEI 66/66 diff 0.0000.
+
+**Path γ SUSTITUYE Path α + Path α' supplement Sesión 1B (NO amend per decisión P1)**. Commits `9282e79` (Sesión 1B Path α) + `f8205fa` (Sesión 1B amendment Path α') preserved git history trazabilidad pero overwritten en branch main por Sesión 2 R3 Path γ.
+
+**§12 L38 12ª aplicación recursiva validated empíricamente cross-Sub-fases 2A+2B**: refinement cooldown Pine canonical 4-rama PRESERVED ambos kernels. Análisis pre-edit Sub-fase 2A reveló ambigüedad spec sub-decisión v ("invariante" vs literal listado tf_exit/zone_exit en cooldown OR condition). Read código real `lab_historico_numba_v8_3.py:1391+1712+1725` reveló que añadir `tf_exit_signal/zone_exit_signal` al cooldown OR cambiaría behavior baseline (cooldown_until=t bloquearía same-bar re-entry post-tf_exit/zone_exit que current code permite via `normal_exit_signal` sin cooldown). Comment kernel referencia "Las 4 ramas (emergency/sl/div/cancel)" Pine canonical cooldown_unify 2026-04-22. Refinement aplicado: cooldown OR condition UNCHANGED ambos kernels. Empirical validation: Smoke A BTC + Smoke C SEI MR + verify_test cross-3-símbolos diff 0.0000 EXACTO confirma refinement arquitectónicamente correcto + Pine canonical preserved.
+
+**Asimetría arquitectónica honesta TF ≠ MR documented**:
+
+| Aspecto | TF | MR | Refleja |
+|---------|----|----|---------|
+| Enum granular | 6 valores (sl_hit, sl_emergency, div_exit, tf_exit, zone_exit, cancel_tf) | 8 valores (sl_hit, sl_emergency, div_exit, tf_exit, zone_exit_mr, cancel_zona, cancel_tf, cancel_ghost) | Cancel paths reality kernel current code: TF 1 cancel + tf/zone splits vs MR 3 cancel separate (zona/tf/ghost) + tf/zone splits |
+| Per-trade arrays | 9 fields (incl `pt_cluster`) | 8 fields (sin `pt_cluster`) | MR kernel intrínsecamente sin cluster accounting (`run_mean_reversion_numba` signature L655 NO `cluster_labels`/`n_clusters` parameters). MR opera cross-pair-NOT-cluster-conditional. Forzar pt_cluster placeholder o extender kernel signature es simetría artificial sin justificación metodológica |
+
+Decisión Ricardo H-ii (Sesión 2 Parte 0 mismatch): asimetría arrays refleja realidad kernel arquitectónica honesta. R4 Bloque 2c MR decomposition Sesión 3 NO requires pt_cluster (H_strategy MR es per-pair, per-direction, per-funding-rate-bucket, NOT per-cluster).
+
+**§12 L36 19ª aplicación retrospectiva calibrated**:
+- Predicción Sesión 1 Parte 0 "1-2/8 mismatches most likely 45-55%" → real 2/8 (D `audit_mr_fidelity_sei.py` hash check + H `run_on_slice` MR signature divergent) ✓ acertada magnitud + tipo.
+- Sub-fase 2A success first intento + Sub-fase 2B success first intento exceeded probabilidad estimación (60-70% combined) — Claude Code disciplina §12 L38 transferida pattern eficaz cross-sub-fases.
+- Cross-19-aplicaciones consolidada (~58-100h ahorro acumulado paths infeasibles ciegamente).
+
+**Items §13.3 actualizados**:
+- L3051 Tier 0 I1 → IMPLEMENTED Sesión 2 Path γ TF (6) + MR (8) ambos.
+
+**Habilita**:
+- Sesión 2.5 Frame 2 R1 DSR rigurosa con per-trade returns derivable post-Path γ (`entry_price` + `exit_price` arrays granular ambos kernels TF + MR).
+- Sesión 3 Frame 2 R4 Bloque 2c granular cross-strategy decomposition (per-trade arrays granular TF 6 + MR 8 valores cross-strategy comparison).
+
+**Estado pre-reciclaje FRAME 2 invariante**: bot v2.4.5 operacional VPS Tokio uptime ~5d 22h+. Sin tocar `live/*` productivo (kernel modify lab-only). Fidelidad 2 invariante por construcción (Smokes A+B+C cross-cuatro símbolos + verify_test cross-3-símbolos + audit hash parity ambos auditors confirmed pre-merge).
+
+**Próxima Sesión 2.5 Frame 2 R1 DSR rigurosa post-Path γ** (~1-2h CC) cuando Ricardo confirme disponibilidad ~2026-04-29 tarde o 30.
+
+**Referencias**:
+- `lab_historico_numba_v8_3.py:1272-1285` (constants Path γ TF), `:1511-1518` (state flags), `:1572-1585` (split sites), `:1675-1697` (per-trade decision block).
+- `mean_reversion_kernel.py` (constants Path γ MR + sentinels), state flags MR split, run_mean_reversion_numba signature +9 kwargs, run_on_slice extension.
+- `audit_fidelity_v5.py:128` + `audit_fidelity_v5_2.py:123` (TF hash regen).
+- `audit_mr_fidelity_sei.py` (hash check agregado D-i + EXPECTED_LAB_KERNEL_HASH_MR).
+- `tests/test_path_gamma_tf.py` (7 tests) + `tests/test_path_gamma_mr.py` (7 tests).
+- §13.4 entrada Sesión 1B Path α 2026-04-28 (commit `9282e79`, sustituida).
+- §13.4 entrada Sesión 1B amendment 2026-04-28 (commit `f8205fa`, sustituida).
+- §13.4 entrada Sesión 1 análisis arquitectónico 2026-04-28 (commit `db3edc8`, predecesor metodológico).
+- §12 L25 + L36 + L37 + L38 (cross-sesiones consolidadas).
+
+**Cierre Sesión 2 Frame 2 R3 Path γ**: permanente. Kernel granular ambos TF+MR ready Sesión 2.5 R1 DSR rigurosa + Sesión 3 R4 Bloque 2c granular cross-strategy.
+
+---
 
 **[ANÁLISIS ARQUITECTÓNICO INSTITUCIONAL] [PRE-RECICLAJE FRAME 2 SESIÓN 1] regime_walk_forward.py mapeo exhaustivo + spec R3 Path γ refinada TF+MR asimétrico + 3 escenarios Sesión 4 Gates + reformulación honesta Frame 2 — 2026-04-28 sesión noche-2**
 
