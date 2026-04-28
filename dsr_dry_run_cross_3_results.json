@@ -1,0 +1,206 @@
+{
+  "summary": {
+    "n_clusters_evaluated": 9,
+    "total_top_1_changes_dsr_vs_m2": 1,
+    "total_top_1_changes_dsr_vs_w3b": 6,
+    "total_top_1_changes_m2_vs_w3b": 6,
+    "pct_changes_dsr_vs_m2": 0.1111111111111111,
+    "mean_flagged_dsr_pct_cross_clusters": 0.8888888888888888,
+    "timestamp": "2026-04-28T14:44:18.096885",
+    "methodology": {
+      "approach": "synthetic_returns_from_json_aggregates",
+      "precedent": "Multi-testing Caso B archive 2026-04-26",
+      "top_n_per_cluster": 100,
+      "n_configs_tested_upstream_conservative": 1000000,
+      "caveat": "synthetic uniform avg_win/avg_loss \u2192 skew/kurt simplistas; rigorous per-trade returns kernel re-run deferred to reciclaje real"
+    }
+  },
+  "per_cluster": {
+    "BTC": {
+      "cluster_0": {
+        "comparison": {
+          "w3b_top_1": 36909877,
+          "m2_top_1": 36909877,
+          "dsr_top_1": 36909877,
+          "m2_changed_vs_w3b": false,
+          "dsr_changed_vs_m2": false,
+          "dsr_changed_vs_w3b": false
+        },
+        "stats": {
+          "n_total": 100,
+          "n_dsr_valid": 100,
+          "flagged_dsr_count": 100,
+          "flagged_dsr_pct": 1.0,
+          "dsr_zscore_mean": 0.9640583658985746,
+          "dsr_zscore_std": 0.2469630284220459,
+          "dsr_zscore_median": 1.022927442716563,
+          "dsr_pvalue_median": 0.15317107660269846
+        }
+      },
+      "cluster_1": {
+        "comparison": {
+          "w3b_top_1": 3758688,
+          "m2_top_1": 3758688,
+          "dsr_top_1": 3758688,
+          "m2_changed_vs_w3b": false,
+          "dsr_changed_vs_m2": false,
+          "dsr_changed_vs_w3b": false
+        },
+        "stats": {
+          "n_total": 100,
+          "n_dsr_valid": 100,
+          "flagged_dsr_count": 100,
+          "flagged_dsr_pct": 1.0,
+          "dsr_zscore_mean": -0.17737689832746584,
+          "dsr_zscore_std": 0.3001600432606839,
+          "dsr_zscore_median": -0.2370148004669199,
+          "dsr_pvalue_median": 0.5936772234250018
+        }
+      },
+      "cluster_2": {
+        "comparison": {
+          "w3b_top_1": 33831248,
+          "m2_top_1": 33831248,
+          "dsr_top_1": 33831248,
+          "m2_changed_vs_w3b": false,
+          "dsr_changed_vs_m2": false,
+          "dsr_changed_vs_w3b": false
+        },
+        "stats": {
+          "n_total": 100,
+          "n_dsr_valid": 100,
+          "flagged_dsr_count": 0,
+          "flagged_dsr_pct": 0.0,
+          "dsr_zscore_mean": 2.277731112916164,
+          "dsr_zscore_std": 0.23869509928655455,
+          "dsr_zscore_median": 2.3100063649969163,
+          "dsr_pvalue_median": 0.010443900870156786
+        }
+      }
+    },
+    "ONDO": {
+      "cluster_0": {
+        "comparison": {
+          "w3b_top_1": 33586655,
+          "m2_top_1": 34635228,
+          "dsr_top_1": 34635228,
+          "m2_changed_vs_w3b": true,
+          "dsr_changed_vs_m2": false,
+          "dsr_changed_vs_w3b": true
+        },
+        "stats": {
+          "n_total": 100,
+          "n_dsr_valid": 100,
+          "flagged_dsr_count": 100,
+          "flagged_dsr_pct": 1.0,
+          "dsr_zscore_mean": -1.8838677066315923,
+          "dsr_zscore_std": 0.454683034705398,
+          "dsr_zscore_median": -1.7194284536514095,
+          "dsr_pvalue_median": 0.9572307691276027
+        }
+      },
+      "cluster_1": {
+        "comparison": {
+          "w3b_top_1": 45808897,
+          "m2_top_1": 12360961,
+          "dsr_top_1": 12360961,
+          "m2_changed_vs_w3b": true,
+          "dsr_changed_vs_m2": false,
+          "dsr_changed_vs_w3b": true
+        },
+        "stats": {
+          "n_total": 100,
+          "n_dsr_valid": 100,
+          "flagged_dsr_count": 100,
+          "flagged_dsr_pct": 1.0,
+          "dsr_zscore_mean": -2.2630582462297237,
+          "dsr_zscore_std": 0.2506604241707672,
+          "dsr_zscore_median": -2.4066282216353385,
+          "dsr_pvalue_median": 0.9919497245079084
+        }
+      },
+      "cluster_2": {
+        "comparison": {
+          "w3b_top_1": 37370941,
+          "m2_top_1": 48380978,
+          "dsr_top_1": 48380978,
+          "m2_changed_vs_w3b": true,
+          "dsr_changed_vs_m2": false,
+          "dsr_changed_vs_w3b": true
+        },
+        "stats": {
+          "n_total": 100,
+          "n_dsr_valid": 100,
+          "flagged_dsr_count": 100,
+          "flagged_dsr_pct": 1.0,
+          "dsr_zscore_mean": -0.28513088721527186,
+          "dsr_zscore_std": 0.2934690657761031,
+          "dsr_zscore_median": -0.17394367086839085,
+          "dsr_pvalue_median": 0.5690451343243635
+        }
+      }
+    },
+    "SEI": {
+      "cluster_0": {
+        "comparison": {
+          "w3b_top_1": 35798509,
+          "m2_top_1": 57375298,
+          "dsr_top_1": 57375331,
+          "m2_changed_vs_w3b": true,
+          "dsr_changed_vs_m2": true,
+          "dsr_changed_vs_w3b": true
+        },
+        "stats": {
+          "n_total": 100,
+          "n_dsr_valid": 100,
+          "flagged_dsr_count": 100,
+          "flagged_dsr_pct": 1.0,
+          "dsr_zscore_mean": -1.3921822924010616,
+          "dsr_zscore_std": 0.2023012178714027,
+          "dsr_zscore_median": -1.418616704599009,
+          "dsr_pvalue_median": 0.9219945018727758
+        }
+      },
+      "cluster_1": {
+        "comparison": {
+          "w3b_top_1": 34192576,
+          "m2_top_1": 1612992,
+          "dsr_top_1": 1612992,
+          "m2_changed_vs_w3b": true,
+          "dsr_changed_vs_m2": false,
+          "dsr_changed_vs_w3b": true
+        },
+        "stats": {
+          "n_total": 100,
+          "n_dsr_valid": 100,
+          "flagged_dsr_count": 100,
+          "flagged_dsr_pct": 1.0,
+          "dsr_zscore_mean": -0.8285073520448895,
+          "dsr_zscore_std": 0.6941097793469623,
+          "dsr_zscore_median": -0.6246605821508346,
+          "dsr_pvalue_median": 0.7338907896186428
+        }
+      },
+      "cluster_2": {
+        "comparison": {
+          "w3b_top_1": 1356293,
+          "m2_top_1": 815625,
+          "dsr_top_1": 815625,
+          "m2_changed_vs_w3b": true,
+          "dsr_changed_vs_m2": false,
+          "dsr_changed_vs_w3b": true
+        },
+        "stats": {
+          "n_total": 100,
+          "n_dsr_valid": 100,
+          "flagged_dsr_count": 100,
+          "flagged_dsr_pct": 1.0,
+          "dsr_zscore_mean": -1.3492117684494453,
+          "dsr_zscore_std": 0.36236958082611775,
+          "dsr_zscore_median": -1.412037175527364,
+          "dsr_pvalue_median": 0.9210295253982639
+        }
+      }
+    }
+  }
+}

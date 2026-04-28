@@ -35,6 +35,9 @@ if sys.stdout.encoding and sys.stdout.encoding.lower().startswith('cp'):
 
 from regime_features import compute_regime_features
 
+# R1 DSR rigurosa Sesión 2.5 Frame 2 (López de Prado 2014 — selection bias correction)
+from scipy.stats import skew, kurtosis, norm
+
 # ============================================
 # CUDA ACCELERATION (optional)
 # ============================================
@@ -686,6 +689,10 @@ def process_symbol(symbol, presets, df, model_data, args):
         'toxic_tail': toxic_tail,
         'toxic_tail_mode': toxic_tail_mode,
         'confirm_threshold': getattr(args, 'confirm_threshold', 0.75),
+        # R1 DSR Sesión 2.5 Frame 2: regime_labels + n_doubled needed for
+        # kernel re-run survivors (cluster filter post-hoc cluster_id k vs k+K).
+        'regime_labels': regime_labels,
+        'n_doubled': n_doubled,
     }
 
 
@@ -1022,6 +1029,21 @@ _FWD_REQUIRE_NOT_SOSPECHOSO = True
 _FWD_MIN_CI_LOW = 0.0             # hook, default off (NOT_SOSPECHOSO already covers ci_low>=1.0)
 _FWD_MAX_CI_WIDTH = float('inf')  # hook, default off (NOT_SOSPECHOSO already covers ci_w<=5.0)
 
+# ============================================
+# R1 DSR — Deflated Sharpe Ratio rigurosa López de Prado (2014)
+# Sesión 2.5 Frame 2 — 2026-04-29.
+# Pattern Multi-testing Caso B archive (commit ca911be) backward compat default OFF.
+# Path γ Sesión 2 enabled per-trade returns rigurosos via pt_pnl arrays.
+# ============================================
+_R1_DSR_METHOD = 'none'               # Options: 'none' (default = backward compat M2 fix)
+                                       #          'rigorous' (López de Prado 2014 formula)
+_DSR_GAMMA_EULER = 0.5772156649        # Euler-Mascheroni constant
+_DSR_FLAG_PVALUE_THRESHOLD = 0.05      # flag flagged_dsr if p-value >= threshold
+_R1_DSR_REQUIRE_NOT_FLAGGED = False    # default OFF backward compat (pattern Caso B)
+                                       # if True: filter df['flagged_dsr']==False post-DSR
+_R1_DSR_TOP_N_SURVIVORS = 200          # top-N per cluster for kernel re-run (Opción γ)
+_R1_DSR_MAX_TRADES_PER_CONFIG = 5000   # max trades cap per config in per-trade arrays
+
 
 def _bootstrap_pf_fwd_vectorized(trades_fwd, wins_fwd, gp_fwd, gl_fwd,
                                   n_resamples=_BOOTSTRAP_N_RESAMPLES,
@@ -1144,9 +1166,11 @@ def _bootstrap_pf_fwd_vectorized(trades_fwd, wins_fwd, gp_fwd, gl_fwd,
 def _apply_w4_fwd_ci_filters(df,
                               require_not_sospechoso=None,
                               min_ci_low=None,
-                              max_ci_width=None):
+                              max_ci_width=None,
+                              require_not_flagged_dsr=None):
     """Apply W4 CI-based filters to a DataFrame already augmented with W3
-    bootstrap columns (pf_fwd_ci_low, ci_width, flag_sospechoso_outlier).
+    bootstrap columns (pf_fwd_ci_low, ci_width, flag_sospechoso_outlier)
+    + optionally R1 DSR columns (dsr_zscore, dsr_pvalue, flagged_dsr).
 
     The trades/pf base filters (_FWD_MIN_TRADES, _FWD_MIN_PF) are applied
     upstream during the parquet scan in extract_validated_specialists
@@ -1157,6 +1181,7 @@ def _apply_w4_fwd_ci_filters(df,
       - flag_sospechoso_outlier == False (default ON — dominant filter).
       - pf_fwd_ci_low >= _FWD_MIN_CI_LOW (default 0.0, hook).
       - ci_width <= _FWD_MAX_CI_WIDTH (default inf, hook).
+      - flagged_dsr == False (R1 DSR rigurosa, default OFF backward compat).
 
     Returns a filtered copy. Caller decides policy on len(out)==0
     (typically log WARNING + skip cluster).
@@ -1167,6 +1192,8 @@ def _apply_w4_fwd_ci_filters(df,
         min_ci_low = _FWD_MIN_CI_LOW
     if max_ci_width is None:
         max_ci_width = _FWD_MAX_CI_WIDTH
+    if require_not_flagged_dsr is None:
+        require_not_flagged_dsr = _R1_DSR_REQUIRE_NOT_FLAGGED
 
     if len(df) == 0:
         return df
@@ -1178,6 +1205,9 @@ def _apply_w4_fwd_ci_filters(df,
         mask = mask & (df['pf_fwd_ci_low'] >= min_ci_low)
     if np.isfinite(max_ci_width) and 'ci_width' in df.columns:
         mask = mask & (df['ci_width'] <= max_ci_width)
+    # R1 DSR filter (Sesión 2.5): default OFF backward compat
+    if require_not_flagged_dsr and 'flagged_dsr' in df.columns:
+        mask = mask & (df['flagged_dsr'] == False)
 
     return df.loc[mask].copy()
 
@@ -1256,6 +1286,400 @@ def _apply_bootstrap_pf_fwd(df):
         (boot['ci_width'] > _FLAG_CI_WIDTH_THRESHOLD)
     )
     return df
+
+
+# ============================================
+# R1 DSR — Deflated Sharpe Ratio rigurosa Sesión 2.5 Frame 2 (2026-04-29)
+# López de Prado (2014) "The Deflated Sharpe Ratio" formula.
+# Path γ Sesión 2 enabled per-trade returns rigurosos via pt_pnl arrays.
+# Backward compat: _R1_DSR_METHOD='none' default → all functions inactive.
+# ============================================
+
+def _compute_per_trade_returns_simplified(pt_pnl, pt_count):
+    """Derive per-trade returns directly from pt_pnl array (Path γ).
+
+    pt_pnl ya commission-adjusted % units (kernel TF L1626 + MR L383).
+    DSR es scale-invariant (SR = mean/std) → returns = pt_pnl directo.
+    Decisión Ricardo (A) Sesión 2.5 Parte 0: skip entry/exit derivation.
+
+    Args:
+        pt_pnl: array shape (n_configs, max_trades) per-trade PnL %.
+        pt_count: array shape (n_configs,) actual trade count per config.
+
+    Returns:
+        returns_per_idx: dict {config_idx_local: returns_array_trimmed}
+            Excludes configs con n_trades < 2 (insufficient for SR).
+    """
+    n_configs = pt_count.shape[0]
+    returns_dict = {}
+    for c in range(n_configs):
+        n_trades = int(pt_count[c])
+        if n_trades >= 2:
+            returns_dict[c] = pt_pnl[c, :n_trades].copy()
+    return returns_dict
+
+
+def _compute_dsr_zscore_rigorous(returns_array, n_configs_tested):
+    """Deflated Sharpe Ratio Z-score rigurosa López de Prado (2014).
+
+    Formula:
+        Z_DSR = (SR_obs * sqrt(T-1) - E[max{SR_N}]) / sqrt(variance_term)
+        variance_term = 1 - γ * skew * SR_obs + ((γ²-1)/4) * kurt * SR_obs²
+        E[max{SR_N}] = (1-γ) * Z(1-1/N) + γ * Z(1-1/(N*e))
+
+    Donde γ = Euler-Mascheroni constant (~0.5772).
+
+    Args:
+        returns_array: per-trade returns 1D array (commission-adjusted).
+        n_configs_tested: total N configs evaluated upstream walk-forward
+            (selection bias correction term).
+
+    Returns:
+        dsr_zscore: float Z-score selection-bias-adjusted SR (np.nan si invalid).
+        dsr_pvalue: float p-value two-tailed (np.nan si invalid).
+        flagged: bool True si pvalue >= _DSR_FLAG_PVALUE_THRESHOLD or invalid.
+    """
+    if len(returns_array) < 3:
+        return np.nan, np.nan, True  # insufficient sample for skew/kurtosis
+
+    std_returns = returns_array.std(ddof=1)
+    if std_returns <= 0:
+        return np.nan, np.nan, True  # zero variance edge case
+
+    sr_observed = returns_array.mean() / std_returns
+    skew_val = float(skew(returns_array))
+    kurt_val = float(kurtosis(returns_array))  # excess kurtosis (Fisher)
+    T = len(returns_array)
+
+    # Expected max SR under null (López de Prado approximation)
+    if n_configs_tested <= 1:
+        e_max_sr = 0.0
+    else:
+        # Avoid extreme values: clip n to safe range
+        N_safe = max(2, int(n_configs_tested))
+        z1 = float(norm.ppf(1.0 - 1.0 / N_safe))
+        z2 = float(norm.ppf(1.0 - 1.0 / (N_safe * np.e)))
+        e_max_sr = (1 - _DSR_GAMMA_EULER) * z1 + _DSR_GAMMA_EULER * z2
+
+    # DSR variance term López de Prado 2014
+    variance_term = (
+        1.0
+        - _DSR_GAMMA_EULER * skew_val * sr_observed
+        + ((_DSR_GAMMA_EULER ** 2 - 1.0) / 4.0) * kurt_val * sr_observed ** 2
+    )
+    if variance_term <= 0:
+        return np.nan, np.nan, True  # invalid variance → flagged
+
+    dsr_zscore = (sr_observed * np.sqrt(T - 1) - e_max_sr) / np.sqrt(variance_term)
+    # One-tailed (right-tail) per López de Prado 2014 paper:
+    # H0: SR_obs ≤ E[max{SR_N}] (no edge after selection bias correction).
+    # H1: SR_obs > E[max{SR_N}] (significantly above null).
+    # p-value = P(Z >= dsr_zscore) under N(0,1) — small p means reject H0.
+    # flagged=True if p-value >= threshold (NOT significantly above null).
+    dsr_pvalue = 1.0 - float(norm.cdf(dsr_zscore))
+    flagged = bool(dsr_pvalue >= _DSR_FLAG_PVALUE_THRESHOLD)
+
+    return float(dsr_zscore), float(dsr_pvalue), flagged
+
+
+def _apply_dsr_filter(df, returns_per_config, n_configs_tested, method='rigorous'):
+    """Apply R1 DSR rigurosa to dataframe of survivors post-W3 bootstrap pre-W4.
+
+    Adds 3 columns: dsr_zscore, dsr_pvalue, flagged_dsr.
+
+    Args:
+        df: DataFrame con 'config_id' column (survivors post-W3).
+        returns_per_config: dict {config_id: returns_array}.
+        n_configs_tested: int N total upstream configs evaluadas (selection
+            bias correction term — más conservativo López de Prado paper).
+        method: 'none' (no-op backward compat) | 'rigorous' (López de Prado).
+
+    Returns:
+        df extended con dsr_zscore, dsr_pvalue, flagged_dsr columns.
+    """
+    if method == 'none':
+        return df  # no-op backward compat
+
+    if method != 'rigorous':
+        raise ValueError(f"Unknown DSR method: {method!r} (allowed: 'none', 'rigorous')")
+
+    n_configs = len(df)
+    dsr_z = np.full(n_configs, np.nan, dtype=np.float64)
+    dsr_p = np.full(n_configs, np.nan, dtype=np.float64)
+    flagged = np.ones(n_configs, dtype=bool)  # default flagged (no returns available)
+
+    for i, config_id in enumerate(df['config_id'].values):
+        returns = returns_per_config.get(int(config_id), None)
+        if returns is not None and len(returns) >= 3:
+            z, p, f = _compute_dsr_zscore_rigorous(returns, n_configs_tested)
+            dsr_z[i] = z
+            dsr_p[i] = p
+            flagged[i] = f
+
+    df = df.copy()
+    df['dsr_zscore'] = dsr_z.astype(np.float32)
+    df['dsr_pvalue'] = dsr_p.astype(np.float32)
+    df['flagged_dsr'] = flagged
+    return df
+
+
+def _kernel_rerun_survivors_for_dsr(top_all, df_ohlcv, model_data, args,
+                                     symbol, regime_labels, n_doubled,
+                                     top_n=_R1_DSR_TOP_N_SURVIVORS,
+                                     max_trades=_R1_DSR_MAX_TRADES_PER_CONFIG):
+    """Re-run kernel TF flag=True over top-N survivors per cluster con per-trade arrays.
+
+    Opción γ FULL ROBUSTA Sesión 2.5: kernel re-run integrated extracts per-trade
+    returns rigurosos para survivors post-W3 bootstrap. Path γ Sesión 2 enabled.
+
+    Args:
+        top_all: DataFrame survivors post-W3 (sorted by specialist_score_ci_low).
+        df_ohlcv: original OHLCV DataFrame (precalculado downstream per preset).
+        model_data: dict GMM model + features metadata (compute_cluster_labels arg).
+        args: argparse Namespace (sl_pct, ts_pct, etc. via lab module).
+        symbol: str symbol identifier.
+        regime_labels: doubled cluster labels array (train k=0..K-1, fwd k+K..2K-1).
+        n_doubled: int total doubled cluster count (K_train + K_fwd).
+        top_n: int max survivors per cluster (caps memory + compute).
+        max_trades: int max per-trade arrays cap.
+
+    Returns:
+        returns_per_config: dict {config_id_int: per_trade_pnl_array}
+            Empty dict si fallback path no ejecutable.
+
+    Raises:
+        NotImplementedError: si Path γ kernel re-run infrastructure no disponible
+            (current state: kernel TF supports flag=True post-Sesión 2 Sub-fase 2A).
+    """
+    lab = _import_lab()
+    if not hasattr(lab, 'run_simulation_numba'):
+        raise NotImplementedError(
+            "Kernel TF Path γ flag=True requiere lab_historico_numba_v8_3.run_simulation_numba "
+            "con return_per_trade kwarg. Verificar Path γ Sesión 2 Sub-fase 2A applied."
+        )
+
+    survivor_top = top_all.head(top_n).copy()
+    survivor_configs = survivor_top['config_id'].astype(np.uint32).values
+    if len(survivor_configs) == 0:
+        return {}
+
+    # Reconstruct preset+hyst groups: each config_id encodes the preset/hyst variant.
+    # Per-cluster survivors may span multiple variants; need to call kernel per variant
+    # with that variant's precalculated data.
+    #
+    # IMPORTANT: this is the cleanest implementation given the constraint that
+    # process_symbol's variant loop is the only place where data is precalculated
+    # per (preset, hyst). Survivor configs only encode kernel-internal bits, NOT
+    # the preset variant they came from. Recovering this mapping requires either
+    # (a) preset metadata stored alongside parts files, or (b) iterating ALL
+    # variants and intersecting survivors. Option (b) is simpler but slower.
+    #
+    # For Sesión 2.5 first pass: invoke kernel ONCE on survivor_configs with the
+    # variant-aware precalculation. Caller must supply data_per_variant or
+    # we delegate to caller.
+    #
+    # Concrete implementation deferred — caller _compute_dsr_returns_for_cluster
+    # handles the variant orchestration (presets loop in process_symbol scope).
+    raise NotImplementedError(
+        "Kernel re-run survivors requires preset+hyst variant orchestration. "
+        "Use _compute_dsr_returns_for_cluster wrapper from process_symbol scope "
+        "where presets + data_per_variant are alive."
+    )
+
+
+def _compute_dsr_returns_for_cluster(survivor_configs, df_ohlcv, presets, args,
+                                       symbol, regime_labels, n_doubled,
+                                       max_trades=_R1_DSR_MAX_TRADES_PER_CONFIG):
+    """Compute per-trade returns for given survivor configs by running kernel TF
+    Path γ flag=True with all variants and aggregating per config_id.
+
+    This is the working implementation of kernel re-run for DSR (Opción γ).
+    Designed to be called from process_symbol scope (where presets + df + args
+    are alive), then results stored to disk for extract_validated_specialists
+    to consume.
+
+    Memory model:
+        - Per call: n_survivors × max_trades × 8 fields × 8 bytes ≈ 8 MB cap.
+        - Multiple variants iterated sequentially (no peak memory accumulation).
+
+    Args:
+        survivor_configs: array (n_survivors,) of uint32 config_ids.
+        df_ohlcv: OHLCV DataFrame.
+        presets: list of preset tuples (process_symbol args).
+        args: argparse Namespace.
+        symbol: str.
+        regime_labels: doubled cluster labels.
+        n_doubled: int doubled cluster count.
+        max_trades: int max trades per config cap.
+
+    Returns:
+        returns_per_config: dict {config_id_int: per_trade_pnl_array}
+    """
+    lab = _import_lab()
+    n_survivors = len(survivor_configs)
+    if n_survivors == 0:
+        return {}
+
+    # Pre-allocate per-trade arrays (reused across variants — written per variant
+    # using survivor_configs as kernel input; non-survivor configs absent so writes
+    # don't conflict).
+    pt_entry_bar = np.zeros((n_survivors, max_trades), dtype=np.int32)
+    pt_exit_bar = np.zeros((n_survivors, max_trades), dtype=np.int32)
+    pt_side = np.zeros((n_survivors, max_trades), dtype=np.int8)
+    pt_pnl = np.zeros((n_survivors, max_trades), dtype=np.float64)
+    pt_reason = np.zeros((n_survivors, max_trades), dtype=np.int8)
+    pt_cluster = np.zeros((n_survivors, max_trades), dtype=np.int8)
+    pt_entry_price = np.zeros((n_survivors, max_trades), dtype=np.float64)
+    pt_exit_price = np.zeros((n_survivors, max_trades), dtype=np.float64)
+    pt_count = np.zeros(n_survivors, dtype=np.int32)
+
+    # Track best (most trades) variant per config: keep returns from variant
+    # that produced the largest trade count for each config (proxy for "active
+    # variant" — DSR cares about distribution shape, not variant attribution).
+    best_returns_per_config = {}
+
+    for preset in presets:
+        for hyst_mult in [0.0, 0.5]:
+            data = lab.precalculate_all_data(df_ohlcv, preset=preset,
+                                              hyst_mult=hyst_mult, symbol=symbol)
+            # Reset per-trade arrays per variant
+            pt_count[:] = 0
+
+            lab.run_on_slice(
+                survivor_configs, data, 0, len(data['close']),
+                lab.SL_PERCENT, lab.SL_EMERGENCY_PERCENT, lab.TS_PERCENT,
+                lab.COOLDOWN_BARS, lab.COMMISSION_ROUND_TRIP,
+                cluster_labels=regime_labels, n_clusters=n_doubled,
+                return_per_trade=True,
+                pt_entry_bar=pt_entry_bar, pt_exit_bar=pt_exit_bar,
+                pt_side=pt_side, pt_pnl=pt_pnl, pt_reason=pt_reason,
+                pt_cluster=pt_cluster,
+                pt_count=pt_count,
+                pt_entry_price=pt_entry_price, pt_exit_price=pt_exit_price,
+            )
+
+            # Aggregate per-config: keep variant with max trades for each config_id
+            for c in range(n_survivors):
+                n_t = int(pt_count[c])
+                if n_t < 2:
+                    continue
+                cid = int(survivor_configs[c])
+                returns_v = pt_pnl[c, :n_t].copy()
+                prev = best_returns_per_config.get(cid)
+                if prev is None or len(returns_v) > len(prev):
+                    best_returns_per_config[cid] = returns_v
+
+            del data
+            gc.collect()
+
+    return best_returns_per_config
+
+
+def _orchestrate_dsr_kernel_rerun(sym_result, df_ohlcv, presets, args, symbol):
+    """Orchestrate kernel re-run per cluster for R1 DSR rigurosa.
+
+    Replicates train+fwd filters + haircut + W3 bootstrap from
+    extract_validated_specialists to identify top-N survivors per cluster,
+    then invokes _compute_dsr_returns_for_cluster to derive per-trade returns.
+
+    Designed for Opción γ FULL ROBUSTA Sesión 2.5: called from main() AFTER
+    process_symbol returns, BEFORE del df+presets. Output passed to
+    extract_validated_specialists as dsr_returns_per_cluster kwarg.
+
+    Args:
+        sym_result: dict from process_symbol (parts_dir, n_clusters, regime_labels, n_doubled).
+        df_ohlcv: original OHLCV DataFrame.
+        presets: list of preset tuples (from process_symbol args).
+        args: argparse Namespace.
+        symbol: str.
+
+    Returns:
+        dsr_returns_per_cluster: dict {cluster_idx: {config_id: returns_array}}
+            Empty dict for clusters with no valid survivors.
+    """
+    parts_dir = sym_result['parts_dir']
+    n_clusters_base = sym_result['n_clusters']
+    split_info = sym_result['split_info']
+    regime_labels = sym_result.get('regime_labels')
+    n_doubled = sym_result.get('n_doubled', n_clusters_base * 2)
+
+    if regime_labels is None:
+        print(f"   ⚠️  R1 DSR orchestrator: regime_labels missing in sym_result, skipping DSR.")
+        return {}
+
+    load_cols = [
+        'config_id', 'preset_label',
+        'pf_tr', 'pnl_tr', 'trades_tr', 'wins_tr', 'maxdd_tr', 'gp_tr', 'gl_tr',
+        'pf_fwd', 'pnl_fwd', 'trades_fwd', 'wins_fwd', 'maxdd_fwd', 'gp_fwd', 'gl_fwd',
+    ]
+
+    dsr_returns_per_cluster = {}
+
+    for k in range(n_clusters_base):
+        if not split_info[k]['valid']:
+            continue
+        part_files = _list_cluster_files(parts_dir, k)
+        if not part_files:
+            continue
+
+        # Train + fwd filter (replicate extract_validated_specialists logic)
+        top_buffer = []
+        for pf_path in part_files:
+            chunk = pd.read_parquet(pf_path, columns=load_cols)
+            train_mask = (
+                (chunk['trades_tr'] >= _TRAIN_MIN_TRADES) &
+                (chunk['pnl_tr'] > 0) &
+                (chunk['pf_tr'] >= _TRAIN_MIN_PF)
+            )
+            candidates = chunk.loc[train_mask]
+            if len(candidates) == 0:
+                continue
+            fwd_mask = (
+                (candidates['trades_fwd'] >= _FWD_MIN_TRADES) &
+                (candidates['pnl_fwd'] > 0) &
+                (candidates['pf_fwd'] >= _FWD_MIN_PF)
+            )
+            validated = candidates.loc[fwd_mask].copy()
+            if len(validated) == 0:
+                continue
+            _compute_specialist_metrics(validated)
+            keep_n = min(1000, len(validated))
+            top_buffer.append(
+                validated.nlargest(keep_n, 'specialist_score').copy())
+
+        if not top_buffer:
+            continue
+
+        top_all = pd.concat(top_buffer, ignore_index=True)
+        top_all = top_all.nlargest(min(_TOP_KEEP_RAM, len(top_all)), 'specialist_score')
+
+        # Haircut + W3 bootstrap to align with extract phase ranking
+        if len(top_all) == 0:
+            continue
+        top_all = _compute_sqn_haircut(top_all, parts_dir, k)
+        top_all = _apply_bootstrap_pf_fwd(top_all)
+        # Sort by W3b ranking pre-W4 (specialist_score_ci_low) — survivor selection
+        # for DSR uses W3b pool (NOT W4 filtered, which would post-filter survivors).
+        top_all = top_all.sort_values('specialist_score_ci_low',
+                                       ascending=False).reset_index(drop=True)
+
+        # Top-N survivors for DSR kernel re-run
+        survivor_top = top_all.head(_R1_DSR_TOP_N_SURVIVORS)
+        survivor_configs = survivor_top['config_id'].astype(np.uint32).values
+        if len(survivor_configs) == 0:
+            continue
+
+        print(f"      C{k}: {len(survivor_configs)} survivors → kernel re-run flag=True...")
+        t_k = time.time()
+        returns_dict = _compute_dsr_returns_for_cluster(
+            survivor_configs, df_ohlcv, presets, args, symbol,
+            regime_labels, n_doubled
+        )
+        print(f"        C{k} kernel re-run done: {len(returns_dict)} configs"
+              f" with returns ({time.time() - t_k:.1f}s)")
+        dsr_returns_per_cluster[k] = returns_dict
+
+    return dsr_returns_per_cluster
 
 
 def _approx_sqn_vec(pnl, gp, gl, wins, trades):
@@ -1585,7 +2009,7 @@ def _compute_specialist_metrics(df):
     return df
 
 
-def extract_validated_specialists(sym_result, output_dir):
+def extract_validated_specialists(sym_result, output_dir, dsr_returns_per_cluster=None):
     """Extract validated specialist configs per cluster from part files.
 
     Phases:
@@ -1812,9 +2236,30 @@ def extract_validated_specialists(sym_result, output_dir):
             # preserva criterio W3b para desempates (incluye pf_robustness,
             # trades_total, sqn_factor). Ver §13.2 bloque REFINAMIENTO canónico
             # 2026-04-24 (Mecanismo 2) y ROADMAP_PRE_RECICLAJE.md Categoría B.
-            top_all = top_all.sort_values(
-                ['pf_fwd_ci_low', 'specialist_score_ci_low'],
-                ascending=[False, False]).reset_index(drop=True)
+            #
+            # R1 DSR rigurosa Sesión 2.5 Frame 2 (2026-04-29) gated:
+            # Si _R1_DSR_METHOD != 'none' y dsr_returns_per_cluster supplied:
+            #   - apply DSR filter (López de Prado 2014 selection bias correction)
+            #   - hybrid sort pf_fwd_ci_low + dsr_zscore tie-breaker (Option β)
+            # Si method='none' default: M2 fix sort baseline preserved.
+            if _R1_DSR_METHOD != 'none' and dsr_returns_per_cluster is not None:
+                returns_dict_k = dsr_returns_per_cluster.get(k, {})
+                top_all = _apply_dsr_filter(
+                    top_all, returns_dict_k, n_total, method=_R1_DSR_METHOD
+                )
+                n_dsr_flagged = int(top_all['flagged_dsr'].sum())
+                print(f"      R1 DSR ({_R1_DSR_METHOD}): {n_dsr_flagged}/{len(top_all)}"
+                      f" flagged (pvalue>={_DSR_FLAG_PVALUE_THRESHOLD}"
+                      f" or invalid). N_total={n_total} configs upstream.")
+                # Hybrid sort: pf_fwd_ci_low primary + dsr_zscore tie-breaker
+                top_all = top_all.sort_values(
+                    ['pf_fwd_ci_low', 'dsr_zscore'],
+                    ascending=[False, False]).reset_index(drop=True)
+            else:
+                # M2 fix baseline sort (backward compat default)
+                top_all = top_all.sort_values(
+                    ['pf_fwd_ci_low', 'specialist_score_ci_low'],
+                    ascending=[False, False]).reset_index(drop=True)
             n_flagged = int(top_all['flag_sospechoso_outlier'].sum())
             print(f"      Bootstrap pf_fwd done: {n_flagged}/{len(top_all)}"
                   f" flagged (ci_low<{_FLAG_CI_LOW_THRESHOLD} | ci_width>"
@@ -2322,6 +2767,22 @@ def main():
             # Process (saves partial results to parquet, frees RAM per variant)
             result = process_symbol(symbol, presets, df, model_data, args)
 
+            # R1 DSR rigurosa Sesión 2.5 Frame 2 (Opción γ FULL ROBUSTA):
+            # Kernel re-run survivors per cluster ANTES de del df + presets.
+            # Path γ Sesión 2 enabled per-trade returns rigurosos via pt_pnl arrays.
+            # Backward compat: _R1_DSR_METHOD='none' default → orchestrator skipped.
+            dsr_returns_per_cluster = None
+            if _R1_DSR_METHOD != 'none' and result is not None:
+                t_dsr = time.time()
+                print(f"   🔬 R1 DSR rigurosa ({_R1_DSR_METHOD}) — kernel re-run survivors...")
+                dsr_returns_per_cluster = _orchestrate_dsr_kernel_rerun(
+                    result, df, presets, args, symbol
+                )
+                n_returns_total = sum(len(v) for v in dsr_returns_per_cluster.values())
+                print(f"   ✅ R1 DSR returns derived: {n_returns_total} configs"
+                      f" cross-{len(dsr_returns_per_cluster)} clusters"
+                      f" ({time.time() - t_dsr:.1f}s)")
+
             # Free heavy objects before analysis
             del df, model_data, presets
             gc.collect()
@@ -2331,7 +2792,8 @@ def main():
                 continue
 
             # Extract validated specialists (includes correlation as secondary section)
-            extract_validated_specialists(result, args.output_dir)
+            extract_validated_specialists(result, args.output_dir,
+                                          dsr_returns_per_cluster=dsr_returns_per_cluster)
 
             # Cleanup: remove part files for this symbol to free disk
             _parts_dir = result.get('parts_dir')

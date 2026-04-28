@@ -141,15 +141,20 @@ Trigger: A+B+C done + D+E validados o archivados. **Estado 2026-04-27 Sesión 2 
 
 - [x] **Commit consolidado Sesión 2 Frame 2 R3 Path γ TF+MR**.
 
-### Sesión 2.5 Frame 2 — R1 DSR rigurosa post-Path γ (~1-2h CC, ~2026-04-29 tarde o 30)
+### Sesión 2.5 Frame 2 — R1 DSR rigurosa post-Path γ Opción γ→C standalone script (2026-04-29) ✅ DONE
 
-- [ ] **R1 Deflated SR rigurosa** López de Prado 2014: con per-trade returns rigurosos disponibles post-Path γ TF+MR.
-- [ ] Implementar `_compute_expected_max_sr` + `_compute_deflated_sr_vectorized` + `_apply_deflated_sr` en `regime_walk_forward.py`.
-- [ ] Integration post-W3 bootstrap pre-W4 thresholds.
-- [ ] Re-sort hybrid `pf_fwd_ci_low + dsr_zscore` tie-breaker.
-- [ ] Tests greenfield (7 tests).
-- [ ] Smoke §0.8 + dry-run cross-9 over JSONs smoke 2026-04-24.
-- [ ] Commit Sesión 2.5 Frame 2 R1.
+**Decisión arquitectónica refinada §12 L37 V2** post-Parte 0 escalación: spec compute estimate "1.5-4.5h" → realidad full pipeline ~30-45h cross-3 sym + kernel re-run survivors. Pragmatic approach: Opción C standalone script synthetic returns from JSON aggregates (Multi-testing Caso B precedent + W3 bootstrap caveat) → ~5 segundos compute viable.
+
+- [x] **R1 Deflated SR rigurosa** López de Prado 2014 implementado en `regime_walk_forward.py` (~280 líneas): scipy.stats imports + 5 funciones DSR core + orchestrator `_orchestrate_dsr_kernel_rerun` + W4 filter extension `require_not_flagged_dsr` + extract_validated_specialists DSR integration + hybrid sort gated.
+- [x] Backward compat absoluto: `_R1_DSR_METHOD='none'` default → infrastructure inactive (verify_test BTC diff 0.0000 EXACTO PASS).
+- [x] **§12 L38 12ª aplicación recursiva fix DSR formula one-tailed**: inicial two-tailed `2.0 × (1 - norm.cdf(|z|))` test sintético reveló bug NOISE z=-2.377 NOT flagged. Fix one-tailed right-tail per López de Prado 2014: `dsr_pvalue = 1.0 - norm.cdf(dsr_zscore)`.
+- [x] Tests greenfield 7/7 PASS (`tests/test_r1_dsr_rigurosa.py`).
+- [x] No-regression 27/27 PASS (W3 8/8 + W4 8/8 + M2 fix 3/3 + A14 4/4 + A15 4/4).
+- [x] Standalone script `analysis_scripts/dsr_dry_run_cross_3.py` synthetic returns approach (Multi-testing Caso B precedent reusable).
+- [x] Empirical dry-run cross-3 BTC+ONDO+SEI ~5 segundos compute: **1/9 top-1 changes DSR vs M2 fix (11.1%) + 88.9% flagged_dsr cross-clusters**. ONDO C0 §12 L29 canonical case detected (z_median=-1.72 + 100% flagged cluster-level — selection bias structural confirmed).
+- [x] **Veredicto**: VALIDACIÓN PARCIAL H1 (NOT refutación pura análoga Caso B BH 0/9). DSR provee diagnostic value `flagged_dsr` beyond top-1 ranking; M2 fix `pf_fwd_ci_low` ya captura mayoría DSR-favored configs (8/9 top-1 alineados). R1 NOT archived — preserva methodology refinement con caveat synthetic returns documentado.
+- [x] **§12 L37 V2 captura permanente**: spec compute estimates Frame 2 deben distinguir implementation pure compute vs full pipeline upstream cost.
+- [x] Commit consolidado Sesión 2.5 Frame 2 R1.
 
 ### Sesión 3 Frame 2 — R4 Bloque 2c granular cross-strategy + R5 Reduced parameter space + ensemble combinados (~4-6h CC + compute background, ~2026-04-30 a 05-01)
 

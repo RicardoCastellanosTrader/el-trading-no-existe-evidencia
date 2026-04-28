@@ -1,11 +1,11 @@
 # Sistema de Trading Algorítmico — Contexto Completo del Proyecto
 
-**Última actualización:** 29 Abril 2026 SESIÓN 2 FRAME 2 R3 PATH γ KERNEL GRANULAR DONE — **TF (6 valores) + MR (8 valores) ASIMÉTRICO ambos kernels implementados bajo 2 sub-fases 2A TF + 2B MR §12 L25 segmentación. Path γ SUSTITUYE Path α + Path α' supplement Sesión 1B (decisión arquitectónica P1). Per-trade tracking PRIMERA VEZ MR replicate Path α' pattern. Asimetría arquitectónica honesta TF (9 fields per-trade) ≠ MR (8 fields sin pt_cluster) refleja MR kernel intrínsecamente sin cluster accounting (decisión H-ii). audit_mr_fidelity_sei.py hash check agregado per decisión D-i (disciplina operacional consistente cross-auditors). Backward compat 100% production. EXPECTED_LAB_KERNEL_HASH TF `02f9c480...` → `89f00b7e2291...` + MR new `371551bdebe3...`. Tests greenfield 14/14 PASS (7 TF + 7 MR). Smokes §0.8 cross-cuatro símbolos PASS + verify_test cross-3-símbolos diff 0.0000 invariante baseline 2026-04-26. §12 L38 12ª aplicación recursiva validated cross-Sub-fases 2A+2B (cooldown Pine canonical 4-rama preserved). §12 L36 19ª aplicación calibrada (predicción 1-2/8 mismatches acertada). Habilita Sesión 2.5 R1 DSR rigurosa per-trade returns + Sesión 3 R4 Bloque 2c granular cross-strategy + R5 Reduced parameter space + ensemble combinados. Bot v2.4.5 invariante uptime ~5d 22h+**.
+**Última actualización:** 29 Abril 2026 SESIÓN 2.5 FRAME 2 R1 DSR RIGUROSA LÓPEZ DE PRADO 2014 + STANDALONE SCRIPT JSONS-BASED DRY-RUN CROSS-3 DONE — **R1 DSR rigurosa post-Path γ Sesión 2 + Opción γ→C standalone script synthetic returns approach (Multi-testing Caso B precedent). Compute estimate refinado §12 L37 V2: full pipeline cross-3 ~30-45h infeasible, synthetic returns standalone ~5 segundos viable. Backward compat absoluto `_R1_DSR_METHOD='none'` default (verify_test BTC diff 0.0000 EXACTO PASS). Tests greenfield 7/7 PASS + 27/27 no-regression preserved. Empirical dry-run cross-3 BTC+ONDO+SEI: 1/9 top-1 changes DSR vs M2 fix (11.1%) + 88.9% flagged_dsr cross-clusters (selection bias structural confirmed). ONDO C0 §12 L29 canonical case detected (z_median=-1.72 + 100% flagged cluster-level). VALIDACIÓN PARCIAL H1 (NOT refutación pura análoga Caso B BH 0/9): DSR provee diagnostic value flagged_dsr beyond top-1 ranking changes; M2 fix ya captura mayoría DSR-favored configs. R1 NOT archived. §12 L37 V2 captura permanente: spec compute estimates Frame 2 deben distinguir implementation pure compute vs full pipeline upstream cost. §12 L36 20ª aplicación retrospectiva (predicción 30-50% changes refutada parcial; 88.9% flagged refutación fuerte magnitud — outcome más informativo). §12 L38 12ª aplicación recursiva fix DSR formula one-tailed validated empíricamente. Habilita Sesión 3 R4 Bloque 2c granular cross-strategy + R5 Reduced parameter space + ensemble combinados. Bot v2.4.5 invariante uptime ~6d 3h+**.
 
 **Frame 2 reformulado calendar reciclaje launch ~2026-05-03 invariante**:
 1. **Sesión 1 Frame 2** (2026-04-28): análisis arquitectónico completo + decisiones Ricardo (C)+R6_γ ✅ DONE.
-2. **Sesión 2 Frame 2** (HOY 2026-04-29): R3 Path γ TF+MR ambos kernels (~5-6h CC) ✅ DONE — 14 tests PASS + Smokes §0.8 cross-cuatro PASS + verify_test cross-3-símbolos diff 0.0000.
-3. **Sesión 2.5 Frame 2** (~2026-04-29 tarde o 30): R1 DSR rigurosa con per-trade returns post-Path γ (~1-2h CC) — PRÓXIMA.
+2. **Sesión 2 Frame 2** (2026-04-29): R3 Path γ TF+MR ambos kernels (~5-6h CC) ✅ DONE — 14 tests PASS + Smokes §0.8 cross-cuatro PASS + verify_test cross-3-símbolos diff 0.0000.
+3. **Sesión 2.5 Frame 2** (HOY 2026-04-29): R1 DSR rigurosa post-Path γ Opción γ→C standalone script synthetic returns ✅ DONE — 7 tests + dry-run cross-3 1/9 changes (validación parcial H1, NOT archived; 88.9% flagged_dsr diagnostic).
 4. **Sesión 3 Frame 2** (~2026-04-30 a 05-01): R4 Bloque 2c granular cross-strategy + R5 Reduced parameter space + ensemble combinados (~4-6h CC + compute background).
 5. **Sesión 4 Frame 2** (~2026-05-01 a 02): Gates A+B+C cross-9/cross-15 + decisión Ricardo strategic post-Escenario 1/2/3.
 6. **Sesión 5 Frame 2** (~2026-05-03): Reciclaje launch + 15 días background.
@@ -3285,6 +3285,108 @@ Referencias:
 ---
 
 ### 13.4 RESUELTO
+
+**[IMPLEMENTACIÓN] [PRE-RECICLAJE FRAME 2 SESIÓN 2.5] R1 DSR rigurosa López de Prado 2014 + standalone script synthetic returns dry-run cross-3 — 2026-04-29 sesión post-Sesión 2**
+
+**Contexto**: Sesión 2.5 Frame 2 R1 DSR rigurosa post-Path γ kernel granular Sesión 2 + decisiones Ricardo Opción γ→C standalone script JSONs-based (compute estimate refinado §12 L37 V2: full pipeline cross-3 ~30-45h infeasible, synthetic returns approach ~seconds viable Multi-testing Caso B precedent).
+
+**Implementación regime_walk_forward.py (~280 líneas nuevas)**:
+- L37: `from scipy.stats import skew, kurtosis, norm` (E mismatch resuelto Parte 0).
+- L1029-1043: R1 DSR module constants (`_R1_DSR_METHOD='none'` default + `_DSR_GAMMA_EULER` + thresholds).
+- L1295-1450: 5 funciones DSR core:
+  - `_compute_per_trade_returns_simplified(pt_pnl, pt_count)` — pt_pnl directo (refinement A pre-implementación, kernel ya commission-adjusted).
+  - `_compute_dsr_zscore_rigorous(returns, n_configs_tested)` — López de Prado 2014 formula con E[max{SR_N}] approximation (γ-weighted).
+  - `_apply_dsr_filter(df, returns_dict, n_configs_tested, method)` — DataFrame integration.
+  - `_kernel_rerun_survivors_for_dsr(...)` — stub directing orchestrator.
+  - `_compute_dsr_returns_for_cluster(...)` — kernel TF Path γ flag=True per variant + aggregation per config.
+- L1455-1560: `_orchestrate_dsr_kernel_rerun(sym_result, df, presets, args, symbol)` — full orchestrator survivor identification + kernel re-run.
+- L1162-1192: `_apply_w4_fwd_ci_filters` extended con `require_not_flagged_dsr` kwarg default OFF.
+- L2117-2140: extract_validated_specialists DSR integration post-W3 pre-W4 + hybrid sort gated.
+- L2125: signature extended `dsr_returns_per_cluster=None`.
+- L692-694: process_symbol result dict extended con `regime_labels` + `n_doubled`.
+- L2660-2680 main(): orchestrator invocation BEFORE del df + presets when method != 'none'.
+
+**§12 L38 12ª aplicación recursiva fix DSR formula one-tailed** (Parte 1 implementación): inicial two-tailed `2.0 × (1 - norm.cdf(|z|))` test sintético reveló bug — NOISE z=-2.377 NOT flagged ✗. Fix one-tailed right-tail per López de Prado 2014: `dsr_pvalue = 1.0 - norm.cdf(dsr_zscore)`. Post-fix: GOOD z=2.577 p=0.005 NOT flagged ✓ / NOISE z=-2.377 p=0.991 flagged ✓.
+
+**Tests greenfield Parte 2.1 (`tests/test_r1_dsr_rigurosa.py`): 7/7 PASS**:
+- test_1 pt_pnl directo simplified.
+- test_2 López de Prado formula + selection bias correction directional (z=1.009 @N=1000 vs z=2.513 @N=10).
+- test_3 edge cases insufficient/zero variance/empty.
+- test_4 DataFrame integration con returns dict.
+- test_5 backward compat method='none' (no columns added).
+- test_6 hybrid sort gated (rigorous + none branches both functional).
+- test_7 W4 require_not_flagged_dsr default OFF.
+
+**No-regression preserved 27/27 PASS**: W3 8/8 + W4 8/8 + M2 fix 3/3 + A14 4/4 + A15 4/4.
+
+**Backward compat absoluto verificado**: `_R1_DSR_METHOD='none'` default → infrastructure inactive. verify_test BTC N=1000 diff **0.0000 EXACTO** PASS Nivel A (bot operacional fidelity invariante).
+
+**Empirical validation Parte 2.2 dry-run cross-3 BTC+ONDO+SEI**:
+
+Standalone script `analysis_scripts/dsr_dry_run_cross_3.py` synthetic returns approach (Multi-testing Caso B archive precedent + W3 bootstrap caveat reusable):
+- Compute time: **~5 segundos** (vs full pipeline ~30-45h kernel re-run rigorous).
+- 9 clusters × 100 configs = 900 DSR computations.
+- Wins estimated `wins ≈ trades × pf / (1 + pf)` (asunción avg_win ≈ |avg_loss| magnitud).
+
+Empirical results:
+
+| Métrica | Valor |
+|---------|------:|
+| Top-1 changes DSR vs M2 fix | **1/9 (11.1%)** |
+| Top-1 changes M2 fix vs W3b | 6/9 (66.7%) |
+| Top-1 changes DSR vs W3b | 6/9 (66.7%) |
+| Mean flagged_dsr cross-clusters | **88.9%** |
+
+Per cluster Z_DSR median:
+- BTC: C0 +1.02 (100% flagged), C1 -0.24 (100% flagged), **C2 +2.31 (0% flagged — edge real fuerte)**.
+- ONDO: C0 -1.72, C1 -2.41, C2 -0.17 (todos 100% flagged — selection bias systemic).
+- SEI: C0 -1.42, C1 -0.62, C2 -1.41 (todos 100% flagged).
+
+**ONDO C0 §12 L29 canonical case detection ✓**: dsr_zscore_median=-1.72 + 100% flagged_dsr → confirma §12 L29 generalizada cluster-level (selection bias inflación walk-forward ESTRUCTURAL, no isolated config-level).
+
+**Veredicto empírico — VALIDACIÓN PARCIAL H1 (NOT refutación pura análoga Caso B BH)**:
+- 1/9 top-1 changes < 30-50% predicción Sesión 0/1 (refutación parcial magnitud).
+- BUT 88.9% flagged_dsr provee diagnostic value cuantitativo selection bias significance per config — info NO disponible pre-DSR.
+- BTC C2 único cluster edge real fuerte (z=+2.31, 0% flagged) consistent con specialist_score=17.21 historical.
+- M2 fix `pf_fwd_ci_low` ranking ya captura mayoría DSR-favored configs (8/9 top-1 alineados M2 = DSR).
+- DSR provee valor INCREMENTAL diagnostico que BH no provee.
+- **R1 NOT archived** — preserva como methodology refinement con caveat synthetic returns documentado.
+
+**Caveat sintético §12 L34**: synthetic returns approximation (avg_win/avg_loss uniform binary) NO captura intra-group dispersión. Skew/kurt simplistas. Rigorous per-trade returns kernel re-run deferred a reciclaje real (compute infeasible single session). Pattern análogo W3 bootstrap caveat.
+
+**§12 L37 V2 captura permanente**: spec compute estimates pre-reciclaje deben distinguir implementation pure compute vs full pipeline upstream cost. Sesión 2.5 R1 DSR demostró **~10-15× subestimación** si arquitectura full pipeline asumida implícitamente. Spec original "1.5-4.5h" → realidad full pipeline ~30-45h cross-3 sym + kernel re-run survivors. Pragmatic refinement: synthetic returns standalone script avoids full pipeline upstream cost.
+
+**§12 L36 19ª-20ª aplicación retrospectiva calibrated**:
+- Predicción "30-50% top-1 changes" → real 11.1%. ⚠️ refutación magnitud parcial.
+- Predicción "20-40% pool flagged_dsr" → real 88.9%. ❌ refutación fuerte (mucho más alto).
+- Sub-predicción "0% changes refutación pura H1 análogo Caso B" → real 11.1% (NO refutación pura, intermediate).
+- Outcome más informativo: DSR provee diagnostic value 88.9% flagged sin alta correlación top-1 ranking changes (M2 fix ya captura mayoría).
+
+**Items §13.3 actualizados**:
+- L2336 Multi-testing correction → IMPLEMENTED Sesión 2.5 R1 DSR rigurosa post-Path γ Opción γ→C standalone script synthetic returns. **NOT archived empírico** (vs Caso B BH α=0.05): DSR provee diagnostic flagged_dsr value beyond top-1 ranking.
+
+**Habilita**:
+- Sesión 4 Gates A+B+C cross-9 evaluation: DSR flagged_dsr column disponible como criterio adicional condicional + Z_DSR cross-cluster comparativa.
+- Sesión 3 Frame 2 R4 Bloque 2c granular cross-strategy + R5 Reduced parameter space + ensemble combinados (~4-6h CC + compute background) cuando Ricardo confirme.
+- Decisión Ricardo strategic activación `_R1_DSR_REQUIRE_NOT_FLAGGED=True` durante reciclaje 45 sym (filter adicional 88.9% configs flagged out → solo top-significant DSR).
+
+**Estado pre-reciclaje FRAME 2 invariante**: bot v2.4.5 operacional VPS Tokio uptime ~6d 3h+. Sin tocar `live/*` productivo (regime_walk_forward.py lab-only flag default OFF preserved). Fidelidad 2 invariante por construcción (verify_test BTC diff 0.0000 EXACTO).
+
+**Próxima Sesión 3 Frame 2 R4 Bloque 2c granular cross-strategy + R5 Reduced parameter space + ensemble combinados** (~4-6h CC + compute background) cuando Ricardo confirme disponibilidad ~2026-04-30 a 05-01.
+
+**Referencias**:
+- `regime_walk_forward.py` (~280 líneas Sesión 2.5 nuevas).
+- `analysis_scripts/dsr_dry_run_cross_3.py` (synthetic returns standalone script).
+- `dsr_dry_run_cross_3_results.json` (empirical results cross-9).
+- `tests/test_r1_dsr_rigurosa.py` (7 tests greenfield).
+- López de Prado, M. (2014). "The Deflated Sharpe Ratio".
+- §13.4 Multi-testing Caso B archive 2026-04-26 (precedent pattern).
+- §12 L29 (selection bias canonical ONDO C0 — confirmed cluster-level via DSR cross-9).
+- §12 L34 + L36 + L37 + L38 (cross-aplicaciones consolidadas).
+
+**Cierre Sesión 2.5 Frame 2 R1 DSR rigurosa**: permanente. R1 implementado + tested + empirically validated parcialmente (NOT archived, NOT validación strong, intermediate diagnostic value confirmed). Caveat synthetic returns approximation documentado. Próxima Sesión 3 R4+R5.
+
+---
 
 **[IMPLEMENTACIÓN] [PRE-RECICLAJE FRAME 2 SESIÓN 2] R3 Path γ kernel granular TF (6) + MR (8) ASIMÉTRICO ambos kernels DONE — 2026-04-29 sesión**
 
