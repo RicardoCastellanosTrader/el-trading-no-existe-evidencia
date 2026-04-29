@@ -218,7 +218,27 @@ Trigger: A+B+C done + D+E validados o archivados. **Estado 2026-04-27 Sesión 2 
   - Frame 2 methodology refinements infrastructure DEPLOYABLE preserved post-Frame 3.A redesign integrate.
   - **Caveat permanente Frame 3 methodology compute estimates**: empirical smoke + 5-10× safety factor over JSONs-based projections + storage/compute constraints NOT ilimitados (cognitive + tiempo ilimitados, hardware finitos).
 
-- [x] **Sesión 2 Frame 3.A redesign methodology DONE 2026-04-29** sesión continuación post-Sub-Frame 3.A.1 ARCHIVED_EMPIRICAL — Parte 0 ayer cumulative 7 sub-decisiones + BIC sweep N=2..12 BTC empirical (knee N=6 defensible) + Parte 1 substantive análisis arquitectónica fundamental cross-5 refinements integrados (4-axis decomposition Refinements OVERLAP non-orthogonal §12 L38 19ª aplicación) + Parte 2 hipótesis emergentes + 4 H_AUX flagged + 5 sub-decisiones cumulative (a)-(e) + Parte 3 commit monolítico. **Sub-Frame 3.A.1 successor scope refined consolidated**:
+- [⚠] **Sub-Frame 3.A.1 SUCCESSOR ARCHIVED_EMPIRICAL 2026-04-29** sesión continuación post-Sesión 2 Frame 3.A redesign methodology — methodology fundamentally REFUTED empíricamente cumulative Sub-fase B:
+  - **ETAPA 1 N=6 ONDO**: 1/6 clusters valid (16.7% rate) — Cluster 0 16 episodes VALID, C1-C5 0-4 episodes INSUFFICIENT (<5 MIN_EPISODES_VALIDATE threshold). Cluster 0 top-100 Spearman ρ = -0.032 (≈ 0). Decision FAIL_GATES (Gate A FAIL ρ̅<+0.30, Gate B PASS).
+  - **ETAPA 2 N=8 ONDO**: 0/8 clusters valid (0% rate CATASTROPHIC) — total 11 episodes/983 bars labeled across 8 clusters. process_symbol returned None. Decision NO_DATA. Differential signaling N=8 worse than N=6 (ONDO BIC priori knee N=8 analytical-vs-operational gap).
+  - **G.0 cluster orphan investigation root cause**: Hypothesis C cluster sparsity inherent ONDO bar distribution VALIDATED EMPIRICAL. Hypothesis A (top-K too small) + B (W4 thresholds) REFUTED.
+  - **5 fundamental constraints methodology Sub-Frame 3.A.1 successor identified empíricamente**:
+    1. Single-symbol single-N effective sample 0-1 cluster (vs 6-8 expected).
+    2. ONDO BIC priori N=8 analytical-vs-operational gap (analytical knee N=8 → operational 0/8 valid).
+    3. Validation gates Gate A ≥2/3 stable+POSITIVE inherently FAIL with ≤1/3 max clusters available.
+    4. Cross-symbol generalization claim impossible within single-sym scope (BTC/SEI similar bar limits).
+    5. Pattern reproduces Frame 2 Gate C FAIL ranking selectivity within survivor pool unchanged.
+  - **Compute estimates refuted catastrophic**: Total cumulative 31.5 min (~25 min N=6 + ~6 min N=8) vs spec ~36.75h = **factor 70× overestimated empíricamente**.
+  - **Pattern match Sesión 4.5 Gate C FAIL reproducción robust**: Cluster 0 top-100 ρ=-0.032 ≈ cross-9 ρ_mean=-0.026.
+  - **Sub-fase B.0 4 spec violations resolved** (commit `35a1d36`): GAMMA_1_N_VALUES extension + load_top_k_presets + run_cell signature + CLI flags + presets_dir bug fix `output/'` → `output/production/'` §12 L38 22ª + tests greenfield 5/5 PASS.
+  - **Parte 0_v2 ONDO BIC sweep N=2..12** (~12s analytical zero compute): ONDO knee N=8 detected (vs BTC knee N=6) — H_AUX_1 UNFAVORABLE detected.
+  - **Decisión Ricardo strategic**: Opción (δ) Hybrid commit cumulative empirical evidence + Frame 3.A meta-redesign trigger documented + defer next sesión.
+  - Branch `sesion-2-frame3a-smoke-ondo-comparative-n6-n8` preserved git history trazabilidad — code potentially reusable Frame 3.A meta-redesign IF refined approach compatible.
+  - **Frame 3.A meta-redesign trigger validated robust empíricamente** (D.β BOTH FAIL + D.δ Cluster orphan fundamental issue cross-N). Sub-Frame 3.A.1 ARCHIVED_EMPIRICAL precedent applied recursively al successor.
+
+- [ ] **Frame 3.A meta-redesign sesión** PRÓXIMA cuando Ricardo confirme disponibilidad — análoga Sesión 2 Frame 3.A redesign methodology estructuralmente (Parte 1 análisis código real + Parte 2 hipótesis emergentes + Parte 3 reformulación spec + commit monolítico). Fundamental rethink methodology validation gates + cluster aggregation strategy + cross-symbol concurrent validation alternative + cluster sparsity inherent ONDO/BTC/SEI cross-symbol cumulative empírical evidence.
+
+- [⚠] **Sesión 2 Frame 3.A redesign methodology DONE 2026-04-29** (commit `c6ad5ce` HISTÓRICO) post-Sub-Frame 3.A.1 ARCHIVED_EMPIRICAL — Parte 0 ayer cumulative 7 sub-decisiones + BIC sweep N=2..12 BTC empirical (knee N=6 defensible) + Parte 1 substantive análisis arquitectónica fundamental cross-5 refinements integrados (4-axis decomposition Refinements OVERLAP non-orthogonal §12 L38 19ª aplicación) + Parte 2 hipótesis emergentes + 4 H_AUX flagged + 5 sub-decisiones cumulative (a)-(e) + Parte 3 commit monolítico. **Sub-Frame 3.A.1 successor scope refined consolidated** (HISTÓRICO superseded by Sub-Frame 3.A.1 SUCCESSOR ARCHIVED_EMPIRICAL above):
   - **Axis A γ.1 N**: Priori N=6 BIC (DONE Parte 0 BTC + Parte 0_v2 ONDO BIC ~70s pendiente sub-decisión b).
   - **Axis B γ.2 P**: Targeted grid 7 values {0.55, 0.60, 0.65, 0.70, 0.75, 0.80, 0.85} (NOT Bayesian — O4).
   - **Axis C Symbol**: ONDO single-symbol (NOT BTC — O1 better signal detection STRONG NEG C2 + sig C0).
