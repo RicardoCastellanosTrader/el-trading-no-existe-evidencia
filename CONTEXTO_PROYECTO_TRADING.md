@@ -1,6 +1,8 @@
 # Sistema de Trading Algorítmico — Contexto Completo del Proyecto
 
-**Última actualización:** 29 Abril 2026 SESIÓN 2 FRAME 3.A REDESIGN METHODOLOGY — **Sub-Frame 3.A.1 successor scope refined post-Parte 0+1+2+3 + 4-axis decomposition (A γ.1 N priori + B γ.2 P targeted grid + C ONDO single-sym + D top-10 pf_fwd_ci_low) + 8 caveats explícitos (O1-O4 + H_AUX_1-4) + §12 L36 31ª prophilactic predicción FAIL_GATES ~55-80% acknowledged honest pre-execution + Sub-decisión (e) MINIMAL SMOKE 1 cell ONDO N=6 P=0.75 baseline ~3-5h pre-execution validation MANDATORY (pattern Sub-Frame 3.A.1 ARCHIVED_EMPIRICAL precedent ~5h cost vs ~130-370h full investment savings) + Parte 0_v2 ONDO BIC sweep ~70s zero compute analytical (resuelve H_AUX_1 ONDO N_optimo NOT validated transferred BTC). Re-verify state DONE clean nueva sesión 5/5 critical (bot v2.4.5 active uptime 7d 4h 24m + main `32456b9` invariante + branch `sesion-1-frame-3a1-2-ablation-matrix-background-launch` preserved + memory file Parte 0 ayer 8783 bytes content comprehensive + optuna v4.8.0 installed). §12 L38 18ª+19ª aplicación recursiva validated robust (state preservation cross-pause overnight + Refinements OVERLAP non-orthogonal detected reframe 4-axis design space honest). §12 L34 cross-32ª aplicación recursiva al own scope refined disciplinada (Opción B includes 8 caveats + 4 H_AUX flagged + Parte 0_v2 + Sub-decisión e mandatory). §12 L37 V2 18ª aplicación (per-cell N=6 cost 1.5-2× higher N=3 baseline empirical adjusted upward honest). Compute estimate refined cumulative ~130-370h (vs Sub-Frame 3.A.1 original ~900h, 2.4-6.9× reduction; storage ~1 TB vs ~25 TB, 24-37× reduction). Validation gates adapted single-sym ONDO 3 clusters (≥2/3 stable+POSITIVE primary + 3/3 sign positive secondary, ρ_mean cross-3 deprecated NOT robust single outlier 3× weight). Decision rule Opción γ gated-marginal preserved adapted single-symbol. Memory file ayer Parte 0 REMOVED post-commit Parte 3 (info consolidated §13.4 entry permanent — ephemeral purpose served). Bot v2.4.5 invariante uptime 7d 4h+ continuous. Sin tocar `live/*` productivo. Próxima Parte 0_v2 ONDO BIC sweep ~70s cuando Ricardo confirme, antes Smoke minimal 1 cell ONDO N=6 P=0.75 ~3-5h pre-execution validation, antes full execution Sub-Frame 3.A.1 successor 7 cells × ONDO × N=6 × top-10 ~130-370h cumulative cross-multiple sesiones IF Parte 0_v2 + smoke PASS.**
+**Última actualización:** 29 Abril 2026 SUB-FRAME 3.A.1 SUCCESSOR ARCHIVED_EMPIRICAL — **Sub-Frame 3.A.1 successor methodology fundamentally REFUTED empíricamente cumulative ETAPA 1 N=6 ONDO (1/6 clusters valid 16.7% rate + Cluster 0 top-100 ρ=-0.032 ≈ 0 + FAIL_GATES Gate A FAIL Gate B PASS) + ETAPA 2 N=8 ONDO (0/8 clusters valid 0% rate CATASTROPHIC + NO_DATA decision + process_symbol returned None) + G.0 cluster sparsity inherent ONDO bar distribution Hypothesis C VALIDATED EMPIRICAL (Hypothesis A top-K + B W4 thresholds REFUTED) + 5 fundamental constraints methodology identified empíricamente (single-symbol single-N effective 0-1 cluster + ONDO BIC priori N=8 analytical-vs-operational gap + Gate A ≥2/3 inherently FAIL + cross-symbol generalization impossible single-sym scope + pattern reproduces Frame 2 Gate C FAIL ranking selectivity within survivor pool unchanged) + §12 L36 35ª/39ª/40ª retrospective calibrated cumulative (factor 37× compute over-estimation N=6 ETAPA 1 + lower-tail prediction "EVEN FEWER valid clusters" 25-35% VALIDATED catastrophic 0/8 + Differential signaling N choice critical FAIL direction VALIDATED) + Sub-fase B.0 4 spec violations resolved (commit `35a1d36` Edit 1-6 GAMMA_1_N_VALUES extension + load_top_k_presets + run_cell signature + CLI flags + presets_dir bug fix `output/'` → `output/production/'` §12 L38 22ª + baseline_json_dir absolute) + tests greenfield 5/5 PASS empíricamente + Parte 0_v2 ONDO BIC sweep N=2..12 ~12s analytical zero compute knee N=8 detected (vs BTC knee N=6) H_AUX_1 UNFAVORABLE detected. Total cumulative compute Sub-fase B 31.5 min (~25 min N=6 + ~6 min N=8) **vs spec ~36.75h = factor 70× overestimated empíricamente catastrophic** (Sub-Frame 3.A.1 successor scope refinement methodology fundamentally REFUTED before scaling). Pattern match Sesión 4.5 Gate C FAIL reproducción empirical robust (Cluster 0 top-100 ρ=-0.032 ≈ cross-9 ρ_mean=-0.026). **Frame 3.A meta-redesign trigger validated robust empíricamente** (D.β BOTH FAIL + D.δ Cluster orphan fundamental issue cross-N) + Sub-Frame 3.A.1 ARCHIVED_EMPIRICAL precedent **applied recursively al successor** — empirical evidence cross-Sesiones forcing methodology meta-redesign disciplinada honest cross-iteraciones consolidated robust. §12 L34 cross-43ª aplicación recursiva al own Sub-Frame 3.A.1 successor methodology validity applied honest disciplinada. §12 L37 V2 cumulative reframed permanente catastrophic VALIDATED. §12 L38 cross-25ª aplicaciones recursivas validated robust (Sub-fase B.0 4 spec violations + Parte 0_v2 BIC priori UNFAVORABLE + B.1 + B.2 empirical + G.0 Hypothesis C VALIDATED). Branch `sesion-2-frame3a-smoke-ondo-comparative-n6-n8` preserved git history trazabilidad — code potentially reusable Frame 3.A meta-redesign IF refined approach compatible. Sub-Frames 3.A.2 (γ.4 toxic_tail) + 3.A.3 (γ.3+γ.5) + 3.A.4 (γ.6 HMM CONDITIONAL) STATUS pending Frame 3.A meta-redesign re-evaluable post-meta-redesign sesión. Reciclaje launch new calendar TBD post-Frame 3.A meta-redesign sesión + validation gates evaluation methodology refined. Bot v2.4.5 invariante uptime 7d 9h+ continuous. Sin tocar `live/*` productivo. Próxima **Frame 3.A meta-redesign sesión** cuando Ricardo confirme disponibilidad — análoga Sesión 2 Frame 3.A redesign methodology estructuralmente (Parte 1 análisis código real + Parte 2 hipótesis emergentes + Parte 3 reformulación spec + commit monolítico).**
+
+PREVIA — 29 Abril 2026 SESIÓN 2 FRAME 3.A REDESIGN METHODOLOGY — **Sub-Frame 3.A.1 successor scope refined post-Parte 0+1+2+3 + 4-axis decomposition (A γ.1 N priori + B γ.2 P targeted grid + C ONDO single-sym + D top-10 pf_fwd_ci_low) + 8 caveats explícitos (O1-O4 + H_AUX_1-4) + §12 L36 31ª prophilactic predicción FAIL_GATES ~55-80% acknowledged honest pre-execution + Sub-decisión (e) MINIMAL SMOKE 1 cell ONDO N=6 P=0.75 baseline ~3-5h pre-execution validation MANDATORY (pattern Sub-Frame 3.A.1 ARCHIVED_EMPIRICAL precedent ~5h cost vs ~130-370h full investment savings) + Parte 0_v2 ONDO BIC sweep ~70s zero compute analytical (resuelve H_AUX_1 ONDO N_optimo NOT validated transferred BTC). Re-verify state DONE clean nueva sesión 5/5 critical (bot v2.4.5 active uptime 7d 4h 24m + main `32456b9` invariante + branch `sesion-1-frame-3a1-2-ablation-matrix-background-launch` preserved + memory file Parte 0 ayer 8783 bytes content comprehensive + optuna v4.8.0 installed). §12 L38 18ª+19ª aplicación recursiva validated robust (state preservation cross-pause overnight + Refinements OVERLAP non-orthogonal detected reframe 4-axis design space honest). §12 L34 cross-32ª aplicación recursiva al own scope refined disciplinada (Opción B includes 8 caveats + 4 H_AUX flagged + Parte 0_v2 + Sub-decisión e mandatory). §12 L37 V2 18ª aplicación (per-cell N=6 cost 1.5-2× higher N=3 baseline empirical adjusted upward honest). Compute estimate refined cumulative ~130-370h (vs Sub-Frame 3.A.1 original ~900h, 2.4-6.9× reduction; storage ~1 TB vs ~25 TB, 24-37× reduction). Validation gates adapted single-sym ONDO 3 clusters (≥2/3 stable+POSITIVE primary + 3/3 sign positive secondary, ρ_mean cross-3 deprecated NOT robust single outlier 3× weight). Decision rule Opción γ gated-marginal preserved adapted single-symbol. Memory file ayer Parte 0 REMOVED post-commit Parte 3 (info consolidated §13.4 entry permanent — ephemeral purpose served). Bot v2.4.5 invariante uptime 7d 4h+ continuous. Sin tocar `live/*` productivo. Próxima Parte 0_v2 ONDO BIC sweep ~70s cuando Ricardo confirme, antes Smoke minimal 1 cell ONDO N=6 P=0.75 ~3-5h pre-execution validation, antes full execution Sub-Frame 3.A.1 successor 7 cells × ONDO × N=6 × top-10 ~130-370h cumulative cross-multiple sesiones IF Parte 0_v2 + smoke PASS.**
 
 PREVIA — 28 Abril 2026 SUB-FRAME 3.A.1 ARCHIVED_EMPIRICAL — **§12 L37 V2 17ª aplicación catastrophic factor 20-30× refutación spec methodology original (smoke 10.7h single-cell + ~307 GB per cell + ~900h full grid + ~25 TB cumulative I/O empírico cross-Sub-fase 3.A.1.2 bg `b1euswpru` killed SIGTERM mid-execution variant 8/64 ~14% progress). Decisión Ricardo strategic Opción F NEW: Sub-Frame 3.A.1 (combined γ.1+γ.2 H1 architectural coupling) ARCHIVED_EMPIRICAL + Frame 3.A methodology fundamental redesign mandatory + reciclaje launch SUSPENDED + Sesión 2 Frame 3.A análisis arquitectónica fundamental redesign methodology trigger documented. Pattern institutional consolidated robust cross-Frame 2 → Frame 3 transition reproduced Sub-Frame 3.A.1 internal: empirical evidence forcing methodology redesign analogous Sesión 4.5 Gate C FAIL → Frame 3 redesign mandatory. Sub-fases ejecutadas pre-archive: 3.A.1.0 Parte 0 (6 sustantivos detected + 5 sub-decisiones Ricardo confirmed) + 3.A.1.1 implementación standalone script 664 LOC (commit 4eea4ec) + 3.A.1.2 smoke launched bg killed mid-execution (branch sesion-1-frame-3a1-2 commit 9d3f156 preserved trazabilidad NO merged main) + 3.A.1.3 tests greenfield 12/12 PASS (preserved branch). KILL smoke + cleanup 47 GB disk recovered. Frame 2 methodology refinements infrastructure DEPLOYABLE preserved post-Frame 3.A redesign integrate (M2 fix + W3 + W4 + R3 Path γ + R1 DSR + R4 standalone). §12 L34 cross-26ª aplicación recursiva al own Sub-Frame 3.A.1 scope: empirical evidence compute infeasibility hard forcing honest methodology redesign fundamental. §12 L36 27ª aplicación calibrada empírical catastrophic detection robust. §12 L37 V2 17ª cumulative consolidated permanente: Frame 3 compute estimates require empirical smoke + 5-10× safety factor over JSONs-based projections + storage/compute constraints NOT ilimitados (cognitive + tiempo Ricardo ilimitados, hardware constraints empíricos disco + GPU + RAM + I/O bandwidth finitos). §12 L38 cross-15ª aplicaciones recursivas validated robust. Bot v2.4.5 invariante uptime ~6d 11h+. Sin tocar live/* productivo. Próxima Sesión 2 Frame 3.A análisis arquitectónica fundamental redesign methodology — análoga Sesión 1 Frame 2 análisis arquitectónico estructuralmente cuando Ricardo confirme.**
 
@@ -1311,7 +1313,9 @@ Referencias: §9.2.1 rollback GRT, §3.3 tabla MR rescates, §13.4 RESUELTO audi
 
 ### 13.2 ACTIVO
 
-**[HALLAZGO ESTRUCTURAL] [ACTIVO — FRAME 3.A SESIÓN 2 REDESIGN METHODOLOGY 2026-04-29 sesión continuación] Walk-forward methodology — cuantificación gap simulado↔operativo — 2026-04-23/24**
+**[HALLAZGO ESTRUCTURAL] [ACTIVO — FRAME 3.A SUB-FRAME 3.A.1 SUCCESSOR ARCHIVED_EMPIRICAL 2026-04-29 sesión continuación] Walk-forward methodology — cuantificación gap simulado↔operativo — 2026-04-23/24**
+
+**[FRAME 3.A SUB-FRAME 3.A.1 SUCCESSOR ARCHIVED_EMPIRICAL 2026-04-29 sesión continuación]**: Sub-Frame 3.A.1 successor methodology fundamentally REFUTED empíricamente cumulative Sub-fase B (ETAPA 1 N=6 ONDO 1/6 clusters valid + Gate A FAIL_GATES + ETAPA 2 N=8 ONDO 0/8 clusters valid CATASTROPHIC NO_DATA + G.0 cluster sparsity inherent Hypothesis C VALIDATED). 5 fundamental constraints identified (single-sym single-N effective 0-1 cluster + ONDO BIC priori N=8 analytical-vs-operational gap + Gate A ≥2/3 inherently FAIL + cross-symbol generalization impossible + pattern reproduces Frame 2 Gate C FAIL ranking selectivity unchanged). Total cumulative compute 31.5 min vs spec ~36.75h = **factor 70× overestimated empíricamente catastrophic**. §12 L36 35ª/39ª/40ª retrospective calibrated empírical robust. Pattern Sub-Frame 3.A.1 ARCHIVED_EMPIRICAL precedent **applied recursively al successor** — empirical evidence cross-Sesiones forcing methodology meta-redesign disciplinada honest. Frame 3.A meta-redesign trigger validated robust empíricamente (D.β BOTH FAIL + D.δ Cluster orphan fundamental cross-N). Sub-Frames 3.A.2/3.A.3/3.A.4 STATUS pending Frame 3.A meta-redesign re-evaluable post-meta-redesign sesión. Reciclaje launch new calendar TBD post-Frame 3.A meta-redesign sesión. Branch `sesion-2-frame3a-smoke-ondo-comparative-n6-n8` preserved trazabilidad. Bot v2.4.5 invariante uptime 7d 9h+. Próxima **Frame 3.A meta-redesign sesión** cuando Ricardo confirme. Ver §13.4 entrada Sub-Frame 3.A.1 successor ARCHIVED_EMPIRICAL 2026-04-29 sesión continuación.
 
 **[FRAME 3.A SESIÓN 2 REDESIGN METHODOLOGY 2026-04-29 sesión continuación]**: Sub-Frame 3.A.1 successor scope refined post-Parte 0+1+2+3 + 4-axis decomposition (A γ.1 N=6 BIC priori + B γ.2 P targeted grid 7 vals + C ONDO single-sym + D top-10 pf_fwd_ci_low) + 8 caveats explícitos (O1-O4 + H_AUX_1-4 emergent) + §12 L36 31ª prophilactic predicción FAIL_GATES ~55-80% acknowledged honest pre-execution + Sub-decisión (e) MINIMAL SMOKE 1 cell ONDO N=6 P=0.75 ~3-5h pre-execution validation MANDATORY (pattern Sub-Frame 3.A.1 ARCHIVED_EMPIRICAL precedent applied) + Parte 0_v2 ONDO BIC sweep ~70s zero compute analytical (resuelve H_AUX_1 ONDO N_optimo NOT validated transferred BTC). Compute estimate refined ~130-370h cumulative cross-multiple sesiones (vs ~900h original 2.4-6.9× reduction; storage ~1 TB vs ~25 TB 24-37× reduction). Validation gates adapted single-sym ONDO 3 clusters (≥2/3 stable+POSITIVE primary + 3/3 sign positive secondary, ρ_mean cross-3 deprecated NOT robust single outlier 3× weight). Decision rule Opción γ gated-marginal preserved adapted single-symbol. §12 L34 cross-32ª aplicación recursiva al own scope honest disciplinada. §12 L38 19ª aplicación recursiva Refinements OVERLAP non-orthogonal detected reframe 4-axis design space honest. §12 L37 V2 18ª aplicación per-cell N=6 cost 1.5-2× higher N=3 baseline empirical adjusted upward. Memory file ayer Parte 0 REMOVED post-commit Parte 3 (info consolidated §13.4 entry). Bot v2.4.5 invariante uptime 7d 4h+ continuous. Próxima Parte 0_v2 ONDO BIC ~70s + Smoke minimal 1 cell ~3-5h pre-execution validation antes full execution Sub-Frame 3.A.1 successor 7 cells × ONDO × N=6 × top-10 ~130-370h cumulative IF Parte 0_v2 + smoke PASS. Ver §13.4 entrada Sesión 2 Frame 3.A redesign methodology 2026-04-29.
 
@@ -3320,6 +3324,120 @@ Referencias:
 ---
 
 ### 13.4 RESUELTO
+
+**[ARCHIVED_EMPIRICAL] [PRE-RECICLAJE FRAME 3.A SESIÓN 2 SUB-FRAME 3.A.1 SUCCESSOR] cumulative empirical evidence ETAPA 1 + ETAPA 2 + G.0 cluster sparsity inherent ONDO + Frame 3.A meta-redesign trigger validated robust + 5 fundamental constraints + §12 L36 35ª/39ª/40ª retrospective calibrated empírica catastrophic compute factor 70× — 2026-04-29 sesión continuación post-Sesión 2 Frame 3.A redesign methodology**
+
+**Contexto**: Sub-fase B (smoke ETAPA 1 + ETAPA 2 + G.0 investigation) post-Sesión 2 Frame 3.A redesign methodology commit `c6ad5ce` para validation pre-execution Sub-Frame 3.A.1 successor full execution ~130-370h spec. Pattern Sub-Frame 3.A.1 ARCHIVED_EMPIRICAL precedent (commit `32456b9` 2026-04-28 catastrophic compute factor 20-30×) **applied recursively al successor** 2026-04-29 — empirical evidence forcing methodology meta-redesign disciplinada honest cross-iteraciones consolidated.
+
+**Sub-fase B.0 script extensions resueltas (commit `35a1d36`)**:
+- 6 edits resolving 4 spec violations §12 L38 21ª+22ª aplicaciones recursivas:
+  - GAMMA_1_N_VALUES extension `[4,5,6]` → `[4,5,6,8]` (gamma1_only_N8 cell + 6 joint_N8_P* cells auto-generated)
+  - `load_top_k_presets()` new function (~80 LOC) — top-K presets ranked baseline pf_fwd_ci_low cross-clusters/configs
+  - run_cell signature extended `top_k_presets=None, baseline_json_dir=None`
+  - CLI flags `--top-k-presets` + `--baseline-json-dir` added
+  - **CRITICAL presets_dir bug fix**: `'output/'` → `'output/production/'` — était falling to lab.SYMBOL_ZONE_PRESETS hardcoded fallback (5 presets/sym verified empíricamente) instead of CSV (~31 presets/sym matches Sesión 4.5/M2 fix smoke 2026-04-24 baseline JSON pool)
+  - `--baseline-json-dir` default absolute path robust
+- Tests greenfield 5/5 PASS empíricamente validated.
+
+**Parte 0_v2 ONDO BIC sweep N=2..12 (analytical zero compute ~12s)**:
+- ONDO knee detected **N=8** (vs BTC knee N=6) — ΔBIC N=8→9 = +107 plateau signature.
+- ONDO N=6 LOCAL MIN (BIC 57633) + N=7 BIC INCREASE (+380) + N=8 SECOND deeper LOCAL MIN (BIC 57278) + N=12 absolute optimum boundary unresolved (multi-modal landscape).
+- **H_AUX_1 UNFAVORABLE detected empíricamente**: BTC priori N=6 transferred ONDO **NOT validated** (different BIC structure cross-symbol).
+- Multi-modal BIC fragility documented honest cross-symbol (GMM `random_state=42` reaches different local optima at higher N).
+
+**Sub-fase B.1 ETAPA 1 ONDO N=6 + top-10 CSV (1529s = 25.49 min)**:
+- GMM N=6 BIC=57633.2 converged=True n_iter=48 (matches Parte 0_v2 EXACTLY — full reproducibility cross-3 runs).
+- 31 ONDOUSDT CSV presets loaded → top-10 ranked baseline pf_fwd_ci_low matched 10/10 (top-3 sigs: SMA(14)/TEMA(69), VIDYA(18)/KAMA(39), VIDYA(14)/KAMA(36)).
+- **Episode distribution catastrophic**: C0 16 episodes (VALID), C1-C5 0-4 episodes (5/6 INSUFFICIENT < MIN_EPISODES_VALIDATE=5 threshold).
+- **1/6 clusters valid** (16.7% rate) — only Cluster 0 (neutral_mid-vol_choppy).
+- Cluster 0 top-100 Spearman ρ(pf_tr, pf_fwd) = **-0.032** (≈ 0).
+- Pool-wide Cluster 0: r(pf_tr, pf_fwd) = +0.145 weak positive (N=32.8M config-rows). Pattern reconciliation: pool-wide weak edge drops to ρ≈0 within top-100 selection bias — reproduces Sesión 4.5 Gate C FAIL.
+- Decision: **FAIL_GATES** (Gate A FAIL ρ̅<+0.30 con 0/3 stable+POSITIVE; Gate B PASS 0/3 STRONG NEGATIVE).
+
+**Sub-fase G.0 cluster orphan investigation root cause empirical** (~30 min CC concurrent ETAPA 2):
+- **Hypothesis C cluster sparsity inherent ONDO bar distribution VALIDATED EMPIRICAL**: 5/6 clusters N=6 < MIN_EPISODES_VALIDATE=5; ONDO ~85-90% bars en Cluster 0 dominant.
+- **Hypothesis A (top-K too small) REFUTED**: Cluster 0 has 100 top_configs full pool — top-10 NOT bottleneck.
+- **Hypothesis B (W4 thresholds incompatible top-10) REFUTED**: Cluster 0 passed W4 con 100 configs; other clusters orphan PRE-W4 (insufficient episodes <5).
+- **Hypothesis D refined**: primary cause Hypothesis C cluster sparsity inherent regime distribution.
+
+**Sub-fase B.2 ETAPA 2 ONDO N=8 + top-10 CSV (363s = 6.05 min)**:
+- GMM N=8 BIC=57278.2 converged=True n_iter=43 (matches Parte 0_v2 EXACTLY — full reproducibility cross-3 runs).
+- **Episode distribution CATASTROPHIC**: C0 2 eps (110 bars), C1 3 eps (480 bars), C2 0 eps, C3 3 eps (180 bars), C4 1 ep (93 bars), C5 0 eps, C6 0 eps, C7 2 eps (120 bars).
+- **0/8 clusters valid** (0% rate) — total 11 episodes / 983 bars labeled across 8 clusters (vs N=6: 22 eps / ~1500 bars across 6).
+- `process_symbol returned None` — NO walk-forward kernel runs executed.
+- Decision: **NO_DATA** (worse than FAIL_GATES — no Spearman computable).
+- **Differential signaling N choice critical FAIL direction**: N=8 worse than N=6 empíricamente (ONDO BIC priori knee N=8 analytical-vs-operational gap).
+
+**§12 L36 prophilactic predicciones cumulative retrospective calibrated**:
+- §12 L36 35ª pre-launch: P(smoke completes successfully ~15.75h estimate match) 60-75% → **REFUTED catastrophic** (~25 min completion factor 37× faster).
+- §12 L36 35ª: P(per-cell time substantially higher >20h) 15-25% → REFUTED (opposite direction).
+- §12 L36 35ª: P(memory blowup OR crash) 10-15% → REFUTED (clean completion + cleanup successful).
+- §12 L36 35ª: **P(Gate A+B+C PASS combined) 15-25% → VALIDATED FAIL direction** (FAIL_GATES + NO_DATA).
+- §12 L36 39ª retrospective: factor 37× compute over-estimation framework cross-aplicaciones cumulative VALIDATED.
+- §12 L36 40ª G.0 prediction "EVEN FEWER valid clusters (0-1 viable)" 25-35% → **VALIDATED catastrophic** (0/8 lower bound).
+- §12 L36 40ª G.0 prediction "Differential signaling" 5-10% → **ALSO VALIDATED** (N=8 worse than N=6).
+
+**Pattern match Sesión 4.5 Gate C FAIL reproducción empirical robust**:
+- ETAPA 1 Cluster 0 top-100 ρ = -0.032 ≈ Sesión 4.5 cross-9 ρ_mean = -0.026.
+- Sub-Frame 3.A.1 successor methodology **reproduces Frame 2 Gate C FAIL pattern at smaller effective scale** (1 cluster vs cross-9). Frame 2 conclusion `ranking selectivity within survivor pool unchanged empíricamente` extends to Sub-Frame 3.A.1 successor.
+
+**5 fundamental constraints methodology Sub-Frame 3.A.1 successor identified empíricamente**:
+1. **Single-symbol single-N effective sample 0-1 cluster** (vs 6-8 expected) — N=6 produces 1/6 valid, N=8 produces 0/8 valid.
+2. **ONDO BIC priori analytical-vs-operational gap**: BIC analytical knee N=8 → operational 0/8 valid (catastrophic). BIC analytical priori does **NOT translate operational validation**.
+3. **Validation gates Gate A ≥2/3 stable+POSITIVE inherently FAIL** with ≤1/3 max clusters available (combinación inherent constraint #1 + Gate criterion).
+4. **Cross-symbol generalization claim impossible** within single-sym scope (BTC/SEI similar crypto symbols ≤8K-26K bars cluster sparsity probably análoga).
+5. **Pattern reproduces Frame 2 Gate C FAIL** ranking selectivity within survivor pool unchanged at smaller effective scale (Cluster 0 top-100 ρ ≈ 0 same regime selection bias).
+
+**§12 L37 V2 cumulative reframed permanente catastrophic VALIDATED**:
+- Total cumulative compute Sub-fase B: ~31.5 min (~25 min N=6 + ~6 min N=8) **vs spec ~36.75h** = **factor 70× overestimated empíricamente**.
+- Compute estimate framework cumulative cross-aplicaciones (~130-370h spec → ~550-1100h post-§12 L38 22ª refined → empirical refutation factor 4-25× per cell baseline) **REFUTED catastrophic** by single-cell empirical evidence.
+- Pattern: empirical single-cell smoke validation MANDATORY pre-multi-cell scope commitments. Sub-Frame 3.A.1 successor scope refinement methodology fundamentally REFUTED before scaling.
+
+**Frame 3.A meta-redesign trigger validated robust empíricamente**:
+- (D.β) BOTH FAIL VALIDATED (FAIL_GATES + NO_DATA).
+- (D.δ) Cluster orphan revealing fundamental methodology issue VALIDATED ROBUST (Hypothesis C cross-N).
+- Pattern Sub-Frame 3.A.1 ARCHIVED_EMPIRICAL precedent **applied recursively al successor** 2026-04-29 — each Sesión empirical evidence forces honest meta-redesign cross-aplicaciones cumulative.
+- Frame 3.A roadmap detallado original (Sub-Frames 3.A.1 + 3.A.2 + 3.A.3 + 3.A.4) requires fundamental rethink: probably abandon single-symbol single-N + rethink validation gate criterion + cluster aggregation strategy + cross-symbol concurrent validation alternative.
+
+**§12 disciplinas cross-aplicaciones consolidated robust cross-Sub-fase B**:
+- §12 L34 cross-43ª aplicación recursiva al own Sub-Frame 3.A.1 successor methodology validity: 5 fundamental constraints identified empíricamente honest disciplinada.
+- §12 L36 35ª/39ª/40ª retrospective calibrated cross-aplicaciones cumulative: prophilactic predicciones FAIL direction VALIDATED + compute factor 37× over-estimation + cluster sparsity inherent VALIDATED.
+- §12 L37 V2 cumulative reframed permanente: empirical single-cell smoke validation MANDATORY + cluster sparsity inherent deeper methodology constraint vs compute estimate alone.
+- §12 L38 cross-25ª aplicaciones recursivas validated robust: Sub-fase B.0 (4 spec violations resolved) + Parte 0_v2 (ONDO BIC priori H_AUX_1 UNFAVORABLE) + B.1+B.2 empirical execution + G.0 cluster orphan investigation Hypothesis C VALIDATED.
+
+**Sub-Frame 3.A.1 successor ARCHIVED_EMPIRICAL preserved branch trazabilidad**:
+- Branch `sesion-2-frame3a-smoke-ondo-comparative-n6-n8` con commits `35a1d36` (Sub-fase B.0 script extensions) + cumulative empirical evidence (Sub-fase B.1 + B.2 logs + summary JSONs preserved).
+- Code potentially reusable Frame 3.A meta-redesign IF refined approach compatible (top-K filter logic + N=8 matrix extension + presets_dir fix preserved valid).
+
+**Items §13.3 actualizados**:
+- L1296 Frame 3 alcance honesto: Sub-Frame 3.A.1 successor ARCHIVED_EMPIRICAL methodology refuted cumulative empirical evidence + Frame 3.A meta-redesign trigger validated robust empírical + Sub-Frames 3.A.2/3.A.3/3.A.4 STATUS pending Frame 3.A meta-redesign re-evaluable post-Frame 3.A meta-redesign sesión.
+
+**Habilita**:
+- **Frame 3.A meta-redesign sesión PRÓXIMA** análoga estructuralmente Sub-Frame 3.A.1 ARCHIVED_EMPIRICAL → Sesión 2 Frame 3.A redesign methodology pattern recursive aplicado al successor — fundamental rethink methodology validation gates + cluster aggregation + cross-symbol scope cuando Ricardo confirme disponibilidad.
+- Sub-Frames 3.A.2 (γ.4 toxic_tail dynamic default) + 3.A.3 (γ.3+γ.5 cross-exchange Z_ATR_BTC) + 3.A.4 (γ.6 HMM CONDITIONAL) STATUS pending Frame 3.A meta-redesign — re-evaluable post-meta-redesign sesión.
+- Reciclaje launch new calendar TBD post-Frame 3.A meta-redesign sesión + validation gates evaluation methodology refined.
+
+**Pattern institutional consolidated robust precedent**: Sub-Frame 3.A.1 ARCHIVED_EMPIRICAL precedent **applied recursively al successor** — empirical evidence cross-Sesiones forcing methodology meta-redesign disciplinada honest cross-iteraciones consolidated. Each Sesión empirical evidence reveals fundamental constraints driving honest scope refinement (Sesión 4.5 Gate C FAIL → Frame 3 redesign mandatory; Sub-Frame 3.A.1 ARCHIVED → Sesión 2 Frame 3.A redesign methodology; Sub-Frame 3.A.1 successor ARCHIVED → Frame 3.A meta-redesign mandatory).
+
+**Bot v2.4.5 invariante uptime 7d 9h+ continuous**. Sin tocar `live/*` productivo (Sub-fase B análisis-only documentación-only + smoke análisis_scripts/ separate code path). Fidelidad 2 invariante por construcción.
+
+**Próxima Frame 3.A meta-redesign sesión** cuando Ricardo confirme disponibilidad — análoga Sesión 2 Frame 3.A redesign methodology estructuralmente (Parte 1 análisis código real + Parte 2 hipótesis emergentes + Parte 3 reformulación spec + commit monolítico).
+
+**Referencias**:
+- Branch `sesion-2-frame3a-smoke-ondo-comparative-n6-n8` (commits `35a1d36` Sub-fase B.0 + Sub-fase B.3 commit pendiente).
+- `sub_frame_3a1_successor_smoke_ONDO_N6_top10_csv/cell_gamma1_only_N6/ONDOUSDT/` (ETAPA 1 evidence + summary + log).
+- `sub_frame_3a1_successor_smoke_ONDO_N8_top10_csv/sub_frame_3a1_summary.json` (ETAPA 2 NO_DATA evidence).
+- `analysis_scripts/sub_frame_3a1_successor_ondo_bic_sweep.py` (Parte 0_v2 ONDO BIC analytical zero compute).
+- `analysis_scripts/sub_frame_3a1_gmm_n_pthreshold_grid.py` (Sub-fase B.0 6 edits resolving 4 spec violations).
+- `tests/test_sub_frame_3a1_successor_smoke_extensions.py` (5 tests greenfield).
+- §13.4 entrada Sesión 2 Frame 3.A redesign methodology 2026-04-29 (commit `da61a11` predecesor methodology).
+- §13.4 entrada Sub-Frame 3.A.1 ARCHIVED_EMPIRICAL 2026-04-28 (commit `32456b9` precedente recursive).
+- §12 L34/L36/L37 V2/L38 cross-aplicaciones consolidated robustas Frame 2 cumulative + Frame 3.A redesign methodology + Sub-Frame 3.A.1 successor ARCHIVED.
+- ROADMAP_PRE_RECICLAJE.md (Sub-Frame 3.A.1 successor ARCHIVED_EMPIRICAL + Frame 3.A meta-redesign trigger documented).
+
+**Cierre Sub-Frame 3.A.1 successor ARCHIVED_EMPIRICAL**: permanente. Frame 3.A meta-redesign mandatory + sesión PRÓXIMA cuando Ricardo confirme disponibilidad. Cumulative empirical evidence ETAPA 1 + ETAPA 2 + G.0 cluster sparsity inherent ONDO + 5 fundamental constraints + factor 70× compute over-estimation + pattern Sub-Frame 3.A.1 ARCHIVED precedent applied recursively al successor consolidated robust cross-iteraciones.
+
+---
 
 **[REDESIGN METHODOLOGY] [PRE-RECICLAJE FRAME 3.A SESIÓN 2] Sub-Frame 3.A.1 successor scope refined post-Parte 0+1+2 + 4-axis decomposition + 8 caveats explícitos + §12 L36 31ª prophilactic FAIL_GATES ~55-80% + Sub-decisión (e) MINIMAL SMOKE pre-execution validation — 2026-04-29 sesión continuación post-Sub-Frame 3.A.1 ARCHIVED_EMPIRICAL**
 
