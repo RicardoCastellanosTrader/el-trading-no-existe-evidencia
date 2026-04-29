@@ -74,7 +74,12 @@ TOTAL_CANDLES = 10000
 TIMEFRAME = "1h"
 
 # ============================================
-# PRESETS DE ZONAS v11.0 (Lab LITE v5c — 45 symbols, 13.5M configs)
+# PRESETS DE ZONAS v11.0 (Lab LITE — 45 symbols operacionales, ~20.9M configs/preset
+# verificados empíricamente 2026-04-29 vía generate_valid_configs(); config_id ocupa
+# bits 0-25 = 26 bits efectivos. Ver §0.0 CONTEXTO_PROYECTO_TRADING.md para el marco
+# foundational del universo de candidatas. SYMBOLS list a 47 elementos arriba contiene
+# residuos lab pendientes cleanup post-reciclaje; SYMBOL_ZONE_PRESETS abajo a 45
+# alineado con master.py CONFIG['symbols'] operacional.)
 # v8.3: Optimizadas sobre 5k recientes, reciclaje periódico
 # ============================================
 # Formato: lista de tuplas por símbolo
