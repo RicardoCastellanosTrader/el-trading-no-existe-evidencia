@@ -218,26 +218,27 @@ Trigger: A+B+C done + D+E validados o archivados. **Estado 2026-04-27 Sesión 2 
   - Frame 2 methodology refinements infrastructure DEPLOYABLE preserved post-Frame 3.A redesign integrate.
   - **Caveat permanente Frame 3 methodology compute estimates**: empirical smoke + 5-10× safety factor over JSONs-based projections + storage/compute constraints NOT ilimitados (cognitive + tiempo ilimitados, hardware finitos).
 
-- [ ] **Sesión 2 Frame 3.A análisis arquitectónica fundamental redesign methodology** PRÓXIMA cuando Ricardo confirme — análoga Sesión 1 Frame 2 análisis arquitectónico estructuralmente (Parte 1 análisis código real + Parte 2 hipótesis emergentes redesign + Parte 3 reformulación spec).
-  - Refinements arquitectónicos candidatos preliminary:
-    - Smart sampling Bayesian optimization vs exhaustive grid sweep (~10-100× compute reduction).
-    - Single-symbol single-cluster prototype (NOT 84 runs cross-3 sym × 28 cells).
-    - Smaller compute footprint kernel implementation refinement (subset of presets).
-    - Empirical-priori-driven targeted experiments (NOT exhaustive ablation).
-    - JSON metadata-only analytical refinements (Sesión 2.5 Opción C precedent + Sesión 4.5 Gate C rigorous analytical zero compute).
-  - Frame 3.A calendar TBD post-Sesión 2 Frame 3.A redesign analysis.
+- [x] **Sesión 2 Frame 3.A redesign methodology DONE 2026-04-29** sesión continuación post-Sub-Frame 3.A.1 ARCHIVED_EMPIRICAL — Parte 0 ayer cumulative 7 sub-decisiones + BIC sweep N=2..12 BTC empirical (knee N=6 defensible) + Parte 1 substantive análisis arquitectónica fundamental cross-5 refinements integrados (4-axis decomposition Refinements OVERLAP non-orthogonal §12 L38 19ª aplicación) + Parte 2 hipótesis emergentes + 4 H_AUX flagged + 5 sub-decisiones cumulative (a)-(e) + Parte 3 commit monolítico. **Sub-Frame 3.A.1 successor scope refined consolidated**:
+  - **Axis A γ.1 N**: Priori N=6 BIC (DONE Parte 0 BTC + Parte 0_v2 ONDO BIC ~70s pendiente sub-decisión b).
+  - **Axis B γ.2 P**: Targeted grid 7 values {0.55, 0.60, 0.65, 0.70, 0.75, 0.80, 0.85} (NOT Bayesian — O4).
+  - **Axis C Symbol**: ONDO single-symbol (NOT BTC — O1 better signal detection STRONG NEG C2 + sig C0).
+  - **Axis D Presets**: Top-10 pf_fwd_ci_low M2 fix ranking (caveat O2 + H_AUX_4).
+  - **Compute estimate refined**: 7 cells × 1 sym × ~3.75-5.25h N=6 ≈ ~26-37h baseline + safety 5-10× = ~130-370h cumulative cross-multiple sesiones (vs ~900h original 2.4-6.9× reduction; storage ~1 TB vs ~25 TB 24-37× reduction).
+  - **8 caveats explícitos documentados honest** (O1 generalization ONDO → cross-symbol limited / O2 top-10 selection-bias regression to mean / O3 H1 architectural coupling indirect validation / O4 1D grid simpler reproducible / H_AUX_1 ONDO BIC NOT validated → resuelto Parte 0_v2 / H_AUX_2 toxic_tail × P_threshold interaction track usable_bars per cell / H_AUX_3 ONDO C2 STRONG NEG deeper mechanism ~50-65% persists / H_AUX_4 top-10 cross-baseline mismatch).
+  - **§12 L36 31ª prophilactic predicción** registered explícitamente pre-execution: STRONG ρ_mean > +0.40 5-10% / MARGINAL [+0.30, +0.40] 10-15% / WEAK [+0.10, +0.30] 15-25% / FAIL Gate A 30-40% / FAIL Gate B 25-40% / Combined FAIL_GATES ~55-80% most likely outcome.
+  - **Validation gates adapted single-sym ONDO 3 clusters**: ≥2/3 stable+POSITIVE primary + 3/3 sign positive secondary, ρ_mean cross-3 deprecated NOT robust single outlier 3× weight inflation.
+  - **Decision rule Opción γ gated-marginal preserved adapted**: STRONG cross-3 ONDO > +0.40 + Primary criterion → early-exit reciclaje launch. MARGINAL [+0.30, +0.40] + Primary → Sub-Frame 3.A.2+3.A.3. WEAK <+0.30 → Sub-Frame 3.A.4 Frame 3.D HMM defer. FAIL_GATES → Frame 3.A meta-redesign mandatory (Sub-Frame 3.A.1 ARCHIVED_EMPIRICAL precedent).
+
+- [ ] **Parte 0_v2 ONDO BIC sweep N=2..12 ~70s zero compute analytical** PRÓXIMA cuando Ricardo confirme (resuelve H_AUX_1 ONDO N_optimo NOT validated transferred BTC asumed).
+
+- [ ] **Smoke minimal 1 cell ONDO N=6 P=0.75 baseline ~3-5h compute MANDATORY** post-Parte 0_v2 (sub-decisión e — pattern Sub-Frame 3.A.1 ARCHIVED_EMPIRICAL precedent applied: ~5h cost vs ~130-370h full investment savings IF infeasibility detected pre-emptive).
+
+- [ ] **Full execution Sub-Frame 3.A.1 successor 7 cells × ONDO × N=6 × top-10 ~130-370h cumulative cross-multiple sesiones** CONDITIONAL Parte 0_v2 + smoke PASS — ELSE scope re-evaluation Frame 3.A meta-redesign pre-investment savings.
 
 **Sub-Frame 3.A roadmap detailed (Sesión 1 Frame 3.A output)**:
 
-##### Sub-Frame 3.A.1 (γ.1 + γ.2 H1 architectural coupling combined) — PRIORITY#1 PRÓXIMA
-- [ ] **Sub-fase 3.A.1.0 Parte 0** verificación pre-implementación §12 L38.
-- [ ] **Sub-fase 3.A.1.1** standalone retrain script `analysis_scripts/sub_frame_3a1_gmm_n_pthreshold_grid.py`. Grid: N ∈ {4, 5, 6} × P_threshold ∈ {0.55, 0.60, 0.65, 0.70, 0.75, 0.80, 0.85} = 21 cells × 3 sym (BTC + ONDO + SEI) = **63 walk-forward runs**.
-- [ ] **Sub-fase 3.A.1.2 ablation matrix MANDATORY** 4 condiciones (baseline N=3 P=0.75 + γ.1 only + γ.2 only + Joint) — honest disambiguation FAIL atribución per factor + §12 L26 disciplina validación per-componente.
-- [ ] **Sub-fase 3.A.1.3** tests greenfield `tests/test_sub_frame_3a1_combined.py` ~7-10 tests joint γ.1 + γ.2 retrain reproducible determinístico.
-- [ ] **Sub-fase 3.A.1.4** validation gates Frame 3.A.1.A/B/C stricter criterion.
-- [ ] **Sub-fase 3.A.1.5** commit monolítico Sub-Frame 3.A.1.
-- **Scope**: ~3-4 sesiones cumulative ~12-18h CC + ~30-60h compute background.
-- **Decision rule Opción γ post-Sub-Frame 3.A.1**: STRONG signal ρ_mean > 0.4 early-exit / marginal [0.3, 0.4] proceed reinforcement Sub-Frame 3.A.2 + 3.A.3 / FAIL Sub-Frame 3.A.4 conditional activation.
+##### Sub-Frame 3.A.1 ORIGINAL (γ.1 + γ.2 H1 architectural coupling combined exhaustive grid) — ARCHIVED_EMPIRICAL 2026-04-28
+- [⚠] Sub-Frame 3.A.1 ORIGINAL spec ARCHIVED_EMPIRICAL post-smoke catastrophic factor 20-30× refutación (~900h compute + ~25 TB I/O cumulative). Branch `sesion-1-frame-3a1-2-ablation-matrix-background-launch` preserved trazabilidad NO merged main. Sub-Frame 3.A.1 SUCCESSOR scope refined Sesión 2 Frame 3.A redesign methodology (4-axis decomposition + 8 caveats + minimal smoke pre-execution validation MANDATORY) — ver sección "Sesión 2 Frame 3.A redesign methodology DONE 2026-04-29" arriba para scope refined consolidated.
 
 ##### Sub-Frame 3.A.2 (γ.4 toxic_tail dynamic default) — POST-Sub-Frame 3.A.1 conditional Opción γ
 - [ ] **Sub-fase 3.A.2.0 Parte 0** verify toxic_tail dynamic implementation Frame 2 baseline (regime_walk_forward.py:282-406).
