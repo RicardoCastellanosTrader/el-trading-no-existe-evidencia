@@ -89,7 +89,7 @@ import regime_walk_forward as rwf
 
 SYMBOLS_DEFAULT = ['BTC/USDT', 'ONDO/USDT', 'SEI/USDT']
 
-GAMMA_1_N_VALUES = [4, 5, 6]
+GAMMA_1_N_VALUES = [4, 5, 6, 8]  # N=8 added Sub-fase B.0 2026-04-29 post-Parte 0_v2 ONDO BIC knee=N=8 (H_AUX_1 UNFAVORABLE detected; comparative smoke ETAPA 1+2 N=6+N=8 per Ricardo Opción iii confirmed)
 GAMMA_2_P_GRID = [0.55, 0.60, 0.65, 0.70, 0.75, 0.80, 0.85]
 
 OUTPUT_ROOT_DEFAULT = os.path.join(_ROOT, 'output', 'sub_frame_3a1')
@@ -285,11 +285,109 @@ def build_model_data_dict(gmm_result, n_clusters):
 
 
 # --------------------------------------------------------------------------
+# Top-K preset filter (Sub-Frame 3.A.1 successor scope refined Sub-fase B.0
+# 2026-04-29 — Ricardo Opción β confirmed)
+# --------------------------------------------------------------------------
+
+def load_top_k_presets(symbol, presets_dir, baseline_json_dir, k=10):
+    """Load top-K presets ranked by baseline pf_fwd_ci_low aggregated cross-clusters.
+
+    Implements Axis D refinement (top-10 pf_fwd_ci_low M2 fix ranking) per
+    Sub-Frame 3.A.1 successor scope refined (Sesión 2 Frame 3.A redesign
+    methodology commit c6ad5ce). Resuelve script gap detected §12 L38 21ª
+    aplicación recursiva pre-launch (3 spec violations) — load_presets
+    original returns ALL presets sin top-K filter.
+
+    Args:
+        symbol: 'ONDO/USDT' format.
+        presets_dir: dir containing presets_{SYM}.csv.
+        baseline_json_dir: dir containing {SYM}USDT_specialist_configs.json
+            (Sesión 4.5 / M2 fix smoke 2026-04-24 working tree regime_wf/).
+        k: number of top presets to return (default 10 per Axis D scope).
+
+    Returns:
+        list of preset tuples (subset top-K ranked by max pf_fwd_ci_low across
+        clusters/configs in baseline JSON), OR full presets list if baseline
+        JSON missing (fallback graceful), OR None if no presets at all.
+
+    H_AUX_4 caveat: top-K selection bias regression to mean within selected
+    universe (presets ranked baseline N=3 P=0.75 NOT necessarily optimal
+    under N=6 OR N=8 P_optimo). Documented honest §13.4 entry Sesión 2
+    Frame 3.A redesign methodology.
+    """
+    sc = rwf.sym_clean(symbol)
+
+    # Load full presets list from CSV (returns list of 12-tuple)
+    all_presets = rwf.load_presets(symbol, presets_dir)
+    if not all_presets:
+        return None
+
+    # Build signature → preset tuple mapping (signature = "fast_type(period)/slow_type(period)")
+    sig_to_preset = {}
+    for preset in all_presets:
+        # preset tuple: (fast_type, fast_period, fast_p1, fast_p2,
+        #                slow_type, slow_period, slow_p1, slow_p2,
+        #                trend_type, trend_period, trend_p1, trend_p2)
+        signature = f"{preset[0]}({preset[1]})/{preset[4]}({preset[5]})"
+        if signature not in sig_to_preset:
+            sig_to_preset[signature] = preset
+
+    # Load baseline JSON
+    baseline_path = os.path.join(baseline_json_dir, f"{sc}_specialist_configs.json")
+    if not os.path.exists(baseline_path):
+        print(f"   ⚠ Baseline JSON not found: {baseline_path} — fallback ALL presets")
+        return all_presets
+
+    with open(baseline_path) as f:
+        baseline_data = json.load(f)
+
+    # Aggregate per-signature max pf_fwd_ci_low across clusters/configs
+    sig_to_max_ci_low = {}
+    n_clusters_baseline = baseline_data.get('n_clusters', 0)
+    for k_cluster in range(n_clusters_baseline):
+        cluster_data = baseline_data.get('clusters', {}).get(str(k_cluster), {})
+        for cfg in cluster_data.get('top_configs', []):
+            preset_str = cfg.get('preset', '')
+            ci_low = cfg.get('pf_fwd_ci_low')
+            if ci_low is None:
+                continue
+            # Strip _H00 / _H05 hyst tag (treat hysteresis variants as same preset)
+            base_sig = preset_str.split('_H')[0] if '_H' in preset_str else preset_str
+            if (base_sig not in sig_to_max_ci_low
+                    or ci_low > sig_to_max_ci_low[base_sig]):
+                sig_to_max_ci_low[base_sig] = ci_low
+
+    if not sig_to_max_ci_low:
+        print(f"   ⚠ No pf_fwd_ci_low values in baseline JSON — fallback ALL presets")
+        return all_presets
+
+    # Sort signatures by max pf_fwd_ci_low descending, take top-K
+    sorted_sigs = sorted(sig_to_max_ci_low.items(), key=lambda x: -x[1])
+    top_k_sigs = [sig for sig, _ in sorted_sigs[:k]]
+
+    # Map back to preset tuples (intersect with CSV presets via signature)
+    top_k_presets = []
+    matched_sigs = []
+    for sig in top_k_sigs:
+        if sig in sig_to_preset:
+            top_k_presets.append(sig_to_preset[sig])
+            matched_sigs.append(sig)
+
+    print(f"   📋 Top-{k} presets (ranked baseline pf_fwd_ci_low): "
+          f"{len(top_k_presets)}/{k} matched CSV")
+    if len(top_k_presets) < k:
+        unmatched = [s for s in top_k_sigs if s not in sig_to_preset]
+        print(f"      ⚠ {len(unmatched)} signatures NOT in CSV: {unmatched[:3]}...")
+    print(f"      Top-3 sigs: {matched_sigs[:3]}")
+    return top_k_presets
+
+
+# --------------------------------------------------------------------------
 # Cell driver
 # --------------------------------------------------------------------------
 
 def run_cell(symbol, n_clusters, p_threshold, label, output_root,
-             features_cache=None):
+             features_cache=None, top_k_presets=None, baseline_json_dir=None):
     """Execute single ablation matrix cell.
 
     Resume logic: skip cell if cell_metadata.json status='completed' exists.
@@ -353,12 +451,17 @@ def run_cell(symbol, n_clusters, p_threshold, label, output_root,
     model_data = build_model_data_dict(gmm_result, n_clusters)
 
     # Build args namespace for regime_walk_forward.process_symbol
+    # presets_dir: FIX Sub-fase B.0 Edit 5 (§12 L38 22ª aplicación) — was
+    # 'output/' which fell to lab.SYMBOL_ZONE_PRESETS hardcoded fallback (5
+    # presets/sym BTC=ONDO=SEI=5 verified empirically). Corrected to
+    # 'output/production/' where presets_{SYM}.csv files actually live (~30
+    # presets/sym matches Sesión 4.5 / M2 fix smoke 2026-04-24 baseline JSON pool).
     args = argparse.Namespace(
         symbols=symbol,
         train_ratio=TRAIN_RATIO,
         min_episode_bars=MIN_EPISODE_BARS,
         output_dir=cell_dir,
-        presets_dir=os.path.join(_ROOT, 'output'),
+        presets_dir=os.path.join(_ROOT, 'output', 'production'),
         toxic_tail=0,  # not used in dynamic mode (kept for backward compat)
         toxic_tail_mode=TOXIC_TAIL_MODE,
         max_toxic_tail=MAX_TOXIC_TAIL,
@@ -366,8 +469,13 @@ def run_cell(symbol, n_clusters, p_threshold, label, output_root,
         confirm_threshold=p_threshold,
     )
 
-    # Load presets (via regime_walk_forward.load_presets)
-    presets = rwf.load_presets(symbol, args.presets_dir)
+    # Load presets — top-K filter if requested (Axis D refinement Sub-fase B.0)
+    if top_k_presets is not None and baseline_json_dir is not None:
+        presets = load_top_k_presets(
+            symbol, args.presets_dir, baseline_json_dir, k=top_k_presets
+        )
+    else:
+        presets = rwf.load_presets(symbol, args.presets_dir)
     if presets is None or len(presets) == 0:
         print(f"   ⚠ No presets {symbol}")
         return None
@@ -546,6 +654,15 @@ def parse_args():
     parser.add_argument('--analysis-only', action='store_true',
                         help='Skip cell execution; only aggregate Spearman ρ + gates '
                              'from existing cell outputs.')
+    parser.add_argument('--top-k-presets', type=int, default=None,
+                        help='Subset top-K presets ranked baseline pf_fwd_ci_low '
+                             '(Sub-Frame 3.A.1 successor scope refined Axis D, '
+                             'default None=ALL presets).')
+    parser.add_argument('--baseline-json-dir', type=str,
+                        default=os.path.join(_ROOT, 'regime_wf'),
+                        help='Dir with baseline {SYM}USDT_specialist_configs.json '
+                             '(Sesión 4.5 / M2 fix smoke 2026-04-24 working tree '
+                             f'regime_wf/, default {os.path.join(_ROOT, "regime_wf")}).')
     return parser.parse_args()
 
 
@@ -602,7 +719,9 @@ def main():
                 print(f"\n[{run_idx}/{total_runs} | cell {cell_idx}/{len(cells)} "
                       f"× sym {sym_idx}/{len(symbols)}]")
                 run_cell(symbol, n, p, label, args.output_root,
-                         features_cache=features_cache)
+                         features_cache=features_cache,
+                         top_k_presets=args.top_k_presets,
+                         baseline_json_dir=args.baseline_json_dir)
 
     # Phase B: post-cell analysis (Spearman ρ + gates + decision)
     print(f"\n{'=' * 70}\n🔬 POST-CELL ANALYSIS — "
