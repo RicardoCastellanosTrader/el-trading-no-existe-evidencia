@@ -33,6 +33,24 @@ Methodology refinement máximo es condición **necesaria pero no suficiente**. S
 
 La pregunta operacionalmente relevante: **¿cuán bueno es el mejor edge real identificable por la metodología actual dentro del universo de candidatas?** Depende del aparato metodológico, del universo existente y de los regímenes presentes — no del sistema en abstracto ni del régimen en abstracto.
 
+## Estabilidad estructural de regímenes y horizonte foundational del reciclaje
+
+**Origen Sub-fase L.0 2026-04-29 sesión continuación post-K.0**. Observación foundational Ricardo: "un estudio de clusters a lo largo de 17 años no es susceptible de cambiar a medio plazo".
+
+**Marco**: regímenes detectados sobre símbolos con histórico amplio (BTC ~9 años a 1h) capturan estructura aproximadamente estacionaria a medio plazo. Eventos futuros caen probabilísticamente en clusters ya existentes a la frecuencia operacional 1h. Por tanto el aparato metodológico foundational (cómo identificar configuraciones notables / qué validation gates / cómo se compone survivor pool / cómo se asigna régimen) se cierra tras Frame 3.A + 3.B + 3.C completo y permanece válido durables. **Reciclaje launch resultante es definitivo en sentido foundational** — NO requiere repetirse cada N meses para captar nuevos regímenes.
+
+**Distinción crítica**: cierre foundational ≠ inmutabilidad operacional. El ciclo operacional posterior incluye re-evaluación periódica de configuraciones conforme cola larga del histórico crece, monitoreo assignment configuración↔régimen actual del mercado en tiempo real, detección de outliers que sugieran régimen no captado y triggering de re-clustering condicional. Decisiones foundational cerradas; decisiones operacionales vigentes durante todo el ciclo posterior del bot.
+
+**Tres caveats honestos sobre límites de la estacionariedad**:
+
+1. **Estabilidad ≠ inmutabilidad** — crypto tiene precedentes documentados de cambios de régimen estructurales multi-año (pre-2017 BTC dominancia / 2017-2020 emergencia altcoins+DeFi / 2020-2022 institucional+leverage+colapsos FTX/LUNA / 2022-presente regulación+BTC ETF). Plausible que aparezca régimen futuro estructuralmente nuevo no representado en training. Monitoreo operacional descrito arriba es la red de seguridad.
+
+2. **Transferencia cross-symbol limitada** — estacionariedad aplica robustamente a símbolos con histórico amplio (BTC ~9 años a 1h); aplica menos directamente a símbolos con histórico corto (ONDO ~1 año, SEI ~2 años, APT ~3 años) donde clusters detectados pueden estar capturando patrones idiosincráticos del período disponible, no estructura estacionaria genuina. **Conecta directamente con la justificación del eje cross-symbol concurrent validation Frame 3.A meta-redesign Opción C Hybrid balanced** — extraer estructura compartida entre símbolos para aumentar el sample size efectivo más allá del límite single-symbol histórico y mitigar el riesgo de overfitting a particularidades de períodos cortos.
+
+3. **Frecuencia 1h captura dinámicas estacionarias, NO ciclos macro multi-año** — bull/bear cycles + fases de ciclo crypto se manifiestan como régimen volatilidad alta o régimen tendencia fuerte sin información sobre el momento del ciclo macro. Operacionalmente correcto: el bot decide a la frecuencia a la que opera; los regímenes 1h son la abstracción relevante para esas decisiones, no los ciclos macro multi-año.
+
+**Sesiones futuras**: distinguir explícitamente entre decisiones foundational (cerradas tras reciclaje launch, no se revisan salvo evidencia empírica robusta de cambio estructural a frecuencia operacional) vs decisiones operacionales (vigentes durante todo el ciclo posterior del bot). La frase "reciclaje definitivo" tiene contenido operacional preciso = cierre del aparato metodológico foundational, NO inmutabilidad operacional perpetua del bot.
+
 ## Principio operativo verificación primary source
 
 La verificación primary source contra el código y los datos reales es **prerequisito de cualquier afirmación numérica, framing o referencia cross-Sesiones**. La memoria persistente cross-conversaciones puede arrastrar valores desactualizados o framings mal formulados; la lectura primary source antes de propagar es disciplina foundational, no lección operacional opcional. Formalizado en §12 Lección 38 con aplicaciones cumulative documentadas.
