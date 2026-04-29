@@ -240,8 +240,39 @@ Trigger: A+B+C done + D+E validados o archivados. **Estado 2026-04-27 Sesión 2 
   - **VALIDATED ROBUST EMPÍRICAMENTE** post-Sub-Frame 3.A.1 successor ARCHIVED_EMPIRICAL (5 fundamental constraints) + Sub-fase H.0 §12 L38 26ª aplicación recursiva 3/3 cross-conversation pendientes legacy framework REFUTED 100% systematic pattern (perfil de extremos + walk-forward `--opt-size`/`--fwd-size` + Market Regime Clustering 457 metrics ALL legacy March 15-20 pre-Frame 2/3 reformulation April 22+).
   - **§12 L38 verification primary source MANDATORY pattern institutional permanente**: cualquier pendiente cross-conversation memory claim Ricardo futuro requiere verificación primary source antes spec investment — pattern §12 L38 cross-26ª aplicaciones recursivas cumulative validated robust 6 applications cross-conversación 2026-04-29.
   - **§12 L34 cross-44ª aplicación recursiva al own pendientes memoria persistente**: mi memoria persistente cross-conversaciones systemic limitation acknowledged honest disciplinada — NOT reliable source pendientes scope actual current methodology cualquier pendiente.
-  - Sub-Frames 3.A.2 (γ.4 toxic_tail) + 3.A.3 (γ.3+γ.5) + 3.A.4 (γ.6 HMM CONDITIONAL) STATUS pending Frame 3.A meta-redesign — re-evaluable post-meta-redesign sesión.
-  - Reciclaje launch new calendar TBD post-Frame 3.A meta-redesign sesión + validation gates evaluation methodology refined.
+
+  **Parte 0 preliminary sub-decisiones Ricardo cumulative substantive 2026-04-29 cross-conversación nueva hoy DONE Sub-fase J.0** (pattern Sesión 2 Frame 3.A redesign methodology precedent respeted estructural — NO standalone memory file ephemeral, persistente Header L3 + ROADMAP + §13.4 appendix):
+
+  - **Sub-decisión 1: re-evaluación 6 candidatos γ.1-γ.6 cumulative empirical evidence honest disciplinada**:
+    - **γ.1 GMM cluster N adaptive**: ❌ DEPRECATED standalone (BIC priori transferred ONDO UNFAVORABLE H_AUX_1 + cluster sparsity inherent ONDO N=6 1/6 + N=8 0/8 catastrophic).
+    - **γ.2 P_threshold adaptive**: ❌ DEPRECATED standalone (FAIL_GATES + cluster sparsity inherent makes P_threshold tuning futile).
+    - **γ.5 Z_ATR_BTC cross-symbol feature**: ❌ DEPRECATED standalone (depends γ.3 + γ.1 framework superseded; cluster aggregation prerequisite).
+    - **γ.3 Cross-exchange Binance↔BingX consistency H_M6**: ⚠️ ARCHIVED ROBUSTLY (cluster sparsity inherent makes irrelevante primary methodology refinement; re-evaluable post-meta-redesign).
+    - **γ.4 Régimen transition handling toxic_tail dynamic default activate**: ⚠️ SUBJECT cluster sparsity resolution (toxic_tail dynamic ya implementado ETAPA 1+2 verified pero cluster sparsity precludes effective regime transition handling until cluster aggregation strategy resuelve).
+    - **γ.6 HMM/regime-switching**: ✅ **PROMOTED PRIORITY HIGH paradigm shift architectural fundamental** (addresses cluster sparsity inherent via probabilistic regime persistence + smoother transitions vs hard GMM hard-classification; aligns Sub-Frame 3.A.4 conditional Frame 3.D originally documented; Markov regime persistence paradigm fundamentally different current methodology).
+
+  - **Sub-decisión 2: approach preliminary Frame 3.A meta-redesign Opción (C) Hybrid balanced architectural rethink integrated**:
+    - (A) Single-issue refinement validation gates only — REJECTED insufficient.
+    - (B) Full architectural rethink HMM + everything redesigned standalone — REJECTED scope catastrophic.
+    - **(C) Hybrid balanced architectural rethink integrated** — SELECTED preliminary:
+      - Cluster aggregation strategy: pool sparse clusters cross-N OR cross-sym recover validation power.
+      - HMM CONDITIONAL paradigm shift: probabilistic regime persistence vs hard GMM clustering.
+      - Validation gates redesign: criterio empirical adapted cluster sparsity inherent.
+      - Cross-symbol concurrent validation: alternative single-symbol single-N.
+
+  - **Sub-decisión 3 refined: Header L3 + ROADMAP + §13.4 appendix update sub-decisiones persistente cross-conversation memory mandatory pre-Frame 3.A meta-redesign sesión PRIMER FOCUS PRÓXIMA** (pattern Sesión 2 Frame 3.A redesign methodology precedent respeted estructural — memory file ephemeral REMOVED post-Parte 3 commit pattern preserved).
+
+  **Frame 3.A meta-redesign sesión PRIMER FOCUS scope refined Parte 1+2+3**:
+  - **Parte 1**: análisis código real cumulative empirical evidence ETAPA 1 + ETAPA 2 + G.0 + 3/3 pattern + HMM CONDITIONAL theoretical foundation Markov regime persistence (~1-2h CC).
+  - **Parte 2**: hipótesis emergentes integrated cluster aggregation strategy + HMM CONDITIONAL paradigm shift + validation gates redesign + cross-symbol concurrent validation alternative (~30-45 min CC).
+  - **Parte 3**: reformulación spec Frame 3.A meta-redesign integrated + commit monolítico merged main (~30-45 min CC).
+
+  - **§12 L34 cross-45ª aplicación recursiva al own 6 candidatos γ.1-γ.6 cumulative empirical evidence** honest disciplinada applied — re-evaluation grounded cumulative empirical evidence Sub-Frame 3.A.1 successor ARCHIVED + 3/3 pattern + cluster sparsity Hypothesis C VALIDATED.
+  - **§12 L36 42ª aplicación prophilactic predicción** Frame 3.A meta-redesign sesión PRIMER FOCUS approach preliminary Opción (C) Hybrid balanced more promising standalone — calibration retrospective post-sesión pendiente.
+
+  Sub-Frames 3.A.2 (γ.4 toxic_tail) + 3.A.3 (γ.3+γ.5) + 3.A.4 (γ.6 HMM CONDITIONAL) STATUS pending Frame 3.A meta-redesign — re-evaluable post-meta-redesign sesión. **γ.6 HMM PROMOTED PRIORITY HIGH paradigm shift integrated Opción (C) Hybrid balanced** — Sub-Frame 3.A.4 originalmente conditional Frame 3.D defer ahora foundation Frame 3.A meta-redesign primer focus.
+
+  Reciclaje launch new calendar TBD post-Frame 3.A meta-redesign sesión + validation gates evaluation methodology refined.
 
 - [⚠] **Pendientes memoria persistente cross-conversaciones DEPRECATED honest disciplinada** — 3/3 cases REFUTED legacy framework pre-Frame 2/3 reformulation (Sub-fase H.0 §12 L38 26ª aplicación recursiva 2026-04-29):
   - **"Perfil de extremos" en `analyze_train_test.py`** (§12 L38 24ª REFUTED Sub-fase E.0) — script archived `antiguos de referencia/` March 20 + data `wf_full/dataset_labeled.parquet` does NOT exist + multi-anchor methodology legacy.
