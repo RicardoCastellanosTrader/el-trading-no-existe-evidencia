@@ -1,0 +1,26 @@
+{
+  "timestamp": "20260430_121705",
+  "n2_1_btc_analytical": {
+    "outcome": "Outcome_1",
+    "outcome_desc": "cluster sparsity = tradeoff gen\u00e9rico N\u00d7bar_count\u00d7MIN_EPISODES (6/6 valid \u22655)",
+    "n_valid_clusters": 6,
+    "elapsed_seconds": 14.028859376907349
+  },
+  "n2_2_bic_sweep_cross_45": {
+    "outcome": "Outcome_B",
+    "outcome_desc": "45/45 sym k_optimal>3 \u2014 MAX_K=3 sub-\u00f3ptimo sistem\u00e1ticamente",
+    "k_optimal_distribution": {
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0,
+      "6": 0,
+      "7": 1,
+      "8": 2,
+      "9": 10,
+      "10": 32
+    },
+    "n_completed": 45,
+    "elapsed_seconds": 2232.7770557403564
+  }
+}

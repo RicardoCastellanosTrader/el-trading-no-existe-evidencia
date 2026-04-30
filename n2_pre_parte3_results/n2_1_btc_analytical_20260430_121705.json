@@ -1,0 +1,59 @@
+{
+  "symbol": "BTC/USDT",
+  "n_target_clusters": 6,
+  "n_bars_total": 76018,
+  "n_valid_features": 75019,
+  "gmm_bic": 598086.3181461416,
+  "gmm_converged": true,
+  "gmm_n_iter": 43,
+  "gmm_fit_seconds": 13.051127910614014,
+  "cluster_distribution": {
+    "0": {
+      "n_episodes": 34,
+      "n_bars_in_episodes": 2532,
+      "pct_bars": 3.3751449632759702,
+      "valid": true,
+      "reason": "OK"
+    },
+    "1": {
+      "n_episodes": 6,
+      "n_bars_in_episodes": 354,
+      "pct_bars": 0.47188045695090575,
+      "valid": true,
+      "reason": "OK"
+    },
+    "2": {
+      "n_episodes": 77,
+      "n_bars_in_episodes": 7533,
+      "pct_bars": 10.041456164438342,
+      "valid": true,
+      "reason": "OK"
+    },
+    "3": {
+      "n_episodes": 5,
+      "n_bars_in_episodes": 261,
+      "pct_bars": 0.3479118623282102,
+      "valid": true,
+      "reason": "OK"
+    },
+    "4": {
+      "n_episodes": 18,
+      "n_bars_in_episodes": 1101,
+      "pct_bars": 1.4676282008557833,
+      "valid": true,
+      "reason": "OK"
+    },
+    "5": {
+      "n_episodes": 35,
+      "n_bars_in_episodes": 2117,
+      "pct_bars": 2.8219517722177048,
+      "valid": true,
+      "reason": "OK"
+    }
+  },
+  "n_valid_clusters": 6,
+  "outcome": "Outcome_1",
+  "outcome_desc": "cluster sparsity = tradeoff gen\u00e9rico N\u00d7bar_count\u00d7MIN_EPISODES (6/6 valid \u22655)",
+  "elapsed_seconds": 14.028859376907349,
+  "timestamp": "2026-04-30T12:17:19.062017"
+}

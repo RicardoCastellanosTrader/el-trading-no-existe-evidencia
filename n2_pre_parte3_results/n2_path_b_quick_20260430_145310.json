@@ -1,0 +1,493 @@
+{
+  "timestamp": "20260430_145310",
+  "symbols": [
+    "XRP/USDT",
+    "TRX/USDT",
+    "GRT/USDT"
+  ],
+  "k_range": [
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20
+  ],
+  "n_init": 10,
+  "elapsed_seconds": 665.1251263618469,
+  "outcome": "Outcome_op_cap_natural_below_20",
+  "outcome_desc": "All 3 sym operability cap natural < 20 (max k_max_op = 15). Operability binding constraint < 20 cross-amplio confirmed empirically.",
+  "k_max_operable_cross_3": [
+    15,
+    15,
+    15
+  ],
+  "k_first_INFEASIBLE_cross_3": [
+    17,
+    17
+  ],
+  "k_optimal_BIC_cross_3": [
+    17,
+    16,
+    20
+  ],
+  "per_symbol": {
+    "XRP/USDT": {
+      "n_bars_total": 69069,
+      "n_valid_features": 68070,
+      "bic_values": {
+        "2": 549893.8865719832,
+        "3": 542806.1907228596,
+        "4": 539538.1608740387,
+        "5": 535708.951322732,
+        "6": 534172.6989390203,
+        "7": 532729.3029104518,
+        "8": 531611.8181248815,
+        "9": 532503.9282893523,
+        "10": 531913.5470552124,
+        "11": 531187.7430591531,
+        "12": 530692.784363411,
+        "13": 530052.9006671148,
+        "14": 530208.7193922055,
+        "15": 530282.178195531,
+        "16": 529963.7053515948,
+        "17": 529553.9839259876,
+        "18": 530445.2276679309,
+        "19": 530371.0055827257,
+        "20": 530603.4420180123
+      },
+      "n_clusters_valid_per_k": {
+        "2": 2,
+        "3": 3,
+        "4": 4,
+        "5": 5,
+        "6": 5,
+        "7": 5,
+        "8": 4,
+        "9": 6,
+        "10": 5,
+        "11": 5,
+        "12": 7,
+        "13": 6,
+        "14": 8,
+        "15": 8,
+        "16": 5,
+        "17": 5,
+        "18": 4,
+        "19": 5,
+        "20": 4
+      },
+      "operability_classification": {
+        "2": {
+          "n_valid": 2,
+          "ratio": 1.0,
+          "class": "VIABLE"
+        },
+        "3": {
+          "n_valid": 3,
+          "ratio": 1.0,
+          "class": "VIABLE"
+        },
+        "4": {
+          "n_valid": 4,
+          "ratio": 1.0,
+          "class": "VIABLE"
+        },
+        "5": {
+          "n_valid": 5,
+          "ratio": 1.0,
+          "class": "VIABLE"
+        },
+        "6": {
+          "n_valid": 5,
+          "ratio": 0.8333333333333334,
+          "class": "VIABLE"
+        },
+        "7": {
+          "n_valid": 5,
+          "ratio": 0.7142857142857143,
+          "class": "VIABLE"
+        },
+        "8": {
+          "n_valid": 4,
+          "ratio": 0.5,
+          "class": "VIABLE"
+        },
+        "9": {
+          "n_valid": 6,
+          "ratio": 0.6666666666666666,
+          "class": "VIABLE"
+        },
+        "10": {
+          "n_valid": 5,
+          "ratio": 0.5,
+          "class": "VIABLE"
+        },
+        "11": {
+          "n_valid": 5,
+          "ratio": 0.45454545454545453,
+          "class": "MARGINAL"
+        },
+        "12": {
+          "n_valid": 7,
+          "ratio": 0.5833333333333334,
+          "class": "VIABLE"
+        },
+        "13": {
+          "n_valid": 6,
+          "ratio": 0.46153846153846156,
+          "class": "MARGINAL"
+        },
+        "14": {
+          "n_valid": 8,
+          "ratio": 0.5714285714285714,
+          "class": "VIABLE"
+        },
+        "15": {
+          "n_valid": 8,
+          "ratio": 0.5333333333333333,
+          "class": "VIABLE"
+        },
+        "16": {
+          "n_valid": 5,
+          "ratio": 0.3125,
+          "class": "MARGINAL"
+        },
+        "17": {
+          "n_valid": 5,
+          "ratio": 0.29411764705882354,
+          "class": "INFEASIBLE"
+        },
+        "18": {
+          "n_valid": 4,
+          "ratio": 0.2222222222222222,
+          "class": "INFEASIBLE"
+        },
+        "19": {
+          "n_valid": 5,
+          "ratio": 0.2631578947368421,
+          "class": "INFEASIBLE"
+        },
+        "20": {
+          "n_valid": 4,
+          "ratio": 0.2,
+          "class": "INFEASIBLE"
+        }
+      },
+      "k_optimal_bic": 17,
+      "best_bic": 529553.9839259876,
+      "k_max_operable": 15,
+      "k_first_INFEASIBLE": 17,
+      "elapsed_seconds": 283.8961901664734
+    },
+    "TRX/USDT": {
+      "n_bars_total": 68154,
+      "n_valid_features": 67155,
+      "bic_values": {
+        "2": 547597.738315093,
+        "3": 541480.845504579,
+        "4": 537908.8904233874,
+        "5": 536855.3301915475,
+        "6": 533840.0462446308,
+        "7": 532552.4093891006,
+        "8": 532428.4908503448,
+        "9": 532328.9180841522,
+        "10": 531769.0065205161,
+        "11": 534802.7701223203,
+        "12": 530992.3925224366,
+        "13": 530840.7792861442,
+        "14": 530317.0943187792,
+        "15": 530554.1113256334,
+        "16": 529164.1912461971,
+        "17": 530134.3422580527,
+        "18": 529486.7135947219,
+        "19": 529376.9955703869,
+        "20": 529890.7645423402
+      },
+      "n_clusters_valid_per_k": {
+        "2": 2,
+        "3": 3,
+        "4": 4,
+        "5": 4,
+        "6": 6,
+        "7": 5,
+        "8": 6,
+        "9": 6,
+        "10": 4,
+        "11": 11,
+        "12": 9,
+        "13": 6,
+        "14": 10,
+        "15": 10,
+        "16": 6,
+        "17": 8,
+        "18": 6,
+        "19": 6,
+        "20": 6
+      },
+      "operability_classification": {
+        "2": {
+          "n_valid": 2,
+          "ratio": 1.0,
+          "class": "VIABLE"
+        },
+        "3": {
+          "n_valid": 3,
+          "ratio": 1.0,
+          "class": "VIABLE"
+        },
+        "4": {
+          "n_valid": 4,
+          "ratio": 1.0,
+          "class": "VIABLE"
+        },
+        "5": {
+          "n_valid": 4,
+          "ratio": 0.8,
+          "class": "VIABLE"
+        },
+        "6": {
+          "n_valid": 6,
+          "ratio": 1.0,
+          "class": "VIABLE"
+        },
+        "7": {
+          "n_valid": 5,
+          "ratio": 0.7142857142857143,
+          "class": "VIABLE"
+        },
+        "8": {
+          "n_valid": 6,
+          "ratio": 0.75,
+          "class": "VIABLE"
+        },
+        "9": {
+          "n_valid": 6,
+          "ratio": 0.6666666666666666,
+          "class": "VIABLE"
+        },
+        "10": {
+          "n_valid": 4,
+          "ratio": 0.4,
+          "class": "MARGINAL"
+        },
+        "11": {
+          "n_valid": 11,
+          "ratio": 1.0,
+          "class": "VIABLE"
+        },
+        "12": {
+          "n_valid": 9,
+          "ratio": 0.75,
+          "class": "VIABLE"
+        },
+        "13": {
+          "n_valid": 6,
+          "ratio": 0.46153846153846156,
+          "class": "MARGINAL"
+        },
+        "14": {
+          "n_valid": 10,
+          "ratio": 0.7142857142857143,
+          "class": "VIABLE"
+        },
+        "15": {
+          "n_valid": 10,
+          "ratio": 0.6666666666666666,
+          "class": "VIABLE"
+        },
+        "16": {
+          "n_valid": 6,
+          "ratio": 0.375,
+          "class": "MARGINAL"
+        },
+        "17": {
+          "n_valid": 8,
+          "ratio": 0.47058823529411764,
+          "class": "MARGINAL"
+        },
+        "18": {
+          "n_valid": 6,
+          "ratio": 0.3333333333333333,
+          "class": "MARGINAL"
+        },
+        "19": {
+          "n_valid": 6,
+          "ratio": 0.3157894736842105,
+          "class": "MARGINAL"
+        },
+        "20": {
+          "n_valid": 6,
+          "ratio": 0.3,
+          "class": "MARGINAL"
+        }
+      },
+      "k_optimal_bic": 16,
+      "best_bic": 529164.1912461971,
+      "k_max_operable": 15,
+      "k_first_INFEASIBLE": null,
+      "elapsed_seconds": 235.4133358001709
+    },
+    "GRT/USDT": {
+      "n_bars_total": 46134,
+      "n_valid_features": 45135,
+      "bic_values": {
+        "2": 367054.8899265305,
+        "3": 361736.748878462,
+        "4": 360236.9878484099,
+        "5": 357865.4470963284,
+        "6": 357741.516359786,
+        "7": 356671.3996495043,
+        "8": 356295.4853485907,
+        "9": 355815.43436729425,
+        "10": 356083.6422895902,
+        "11": 355629.2587718871,
+        "12": 355001.86218543496,
+        "13": 354723.8127070784,
+        "14": 354602.79646508954,
+        "15": 354328.53615130344,
+        "16": 354245.4775389974,
+        "17": 354237.1661374,
+        "18": 353948.1312899666,
+        "19": 353854.7183698161,
+        "20": 353756.098589499
+      },
+      "n_clusters_valid_per_k": {
+        "2": 2,
+        "3": 3,
+        "4": 4,
+        "5": 4,
+        "6": 5,
+        "7": 6,
+        "8": 8,
+        "9": 7,
+        "10": 7,
+        "11": 8,
+        "12": 7,
+        "13": 8,
+        "14": 8,
+        "15": 8,
+        "16": 6,
+        "17": 5,
+        "18": 7,
+        "19": 7,
+        "20": 2
+      },
+      "operability_classification": {
+        "2": {
+          "n_valid": 2,
+          "ratio": 1.0,
+          "class": "VIABLE"
+        },
+        "3": {
+          "n_valid": 3,
+          "ratio": 1.0,
+          "class": "VIABLE"
+        },
+        "4": {
+          "n_valid": 4,
+          "ratio": 1.0,
+          "class": "VIABLE"
+        },
+        "5": {
+          "n_valid": 4,
+          "ratio": 0.8,
+          "class": "VIABLE"
+        },
+        "6": {
+          "n_valid": 5,
+          "ratio": 0.8333333333333334,
+          "class": "VIABLE"
+        },
+        "7": {
+          "n_valid": 6,
+          "ratio": 0.8571428571428571,
+          "class": "VIABLE"
+        },
+        "8": {
+          "n_valid": 8,
+          "ratio": 1.0,
+          "class": "VIABLE"
+        },
+        "9": {
+          "n_valid": 7,
+          "ratio": 0.7777777777777778,
+          "class": "VIABLE"
+        },
+        "10": {
+          "n_valid": 7,
+          "ratio": 0.7,
+          "class": "VIABLE"
+        },
+        "11": {
+          "n_valid": 8,
+          "ratio": 0.7272727272727273,
+          "class": "VIABLE"
+        },
+        "12": {
+          "n_valid": 7,
+          "ratio": 0.5833333333333334,
+          "class": "VIABLE"
+        },
+        "13": {
+          "n_valid": 8,
+          "ratio": 0.6153846153846154,
+          "class": "VIABLE"
+        },
+        "14": {
+          "n_valid": 8,
+          "ratio": 0.5714285714285714,
+          "class": "VIABLE"
+        },
+        "15": {
+          "n_valid": 8,
+          "ratio": 0.5333333333333333,
+          "class": "VIABLE"
+        },
+        "16": {
+          "n_valid": 6,
+          "ratio": 0.375,
+          "class": "MARGINAL"
+        },
+        "17": {
+          "n_valid": 5,
+          "ratio": 0.29411764705882354,
+          "class": "INFEASIBLE"
+        },
+        "18": {
+          "n_valid": 7,
+          "ratio": 0.3888888888888889,
+          "class": "MARGINAL"
+        },
+        "19": {
+          "n_valid": 7,
+          "ratio": 0.3684210526315789,
+          "class": "MARGINAL"
+        },
+        "20": {
+          "n_valid": 2,
+          "ratio": 0.1,
+          "class": "INFEASIBLE"
+        }
+      },
+      "k_optimal_bic": 20,
+      "best_bic": 353756.098589499,
+      "k_max_operable": 15,
+      "k_first_INFEASIBLE": 17,
+      "elapsed_seconds": 145.81527137756348
+    }
+  }
+}
