@@ -53,6 +53,16 @@ MODEL_DIR = "regime_models"
 TIMEFRAME = "1h"
 CACHE_DIR = "data_cache"
 
+# ============================================
+# Frame 3.A meta-redesign Eje 1 — HMM CONDITIONAL γ.6 paradigm shift flag
+# ============================================
+# _HMM_ENABLED=False (default): preserve baseline GMM productive path absoluto backwards compat.
+# _HMM_ENABLED=True: drop-in custom Numba HMM Gaussian (hmm_gaussian_numba.py)
+#                    paradigm shift Markov regime persistence + transitions matrix.
+# Validated robust split A 15/15 tests + split B identical-init atol 1e-7 cross-mature library.
+# Activable per-call OR per-process via os.environ['HMM_ENABLED']='1'.
+_HMM_ENABLED = os.environ.get('HMM_ENABLED', '0') == '1'
+
 
 def _symbol_key(symbol):
     """BTC/USDT → BTC"""
@@ -187,17 +197,32 @@ def train_symbol_model(symbol, df):
     scaler = StandardScaler()
     X = scaler.fit_transform(valid_features)
 
-    # Entrenar GMM con k=2..MAX_K, seleccionar por BIC
+    # Entrenar k=2..MAX_K, seleccionar por BIC
+    # Branching _HMM_ENABLED:
+    #   False (default): GMM productive path baseline absoluto.
+    #   True: custom Numba HMM Gaussian paradigm shift (Frame 3.A meta-redesign Eje 1).
     best_bic = np.inf
     best_k = 2
     best_gmm = None
     bic_values = {}
 
+    if _HMM_ENABLED:
+        from hmm_gaussian_numba import GaussianHMM as CustomHMM
+        model_label = "HMM"
+    else:
+        model_label = "GMM"
+
     for k in range(2, MAX_K + 1):
-        gmm = GaussianMixture(
-            n_components=k, covariance_type='full',
-            n_init=10, random_state=42, max_iter=300
-        )
+        if _HMM_ENABLED:
+            gmm = CustomHMM(
+                n_components=k, covariance_type='full',
+                n_init=10, random_state=42, n_iter=300, reg_covar=1e-6
+            )
+        else:
+            gmm = GaussianMixture(
+                n_components=k, covariance_type='full',
+                n_init=10, random_state=42, max_iter=300
+            )
         gmm.fit(X)
         bic = gmm.bic(X)
         bic_values[k] = bic
@@ -207,7 +232,7 @@ def train_symbol_model(symbol, df):
             best_k = k
             best_gmm = gmm
 
-    print(f"   ✅ Seleccionado k={best_k} (BIC={best_bic:.1f})")
+    print(f"   ✅ Seleccionado k={best_k} (BIC={best_bic:.1f}) [{model_label}]")
 
     # Predecir labels
     pred = best_gmm.predict(X)

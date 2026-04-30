@@ -180,43 +180,78 @@ def build_ablation_matrix():
 # --------------------------------------------------------------------------
 
 def fit_gmm_with_convergence_monitoring(features, n_clusters,
-                                         max_iter=GMM_MAX_ITER_DEFAULT):
-    """Fit GMM with convergence monitoring + adaptive escalation.
+                                         max_iter=GMM_MAX_ITER_DEFAULT,
+                                         hmm_enabled=False):
+    """Fit GMM (or HMM if hmm_enabled=True) with convergence monitoring + adaptive escalation.
 
     Replicates train_regime_model.py:196-208 GMM fit logic exactly +
     adds convergence monitoring per Sub-fase 3.A.1.0 sub-decisión 4 Opción ε.
 
+    Frame 3.A meta-redesign Eje 1 paradigm shift:
+      hmm_enabled=False (default): GMM productive baseline absoluto.
+      hmm_enabled=True: custom Numba HMM Gaussian (hmm_gaussian_numba.py)
+                        Markov regime persistence transitions matrix paradigm shift.
+      Validated split A 15/15 tests + split B identical-init atol 1e-7.
+
     Args:
         features: (n_valid_bars, n_features) feature matrix (NOT scaled).
-        n_clusters: int — N for GMM components.
+        n_clusters: int — N for GMM/HMM components.
         max_iter: int — initial max iter (default 300).
+        hmm_enabled: bool — drop-in HMM CONDITIONAL paradigm shift.
 
     Returns:
-        dict with keys: gmm, scaler, converged, n_iter_actual, max_iter_used, bic.
+        dict with keys: gmm, scaler, converged, n_iter_actual, max_iter_used, bic, model_type.
     """
     scaler = StandardScaler()
     X = scaler.fit_transform(features)
+    model_type = 'HMM' if hmm_enabled else 'GMM'
 
-    gmm = GaussianMixture(
-        n_components=n_clusters,
-        covariance_type=GMM_COVARIANCE_TYPE,
-        n_init=GMM_N_INIT,
-        random_state=GMM_RANDOM_STATE,
-        max_iter=max_iter,
-    )
-    gmm.fit(X)
-
-    # M-F1 §12 L26: monitor convergence flag + escalate IF non-convergence
-    if not gmm.converged_:
-        print(f"      ⚠ GMM N={n_clusters} max_iter={max_iter} NOT converged "
-              f"(n_iter={gmm.n_iter_}) — escalating to {GMM_MAX_ITER_ESCALATED}")
+    if hmm_enabled:
+        # Custom Numba HMM drop-in (Frame 3.A meta-redesign Eje 1 split C Phase 2A)
+        import sys as _sys
+        if _ROOT not in _sys.path:
+            _sys.path.insert(0, _ROOT)
+        from hmm_gaussian_numba import GaussianHMM as CustomHMM
+        gmm = CustomHMM(
+            n_components=n_clusters,
+            covariance_type=GMM_COVARIANCE_TYPE,
+            n_init=GMM_N_INIT,
+            random_state=GMM_RANDOM_STATE,
+            n_iter=max_iter,
+            reg_covar=1e-6,
+        )
+    else:
         gmm = GaussianMixture(
             n_components=n_clusters,
             covariance_type=GMM_COVARIANCE_TYPE,
             n_init=GMM_N_INIT,
             random_state=GMM_RANDOM_STATE,
-            max_iter=GMM_MAX_ITER_ESCALATED,
+            max_iter=max_iter,
         )
+    gmm.fit(X)
+
+    # M-F1 §12 L26: monitor convergence flag + escalate IF non-convergence
+    if not gmm.converged_:
+        print(f"      ⚠ {model_type} N={n_clusters} max_iter={max_iter} NOT converged "
+              f"(n_iter={gmm.n_iter_}) — escalating to {GMM_MAX_ITER_ESCALATED}")
+        if hmm_enabled:
+            from hmm_gaussian_numba import GaussianHMM as CustomHMM
+            gmm = CustomHMM(
+                n_components=n_clusters,
+                covariance_type=GMM_COVARIANCE_TYPE,
+                n_init=GMM_N_INIT,
+                random_state=GMM_RANDOM_STATE,
+                n_iter=GMM_MAX_ITER_ESCALATED,
+                reg_covar=1e-6,
+            )
+        else:
+            gmm = GaussianMixture(
+                n_components=n_clusters,
+                covariance_type=GMM_COVARIANCE_TYPE,
+                n_init=GMM_N_INIT,
+                random_state=GMM_RANDOM_STATE,
+                max_iter=GMM_MAX_ITER_ESCALATED,
+            )
         gmm.fit(X)
         max_iter_used = GMM_MAX_ITER_ESCALATED
     else:
@@ -229,6 +264,7 @@ def fit_gmm_with_convergence_monitoring(features, n_clusters,
         'n_iter_actual': int(gmm.n_iter_),
         'max_iter_used': int(max_iter_used),
         'bic': float(gmm.bic(X)),
+        'model_type': model_type,
     }
 
 
@@ -387,7 +423,8 @@ def load_top_k_presets(symbol, presets_dir, baseline_json_dir, k=10):
 # --------------------------------------------------------------------------
 
 def run_cell(symbol, n_clusters, p_threshold, label, output_root,
-             features_cache=None, top_k_presets=None, baseline_json_dir=None):
+             features_cache=None, top_k_presets=None, baseline_json_dir=None,
+             hmm_enabled=False):
     """Execute single ablation matrix cell.
 
     Resume logic: skip cell if cell_metadata.json status='completed' exists.
@@ -442,9 +479,10 @@ def run_cell(symbol, n_clusters, p_threshold, label, output_root,
               f"< {n_clusters * 50})")
         return None
 
-    # Fit GMM with convergence monitoring (Opción ε)
-    gmm_result = fit_gmm_with_convergence_monitoring(valid_features, n_clusters)
-    print(f"   ✅ GMM N={n_clusters} BIC={gmm_result['bic']:.1f} "
+    # Fit GMM (or HMM if hmm_enabled=True) with convergence monitoring (Opción ε)
+    gmm_result = fit_gmm_with_convergence_monitoring(valid_features, n_clusters,
+                                                      hmm_enabled=hmm_enabled)
+    print(f"   ✅ {gmm_result['model_type']} N={n_clusters} BIC={gmm_result['bic']:.1f} "
           f"converged={gmm_result['converged']} n_iter={gmm_result['n_iter_actual']} "
           f"max_iter_used={gmm_result['max_iter_used']}")
 
@@ -663,6 +701,12 @@ def parse_args():
                         help='Dir with baseline {SYM}USDT_specialist_configs.json '
                              '(Sesión 4.5 / M2 fix smoke 2026-04-24 working tree '
                              f'regime_wf/, default {os.path.join(_ROOT, "regime_wf")}).')
+    parser.add_argument('--hmm-enabled', action='store_true',
+                        help='Frame 3.A meta-redesign Eje 1 split C Phase 2A: drop-in '
+                             'custom Numba HMM Gaussian (hmm_gaussian_numba.py) replace '
+                             'GMM. Markov regime persistence transitions matrix paradigm '
+                             'shift. Validated split A 15/15 tests + split B identical-init '
+                             'atol 1e-7. Default False preserve productive baseline absoluto.')
     return parser.parse_args()
 
 
@@ -721,7 +765,8 @@ def main():
                 run_cell(symbol, n, p, label, args.output_root,
                          features_cache=features_cache,
                          top_k_presets=args.top_k_presets,
-                         baseline_json_dir=args.baseline_json_dir)
+                         baseline_json_dir=args.baseline_json_dir,
+                         hmm_enabled=args.hmm_enabled)
 
     # Phase B: post-cell analysis (Spearman ρ + gates + decision)
     print(f"\n{'=' * 70}\n🔬 POST-CELL ANALYSIS — "

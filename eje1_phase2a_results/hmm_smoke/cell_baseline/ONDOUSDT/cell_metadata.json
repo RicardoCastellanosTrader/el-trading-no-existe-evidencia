@@ -1,0 +1,13 @@
+{
+  "status": "completed",
+  "cell_label": "baseline",
+  "symbol": "ONDO/USDT",
+  "n_clusters": 3,
+  "p_threshold": 0.75,
+  "gmm_bic": 47232.90600293978,
+  "gmm_converged": true,
+  "gmm_n_iter": 121,
+  "gmm_max_iter_used": 300,
+  "elapsed_seconds": 7248.555226325989,
+  "timestamp": "2026-04-30T22:39:37.037750"
+}

@@ -1,0 +1,28 @@
+{
+  "timestamp": "20260430_180340",
+  "symbol": "ONDO/USDT",
+  "n_clusters": 3,
+  "n_bars_total": 8335,
+  "n_valid_features": 7336,
+  "gmm_bic_productive": 58816.35204861879,
+  "hmm_bic": 47232.90600293978,
+  "hmm_fit_seconds": 1.5289039611816406,
+  "hungarian_matching_hmm_to_gmm": [
+    0,
+    1,
+    2
+  ],
+  "cluster_label_agreement_pct": 0.8902671755725191,
+  "episodes_per_cluster_gmm": {
+    "0": 18,
+    "1": 8,
+    "2": 12
+  },
+  "episodes_per_cluster_hmm": {
+    "0": 20,
+    "1": 9,
+    "2": 23
+  },
+  "outcome": "PHASE2_RECOMMENDED",
+  "outcome_desc": "Cluster labels HMM vs GMM agreement 89.03% en [70%, 90%) borderline \u2192 Ricardo decisi\u00f3n strategic Phase 2 full walk-forward OR HMM_NEUTRAL acceptance."
+}
