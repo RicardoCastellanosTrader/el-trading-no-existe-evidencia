@@ -1,0 +1,206 @@
+{
+  "timestamp": "20260430_174233",
+  "n_tests": 7,
+  "n_pass_strict": 2,
+  "n_pass_marginal": 0,
+  "n_fail": 5,
+  "cumulative_outcome": "FAIL_SUBSTANTIAL",
+  "elapsed_seconds": 227.0197150707245,
+  "tests": [
+    {
+      "label": "T_REF_1_synthetic_2state",
+      "X_shape": [
+        1000,
+        2
+      ],
+      "K": 2,
+      "custom_converged": true,
+      "custom_n_iter": 8,
+      "custom_log_likelihood": -2489.1934042586645,
+      "custom_fit_time_seconds": 0.13361835479736328,
+      "ref_converged": true,
+      "ref_n_iter": 13,
+      "ref_log_likelihood": -2489.191486894886,
+      "ref_fit_time_seconds": 1.3608121871948242,
+      "matching": [
+        0,
+        1
+      ],
+      "means_max_diff": 9.359382509505015e-06,
+      "transmat_frobenius_norm": 1.0875610126109335e-06,
+      "log_likelihood_relative_diff": 7.702757254593303e-07,
+      "predict_agreement_pct": 1.0,
+      "outcome": "PASS_STRICT"
+    },
+    {
+      "label": "T_REF_2_synthetic_3state",
+      "X_shape": [
+        1000,
+        3
+      ],
+      "K": 3,
+      "custom_converged": true,
+      "custom_n_iter": 6,
+      "custom_log_likelihood": -3690.328912452825,
+      "custom_fit_time_seconds": 0.0715188980102539,
+      "ref_converged": true,
+      "ref_n_iter": 56,
+      "ref_log_likelihood": -4859.332365376183,
+      "ref_fit_time_seconds": 0.1335737705230713,
+      "matching": [
+        0,
+        1,
+        2
+      ],
+      "means_max_diff": 5.217667815580542,
+      "transmat_frobenius_norm": 1.7572144657637425,
+      "log_likelihood_relative_diff": 0.24056873764239006,
+      "predict_agreement_pct": 0.665,
+      "outcome": "FAIL"
+    },
+    {
+      "label": "T_REF_3_synthetic_4state_5dim",
+      "X_shape": [
+        1500,
+        5
+      ],
+      "K": 4,
+      "custom_converged": true,
+      "custom_n_iter": 10,
+      "custom_log_likelihood": -8948.297743623134,
+      "custom_fit_time_seconds": 0.08769893646240234,
+      "ref_converged": true,
+      "ref_n_iter": 9,
+      "ref_log_likelihood": -8948.28992972217,
+      "ref_fit_time_seconds": 0.06983590126037598,
+      "matching": [
+        3,
+        0,
+        2,
+        1
+      ],
+      "means_max_diff": 1.9086123251344135e-07,
+      "transmat_frobenius_norm": 1.0417971563843643e-07,
+      "log_likelihood_relative_diff": 8.732284073470278e-07,
+      "predict_agreement_pct": 1.0,
+      "outcome": "PASS_STRICT"
+    },
+    {
+      "label": "T_REF_4_BTC_k3_productive_baseline",
+      "X_shape": [
+        75019,
+        3
+      ],
+      "K": 3,
+      "custom_converged": true,
+      "custom_n_iter": 23,
+      "custom_log_likelihood": 184293.39984644423,
+      "custom_fit_time_seconds": 4.446014642715454,
+      "ref_converged": true,
+      "ref_n_iter": 37,
+      "ref_log_likelihood": 160750.188546959,
+      "ref_fit_time_seconds": 2.0247461795806885,
+      "matching": [
+        0,
+        1,
+        2
+      ],
+      "means_max_diff": 0.3820313881245461,
+      "transmat_frobenius_norm": 1.9694237407124326,
+      "log_likelihood_relative_diff": 0.146458374402514,
+      "predict_agreement_pct": 0.6298137805089378,
+      "outcome": "FAIL"
+    },
+    {
+      "label": "T_REF_5_BTC_k6_subframe3a1_methodology",
+      "X_shape": [
+        75019,
+        3
+      ],
+      "K": 6,
+      "custom_converged": true,
+      "custom_n_iter": 40,
+      "custom_log_likelihood": 233913.02854628392,
+      "custom_fit_time_seconds": 22.3751859664917,
+      "ref_converged": true,
+      "ref_n_iter": 200,
+      "ref_log_likelihood": 210154.01464708836,
+      "ref_fit_time_seconds": 24.56709599494934,
+      "matching": [
+        1,
+        4,
+        3,
+        2,
+        5,
+        0
+      ],
+      "means_max_diff": 0.3879008452926911,
+      "transmat_frobenius_norm": 2.39421101943091,
+      "log_likelihood_relative_diff": 0.1130552463586959,
+      "predict_agreement_pct": 0.4467001692904464,
+      "outcome": "FAIL"
+    },
+    {
+      "label": "T_REF_6_ONDO_k4_kmaxop_n2extended",
+      "X_shape": [
+        7336,
+        3
+      ],
+      "K": 4,
+      "custom_converged": true,
+      "custom_n_iter": 77,
+      "custom_log_likelihood": 22934.96719595484,
+      "custom_fit_time_seconds": 0.6429011821746826,
+      "ref_converged": true,
+      "ref_n_iter": 48,
+      "ref_log_likelihood": 23153.40190861461,
+      "ref_fit_time_seconds": 0.4007234573364258,
+      "matching": [
+        1,
+        0,
+        3,
+        2
+      ],
+      "means_max_diff": 0.08039306387443314,
+      "transmat_frobenius_norm": 0.015573517711044836,
+      "log_likelihood_relative_diff": 0.009434238369027707,
+      "predict_agreement_pct": 0.6648037077426391,
+      "outcome": "FAIL"
+    },
+    {
+      "label": "T_REF_7_ETH_k12_kmaxop_n2extended_amplio",
+      "X_shape": [
+        74274,
+        3
+      ],
+      "K": 12,
+      "custom_converged": true,
+      "custom_n_iter": 27,
+      "custom_log_likelihood": 275620.4662771054,
+      "custom_fit_time_seconds": 88.9150698184967,
+      "ref_converged": true,
+      "ref_n_iter": 200,
+      "ref_log_likelihood": 263346.0463037861,
+      "ref_fit_time_seconds": 58.21524214744568,
+      "matching": [
+        4,
+        0,
+        9,
+        1,
+        6,
+        11,
+        10,
+        2,
+        8,
+        5,
+        3,
+        7
+      ],
+      "means_max_diff": 1.0294709484842846,
+      "transmat_frobenius_norm": 3.3446734613737483,
+      "log_likelihood_relative_diff": 0.04660947124742466,
+      "predict_agreement_pct": 0.37616124081105096,
+      "outcome": "FAIL"
+    }
+  ]
+}
