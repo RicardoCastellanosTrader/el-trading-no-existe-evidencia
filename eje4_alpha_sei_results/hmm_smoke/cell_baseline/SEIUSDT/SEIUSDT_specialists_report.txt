@@ -1,0 +1,407 @@
+====================================================================================================
+REGIME WALK-FORWARD — SPECIALIST EXTRACTION — SEI/USDT
+====================================================================================================
+Date: 2026-05-02 16:17
+Bars: 22857 | Clusters: 3
+Train filters : trades >= 30, pnl > 0, PF >= 1.2
+Forward filters: trades >= 25, pnl > 0, PF >= 1.1 (W4); then W4 CI post-bootstrap: require_not_sospechoso=True, min_ci_low=0.0, max_ci_width=inf
+Toxic tail: DYNAMIC (threshold=75%)
+
+================================================================================
+EPISODES & SPLIT
+================================================================================
+
+  C0 (neutral_low-vol_choppy): 45 episodes
+    Train: 31 eps, 5566 bars
+    Forward: 14 eps, 2529 bars [+65 toxic tail]
+
+  C1 (neutral_mid-vol_choppy): 56 episodes
+    Train: 39 eps, 4245 bars
+    Forward: 17 eps, 2187 bars [+85 toxic tail]
+
+  C2 (neutral_high-vol_choppy): 20 episodes
+    Train: 14 eps, 4857 bars
+    Forward: 6 eps, 1083 bars [+30 toxic tail]
+
+================================================================================
+TOXIC TAIL (dynamic, threshold=75%)
+================================================================================
+  C0 (neutral_low-vol_choppy): mean=5 median=5 min=0 max=5 (14 episodes)
+  C1 (neutral_mid-vol_choppy): mean=5 median=5 min=5 max=5 (17 episodes)
+  C2 (neutral_high-vol_choppy): mean=5 median=5 min=5 max=5 (6 episodes)
+
+================================================================================
+TRANSITION MATRIX (Markov — bar-level)
+================================================================================
+             -> C0     -> C1     -> C2
+      C0     99.2%      0.7%      0.0%
+      C1      0.9%     98.8%      0.3%
+      C2      0.0%      0.4%     99.6%
+
+  TRANSITION MATRIX (Markov — episode-level)
+             -> C0     -> C1     -> C2
+      C0      0.0%     94.2%      5.8%
+      C1     76.1%      0.0%     23.9%
+      C2      8.0%     92.0%      0.0%
+
+================================================================================
+CLUSTER C0 (neutral_low-vol_choppy)
+================================================================================
+  Total config-rows evaluated: 1,253,498,880
+  Pass train filter:           96,512,022 (7.7%)
+  Pass forward (validated):    14,620,398 (15.1% survival train→fwd)
+
+  RANKING METRICS — Top 20 specialists (score uses sqn_p5):
+    #   config_id                               preset  pf_comb  sqn_comb   sqn_p5   nb  trades    maxdd  robust  plateau    score
+  ----------------------------------------------------------------------------------------------------------------------------------
+    1     9649144             McGinley(24)/EMA(30)_H00     1.82      3.56     1.19   25     154  13.3446    1.50        —     1.57
+    2     9649129             McGinley(24)/EMA(30)_H00     1.81      3.55     0.34   25     158  14.4638    1.50        —     1.58
+    3     1260392             McGinley(24)/EMA(30)_H00     1.86      3.60     1.25   25     146  25.1869    1.50        —     1.56
+    4     1260520             McGinley(24)/EMA(30)_H00     1.86      3.60     1.25   25     146  25.1869    1.50        —     1.56
+    5     9911002             McGinley(24)/EMA(33)_H05     1.86      4.10    -0.08   25     192  13.5572    1.50        —     1.79
+    6     9911003             McGinley(24)/EMA(33)_H05     1.82      3.99    -0.09   25     192  13.5572    1.50        —     1.76
+    7     9648859             McGinley(24)/EMA(33)_H05     1.79      3.77    -0.44   25     179  13.0478    1.50        —     1.67
+    8     5716929           McGinley(14)/FRAMA(33)_H00     1.79      3.31    -2.03   25     152  15.5482    1.50        —     1.53
+    9     9648984             McGinley(24)/EMA(30)_H05     1.96      4.01     1.13   25     158  10.1402    1.50        —     1.71
+   10     9649112             McGinley(24)/EMA(30)_H05     1.96      4.01     1.13   25     158  10.1402    1.50        —     1.71
+   11     9649113             McGinley(24)/EMA(30)_H05     1.96      4.01     0.42   25     158  10.1402    1.50        —     1.71
+   12     9911256             McGinley(24)/EMA(30)_H05     1.94      4.03     1.00   25     170  10.2522    1.50        —     1.76
+   13     9911288             McGinley(24)/EMA(30)_H05     1.81      3.63     1.07   25     166  12.9173    1.50        —     1.63
+   14     9649112             McGinley(24)/EMA(30)_H00     1.99      4.07     1.19   25     156  10.1402    1.50        —     1.73
+   15     9648984             McGinley(24)/EMA(30)_H00     1.99      4.07     1.19   25     156  10.1402    1.50        —     1.73
+   16     9911160             McGinley(24)/EMA(30)_H05     1.81      3.63     1.07   25     166  12.9173    1.50        —     1.63
+   17     9911001             McGinley(24)/EMA(30)_H05     1.81      3.95     0.25   25     196  18.7435    1.50        —     1.77
+   18     9648728             McGinley(24)/EMA(30)_H05     1.82      3.86     0.63   25     181  16.8348    1.50        —     1.70
+   19     9648856             McGinley(24)/EMA(30)_H05     1.82      3.86     0.63   25     181  16.8348    1.50        —     1.70
+   20     9649113             McGinley(24)/EMA(30)_H00     1.99      4.07     0.54   25     156  10.1402    1.50        —     1.73
+
+  PF forward distribution (validated, top 24,152):
+    min=1.31  p25=1.92  median=2.16  p75=2.43  max=3.80
+  PF combined distribution:
+    min=1.29  p25=1.64  median=1.74  p75=1.86  max=3.02
+
+  W3 BOOTSTRAP pf_fwd (N=1000 resamples, binomial pool approx, CI=0.95):
+    pf_fwd_ci_low: min=1.00  median=1.19  max=2.16
+    ci_width:      min=0.76  median=2.61  max=5.00
+    flagged suspicious: 0/24152  (ci_low<1.0 or ci_width>5.0)
+    selection order: pf_fwd_ci_low (M2 fix 2026-04-24; tie-breaker specialist_score_ci_low W3b)
+
+  CSV: eje4_alpha_sei_results/hmm_smoke/cell_baseline\SEIUSDT\SEIUSDT_cluster_0_specialists.csv (top 1000)
+
+  Plateau analysis (top 100):
+    Avg plateau ratio: 0.37  (median 0.40, max 0.64)
+    Configs with ratio > 0.3: 75/100
+
+================================================================================
+CLUSTER C1 (neutral_mid-vol_choppy)
+================================================================================
+  Total config-rows evaluated: 1,253,498,880
+  Pass train filter:           321,496,247 (25.6%)
+  Pass forward (validated):    137,959,925 (42.9% survival train→fwd)
+
+  RANKING METRICS — Top 20 specialists (score uses sqn_p5):
+    #   config_id                               preset  pf_comb  sqn_comb   sqn_p5   nb  trades    maxdd  robust  plateau    score
+  ----------------------------------------------------------------------------------------------------------------------------------
+    1     2759008                ALMA(12)/TEMA(30)_H00     2.28      5.47     1.63   22     168  14.3589    1.50        —     2.23
+    2    37042893            McGinley(24)/DEMA(63)_H00     2.38      5.18     2.49   25     153  22.1049    1.50        —     3.40
+    3    37173967            McGinley(24)/DEMA(63)_H00     2.52      5.56     2.66   25     154  14.8415    1.50        —     3.85
+    4    36911815            McGinley(24)/DEMA(63)_H00     2.37      5.14     2.18   25     152  21.4413    1.50        —     2.95
+    5    36027117            McGinley(24)/DEMA(63)_H00     2.43      4.99     2.14   25     136  16.9223    1.50        —     2.78
+    6    37206732            McGinley(24)/DEMA(63)_H00     2.37      5.24     2.55   25     158  15.0205    1.50        —     3.52
+    7    37206734            McGinley(24)/DEMA(63)_H00     2.37      5.24     2.50   25     158  15.0205    1.50        —     3.45
+    8    36027020            McGinley(24)/DEMA(63)_H00     2.20      5.07     1.84   25     182  17.5378    1.50        —     2.53
+    9    36027021            McGinley(24)/DEMA(63)_H00     2.20      5.07     1.81   25     182  17.5378    1.50        —     2.49
+   10    40221325            McGinley(24)/DEMA(63)_H00     2.20      5.07     1.81   25     182  17.5378    1.50        —     2.49
+   11    40221380            McGinley(24)/DEMA(63)_H00     2.29      5.00     2.38   25     156  16.0820    1.50        —     3.15
+   12    36027076            McGinley(24)/DEMA(63)_H00     2.29      5.00     2.38   25     156  16.0820    1.50        —     3.15
+   13    36027012            McGinley(24)/DEMA(63)_H00     2.29      5.00     2.38   25     156  16.0820    1.50        —     3.15
+   14    40221382            McGinley(24)/DEMA(63)_H00     2.29      5.00     2.36   25     156  16.0820    1.50        —     3.13
+   15    40221381            McGinley(24)/DEMA(63)_H00     2.29      5.00     1.89   25     156  16.0820    1.50        —     2.50
+   16     3004768                ALMA(12)/TEMA(30)_H00     2.26      5.41     1.62   22     169  14.3589    1.50        —     2.21
+   17     3070304                ALMA(12)/TEMA(30)_H00     2.26      5.41     1.62   22     169  14.3589    1.50        —     2.21
+   18     2972000                ALMA(12)/TEMA(30)_H00     2.26      5.41     1.62   22     169  14.3589    1.50        —     2.21
+   19     2906464                ALMA(12)/TEMA(30)_H00     2.26      5.41     1.62   22     169  14.3589    1.50        —     2.21
+   20     2939232                ALMA(12)/TEMA(30)_H00     2.26      5.41     1.62   22     169  14.3589    1.50        —     2.21
+
+  PF forward distribution (validated, top 25,195):
+    min=1.29  p25=1.93  median=2.30  p75=2.79  max=4.50
+  PF combined distribution:
+    min=1.25  p25=1.67  median=1.97  p75=2.33  max=6.55
+
+  W3 BOOTSTRAP pf_fwd (N=1000 resamples, binomial pool approx, CI=0.95):
+    pf_fwd_ci_low: min=1.00  median=1.38  max=2.79
+    ci_width:      min=0.70  median=2.60  max=5.00
+    flagged suspicious: 0/25195  (ci_low<1.0 or ci_width>5.0)
+    selection order: pf_fwd_ci_low (M2 fix 2026-04-24; tie-breaker specialist_score_ci_low W3b)
+
+  CSV: eje4_alpha_sei_results/hmm_smoke/cell_baseline\SEIUSDT\SEIUSDT_cluster_1_specialists.csv (top 1000)
+
+  Plateau analysis (top 100):
+    Avg plateau ratio: 0.21  (median 0.20, max 0.52)
+    Configs with ratio > 0.3: 16/100
+
+================================================================================
+CLUSTER C2 (neutral_high-vol_choppy)
+================================================================================
+  Total config-rows evaluated: 1,253,498,880
+  Pass train filter:           16,338,958 (1.3%)
+  Pass forward (validated):    630,897 (3.9% survival train→fwd)
+
+  RANKING METRICS — Top 20 specialists (score uses sqn_p5):
+    #   config_id                               preset  pf_comb  sqn_comb   sqn_p5   nb  trades    maxdd  robust  plateau    score
+  ----------------------------------------------------------------------------------------------------------------------------------
+    1    24967696                 ALMA(22)/HMA(42)_H00     1.59      3.31    -2.28   24     207  25.3621    1.50        —     1.60
+    2    18709021                 ALMA(24)/HMA(45)_H05     1.45      2.49    -2.03   24     203  28.7474    1.50        —     1.44
+    3     1094165                TEMA(8)/VIDYA(63)_H05     1.43      2.32    -1.40   24     231  56.5658    1.50        —     1.51
+    4    42203799               VWMA(14)/FRAMA(66)_H00     1.58      2.58    -2.72   25     140  21.7649    1.50        —     1.29
+    5    26554909                 ALMA(24)/HMA(45)_H00     1.66      3.00    -1.55   23     167  29.6810    1.50        —     1.49
+    6    24590874                 ALMA(24)/HMA(45)_H00     1.60      3.02    -2.90   24     180  26.5379    1.50        —     1.50
+    7     3187463                TEMA(8)/VIDYA(66)_H05     1.57      2.43    -0.67   24     159  50.8206    1.50        —     1.37
+    8     1418117                TEMA(8)/VIDYA(66)_H00     1.53      2.48    -0.75   24     181  45.8551    1.50        —     1.43
+    9     5288453                HMA(18)/VIDYA(63)_H00     1.50      2.64    -0.75   24     237  41.0318    1.50        —     1.60
+   10    24672899          VIDYA(12)/SSmoother(36)_H00     1.59      2.66    -3.99   24     149  19.7573    1.50        —     1.35
+   11     5612309                TEMA(8)/VIDYA(63)_H00     1.55      2.49    -0.47   24     174  34.2027    1.50        —     1.42
+   12     1418005                TEMA(8)/VIDYA(63)_H05     1.47      2.27    -0.69   24     179  41.6023    1.50        —     1.37
+   13     1352451                TEMA(8)/VIDYA(66)_H05     1.51      2.54    -1.80   24     188  22.3636    1.50        —     1.44
+   14      965285                   T3(24)/HMA(63)_H05     1.46      2.61    -1.92   25     213  25.5272    1.50        —     1.48
+   15     1094151                HMA(18)/VIDYA(63)_H00     1.40      2.25    -0.72   24     242  53.2510    1.50        —     1.51
+   16     5599897                ALMA(10)/TEMA(33)_H00     1.45      2.67    -0.28   24     225  33.6215    1.50        —     1.51
+   17    18659865                 ALMA(22)/HMA(42)_H05     1.46      2.62    -2.05   24     225  32.0281    1.50        —     1.52
+   18    22936089                 ALMA(22)/HMA(42)_H05     1.53      2.96    -2.43   24     235  32.2738    1.50        —     1.63
+   19    18741785                 ALMA(22)/HMA(42)_H05     1.53      2.96    -2.43   24     235  32.2738    1.50        —     1.63
+   20    22786707          VIDYA(12)/SSmoother(36)_H00     1.64      2.76    -2.26   23     144  24.4937    1.50        —     1.36
+
+  PF forward distribution (validated, top 11,997):
+    min=1.62  p25=2.25  median=2.45  p75=2.68  max=3.80
+  PF combined distribution:
+    min=1.27  p25=1.41  median=1.48  p75=1.57  max=2.19
+
+  W3 BOOTSTRAP pf_fwd (N=1000 resamples, binomial pool approx, CI=0.95):
+    pf_fwd_ci_low: min=1.00  median=1.18  max=2.10
+    ci_width:      min=1.66  median=3.89  max=5.00
+    flagged suspicious: 0/11997  (ci_low<1.0 or ci_width>5.0)
+    selection order: pf_fwd_ci_low (M2 fix 2026-04-24; tie-breaker specialist_score_ci_low W3b)
+
+  CSV: eje4_alpha_sei_results/hmm_smoke/cell_baseline\SEIUSDT\SEIUSDT_cluster_2_specialists.csv (top 1000)
+
+  Plateau analysis (top 100):
+    Avg plateau ratio: 0.21  (median 0.20, max 0.52)
+    Configs with ratio > 0.3: 22/100
+
+================================================================================
+CROSS-CLUSTER SURVIVAL
+================================================================================
+  Filter: PF_fwd < 0.7 in adjacent cluster (P_transition > 10%)
+
+  C0 specialists: 24,152 validated -> 23,607 survive cross-cluster filter (97.7%)
+    Adjacent clusters: C1(P=94.2%)
+
+  C1 specialists: 25,195 validated -> 23,642 survive cross-cluster filter (93.8%)
+    Adjacent clusters: C0(P=76.1%), C2(P=23.9%)
+
+  C2 specialists: 11,997 validated -> 11,146 survive cross-cluster filter (92.9%)
+    Adjacent clusters: C1(P=92.0%)
+
+================================================================================
+CROSS-CLUSTER PROFILE
+================================================================================
+
+  C0 (neutral_low-vol_choppy) — top 5 surviving specialists:
+    Config 9649144 (McGinley(24)/EMA(30)_H00):
+      C0: PF=1.82 154t <- specialist cluster
+      C1: PF=1.20 (P=94.2%) — SURVIVES
+      C2: PF=0.61
+    Config 9649129 (McGinley(24)/EMA(30)_H00):
+      C0: PF=1.81 158t <- specialist cluster
+      C1: PF=1.20 (P=94.2%) — SURVIVES
+      C2: PF=0.61
+    Config 1260392 (McGinley(24)/EMA(30)_H00):
+      C0: PF=1.86 146t <- specialist cluster
+      C1: PF=1.20 (P=94.2%) — SURVIVES
+      C2: PF=2.09
+    Config 1260520 (McGinley(24)/EMA(30)_H00):
+      C0: PF=1.86 146t <- specialist cluster
+      C1: PF=1.20 (P=94.2%) — SURVIVES
+      C2: PF=2.09
+    Config 9911002 (McGinley(24)/EMA(33)_H05):
+      C0: PF=1.86 192t <- specialist cluster
+      C1: PF=1.09 (P=94.2%) — SURVIVES
+      C2: PF=1.22
+
+  C1 (neutral_mid-vol_choppy) — top 5 surviving specialists:
+    Config 2759008 (ALMA(12)/TEMA(30)_H00):
+      C0: PF=0.88 (P=76.1%) — SURVIVES
+      C1: PF=2.28 168t <- specialist cluster
+      C2: PF=0.73 (P=23.9%) — SURVIVES
+    Config 37042893 (McGinley(24)/DEMA(63)_H00):
+      C0: PF=1.17 (P=76.1%) — SURVIVES
+      C1: PF=2.38 153t <- specialist cluster
+      C2: PF=0.72 (P=23.9%) — SURVIVES
+    Config 36911815 (McGinley(24)/DEMA(63)_H00):
+      C0: PF=1.06 (P=76.1%) — SURVIVES
+      C1: PF=2.37 152t <- specialist cluster
+      C2: PF=0.70 (P=23.9%) — SURVIVES
+    Config 37206732 (McGinley(24)/DEMA(63)_H00):
+      C0: PF=1.01 (P=76.1%) — SURVIVES
+      C1: PF=2.37 158t <- specialist cluster
+      C2: PF=0.74 (P=23.9%) — SURVIVES
+    Config 37206734 (McGinley(24)/DEMA(63)_H00):
+      C0: PF=1.01 (P=76.1%) — SURVIVES
+      C1: PF=2.37 158t <- specialist cluster
+      C2: PF=0.74 (P=23.9%) — SURVIVES
+
+  C2 (neutral_high-vol_choppy) — top 5 surviving specialists:
+    Config 24967696 (ALMA(22)/HMA(42)_H00):
+      C0: PF=0.59
+      C1: PF=1.25 (P=92.0%) — SURVIVES
+      C2: PF=1.59 207t <- specialist cluster
+    Config 18709021 (ALMA(24)/HMA(45)_H05):
+      C0: PF=0.62
+      C1: PF=1.13 (P=92.0%) — SURVIVES
+      C2: PF=1.45 203t <- specialist cluster
+    Config 1094165 (TEMA(8)/VIDYA(63)_H05):
+      C0: PF=1.35
+      C1: PF=0.87 (P=92.0%) — SURVIVES
+      C2: PF=1.43 231t <- specialist cluster
+    Config 42203799 (VWMA(14)/FRAMA(66)_H00):
+      C0: PF=0.74
+      C1: PF=0.78 (P=92.0%) — SURVIVES
+      C2: PF=1.58 140t <- specialist cluster
+    Config 26554909 (ALMA(24)/HMA(45)_H00):
+      C0: PF=0.77
+      C1: PF=1.04 (P=92.0%) — SURVIVES
+      C2: PF=1.66 167t <- specialist cluster
+
+================================================================================
+CROSS-CLUSTER ANALYSIS: GENERALISTAS
+================================================================================
+
+  Configs validated in >1 cluster: 135
+  (These are potential generalistas — work across regimes)
+    In 2 clusters: 135 configs
+
+
+====================================================================================================
+SECONDARY: CORRELATION ANALYSIS
+====================================================================================================
+====================================================================================================
+REGIME WALK-FORWARD — SEI/USDT
+====================================================================================================
+Bars: 22857 | Clusters: 3
+Date: 2026-05-02 16:26
+
+================================================================================
+EPISODES & SPLIT
+================================================================================
+
+  C0 (neutral_low-vol_choppy): 45 episodes
+    Train: 31 eps, 5566 bars
+    Forward: 14 eps, 2529 bars
+
+  C1 (neutral_mid-vol_choppy): 56 episodes
+    Train: 39 eps, 4245 bars
+    Forward: 17 eps, 2187 bars
+
+  C2 (neutral_high-vol_choppy): 20 episodes
+    Train: 14 eps, 4857 bars
+    Forward: 6 eps, 1083 bars
+
+================================================================================
+CORRELATIONS: TRAIN → FORWARD (by cluster)
+================================================================================
+
+  Metric                    r(train,fwd)        N     r(global)
+  ------------------------------------------------------------
+
+  C0 (neutral_low-vol_choppy) — 49,999,980 config-rows from part files
+    pf_tr → pf_fwd                  +0.060 49150229        +0.108
+    pf_tr → pnl_fwd                 +0.108 49150229           N/A
+    score_tr → pnl_fwd              +0.320 49150229           N/A
+    pnl_tr → pnl_fwd                +0.311 49150229           N/A
+    trades_tr → pnl_fwd             -0.438 49150229           N/A
+
+    Top 10 by pf_tr (cluster C0):
+    Rank    pf_tr   pf_fwd    pnl_tr   pnl_fwd  tr_tr  tr_fwd
+       1     5.52     1.15     +43.8      +2.1     32     18
+       2     5.52     1.29     +43.8      +3.5     32     18
+       3     5.43     0.89    +104.8      -1.8     31     15
+       4     5.35     1.07     +52.7      +1.0     35     20
+       5     5.34     1.26     +51.5      +3.1     34     19
+       6     5.21     0.46     +49.0      -8.7     34     15
+       7     5.21     0.46     +49.0      -8.7     34     15
+       8     5.11     1.09     +42.5      +1.0     35     18
+       9     5.11     1.09     +42.5      +1.0     35     18
+      10     5.00     0.56     +25.9      -1.4     30      8
+
+    PF forward distribution (C0): min=0.00 p25=0.69 median=0.81 p75=0.92 max=439.69
+
+  C1 (neutral_mid-vol_choppy) — 49,999,980 config-rows from part files
+    pf_tr → pf_fwd                  +0.291 48454261        +0.359
+    pf_tr → pnl_fwd                 +0.297 48454261           N/A
+    score_tr → pnl_fwd              +0.440 48454261           N/A
+    pnl_tr → pnl_fwd                +0.449 48454261           N/A
+    trades_tr → pnl_fwd             -0.534 48454261           N/A
+
+    Top 10 by pf_tr (cluster C1):
+    Rank    pf_tr   pf_fwd    pnl_tr   pnl_fwd  tr_tr  tr_fwd
+       1    12.49     0.87     +69.4      -2.4     33     21
+       2    12.48     0.45     +80.3      -7.6     30     18
+       3    11.99     0.45     +80.0      -7.6     31     18
+       4    11.48     0.41     +77.2      -8.2     30     18
+       5    10.27     1.19     +78.8      +3.5     33     21
+       6    10.20     8.98     +56.0     +21.7     43     19
+       7     9.84     1.28     +95.7      +5.7     40     26
+       8     9.71     1.14     +64.3      +2.7     31     22
+       9     9.65     0.57     +93.5      -6.1     36     24
+      10     9.58     1.19     +78.2      +3.5     33     21
+
+    PF forward distribution (C1): min=0.00 p25=0.79 median=0.93 p75=1.13 max=320.13
+
+  C2 (neutral_high-vol_choppy) — 49,999,980 config-rows from part files
+    pf_tr → pf_fwd                  +0.088 48811233        +0.112
+    pf_tr → pnl_fwd                 +0.164 48811233           N/A
+    score_tr → pnl_fwd              +0.210 48811233           N/A
+    pnl_tr → pnl_fwd                +0.210 48811233           N/A
+    trades_tr → pnl_fwd             -0.154 48811233           N/A
+
+    Top 10 by pf_tr (cluster C2):
+    Rank    pf_tr   pf_fwd    pnl_tr   pnl_fwd  tr_tr  tr_fwd
+       1     6.34     0.39     +97.9      -6.9     30      7
+       2     5.75     0.46     +90.4      -5.5     30      8
+       3     5.04     4.73     +65.3     +15.3     32      5
+       4     4.78     2.16     +44.8     +20.0     30     13
+       5     4.54     0.31     +80.3     -10.1     31     10
+       6     4.53     0.21     +69.8      -8.5     30      8
+       7     4.36     0.39     +89.2      -6.9     34      7
+       8     4.36     0.60     +79.4      -5.3     33     10
+       9     4.36     0.61     +79.4      -5.1     32      9
+      10     4.34     0.60     +80.5      -5.3     34     10
+
+    PF forward distribution (C2): min=0.00 p25=0.76 median=1.01 p75=1.26 max=1717.13
+
+================================================================================
+SUMMARY: CLUSTER vs GLOBAL PREDICTABILITY
+================================================================================
+
+  Global (all clusters mixed, sampled 18 part files):
+    r(pf_tr, pf_fwd)  = +0.070  (N=368561360)
+    r(pnl_tr, pnl_fwd) = +0.359
+
+  C0 (neutral_low-vol_choppy):
+    r(pf_tr, pf_fwd)  = +0.060  (N=49150229)
+    r(pnl_tr, pnl_fwd) = +0.311
+    Δ vs global: -0.010 ≈ SAME
+
+  C1 (neutral_mid-vol_choppy):
+    r(pf_tr, pf_fwd)  = +0.291  (N=48454261)
+    r(pnl_tr, pnl_fwd) = +0.449
+    Δ vs global: +0.221 ↑ BETTER
+
+  C2 (neutral_high-vol_choppy):
+    r(pf_tr, pf_fwd)  = +0.088  (N=48811233)
+    r(pnl_tr, pnl_fwd) = +0.210
+    Δ vs global: +0.018 ≈ SAME
+
+====================================================================================================
+
+====================================================================================================

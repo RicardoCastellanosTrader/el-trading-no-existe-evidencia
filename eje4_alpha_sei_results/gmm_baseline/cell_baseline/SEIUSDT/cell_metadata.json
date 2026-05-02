@@ -1,0 +1,13 @@
+{
+  "status": "completed",
+  "cell_label": "baseline",
+  "symbol": "SEI/USDT",
+  "n_clusters": 3,
+  "p_threshold": 0.75,
+  "gmm_bic": 176946.26302358977,
+  "gmm_converged": true,
+  "gmm_n_iter": 9,
+  "gmm_max_iter_used": 300,
+  "elapsed_seconds": 11729.127988815308,
+  "timestamp": "2026-05-02T13:16:18.166390"
+}
