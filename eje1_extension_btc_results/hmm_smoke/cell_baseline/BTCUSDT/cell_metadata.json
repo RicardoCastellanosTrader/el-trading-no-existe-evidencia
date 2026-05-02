@@ -1,0 +1,13 @@
+{
+  "status": "completed",
+  "cell_label": "baseline",
+  "symbol": "BTC/USDT",
+  "n_clusters": 3,
+  "p_threshold": 0.75,
+  "gmm_bic": 485158.4000884006,
+  "gmm_converged": true,
+  "gmm_n_iter": 93,
+  "gmm_max_iter_used": 300,
+  "elapsed_seconds": 39026.744490623474,
+  "timestamp": "2026-05-02T08:18:32.251277"
+}
