@@ -1,0 +1,13 @@
+{
+  "status": "completed",
+  "cell_label": "baseline",
+  "symbol": "ETH/USDT",
+  "n_clusters": 3,
+  "p_threshold": 0.75,
+  "gmm_bic": 482313.93075857364,
+  "gmm_converged": true,
+  "gmm_n_iter": 68,
+  "gmm_max_iter_used": 300,
+  "elapsed_seconds": 37729.35658311844,
+  "timestamp": "2026-05-03T22:32:40.438510"
+}

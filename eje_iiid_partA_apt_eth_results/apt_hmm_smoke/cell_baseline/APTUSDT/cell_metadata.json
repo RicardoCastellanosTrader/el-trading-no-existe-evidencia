@@ -1,0 +1,13 @@
+{
+  "status": "completed",
+  "cell_label": "baseline",
+  "symbol": "APT/USDT",
+  "n_clusters": 3,
+  "p_threshold": 0.75,
+  "gmm_bic": 187812.1963329338,
+  "gmm_converged": true,
+  "gmm_n_iter": 169,
+  "gmm_max_iter_used": 300,
+  "elapsed_seconds": 13831.361189842224,
+  "timestamp": "2026-05-03T01:35:38.512645"
+}
