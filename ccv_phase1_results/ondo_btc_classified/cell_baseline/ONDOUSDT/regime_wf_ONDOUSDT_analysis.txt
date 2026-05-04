@@ -1,0 +1,93 @@
+====================================================================================================
+REGIME WALK-FORWARD — ONDO/USDT
+====================================================================================================
+Bars: 8335 | Clusters: 3
+Date: 2026-05-04 18:55
+
+================================================================================
+EPISODES & SPLIT
+================================================================================
+
+  C0 (neutral_high-vol_choppy): 4 episodes
+    ⚠️ insufficient episodes (4 < 5)
+
+  C1 (neutral_mid-vol_choppy): 23 episodes
+    Train: 16 eps, 1183 bars
+    Forward: 7 eps, 541 bars
+
+  C2 (neutral_low-vol_choppy): 14 episodes
+    Train: 9 eps, 778 bars
+    Forward: 5 eps, 480 bars
+
+================================================================================
+CORRELATIONS: TRAIN → FORWARD (by cluster)
+================================================================================
+
+  Metric                    r(train,fwd)        N     r(global)
+  ------------------------------------------------------------
+
+  C0 (neutral_high-vol_choppy): skipped (insufficient episodes (4 < 5))
+
+  C1 (neutral_mid-vol_choppy) — 49,999,962 config-rows from part files
+    pf_tr → pf_fwd                  +0.164 37777866        +0.160
+    pf_tr → pnl_fwd                 +0.289 37777866           N/A
+    score_tr → pnl_fwd              +0.356 37777866           N/A
+    pnl_tr → pnl_fwd                +0.367 37777866           N/A
+    trades_tr → pnl_fwd             -0.202 37777866           N/A
+
+    Top 10 by pf_tr (cluster C1):
+    Rank    pf_tr   pf_fwd    pnl_tr   pnl_fwd  tr_tr  tr_fwd
+       1     7.73     1.24     +39.4      +1.6     31     12
+       2     7.67     2.10     +49.0     +12.0     31     12
+       3     7.57     2.14     +36.8      +5.0     33     11
+       4     7.43     1.15     +38.8      +1.2     32     13
+       5     7.21     1.85     +33.3      +3.5     30      9
+       6     6.80     2.41     +43.9     +15.5     30     14
+       7     6.77     1.85     +33.1      +3.5     31      9
+       8     6.63     1.41     +34.3      +2.3     32     10
+       9     6.55     3.00     +33.2     +10.5     30     11
+      10     6.41     1.55     +32.2      +2.8     30      9
+
+    PF forward distribution (C1): min=0.00 p25=0.75 median=0.98 p75=1.26 max=253.82
+
+  C2 (neutral_low-vol_choppy) — 49,999,962 config-rows from part files
+    pf_tr → pf_fwd                  +0.087 27798659        +0.051
+    pf_tr → pnl_fwd                 +0.188 27798659           N/A
+    score_tr → pnl_fwd              +0.211 27798659           N/A
+    pnl_tr → pnl_fwd                +0.218 27798659           N/A
+    trades_tr → pnl_fwd             +0.077 27798659           N/A
+
+    Top 10 by pf_tr (cluster C2):
+    Rank    pf_tr   pf_fwd    pnl_tr   pnl_fwd  tr_tr  tr_fwd
+       1     8.52     1.38     +40.3      +4.0     31     10
+       2     8.39     1.23     +39.6      +2.8     31     11
+       3     8.34     1.27     +39.4      +2.5     31      9
+       4     8.34     1.38     +39.4      +4.0     31     10
+       5     7.98     1.35     +37.4      +3.3     31      9
+       6     7.96     1.38     +39.6      +4.0     32     10
+       7     7.85     1.47     +36.7      +5.0     31     10
+       8     7.85     1.47     +36.7      +5.0     31     10
+       9     7.84     1.27     +38.9      +2.5     32      9
+      10     7.66     1.12     +39.2      +1.2     31     10
+
+    PF forward distribution (C2): min=0.00 p25=0.75 median=0.99 p75=1.30 max=1583.05
+
+================================================================================
+SUMMARY: CLUSTER vs GLOBAL PREDICTABILITY
+================================================================================
+
+  Global (all clusters mixed, sampled 13 part files):
+    r(pf_tr, pf_fwd)  = +0.231  (N=205469562)
+    r(pnl_tr, pnl_fwd) = +0.319
+
+  C1 (neutral_mid-vol_choppy):
+    r(pf_tr, pf_fwd)  = +0.164  (N=37777866)
+    r(pnl_tr, pnl_fwd) = +0.367
+    Δ vs global: -0.066 ↓ WORSE
+
+  C2 (neutral_low-vol_choppy):
+    r(pf_tr, pf_fwd)  = +0.087  (N=27798659)
+    r(pnl_tr, pnl_fwd) = +0.218
+    Δ vs global: -0.144 ↓ WORSE
+
+====================================================================================================

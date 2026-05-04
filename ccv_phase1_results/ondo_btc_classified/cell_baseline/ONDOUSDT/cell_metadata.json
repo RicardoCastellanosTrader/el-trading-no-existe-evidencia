@@ -1,0 +1,15 @@
+{
+  "status": "completed",
+  "cell_label": "baseline",
+  "symbol": "ONDO/USDT",
+  "n_clusters": 3,
+  "p_threshold": 0.75,
+  "gmm_bic": 607169.1562430573,
+  "gmm_converged": true,
+  "gmm_n_iter": 0,
+  "gmm_max_iter_used": 0,
+  "model_type": "GMM_LOADED_BTC",
+  "cross_classify_source": "BTC",
+  "elapsed_seconds": 5633.541578769684,
+  "timestamp": "2026-05-04T18:58:40.438769"
+}
