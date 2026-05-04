@@ -424,7 +424,7 @@ def load_top_k_presets(symbol, presets_dir, baseline_json_dir, k=10):
 
 def run_cell(symbol, n_clusters, p_threshold, label, output_root,
              features_cache=None, top_k_presets=None, baseline_json_dir=None,
-             hmm_enabled=False):
+             hmm_enabled=False, cross_classify_source=None):
     """Execute single ablation matrix cell.
 
     Resume logic: skip cell if cell_metadata.json status='completed' exists.
@@ -479,12 +479,44 @@ def run_cell(symbol, n_clusters, p_threshold, label, output_root,
               f"< {n_clusters * 50})")
         return None
 
-    # Fit GMM (or HMM if hmm_enabled=True) with convergence monitoring (Opción ε)
-    gmm_result = fit_gmm_with_convergence_monitoring(valid_features, n_clusters,
-                                                      hmm_enabled=hmm_enabled)
-    print(f"   ✅ {gmm_result['model_type']} N={n_clusters} BIC={gmm_result['bic']:.1f} "
-          f"converged={gmm_result['converged']} n_iter={gmm_result['n_iter_actual']} "
-          f"max_iter_used={gmm_result['max_iter_used']}")
+    # Fit GMM (or HMM if hmm_enabled=True) OR load saved GMM cross-classification source
+    if cross_classify_source is not None:
+        # Cluster cross-validation Phase 1: load saved GMM from SOURCE symbol
+        if hmm_enabled:
+            raise ValueError(
+                f"--cross-classify-source ({cross_classify_source}) incompatible with "
+                f"--hmm-enabled: no saved HMMs in regime_models/ (only GMMs). "
+                f"Cross-classification Phase 1 scope GMM-only.")
+        import joblib
+        src_path = os.path.join(_ROOT, 'regime_models',
+                                f'{cross_classify_source}_regime.joblib')
+        if not os.path.exists(src_path):
+            raise FileNotFoundError(
+                f"Cross-classify source not found: {src_path}")
+        loaded = joblib.load(src_path)
+        loaded_n = loaded.get('n_clusters', loaded['gmm'].n_components)
+        if loaded_n != n_clusters:
+            raise ValueError(
+                f"Cross-classify source {cross_classify_source} n_clusters={loaded_n} "
+                f"!= cell n_clusters={n_clusters}. Phase 1 baseline N=3 only.")
+        gmm_result = {
+            'gmm': loaded['gmm'],
+            'scaler': loaded['scaler'],
+            'converged': True,
+            'n_iter_actual': 0,
+            'max_iter_used': 0,
+            'bic': float(loaded.get('bic_values', {}).get(loaded_n, float('nan'))),
+            'model_type': f'GMM_LOADED_{cross_classify_source}',
+        }
+        print(f"   📥 Cross-classify: loaded {cross_classify_source} GMM "
+              f"N={loaded_n} BIC={gmm_result['bic']:.1f} "
+              f"(target features {symbol} projected into {cross_classify_source} regime space)")
+    else:
+        gmm_result = fit_gmm_with_convergence_monitoring(valid_features, n_clusters,
+                                                          hmm_enabled=hmm_enabled)
+        print(f"   ✅ {gmm_result['model_type']} N={n_clusters} BIC={gmm_result['bic']:.1f} "
+              f"converged={gmm_result['converged']} n_iter={gmm_result['n_iter_actual']} "
+              f"max_iter_used={gmm_result['max_iter_used']}")
 
     model_data = build_model_data_dict(gmm_result, n_clusters)
 
@@ -552,6 +584,8 @@ def run_cell(symbol, n_clusters, p_threshold, label, output_root,
         'gmm_converged': gmm_result['converged'],
         'gmm_n_iter': gmm_result['n_iter_actual'],
         'gmm_max_iter_used': gmm_result['max_iter_used'],
+        'model_type': gmm_result['model_type'],
+        'cross_classify_source': cross_classify_source,
         'elapsed_seconds': elapsed,
         'timestamp': datetime.now().isoformat(),
     }
@@ -707,6 +741,13 @@ def parse_args():
                              'GMM. Markov regime persistence transitions matrix paradigm '
                              'shift. Validated split A 15/15 tests + split B identical-init '
                              'atol 1e-7. Default False preserve productive baseline absoluto.')
+    parser.add_argument('--cross-classify-source', type=str, default=None,
+                        help='Cluster cross-validation Phase 1: load saved GMM from '
+                             'regime_models/{SOURCE}_regime.joblib and apply to target '
+                             '--symbols features (bypass GMM fit). Source SYM e.g. "BTC". '
+                             'Tests cluster structure cross-cartera generalizability. '
+                             'Incompatible with --hmm-enabled (no saved HMMs). Default None '
+                             'preserves productive code path absoluto.')
     return parser.parse_args()
 
 
@@ -766,7 +807,8 @@ def main():
                          features_cache=features_cache,
                          top_k_presets=args.top_k_presets,
                          baseline_json_dir=args.baseline_json_dir,
-                         hmm_enabled=args.hmm_enabled)
+                         hmm_enabled=args.hmm_enabled,
+                         cross_classify_source=args.cross_classify_source)
 
     # Phase B: post-cell analysis (Spearman ρ + gates + decision)
     print(f"\n{'=' * 70}\n🔬 POST-CELL ANALYSIS — "
