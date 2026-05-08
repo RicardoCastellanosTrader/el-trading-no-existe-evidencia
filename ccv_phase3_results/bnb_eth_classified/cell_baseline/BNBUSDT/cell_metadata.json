@@ -1,0 +1,15 @@
+{
+  "status": "completed",
+  "cell_label": "baseline",
+  "symbol": "BNB/USDT",
+  "n_clusters": 3,
+  "p_threshold": 0.75,
+  "gmm_bic": 604246.2638369179,
+  "gmm_converged": true,
+  "gmm_n_iter": 0,
+  "gmm_max_iter_used": 0,
+  "model_type": "GMM_LOADED_ETH",
+  "cross_classify_source": "ETH",
+  "elapsed_seconds": 36361.02831029892,
+  "timestamp": "2026-05-06T03:57:48.491277"
+}

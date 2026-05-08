@@ -1,0 +1,15 @@
+{
+  "status": "completed",
+  "cell_label": "baseline",
+  "symbol": "RENDER/USDT",
+  "n_clusters": 3,
+  "p_threshold": 0.75,
+  "gmm_bic": 607169.1562430573,
+  "gmm_converged": true,
+  "gmm_n_iter": 0,
+  "gmm_max_iter_used": 0,
+  "model_type": "GMM_LOADED_BTC",
+  "cross_classify_source": "BTC",
+  "elapsed_seconds": 8904.092160463333,
+  "timestamp": "2026-05-08T00:48:10.512246"
+}

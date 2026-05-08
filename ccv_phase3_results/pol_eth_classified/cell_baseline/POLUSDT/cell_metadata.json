@@ -1,0 +1,15 @@
+{
+  "status": "completed",
+  "cell_label": "baseline",
+  "symbol": "POL/USDT",
+  "n_clusters": 3,
+  "p_threshold": 0.75,
+  "gmm_bic": 604246.2638369179,
+  "gmm_converged": true,
+  "gmm_n_iter": 0,
+  "gmm_max_iter_used": 0,
+  "model_type": "GMM_LOADED_ETH",
+  "cross_classify_source": "ETH",
+  "elapsed_seconds": 9054.59110045433,
+  "timestamp": "2026-05-07T22:18:55.444020"
+}

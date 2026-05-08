@@ -1,0 +1,37 @@
+{
+  "cells": [
+    {
+      "n_clusters": 3,
+      "p_threshold": 0.75,
+      "label": "baseline"
+    }
+  ],
+  "symbols": [
+    "XRP/USDT"
+  ],
+  "aggregated_per_cell": {
+    "baseline": {
+      "n_evaluated": 3,
+      "rho_mean": 0.32271023590235276,
+      "rho_median": 0.29010114229067197,
+      "rho_min": 0.13421714178840927,
+      "rho_max": 0.543812423627977,
+      "n_stable_positive": 1,
+      "n_strong_negative": 0,
+      "gate_a_pass": false,
+      "gate_b_pass": true
+    }
+  },
+  "decisions_opcion_gamma": {
+    "baseline": "FAIL_GATES"
+  },
+  "thresholds": {
+    "gate_a_rho_positive_min": 0.3,
+    "gate_a_required_count": 6,
+    "gate_b_rho_negative_max": -0.3,
+    "gate_b_max_count": 0,
+    "rho_mean_strong_pass": 0.4,
+    "rho_mean_marginal_low": 0.3
+  },
+  "timestamp": "2026-05-07T08:07:07.313031"
+}
