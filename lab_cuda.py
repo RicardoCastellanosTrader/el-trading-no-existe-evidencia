@@ -1470,6 +1470,20 @@ class CUDASimulatorOptimized(CUDASimulator):
         if not self.gpu_available:
             return data_dict
 
+        # Mitigation v17 post-DIAG.11 cross-2-crashes TDR 0x116 STATUS_INSUFFICIENT_RESOURCES:
+        # libera host arrays previos + flush deferred GPU dealloc queue ANTES de
+        # re-allocate para nuevo símbolo/preset. Sin esto, cumulative ~1152
+        # device arrays de previos handles quedan en pending dealloc.
+        if hasattr(self, '_host_close'):
+            del self._host_close, self._host_high, self._host_low, self._host_ts
+            del self._host_zone_bull, self._host_zone_bear
+            del self._host_filters_forming, self._host_filters_resolved
+            del self._host_div_bits
+        try:
+            cuda.current_context().deallocations.clear()
+        except Exception:
+            pass
+
         # Convert timestamps to int64 milliseconds
         ts_raw = data_dict['timestamps']
         ts_i64 = ts_raw.astype('datetime64[ms]').astype(np.int64)
@@ -1578,15 +1592,25 @@ class CUDASimulatorOptimized(CUDASimulator):
             )
 
             cuda.synchronize()
-            return (
-                d_results.copy_to_host(),
-                d_cl_pnl.copy_to_host(),
-                d_cl_trades.copy_to_host(),
-                d_cl_wins.copy_to_host(),
-                d_cl_maxdd.copy_to_host(),
-                d_cl_gp.copy_to_host(),
-                d_cl_gl.copy_to_host(),
-            )
+            # Copy to host antes de del (mitigation v17 post-DIAG.11)
+            results_h = d_results.copy_to_host()
+            cl_pnl_h = d_cl_pnl.copy_to_host()
+            cl_trades_h = d_cl_trades.copy_to_host()
+            cl_wins_h = d_cl_wins.copy_to_host()
+            cl_maxdd_h = d_cl_maxdd.copy_to_host()
+            cl_gp_h = d_cl_gp.copy_to_host()
+            cl_gl_h = d_cl_gl.copy_to_host()
+            # Cleanup explícito 17 device arrays + flush deferred dealloc
+            del d_close, d_high, d_low, d_ts, d_zone_bull, d_zone_bear
+            del d_filters_forming, d_filters_resolved, d_div_bits
+            del d_configs, d_results
+            del d_cl_labels, d_cl_pnl, d_cl_trades, d_cl_wins, d_cl_maxdd, d_cl_gp, d_cl_gl
+            try:
+                cuda.current_context().deallocations.clear()
+            except Exception:
+                pass
+            return (results_h, cl_pnl_h, cl_trades_h, cl_wins_h,
+                    cl_maxdd_h, cl_gp_h, cl_gl_h)
         else:
             simulate_kernel[blocks_per_grid, threads_per_block](
                 d_configs,
@@ -1601,7 +1625,17 @@ class CUDASimulatorOptimized(CUDASimulator):
             )
 
             cuda.synchronize()
-            return d_results.copy_to_host()
+            # Copy to host antes de del (mitigation v17 post-DIAG.11)
+            results_h = d_results.copy_to_host()
+            # Cleanup explícito 11 device arrays + flush deferred dealloc
+            del d_close, d_high, d_low, d_ts, d_zone_bull, d_zone_bear
+            del d_filters_forming, d_filters_resolved, d_div_bits
+            del d_configs, d_results
+            try:
+                cuda.current_context().deallocations.clear()
+            except Exception:
+                pass
+            return results_h
 
     def _run_on_slice_cpu_with_clusters(self, configs, data_handle, start_bar, end_bar,
                                          sl_pct, sl_emergency_pct, ts_pct, cooldown_bars, commission_pct,

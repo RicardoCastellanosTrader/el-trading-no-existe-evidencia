@@ -582,6 +582,14 @@ def step_regime_wf(symbols, recycle=False):
             results_summary[symbol] = {'status': 'fail', 'msg': str(e)}
 
         gc.collect()
+        # Mitigation v17 post-DIAG.11 cross-2-crashes TDR 0x116:
+        # defensive flush deferred GPU dealloc queue inter-symbol.
+        # NO cuda.close() — preservar singleton _cuda_sim válido en regime_walk_forward.
+        try:
+            from numba import cuda as _cuda_v17
+            _cuda_v17.current_context().deallocations.clear()
+        except Exception:
+            pass
 
     print(f"\n   Resultado: {completed} completados, {skipped} saltados, {len(failed)} fallidos")
     if failed:
