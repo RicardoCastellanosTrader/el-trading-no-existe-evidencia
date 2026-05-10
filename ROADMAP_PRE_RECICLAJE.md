@@ -663,6 +663,33 @@ Estimación fecha: ~2026-05-12 a 05-22.
 
 **Pre-reciclaje deploy pendiente** (item §13.3 EN_ESPERA 2026-04-26 sesión 2): L1892 active_config_id + L1904 multipliers SIGNALS_DISCARDED observability extensions (commit `3727366`) — agrupar con próximo deploy operacional Fase D/E si emerge, o aislado fecha límite ~2026-05-10 inmediato pre-reciclaje. Disparador temporal explícito conscientemente prevenido §12 L27 (item NO debe sobrevivir reciclaje sin cierre). Procedure standard validada v2.4.4/v2.4.5 (~20-47s downtime, Smoke §0.8 Nivel A único requerido).
 
+## Path C reformulado incremental rolling correcto — Opción incremental.1 — Ricardo decisión strategic foundational 2026-05-10
+
+**Cardinal**: incremental rolling per-grupo 5 sym cross-3-options completo cumulative — **NO sequential big-bang per-fase cross-cartera 45 productive completa**. PIPELINED: cross-classification Grupo N+1 mientras deployment Grupo N operacional cumulative cross-Sub-Sesiones future cumulative.
+
+**Plan operacional cross-Sub-Sesiones future cumulative**:
+
+| Fase | Scope | Compute estimate | Calendar ETA cumulative |
+|---|---|---|---|
+| **Fase 1** Reciclaje launch (en progreso PID 2856 background) | per-sym GMM productive baseline 45 sym × 4 steps (download → train regime → lite v5e → regime-wf) | ~290h calibrado empírico ~12 días (pace ~7100 bars/h) | **completion ETA ~2026-05-21** |
+| **Fase 2 Grupo 1** (BTC, ETH, BNB, XRP, TRX) D1.γ first-5 | BTC source ~5 sym sequential strict ~50-75h + ETH source ~5 sym sequential strict ~50-75h + análisis 15 cross-classifications + best source per-sym empirically | ~100-150h cumulative ~5-7 días | **ETA ~2026-05-26 a 2026-05-28** |
+| **Fase 3 Day 1 deployment Grupo 1** | force-flat pre-deploy via `live/force_flat.py --confirm` (commit `7b515f7`) + stop bot v2.4.5 + upload 5 JSONs especialistas best source per-sym + start bot v2.5.0 cross-5 sym Grupo 1 | ~6h CC | **ETA ~2026-05-28 a 2026-05-30** |
+| **Fase 4 Grupo 2** (ONDO, RENDER, POL, SEI, TAO) D1.γ next-5 — PIPELINED mientras Grupo 1 deployment operacional | cross-classification cross-3-options ~5-7 días | ~100-150h cumulative ~5-7 días | **ETA ~2026-06-02 a 2026-06-05** |
+| **Fases 5-9 Grupos 3-9** | scaling cross-cartera 45 productive cumulative cross-Sub-Sesiones cumulative — 7 grupos additional ×5 sym each | ~700-1050h cumulative ~35-49 días | **ETA cross-Sub-Sesiones cumulative ~día 60-90 cumulative** |
+
+**Reactivación leverage variable scope explícito Path C cumulative cross-Sub-Sesiones future post-Day N + caveats (i)-(v) cumulative cumplidos empirically cross-validated cumulative — NO scope deferred indefinido cumulative**:
+- (i) Edge restored validado N≥50 nuevo post-reciclaje específico (pf_real bot >1.3 sostenido)
+- (ii) Capital >1000 USDT (umbral conservador safety + reduces saturation impact)
+- (iii) Margin mode `isolated` mantenido (verified empírico 2026-04-27 VPS BingX)
+- (iv) Re-simulación cross-12-escenarios specifically post-reciclaje muestra mejora vs baseline 2026-04-27 (PnL hip cap 3x > PnL real 1x sostenido)
+- (v) Asimetría arquitectónica clusters ganadores maxdd-bajo / perdedores maxdd-bajo resuelta
+
+**Caveat #14 §13.2 NUEVO permanente** — Sequential strict pattern MANDATORY cross-Fases reciclaje + cross-classifications cumulative — paralelización REFUTED CATASTROPHIC empirical-evidence-driven cumulative. Origen: precedent para_smoke_results TAO+WLD parallel corrupted cumulative + compute resource contention finite hardware empíricos + sequential strict preserves invariante operacional + reproducibility apple-to-apples WITHIN methodology baseline cumulative cross-Sub-Sesiones precedent CCV Phase 1+2+3 ULTRATHINK ROBUST.
+
+**Caveat #15 §13.2 NUEVO permanente** — Verificación primary source MANDATORY items §13.3 cumulative cross-Sub-Sesiones — items pueden estar empirically RESUELTO sin §13.3 update sincronizado cumulative. Caso origen empírico cardinal P1 leverage L2188 stale 23 días cumulative (2026-04-17 ACTIVO → 2026-04-27 RESUELTO empíricamente sin §13.3 sync → 2026-05-10 resync formal documental). Pattern §12 L38 cross-aplicación recursiva al own §13.3 inventory.
+
+Próximo trigger Sub-Sesión Claude Code futura cuando reciclaje Fase 1 completion cumulative ~2026-05-21 + verificación primary source 45/45 + cleanup intermediate outputs + commit reciclaje completion + launch Fase 2 Grupo 1 BTC source cross-classification 5 sym sequential strict cumulative cross-Sub-Sesiones future Path C reformulado incremental rolling correcto cumulative.
+
 ## Invariantes durante A+B+C
 
 - Fidelidad 2 invariante (bot v2.4.5 operacional continuo).
