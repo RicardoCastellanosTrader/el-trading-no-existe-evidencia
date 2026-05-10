@@ -688,7 +688,55 @@ Estimación fecha: ~2026-05-12 a 05-22.
 
 **Caveat #15 §13.2 NUEVO permanente** — Verificación primary source MANDATORY items §13.3 cumulative cross-Sub-Sesiones — items pueden estar empirically RESUELTO sin §13.3 update sincronizado cumulative. Caso origen empírico cardinal P1 leverage L2188 stale 23 días cumulative (2026-04-17 ACTIVO → 2026-04-27 RESUELTO empíricamente sin §13.3 sync → 2026-05-10 resync formal documental). Pattern §12 L38 cross-aplicación recursiva al own §13.3 inventory.
 
-Próximo trigger Sub-Sesión Claude Code futura cuando reciclaje Fase 1 completion cumulative ~2026-05-21 + verificación primary source 45/45 + cleanup intermediate outputs + commit reciclaje completion + launch Fase 2 Grupo 1 BTC source cross-classification 5 sym sequential strict cumulative cross-Sub-Sesiones future Path C reformulado incremental rolling correcto cumulative.
+**Caveat #16 §13.2 NUEVO permanente — Caveats articulados contextualmente requieren revisión honest cross-Sub-Sesiones future cumulative — meta-caveat cumulative (Ricardo articulación foundational 2026-05-10 Sub-Sesión analytical mid-reciclaje)**: caveats originales válidos bajo condiciones del momento articulación cumulative pueden devenir obsoletos cumulative bajo strategic foundational consolidated future cumulative — disciplina §12 L34 aspirar-a-lo-mejor literal applied recursively al own scope cumulative incluye revisión caveats permanentes cross-Sub-Sesiones precedent + reformulación honest bajo strategic foundational refined cumulative. Caso origen P1 leverage caveats (i)-(v) → (i')-(v') reformulación 2026-05-10 cumulative.
+
+**Caveats reformulados (i')-(v') leverage variable Ricardo 2026-05-10 strategic foundational refined cumulative bajo Path C reformulado consolidated cumulative cross-Sub-Sesiones future cumulative**:
+- **(i') Edge real demonstrable robust** — bot v2.5.0 produce pf_real **substancialmente superior threshold mínimo viabilidad** cumulative. **N≥100-200 trades** cross-Sub-Sesiones future cumulative validar sostenibilidad cumulative empirically. Magnitud edge determines reactivación cumulative — NOT umbral fijo binario cumulative. (Refinement vs (i) original: N raise 50→100-200 + magnitud edge metric explícito + sostenibilidad cross-Sub-Sesiones cumulative)
+- **(ii') ELIMINADO** — capital absoluto NO es prerequisito técnico cumulative reactivación leverage variable. Es métrica operacional separada cumulative. Sistema diseñado para apalancamiento funcional bajo cualquier capital robusto edge real cumulative empirical-evidence-driven informed Ricardo articulación strategic foundational refined cumulative 2026-05-10.
+- **(iii') Margin mode `isolated` mantenido** — ya cumplido empíricamente verified 2026-04-27 VPS BingX cumulative invariante cross-Sub-Sesiones future. (Sin cambio vs (iii) original)
+- **(iv') Re-simulación cross-12-escenarios post-reciclaje muestra mejora substancial vs baseline 1x universal** + edge validated cumulative (i') previa. Scope **~6-12h CC analítica post-reciclaje + edge validated** cumulative cross-Sub-Sesiones future cumulative + decisión strategic Ricardo informada empirically cumulative.
+- **(v') Asimetría arquitectónica clusters resuelta** — addressed por **cross-3-options methodology empirically optimal per-symbol** cumulative (categoría I sym BTC source + categoría II ETH source + per-sym sym per-sym GMM cumulative cross-Sub-Sesiones future Path C reformulado incremental rolling correcto cumulative).
+
+ETA reactivación leverage variable cumulative cross-Sub-Sesiones future cumulative **~mid-agosto 2026 cumulative** empirical-evidence-driven informed Path C reformulado deployment incremental cross-cartera 45 productive cumulative completado.
+
+## Spec Fase 2 Grupo 1 BTC source cross-classification — preparación pre-completion 2026-05-10 cumulative
+
+**Trigger**: post-reciclaje Fase 1 completion 45/45 verified primary source `regime_wf/{sym}_specialist_configs.json` mtime post-launch + caveats #14 + #15 satisfechos cumulative + bot v2.4.5 invariante operacional VPS Tokio + disk free recovery natural ≥600 GB esperado.
+
+**Scope**: 5 sym D1.γ first-5 (BTC, ETH, BNB, XRP, TRX) × BTC source = **5 cross-classifications sequential strict** Caveat #14 mandatory. **NOTE empírica honest**: BTC × BTC source es **REDUNDANTE para BTC target** (BTC GMM aplicado BTC features = idéntico per-sym BTC GMM Fase 1 baseline) — sirve solo como **sanity check methodology validation**. Net meaningful = **4 cross-classifications (ETH, BNB, XRP, TRX)** + 1 redundante BTC × BTC opcional.
+
+**Comando launch verified primary source `analysis_scripts/sub_frame_3a1_gmm_n_pthreshold_grid.py` lines 427/483/492/500/744/811**:
+```
+python analysis_scripts/sub_frame_3a1_gmm_n_pthreshold_grid.py --cross-classify-source BTC --symbols ETHUSDT,BNBUSDT,XRPUSDT,TRXUSDT
+```
+(O include BTCUSDT cumulative para sanity check IF Ricardo strategic decision).
+
+**Compute estimate empirically calibrated cross-Sub-Sesiones precedent**:
+- Per-sym ~10-15h cumulative (factor 0.18-0.20h/Kbar empirical precedent cross-3-amplio-sym BNB+BTC+ETH cumulative + CCV Phase 3 reformulada precedent ~6.5h promedio per cross-classification cumulative)
+- 4-5 sym sequential strict ~50-75h cumulative ~2-3 calendar días
+- Bracket spec calibrado vs spec original ~20-30h cross-class CCV (factor 2-3× UNDER-estimated empirically validated)
+
+**Output paths esperados primary source**:
+- `ccv_phase4_btc_results/{sym}_btc_classified/cell_{sym}_btc_classified/sub_frame_3a1_summary.json` per cross-classification
+- `ccv_phase4_btc_results/{sym}_btc_classified/cell_{sym}_btc_classified/cell_metadata.json` per cross-classification
+- Auto-cleanup `_parts_{SYM}/` post-extraction Caveat #13 §13.2 funcional
+
+**Análisis post-completion Grupo 1 cross-Sub-Sesiones future**:
+- Cross-3-options matrix × 5 sym = **15 cross-classifications cumulative** (per-sym GMM productive baseline reciclaje Fase 1 + BTC source cross-classification Fase 2 Grupo 1 + ETH source cross-classification Fase 3 Grupo 1 future)
+- Análisis ranking selectivity ρ_mean per-symbol cross-3-options
+- Identificación best source empirically optimal per-symbol
+- Output tabla decisión deployment per-symbol best methodology Grupo 1 pre-Day 1 deployment
+
+**Pre-conditions cumulative pre-Fase 2 Grupo 1 launch**:
+- Reciclaje Fase 1 completion 45/45 verified primary source
+- Disk free recovery natural ≥600 GB
+- HEAD post-reciclaje completion commit
+- Caveat #14 sequential strict pattern preserved
+- Caveat #15 verificación primary source items §13.3 cumulative
+- Bot v2.4.5 invariante operacional VPS Tokio sin tocar `live/*` productivo
+- Cleanup intermediate outputs (`_parts_*` directories + posible legacy CSVs)
+
+Próximo trigger Sub-Sesión Claude Code futura cuando reciclaje Fase 1 completion cumulative **~2026-05-21/22** + verificación primary source 45/45 + cleanup intermediate outputs + commit reciclaje completion + launch Fase 2 Grupo 1 BTC source cross-classification 4-5 sym sequential strict cumulative cross-Sub-Sesiones future Path C reformulado incremental rolling correcto cumulative.
 
 ## Invariantes durante A+B+C
 
