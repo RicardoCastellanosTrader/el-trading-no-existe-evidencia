@@ -128,6 +128,47 @@ def _check_resume_engine_consistency(parts_dir):
     except Exception as e:
         print(f"   ⚠️  A15 resume engine check falló: {e}")
 
+def _all_parts_valid_or_clean(part_paths):
+    """Verify all expected parts exist AND are integrity-valid (pyarrow metadata readable).
+
+    Returns True if all parts exist and are valid (skip variant). Returns False if any
+    missing OR corrupted (regenerate variant). Corrupted parts are DELETED as side effect
+    so regeneration produces fresh valid replacements.
+
+    H_B sub-fix 2026-05-19 cumulative cross-Sub-Sesiones precedent absoluto — Crash 12
+    cumulative left 2 corrupted parquet parts mid-write que old resume logic cumulative
+    skipped sin verify causing extract_validated_specialists FAIL at 99% complete
+    cumulative. Integrity check cheap (~1ms metadata read per part) vs cost regenerate
+    1 variant ~30s vs cost FAIL full extract end ~1-2h compute total loss cumulative.
+
+    Args:
+        part_paths: list of expected part file paths for a single variant
+            (typically n_clusters paths like part_NNNN_C{0..k}.parquet).
+
+    Returns:
+        bool: True iff all parts exist AND pass pyarrow integrity check.
+    """
+    if not all(os.path.exists(p) for p in part_paths):
+        return False
+    corrupted = []
+    for p in part_paths:
+        try:
+            pq.ParquetFile(p).metadata  # accessing .metadata triggers footer read
+        except Exception as _e:
+            corrupted.append((p, type(_e).__name__, str(_e)[:120]))
+    if not corrupted:
+        return True
+    # Integrity FAIL — delete corrupted parts so regeneration produces fresh valid
+    for p, _et, _msg in corrupted:
+        try:
+            os.unlink(p)
+            print(f"   🩹 Resume integrity: deleted corrupted "
+                  f"{os.path.basename(p)} ({_et}: {_msg})")
+        except OSError as _oe:
+            print(f"   ⚠️  Resume integrity: failed to delete {p}: {_oe}")
+    return False
+
+
 # ============================================
 # CONFIGURATION
 # ============================================
@@ -525,35 +566,63 @@ def process_symbol(symbol, presets, df, model_data, args):
     # Step 4: Simulate each preset — INCREMENTAL: save to parquet, free RAM
     configs = lab.generate_valid_configs()
     n_configs = len(configs)
-    print(f"   📋 {n_configs:,} configs × {len(presets)} presets")
+
+    # M4 v18 — preset slice (orchestrator subprocess respawn). Default full range.
+    preset_idx_start = getattr(args, 'preset_idx_start', 0) or 0
+    preset_idx_end = getattr(args, 'preset_idx_end', None)
+    if preset_idx_end is None:
+        preset_idx_end = len(presets)
+    preset_slice = presets[preset_idx_start:preset_idx_end]
+    n_total_presets = len(presets)
+    n_slice_presets = len(preset_slice)
+    if preset_idx_start != 0 or preset_idx_end != n_total_presets:
+        print(f"   📋 {n_configs:,} configs × {n_slice_presets} presets "
+              f"(slice [{preset_idx_start}:{preset_idx_end}] of {n_total_presets})")
+    else:
+        print(f"   📋 {n_configs:,} configs × {n_total_presets} presets")
+
+    # R1 v18 — chunk_size pass-through (default 5M robust capacity-fitting)
+    chunk_size = getattr(args, 'chunk_size', 5_000_000)
 
     parts_dir = os.path.join(args.output_dir, f"_parts_{sc}")
     os.makedirs(parts_dir, exist_ok=True)
     _check_resume_engine_consistency(parts_dir)  # A15 §13.3 W2
 
-    variant_idx = 0
+    # variant_idx absoluto cross-Sub-Sesiones — offset por preset_idx_start * 2
+    # (2 hyst variants per preset) preserva filenames part_{idx:04d}_C{k}.parquet
+    # consistent cross-subprocess M4 chunks.
+    variant_idx = preset_idx_start * 2
     total_written = 0
     skipped_variants = 0
 
-    for p_idx, preset in enumerate(presets):
+    for p_idx_local, preset in enumerate(preset_slice):
+        p_idx = p_idx_local + preset_idx_start  # absolute index para printf consistency
         for hyst_mult in [0.0, 0.5]:
             hyst_tag = f"H{hyst_mult:.1f}".replace(".", "")
             fast_type, fast_len = preset[0], preset[1]
             slow_type, slow_len = preset[4], preset[5]
             label = f"{fast_type}({fast_len})/{slow_type}({slow_len})_{hyst_tag}"
 
-            # --- Resume logic: skip if all part files for this variant exist ---
-            all_parts_exist = all(
-                os.path.exists(os.path.join(parts_dir, f"part_{variant_idx:04d}_C{k}.parquet"))
+            # --- Resume logic: skip if all part files for this variant exist
+            # AND are integrity-valid (pyarrow metadata readable).
+            # H_B sub-fix 2026-05-19 integrity hardening cumulative cross-Sub-Sesiones
+            # precedent absoluto — Crash 12 cumulative left 2 corrupted parquet parts
+            # mid-write que old resume logic cumulative skipped sin verify causing
+            # extract_validated_specialists FAIL at 99% complete cumulative (1h51m
+            # compute wasted post-resume). Integrity check cheap (~1ms metadata
+            # read per part) vs cost regenerate 1 variant ~30s vs cost FAIL full
+            # extract end ~1-2h compute total loss cumulative. ---
+            part_paths = [
+                os.path.join(parts_dir, f"part_{variant_idx:04d}_C{k}.parquet")
                 for k in valid_clusters
-            )
-            if all_parts_exist:
+            ]
+            if _all_parts_valid_or_clean(part_paths):
                 skipped_variants += 1
                 variant_idx += 1
                 continue
             # -------------------------------------------------------------------
 
-            print(f"\n   🔄 Preset {p_idx+1}/{len(presets)}: {label}")
+            print(f"\n   🔄 Preset {p_idx+1}/{n_total_presets}: {label}")
 
             # Precalculate
             data = lab.precalculate_all_data(df, preset=preset, hyst_mult=hyst_mult, symbol=symbol)
@@ -567,7 +636,8 @@ def process_symbol(symbol, presets, df, model_data, args):
                         configs, handle, 0, len(data['close']),
                         lab.SL_PERCENT, lab.SL_EMERGENCY_PERCENT, lab.TS_PERCENT,
                         lab.COOLDOWN_BARS, lab.COMMISSION_ROUND_TRIP,
-                        cluster_labels=regime_labels, n_clusters=n_doubled)
+                        cluster_labels=regime_labels, n_clusters=n_doubled,
+                        chunk_size=chunk_size)
                 engine_tag = "CUDA"
             else:
                 results, cl_pnl, cl_trades, cl_wins, cl_maxdd, cl_gp, cl_gl = \
