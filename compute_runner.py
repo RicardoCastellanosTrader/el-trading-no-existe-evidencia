@@ -147,7 +147,13 @@ def launch_subprocess(cmd: List[str], log_path: str, err_path: str,
     )
     out_f.close()  # Popen inherits descriptors via OS handles on Windows
     err_f.close()
-    initial_bc = bugcheck_count(2)
+    # H_B sub-fix 2026-05-19 cumulative cross-Sub-Sesiones precedent absoluto:
+    # initial_bc lookback MUST MATCH poll_completion default (4h) — asymmetric
+    # lookback (2h init vs 4h poll) catastrophic false positive cuando crashes
+    # ocurrieron entre 2h y 4h pre-launch (e.g. Crash 12+13 cumulative). Phase 1
+    # CPU-only completó cleanly pero orchestrator reported false BUGCHECK
+    # status causando Tier 3 PAUSE espurio.
+    initial_bc = bugcheck_count(4)
     return RunHandle(
         pid=proc.pid,
         cmd=list(cmd),

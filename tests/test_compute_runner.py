@@ -218,7 +218,10 @@ def test_cr_10_verify_outputs(tmp_path):
 # CR.11: launch_reciclaje builds master.py command
 # -----------------------------------------------------------------------------
 
-def test_cr_11_launch_reciclaje_cmd(tmp_path, monkeypatch):
+def test_cr_11_launch_reciclaje_per_sym_cmd(tmp_path, monkeypatch):
+    """H_B fix 2026-05-19: launch_reciclaje (multi-sym) replaced by launch_reciclaje_per_sym
+    (single sym) for 2-phase isolation pattern. Test verifies per-sym cmd build with --recycle
+    default + --chunk-size + optional --from-step/--to-step."""
     captured = {}
 
     class _StubPopen:
@@ -229,13 +232,16 @@ def test_cr_11_launch_reciclaje_cmd(tmp_path, monkeypatch):
     monkeypatch.setattr("subprocess.Popen", _StubPopen)
     monkeypatch.setattr(cr, "bugcheck_count", lambda h=2: 0)
 
-    handle = cr.launch_reciclaje(
-        symbols=["XRP/USDT", "TRX/USDT"],
+    # Phase 2 pattern: from_step="regime-wf" + recycle=False (sub-test bit-exact)
+    handle = cr.launch_reciclaje_per_sym(
+        symbol="XRP/USDT",
         chunk_size=1_000_000,
         log_path=str(tmp_path / "log"),
         err_path=str(tmp_path / "err"),
         master_path="master.py",
         python_exe="python_test",
+        from_step="regime-wf",
+        recycle=False,
     )
 
     cmd = captured["cmd"]
@@ -243,13 +249,29 @@ def test_cr_11_launch_reciclaje_cmd(tmp_path, monkeypatch):
     assert "master.py" in cmd
     assert "--from-step" in cmd
     assert "regime-wf" in cmd
-    # Symbols as separate args after --symbols (nargs='+')
+    assert "--recycle" not in cmd  # recycle=False
     sym_idx = cmd.index("--symbols")
     assert cmd[sym_idx + 1] == "XRP/USDT"
-    assert cmd[sym_idx + 2] == "TRX/USDT"
     assert "--chunk-size" in cmd
     assert "1000000" in cmd
-    # Expected outputs normalized to USDT suffix
+    # Phase 2 expected output = specialist_configs JSON
     expected_names = {p.name for p in handle.expected_outputs}
     assert "XRPUSDT_specialist_configs.json" in expected_names
-    assert "TRXUSDT_specialist_configs.json" in expected_names
+
+    # Phase 1 pattern: to_step="lite" + recycle=True default
+    captured.clear()
+    handle2 = cr.launch_reciclaje_per_sym(
+        symbol="ONDO/USDT",
+        chunk_size=1_000_000,
+        log_path=str(tmp_path / "log2"),
+        err_path=str(tmp_path / "err2"),
+        master_path="master.py",
+        python_exe="python_test",
+        to_step="lite",
+    )
+    cmd2 = captured["cmd"]
+    assert "--to-step" in cmd2 and "lite" in cmd2
+    assert "--recycle" in cmd2  # recycle=True default
+    # Phase 1 expected output = presets CSV (NOT regime_wf JSON since step 4 skipped)
+    expected_names2 = {p.name for p in handle2.expected_outputs}
+    assert "presets_ONDOUSDT.csv" in expected_names2
