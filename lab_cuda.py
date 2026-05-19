@@ -715,8 +715,8 @@ def simulate_kernel_clustered(
     n_clusters,         # int32 - number of clusters
     results,            # float64[N, 7] - global output
     cl_pnl_out,         # float64[N, n_clusters]
-    cl_trades_out,      # float64[N, n_clusters]
-    cl_wins_out,        # float64[N, n_clusters]
+    cl_trades_out,      # int32[N, n_clusters]   (M3 v18 dtype reduction)
+    cl_wins_out,        # int32[N, n_clusters]   (M3 v18 dtype reduction)
     cl_maxdd_out,       # float64[N, n_clusters]
     cl_gp_out,          # float64[N, n_clusters]
     cl_gl_out,          # float64[N, n_clusters]
@@ -1200,11 +1200,14 @@ def simulate_kernel_clustered(
     results[c, 6] = gross_loss
 
     # Write per-cluster results
+    # M3 v18 dtype reduction: cl_trades_out + cl_wins_out alocados int32 (saves
+    # 50% storage cl_trades + cl_wins). lcl_* stays float64 (kernel arithmetic),
+    # cast explícito a int al store site para coerción determinística.
     if has_clusters:
         for k in range(n_clusters):
             cl_pnl_out[c, k] = lcl_pnl[k]
-            cl_trades_out[c, k] = lcl_trades[k]
-            cl_wins_out[c, k] = lcl_wins[k]
+            cl_trades_out[c, k] = int(lcl_trades[k])
+            cl_wins_out[c, k] = int(lcl_wins[k])
             cl_maxdd_out[c, k] = lcl_maxdd[k]
             cl_gp_out[c, k] = lcl_gp[k]
             cl_gl_out[c, k] = lcl_gl[k]
@@ -1517,13 +1520,25 @@ class CUDASimulatorOptimized(CUDASimulator):
 
     def run_on_slice(self, configs, data_handle, start_bar, end_bar,
                      sl_pct, sl_emergency_pct, ts_pct, cooldown_bars, commission_pct,
-                     warmup=100, cluster_labels=None, n_clusters=1):
+                     warmup=100, cluster_labels=None, n_clusters=1, chunk_size=None):
         """Execute simulation on GPU, slicing from cached host arrays.
 
         When cluster_labels is provided, uses the clustered kernel and returns
         (results, cl_pnl, cl_trades, cl_wins, cl_maxdd, cl_gp, cl_gl)
         matching the CPU run_on_slice signature.
         Otherwise returns just the results array.
+
+        chunk_size (R1 v18): when provided and < n_configs, partitions configs
+        en chunks que respetan capacity GDDR7 8GB. None ó >= n_configs → single
+        kernel launch (legacy behavior preserved). Solo aplica al clustered path
+        (non-clustered path consume <1 GB peak independiente n_configs).
+
+        Nota 2026-05-19: C3 refactor attempt (force chunking + effective_chunk_size
+        cap n_configs//2) EMPIRICALLY REFUTED post-Crash 13 cumulative — bug
+        nvlddmkm.sys offset _2440 NO solucionable vía Python/Numba code changes
+        cross-Sub-Sesiones precedent absoluto. WSL2/Linux native bypass (Opción D
+        Sub-Sesión 2026-05-11 F.6) es siguiente path. Ver CONTEXTO §13.4 entry
+        Crash 13 + C3 refute 2026-05-19.
         """
         has_clusters = cluster_labels is not None and n_clusters > 1
 
@@ -1540,7 +1555,8 @@ class CUDASimulatorOptimized(CUDASimulator):
         s, e = actual_start, end_bar
         n_bars_slice = e - s
 
-        # Slice from cached host arrays (avoids device->host copy)
+        # Slice from cached host arrays (avoids device->host copy) — shared
+        # cross chunks (bar-related, ~5 MB total)
         d_close = cuda.to_device(np.ascontiguousarray(self._host_close[s:e]))
         d_high = cuda.to_device(np.ascontiguousarray(self._host_high[s:e]))
         d_low = cuda.to_device(np.ascontiguousarray(self._host_low[s:e]))
@@ -1551,67 +1567,144 @@ class CUDASimulatorOptimized(CUDASimulator):
         d_filters_resolved = cuda.to_device(np.ascontiguousarray(self._host_filters_resolved[s:e]))
         d_div_bits = cuda.to_device(np.ascontiguousarray(self._host_div_bits[s:e]))
 
-        # Configs to device
-        d_configs = cuda.to_device(np.ascontiguousarray(configs, dtype=np.uint32))
-
-        # Output arrays
-        d_results = cuda.device_array((n_configs, 7), dtype=np.float64)
-
         threads_per_block = self.threads_per_block
-        blocks_per_grid = (n_configs + threads_per_block - 1) // threads_per_block
 
         if has_clusters:
             if n_clusters > MAX_CLUSTERS_CUDA:
                 raise ValueError(f"n_clusters={n_clusters} exceeds MAX_CLUSTERS_CUDA={MAX_CLUSTERS_CUDA}")
 
-            # Slice cluster labels and upload
+            # Slice cluster labels and upload (shared cross chunks)
             cl_labels_slice = np.ascontiguousarray(cluster_labels[s:e], dtype=np.int64)
             d_cl_labels = cuda.to_device(cl_labels_slice)
 
-            # Per-cluster output arrays on device
-            d_cl_pnl = cuda.device_array((n_configs, n_clusters), dtype=np.float64)
-            d_cl_trades = cuda.device_array((n_configs, n_clusters), dtype=np.float64)
-            d_cl_wins = cuda.device_array((n_configs, n_clusters), dtype=np.float64)
-            d_cl_maxdd = cuda.device_array((n_configs, n_clusters), dtype=np.float64)
-            d_cl_gp = cuda.device_array((n_configs, n_clusters), dtype=np.float64)
-            d_cl_gl = cuda.device_array((n_configs, n_clusters), dtype=np.float64)
+            # R1 v18: determine chunk strategy. None / >= n_configs → single call.
+            use_chunking = (chunk_size is not None
+                            and chunk_size > 0
+                            and chunk_size < n_configs)
 
-            simulate_kernel_clustered[blocks_per_grid, threads_per_block](
-                d_configs,
-                d_close, d_high, d_low, d_ts,
-                d_zone_bull, d_zone_bear,
-                d_filters_forming, d_filters_resolved,
-                d_div_bits,
-                sl_pct, sl_emergency_pct, ts_pct, cooldown_bars, commission_pct,
-                n_bars_slice,
-                accounting_start,
-                d_cl_labels,
-                n_clusters,
-                d_results,
-                d_cl_pnl, d_cl_trades, d_cl_wins, d_cl_maxdd, d_cl_gp, d_cl_gl
-            )
+            if not use_chunking:
+                # Single-call path (legacy + v17 cleanup pattern preserved)
+                d_configs = cuda.to_device(np.ascontiguousarray(configs, dtype=np.uint32))
+                d_results = cuda.device_array((n_configs, 7), dtype=np.float64)
+                d_cl_pnl = cuda.device_array((n_configs, n_clusters), dtype=np.float64)
+                d_cl_trades = cuda.device_array((n_configs, n_clusters), dtype=np.int32)   # M3
+                d_cl_wins = cuda.device_array((n_configs, n_clusters), dtype=np.int32)     # M3
+                d_cl_maxdd = cuda.device_array((n_configs, n_clusters), dtype=np.float64)
+                d_cl_gp = cuda.device_array((n_configs, n_clusters), dtype=np.float64)
+                d_cl_gl = cuda.device_array((n_configs, n_clusters), dtype=np.float64)
 
-            cuda.synchronize()
-            # Copy to host antes de del (mitigation v17 post-DIAG.11)
-            results_h = d_results.copy_to_host()
-            cl_pnl_h = d_cl_pnl.copy_to_host()
-            cl_trades_h = d_cl_trades.copy_to_host()
-            cl_wins_h = d_cl_wins.copy_to_host()
-            cl_maxdd_h = d_cl_maxdd.copy_to_host()
-            cl_gp_h = d_cl_gp.copy_to_host()
-            cl_gl_h = d_cl_gl.copy_to_host()
-            # Cleanup explícito 17 device arrays + flush deferred dealloc
+                blocks_per_grid = (n_configs + threads_per_block - 1) // threads_per_block
+                simulate_kernel_clustered[blocks_per_grid, threads_per_block](
+                    d_configs,
+                    d_close, d_high, d_low, d_ts,
+                    d_zone_bull, d_zone_bear,
+                    d_filters_forming, d_filters_resolved,
+                    d_div_bits,
+                    sl_pct, sl_emergency_pct, ts_pct, cooldown_bars, commission_pct,
+                    n_bars_slice,
+                    accounting_start,
+                    d_cl_labels,
+                    n_clusters,
+                    d_results,
+                    d_cl_pnl, d_cl_trades, d_cl_wins, d_cl_maxdd, d_cl_gp, d_cl_gl
+                )
+
+                cuda.synchronize()
+                results_h = d_results.copy_to_host()
+                cl_pnl_h = d_cl_pnl.copy_to_host()
+                cl_trades_h = d_cl_trades.copy_to_host()
+                cl_wins_h = d_cl_wins.copy_to_host()
+                cl_maxdd_h = d_cl_maxdd.copy_to_host()
+                cl_gp_h = d_cl_gp.copy_to_host()
+                cl_gl_h = d_cl_gl.copy_to_host()
+                del d_close, d_high, d_low, d_ts, d_zone_bull, d_zone_bear
+                del d_filters_forming, d_filters_resolved, d_div_bits
+                del d_configs, d_results
+                del d_cl_labels, d_cl_pnl, d_cl_trades, d_cl_wins, d_cl_maxdd, d_cl_gp, d_cl_gl
+                try:
+                    cuda.current_context().deallocations.clear()
+                except Exception:
+                    pass
+                return (results_h, cl_pnl_h, cl_trades_h, cl_wins_h,
+                        cl_maxdd_h, cl_gp_h, cl_gl_h)
+
+            # Chunked path R1 v18 — partitions configs, kernel launch per chunk
+            results_h = np.empty((n_configs, 7), dtype=np.float64)
+            cl_pnl_h = np.empty((n_configs, n_clusters), dtype=np.float64)
+            cl_trades_h = np.empty((n_configs, n_clusters), dtype=np.int32)    # M3
+            cl_wins_h = np.empty((n_configs, n_clusters), dtype=np.int32)      # M3
+            cl_maxdd_h = np.empty((n_configs, n_clusters), dtype=np.float64)
+            cl_gp_h = np.empty((n_configs, n_clusters), dtype=np.float64)
+            cl_gl_h = np.empty((n_configs, n_clusters), dtype=np.float64)
+
+            configs_full = np.ascontiguousarray(configs, dtype=np.uint32)
+            n_chunks = (n_configs + chunk_size - 1) // chunk_size
+
+            for ci in range(n_chunks):
+                cs = ci * chunk_size
+                ce = min(cs + chunk_size, n_configs)
+                chunk_n = ce - cs
+
+                d_configs_chunk = cuda.to_device(configs_full[cs:ce])
+                d_results_chunk = cuda.device_array((chunk_n, 7), dtype=np.float64)
+                d_cl_pnl_chunk = cuda.device_array((chunk_n, n_clusters), dtype=np.float64)
+                d_cl_trades_chunk = cuda.device_array((chunk_n, n_clusters), dtype=np.int32)   # M3
+                d_cl_wins_chunk = cuda.device_array((chunk_n, n_clusters), dtype=np.int32)     # M3
+                d_cl_maxdd_chunk = cuda.device_array((chunk_n, n_clusters), dtype=np.float64)
+                d_cl_gp_chunk = cuda.device_array((chunk_n, n_clusters), dtype=np.float64)
+                d_cl_gl_chunk = cuda.device_array((chunk_n, n_clusters), dtype=np.float64)
+
+                blocks_per_grid_chunk = (chunk_n + threads_per_block - 1) // threads_per_block
+                simulate_kernel_clustered[blocks_per_grid_chunk, threads_per_block](
+                    d_configs_chunk,
+                    d_close, d_high, d_low, d_ts,
+                    d_zone_bull, d_zone_bear,
+                    d_filters_forming, d_filters_resolved,
+                    d_div_bits,
+                    sl_pct, sl_emergency_pct, ts_pct, cooldown_bars, commission_pct,
+                    n_bars_slice,
+                    accounting_start,
+                    d_cl_labels,
+                    n_clusters,
+                    d_results_chunk,
+                    d_cl_pnl_chunk, d_cl_trades_chunk, d_cl_wins_chunk,
+                    d_cl_maxdd_chunk, d_cl_gp_chunk, d_cl_gl_chunk
+                )
+
+                cuda.synchronize()
+                results_h[cs:ce] = d_results_chunk.copy_to_host()
+                cl_pnl_h[cs:ce] = d_cl_pnl_chunk.copy_to_host()
+                cl_trades_h[cs:ce] = d_cl_trades_chunk.copy_to_host()
+                cl_wins_h[cs:ce] = d_cl_wins_chunk.copy_to_host()
+                cl_maxdd_h[cs:ce] = d_cl_maxdd_chunk.copy_to_host()
+                cl_gp_h[cs:ce] = d_cl_gp_chunk.copy_to_host()
+                cl_gl_h[cs:ce] = d_cl_gl_chunk.copy_to_host()
+
+                # v17 cleanup pattern extended per-chunk: 8 device arrays freed
+                del d_configs_chunk, d_results_chunk
+                del d_cl_pnl_chunk, d_cl_trades_chunk, d_cl_wins_chunk
+                del d_cl_maxdd_chunk, d_cl_gp_chunk, d_cl_gl_chunk
+                try:
+                    cuda.current_context().deallocations.clear()
+                except Exception:
+                    pass
+
+            # Cleanup shared bar-related arrays at end (9 device arrays + cl_labels)
             del d_close, d_high, d_low, d_ts, d_zone_bull, d_zone_bear
-            del d_filters_forming, d_filters_resolved, d_div_bits
-            del d_configs, d_results
-            del d_cl_labels, d_cl_pnl, d_cl_trades, d_cl_wins, d_cl_maxdd, d_cl_gp, d_cl_gl
+            del d_filters_forming, d_filters_resolved, d_div_bits, d_cl_labels
             try:
                 cuda.current_context().deallocations.clear()
             except Exception:
                 pass
+
             return (results_h, cl_pnl_h, cl_trades_h, cl_wins_h,
                     cl_maxdd_h, cl_gp_h, cl_gl_h)
         else:
+            # Non-clustered path — chunking NOT applied (consume <1 GB peak
+            # independent de n_configs, no risk capacity hardware)
+            d_configs = cuda.to_device(np.ascontiguousarray(configs, dtype=np.uint32))
+            d_results = cuda.device_array((n_configs, 7), dtype=np.float64)
+            blocks_per_grid = (n_configs + threads_per_block - 1) // threads_per_block
             simulate_kernel[blocks_per_grid, threads_per_block](
                 d_configs,
                 d_close, d_high, d_low, d_ts,

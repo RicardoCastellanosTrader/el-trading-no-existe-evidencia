@@ -225,37 +225,47 @@ def launch_reciclaje_per_sym(
     master_path: str = "master.py",
     python_exe: Optional[str] = None,
     from_step: Optional[str] = None,
+    to_step: Optional[str] = None,
     recycle: bool = True,
     extra_args: Optional[List[str]] = None,
 ) -> RunHandle:
     """Launch master.py reciclaje subprocess for a SINGLE symbol (Fase D.5.1).
 
     Caveat #14 sequential strict pattern — caller invokes once per sym in grupo,
-    serializing launches. Each subprocess runs master.py full pipeline by default
-    (download → train → lite → regime-wf) producing the canonical specialist
-    config JSON in regime_wf/.
+    serializing launches. Each subprocess runs master.py pipeline producing the
+    canonical specialist config JSON in regime_wf/ (when step 4 included).
 
-    R1 v18 chunk_size=1M empirical-evidence-driven (cross-2-sym XRP+TRX validated
-    2026-05-12 — TDR 0x116 fix robust ZERO crashes cross 16h51m runtime).
+    H_B isolation fix 2026-05-19 cross-Crash-12+13 cumulative cross-Sub-Sesiones
+    precedent absoluto refuted full-pipeline pattern (steps 1-4 same process).
+    Grupo 1 ZERO crashes 42h con `--from-step regime-wf` aislado vs Grupo 2 crashed.
+    Caller must split per-sym into 2 phases: (Phase 1) from_step=None +
+    to_step="lite" → steps 1-3 CPU only; (Phase 2) from_step="regime-wf" → step 4
+    GPU isolated fresh process. Expected output (regime_wf JSON) only available
+    after Phase 2.
+
+    R1 v18 chunk_size=1M empirical-evidence-driven (XRP+TRX cross-2-sym 16h51m
+    cumulative + ONDO step 4 isolated 2026-05-19 cumulative cross-Sub-Sesiones).
 
     Args:
         symbol: e.g. "ONDO", "ONDO/USDT", or "ONDOUSDT" (normalized internally).
         chunk_size: R1 v18 max configs per kernel call (default 1_000_000).
-        from_step: optional `--from-step VALUE` to skip earlier steps. Default
-            None runs full pipeline (caller may pass "regime-wf" to skip when
-            download/train/lite already done for this sym).
+        from_step: optional `--from-step VALUE` to skip earlier steps.
+        to_step: optional `--to-step VALUE` to stop after this step (inclusive).
+            H_B isolation pattern: Phase 1 to_step="lite", Phase 2 from_step="regime-wf".
         recycle: pass `--recycle` to master.py. Default True for canonical
             reciclaje semantics (force re-download + re-train + re-generate).
-            Without it master.py SKIPS sym whose specialist_configs.json exists.
         extra_args: additional CLI args appended after the standard set.
 
-    Expected output: regime_wf/{SYM}USDT_specialist_configs.json
+    Expected output: regime_wf/{SYM}USDT_specialist_configs.json (only if step 4
+        included, i.e. to_step is None or to_step="regime-wf").
     """
     if python_exe is None:
         python_exe = sys.executable or "python"
     cmd = [python_exe, master_path]
     if from_step:
         cmd.extend(["--from-step", from_step])
+    if to_step:
+        cmd.extend(["--to-step", to_step])
     if recycle:
         cmd.append("--recycle")
     cmd.extend(["--symbols", _normalize_symbol(symbol)])
@@ -263,7 +273,13 @@ def launch_reciclaje_per_sym(
     if extra_args:
         cmd.extend(extra_args)
     base = symbol.replace("/USDT", "").replace("USDT", "")
-    expected = [Path("regime_wf") / f"{base}USDT_specialist_configs.json"]
+    # Expected output depends on whether step 4 (regime-wf) is included
+    step_4_included = (to_step is None or to_step == "regime-wf")
+    if step_4_included:
+        expected = [Path("regime_wf") / f"{base}USDT_specialist_configs.json"]
+    else:
+        # Phase 1 stops at lite → presets file is the canonical output marker
+        expected = [Path("output/production") / f"presets_{base}USDT.csv"]
     return launch_subprocess(
         cmd=cmd,
         log_path=log_path,

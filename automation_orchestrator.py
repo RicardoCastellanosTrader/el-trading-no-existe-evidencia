@@ -602,94 +602,133 @@ class AutomationOrchestrator:
         # Snapshot pending list (mutation during iteration via mark_sym_done)
         pending_snapshot = list(grupo["sym_pending_grupo_N"])
 
-        for sym in pending_snapshot:
-            ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
-            log_path = str(Path(log_dir) /
-                            f"reciclaje_{sym}_grupo{grupo_id}_{ts}.log")
-            err_path = str(Path(log_dir) /
-                            f"reciclaje_{sym}_grupo{grupo_id}_{ts}.err.log")
+        def _run_phase(sym, phase_label, from_step_arg, to_step_arg,
+                       expected_file: Path):
+            """Launch one master.py phase subprocess + wait + verify.
 
-            handle = launcher(
+            Returns (success: bool, reports: List[TierReport]).
+            """
+            phase_reports: List[TierReport] = []
+            ts_inner = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+            log_p = str(Path(log_dir) /
+                         f"reciclaje_{sym}_grupo{grupo_id}_{phase_label}_{ts_inner}.log")
+            err_p = str(Path(log_dir) /
+                         f"reciclaje_{sym}_grupo{grupo_id}_{phase_label}_{ts_inner}.err.log")
+
+            handle_p = launcher(
                 symbol=sym,
                 chunk_size=chunk_size,
-                log_path=log_path,
-                err_path=err_path,
-                from_step=from_step,
+                log_path=log_p,
+                err_path=err_p,
+                from_step=from_step_arg,
+                to_step=to_step_arg,
             )
-            reports.append(TierReport(
+            phase_reports.append(TierReport(
                 tier=TIER_2,
-                message=f"RECICLAJE {sym}: subprocess launched pid={handle.pid}",
+                message=f"RECICLAJE {sym} {phase_label}: subprocess launched pid={handle_p.pid}",
                 grupo_id=grupo_id,
-                context={"pid": handle.pid, "symbol": sym,
-                         "log_path": log_path, "err_path": err_path,
-                         "expected_outputs": [str(p) for p in handle.expected_outputs]},
+                context={"pid": handle_p.pid, "symbol": sym, "phase": phase_label,
+                         "log_path": log_p, "err_path": err_p,
+                         "from_step": from_step_arg, "to_step": to_step_arg,
+                         "expected_outputs": [str(p) for p in handle_p.expected_outputs]},
             ))
 
             # Persist active_subprocess record
-            grupo.setdefault("active_subprocess", {})[f"RECICLAJE_{sym}"] = {
-                "pid": handle.pid,
-                "symbol": sym,
-                "log_path": log_path,
-                "err_path": err_path,
-                "start_time": handle.start_time,
+            grupo.setdefault("active_subprocess", {})[f"RECICLAJE_{sym}_{phase_label}"] = {
+                "pid": handle_p.pid, "symbol": sym, "phase": phase_label,
+                "log_path": log_p, "err_path": err_p,
+                "start_time": handle_p.start_time,
             }
-            self._save_state_internal(reason=f"subprocess_launched_reciclaje_{sym}")
+            self._save_state_internal(
+                reason=f"subprocess_launched_reciclaje_{sym}_{phase_label}")
 
-            status = waiter(handle, poll_interval=poll_interval,
-                             timeout=timeout_per_sym, on_poll=on_poll)
-            status_str = status.value if hasattr(status, "value") else str(status)
+            status_p = waiter(handle_p, poll_interval=poll_interval,
+                               timeout=timeout_per_sym, on_poll=on_poll)
+            status_str_p = status_p.value if hasattr(status_p, "value") else str(status_p)
 
-            if status_str == "DONE_SUCCESS":
-                grupo.get("active_subprocess", {}).pop(f"RECICLAJE_{sym}", None)
-                # Caveat #15 primary-source verification — verify
-                # regime_wf/{SYM}_specialist_configs.json exists post-completion
-                expected_json = Path("regime_wf") / f"{sym}_specialist_configs.json"
-                if not expected_json.exists():
+            if status_str_p == "DONE_SUCCESS":
+                grupo.get("active_subprocess", {}).pop(
+                    f"RECICLAJE_{sym}_{phase_label}", None)
+                # Caveat #15 primary-source verification
+                if not expected_file.exists():
                     self.state["tier3_gate_pending"] = True
                     grupo["tier3_gate_pending"] = True
                     self._save_state_internal(
-                        reason=f"tier3_reciclaje_primary_source_missing_{sym}")
-                    reports.append(TierReport(
+                        reason=f"tier3_reciclaje_{phase_label}_primary_source_missing_{sym}")
+                    phase_reports.append(TierReport(
                         tier=TIER_3,
-                        message=f"RECICLAJE {sym}: DONE_SUCCESS but primary-source "
-                                f"{expected_json} MISSING (Caveat #15)",
+                        message=f"RECICLAJE {sym} {phase_label}: DONE_SUCCESS but "
+                                f"primary-source {expected_file} MISSING (Caveat #15)",
                         grupo_id=grupo_id,
-                        context={"symbol": sym, "expected": str(expected_json),
-                                 "status": status_str},
+                        context={"symbol": sym, "phase": phase_label,
+                                 "expected": str(expected_file), "status": status_str_p},
                     ))
-                    self.reports.extend(reports)
-                    return reports
-
-                self.mark_sym_done(grupo_id, sym)
-                reports.append(TierReport(
+                    return False, phase_reports
+                phase_reports.append(TierReport(
                     tier=TIER_1,
-                    message=f"RECICLAJE {sym}: DONE_SUCCESS pid={handle.pid} "
-                            f"primary-source verified",
+                    message=f"RECICLAJE {sym} {phase_label}: DONE_SUCCESS pid={handle_p.pid}",
                     grupo_id=grupo_id,
                 ))
-                self._save_state_internal(reason=f"subprocess_done_reciclaje_{sym}")
-                continue
+                self._save_state_internal(reason=f"subprocess_done_reciclaje_{sym}_{phase_label}")
+                return True, phase_reports
 
-            # Per-sym failure -> Tier 3 PAUSE (Caveat #14 halt remaining)
+            # Phase failure -> Tier 3 PAUSE
             self.state["tier3_gate_pending"] = True
             grupo["tier3_gate_pending"] = True
             self._save_state_internal(
-                reason=f"tier3_subprocess_failure_reciclaje_{sym}")
-            reports.append(TierReport(
+                reason=f"tier3_subprocess_failure_reciclaje_{sym}_{phase_label}")
+            phase_reports.append(TierReport(
                 tier=TIER_3,
-                message=f"RECICLAJE {sym}: subprocess FAILED status={status_str} "
-                        f"pid={handle.pid}",
+                message=f"RECICLAJE {sym} {phase_label}: subprocess FAILED "
+                        f"status={status_str_p} pid={handle_p.pid}",
                 grupo_id=grupo_id,
-                context={"status": status_str, "pid": handle.pid, "symbol": sym,
-                         "log_path": log_path, "err_path": err_path},
+                context={"status": status_str_p, "pid": handle_p.pid, "symbol": sym,
+                         "phase": phase_label, "log_path": log_p, "err_path": err_p},
             ))
-            self.reports.extend(reports)
-            return reports
+            return False, phase_reports
+
+        # H_B isolation fix 2026-05-19 cardinal cross-Sub-Sesiones precedent absoluto:
+        # Grupo 1 ZERO crashes 42h con `--from-step regime-wf` (step 4 isolated process)
+        # vs Grupo 2 Crashes 12+13 con full pipeline same process refuted.
+        # Per-sym 2-phase pattern: Phase 1 CPU steps 1-3 + Phase 2 GPU step 4 isolated.
+        for sym in pending_snapshot:
+            # Phase 1: CPU steps 1-3 (download + train + lite) — recycle=True forces refresh
+            base_sym = sym.replace("/USDT", "").replace("USDT", "")
+            phase1_expected = Path("output/production") / f"presets_{base_sym}USDT.csv"
+            ok1, p1_reports = _run_phase(
+                sym=sym, phase_label="phase1_cpu",
+                from_step_arg=from_step,  # None=download / "lite" allowed for resume
+                to_step_arg="lite",
+                expected_file=phase1_expected,
+            )
+            reports.extend(p1_reports)
+            if not ok1:
+                self.reports.extend(reports)
+                return reports  # Caveat #14 halt remaining sym
+
+            # Phase 2: GPU step 4 isolated (regime-wf only in fresh process) — recycle
+            # not needed since step 4 itself always re-computes specialists.
+            phase2_expected = Path("regime_wf") / f"{base_sym}USDT_specialist_configs.json"
+            ok2, p2_reports = _run_phase(
+                sym=sym, phase_label="phase2_gpu",
+                from_step_arg="regime-wf",
+                to_step_arg="regime-wf",
+                expected_file=phase2_expected,
+            )
+            reports.extend(p2_reports)
+            if not ok2:
+                self.reports.extend(reports)
+                return reports
+
+            # Both phases succeeded → mark sym done (canonical sym_done update)
+            self.mark_sym_done(grupo_id, sym)
+            self._save_state_internal(reason=f"sym_done_2phase_{sym}")
 
         # All sym done -> Tier 2 announce + caller drives transition to CROSS_CLASS
         reports.append(TierReport(
             tier=TIER_2,
-            message=f"RECICLAJE_GRUPO_{grupo_id} all 5 sym DONE (real-compute)",
+            message=f"RECICLAJE_GRUPO_{grupo_id} all {len(pending_snapshot)} sym DONE "
+                    f"(real-compute 2-phase H_B isolation pattern)",
             grupo_id=grupo_id,
         ))
         self.reports.extend(reports)

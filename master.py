@@ -419,7 +419,7 @@ def step_lite(symbols, recycle=False):
 # PASO 4: REGIME WALK-FORWARD
 # ============================================
 
-def step_regime_wf(symbols, recycle=False):
+def step_regime_wf(symbols, recycle=False, cli_args=None):
     """Ejecuta regime walk-forward validation para cada símbolo."""
     print("\n" + "=" * 70)
     print("🔬 PASO 4: REGIME WALK-FORWARD")
@@ -483,6 +483,11 @@ def step_regime_wf(symbols, recycle=False):
     args.max_toxic_tail = CONFIG['max_toxic_tail']
     args.min_toxic_tail = CONFIG['min_toxic_tail']
     args.confirm_threshold = CONFIG['confirm_threshold']
+    # R1 v18 — chunk_size pass-through (default 5M robust; cli_args overrides)
+    args.chunk_size = getattr(cli_args, 'chunk_size', 5_000_000) if cli_args is not None else 5_000_000
+    # M4 v18 — preset slice (default full range; worker mode injects via cli_args)
+    args.preset_idx_start = getattr(cli_args, 'preset_idx_start', 0) if cli_args is not None else 0
+    args.preset_idx_end = getattr(cli_args, 'preset_idx_end', None) if cli_args is not None else None
 
     import gc
 
@@ -558,17 +563,27 @@ def step_regime_wf(symbols, recycle=False):
             # Extract validated specialists
             rwf.extract_validated_specialists(result, args.output_dir)
 
-            # Cleanup part files
-            _parts_dir = result.get('parts_dir')
-            if _parts_dir and os.path.isdir(_parts_dir):
-                import glob as _glob_cleanup
-                import shutil
-                _pfiles = _glob_cleanup.glob(os.path.join(_parts_dir, "*.parquet"))
-                _n_files = len(_pfiles)
-                _total_bytes = sum(os.path.getsize(f) for f in _pfiles)
-                shutil.rmtree(_parts_dir)
-                print(f"   🗑️ Limpieza: eliminados {_n_files} part files"
-                      f" ({_total_bytes / 1e6:.1f} MB)")
+            # Cleanup part files — Sub-Option A fix v18.2 (2026-05-11):
+            # Skip in M4 worker mode (internal_subprocess_mode=True). Parent
+            # _step_regime_wf_with_subprocess_respawn owns cleanup post-all-chunks
+            # so last worker's extract_validated_specialists sees ALL parts (not
+            # just its own slice). Without this skip, each worker deletes prior
+            # workers' parts → final JSON reflects ONLY last chunk's data (6×
+            # truncation empirically observed Run 1 BTC: 5,162 vs 29,534 validated
+            # specialists + 5 vs 12 preset families + Brain≠Kernel fidelity edge).
+            _skip_cleanup = (cli_args is not None and
+                             getattr(cli_args, 'internal_subprocess_mode', False))
+            if not _skip_cleanup:
+                _parts_dir = result.get('parts_dir')
+                if _parts_dir and os.path.isdir(_parts_dir):
+                    import glob as _glob_cleanup
+                    import shutil
+                    _pfiles = _glob_cleanup.glob(os.path.join(_parts_dir, "*.parquet"))
+                    _n_files = len(_pfiles)
+                    _total_bytes = sum(os.path.getsize(f) for f in _pfiles)
+                    shutil.rmtree(_parts_dir)
+                    print(f"   🗑️ Limpieza: eliminados {_n_files} part files"
+                          f" ({_total_bytes / 1e6:.1f} MB)")
 
             # Resumen
             n_clusters = result.get('n_clusters', '?')
@@ -679,6 +694,35 @@ Ejemplos:
     parser.add_argument('--from-step', type=str, default=None,
                         choices=STEP_NAMES,
                         help='Empieza desde este paso (download, train, lite, regime-wf)')
+    # H_B isolation fix 2026-05-19 — Crash 12+13 cross-Sub-Sesiones precedent absoluto
+    # cumulative refuted full-pipeline pattern. Grupo 1 ZERO crashes 42h con
+    # `--from-step regime-wf` aislado vs Grupo 2 crashed full pipeline same process.
+    # --to-step permite split del pipeline en subprocess separados: phase 1
+    # (steps 1-3) + phase 2 (step 4 isolated GPU compute fresh process).
+    parser.add_argument('--to-step', type=str, default=None,
+                        choices=STEP_NAMES,
+                        help='Termina en este paso inclusive (default regime-wf = last). '
+                             'Permite split pipeline en subprocess separados para isolation '
+                             'step 4 GPU (H_B fix Crash 12+13 cumulative).')
+    # R1 v18 — config chunking (CHUNK_SIZE configurable runtime)
+    parser.add_argument('--chunk-size', type=int, default=5_000_000,
+                        help='R1 v18: max configs per kernel call clustered path '
+                             '(default 5_000_000). Reduce peak VRAM allocation linearly. '
+                             'Set 0 ó >= n_configs para single-call legacy behavior.')
+    # M4 v18 — subprocess respawn (defensive Fenómeno 2 leak residual)
+    parser.add_argument('--presets-per-subprocess', type=int, default=0,
+                        help='M4 v18: spawn subprocess cada N presets per symbol '
+                             '(default 0 = disabled, single process). Set 5 para '
+                             'defensive context reset cumulative cross-presets.')
+    parser.add_argument('--internal-subprocess-mode', action='store_true',
+                        help='M4 v18 internal flag — worker mode invoked by orchestrator. '
+                             'Do NOT pass directly.')
+    parser.add_argument('--target-symbol', type=str, default=None,
+                        help='M4 v18 internal — symbol for worker mode.')
+    parser.add_argument('--preset-idx-start', type=int, default=0,
+                        help='M4 v18 internal — preset slice start index.')
+    parser.add_argument('--preset-idx-end', type=int, default=None,
+                        help='M4 v18 internal — preset slice end index (None=len(presets)).')
     return parser.parse_args()
 
 
@@ -686,9 +730,150 @@ Ejemplos:
 # MAIN
 # ============================================
 
+def _step_regime_wf_with_subprocess_respawn(symbols, cli_args):
+    """M4 v18 — orchestrate per-symbol subprocess respawn cada N presets.
+
+    Defensive Fenómeno 2 leak residual cumulative cross-presets: cada subprocess
+    starts con CUDA context fresh, processes preset slice de N presets, exits
+    cleanly → context destruido → próximo subprocess starts clean. Skip-if-exists
+    en regime_walk_forward.py:546-553 handles resume natural cross-subprocess.
+    """
+    import subprocess
+    import json
+    import regime_walk_forward as rwf
+
+    failed = []
+    results_summary = {}
+    presets_per_subprocess = max(1, int(cli_args.presets_per_subprocess))
+
+    # B.1 fix v18.1 — defensive cleanup parent CUDA context inicial pre-loop.
+    # rwf import (línea 723) crea CUDA context en parent process. Flush deferred
+    # dealloc queue antes de spawnar primer child subprocess preserva consistency
+    # con pattern legacy step_regime_wf:589-597 + Caveat #17 mitigation parent-side.
+    try:
+        import gc as _gc_b1
+        _gc_b1.collect()
+        from numba import cuda as _cuda_b1
+        _cuda_b1.current_context().deallocations.clear()
+    except Exception:
+        pass
+
+    for i, symbol in enumerate(symbols, 1):
+        print(f"\n{'=' * 70}")
+        print(f"   [{i}/{len(symbols)}] {symbol} — M4 subprocess respawn mode "
+              f"({presets_per_subprocess} presets/subprocess)")
+        print(f"{'=' * 70}")
+
+        ok, msg = check_prerequisites(symbol, 'regime-wf')
+        if not ok:
+            print(f"   {msg}")
+            failed.append(symbol)
+            results_summary[symbol] = {'status': 'prereq_fail', 'msg': msg}
+            continue
+
+        jp = specialist_json_path(symbol)
+        if not cli_args.recycle and os.path.exists(jp):
+            print(f"   JSON final existe, saltando")
+            results_summary[symbol] = {'status': 'skipped'}
+            continue
+
+        # Load presets count para chunking (subprocess re-loads presets internally)
+        presets = rwf.load_presets(symbol, CONFIG['output_dir'])
+        if presets is None or len(presets) == 0:
+            failed.append(symbol)
+            results_summary[symbol] = {'status': 'fail', 'msg': 'no presets'}
+            continue
+        n_presets = len(presets)
+        del presets
+
+        n_chunks = (n_presets + presets_per_subprocess - 1) // presets_per_subprocess
+        master_path = os.path.abspath(__file__)
+        any_chunk_failed = False
+
+        for ci in range(n_chunks):
+            ps = ci * presets_per_subprocess
+            pe = min(ps + presets_per_subprocess, n_presets)
+            print(f"\n   ─ Chunk {ci+1}/{n_chunks}: presets[{ps}:{pe}] ({pe-ps} presets)")
+            cmd = [
+                sys.executable, master_path,
+                '--internal-subprocess-mode',
+                '--target-symbol', symbol,
+                '--preset-idx-start', str(ps),
+                '--preset-idx-end', str(pe),
+                '--chunk-size', str(cli_args.chunk_size),
+                '--from-step', 'regime-wf',
+            ]
+            try:
+                cp = subprocess.run(cmd, check=False)
+                if cp.returncode != 0:
+                    print(f"   ⚠️  Chunk {ci+1} exit code {cp.returncode} "
+                          f"(skip-if-exists may resume next attempt)")
+                    any_chunk_failed = True
+            except Exception as e:
+                print(f"   ⚠️  Chunk {ci+1} subprocess exception: {e}")
+                any_chunk_failed = True
+
+            # B.1 fix v18.1 — defensive cleanup parent context post-subprocess.run.
+            # Pattern equivalente legacy step_regime_wf:589-597 aplicado inter-chunk.
+            try:
+                import gc as _gc_b1
+                _gc_b1.collect()
+                from numba import cuda as _cuda_b1
+                _cuda_b1.current_context().deallocations.clear()
+            except Exception:
+                pass
+
+        # Post-chunks: parent cleanup parts_dir — Sub-Option A fix v18.2 (2026-05-11).
+        # Workers skip cleanup (internal_subprocess_mode=True) → parts persist
+        # progressively across chunks. Last worker's extract_validated_specialists
+        # sees ALL parts and produces correct final JSON. Parent now owns final
+        # cleanup post-all-chunks completion.
+        try:
+            sc = sym_clean(symbol)
+            parts_dir = os.path.join(CONFIG['regime_wf_dir'], f"_parts_{sc}")
+            if os.path.isdir(parts_dir):
+                import glob as _glob_cleanup
+                import shutil
+                _pfiles = _glob_cleanup.glob(os.path.join(parts_dir, "*.parquet"))
+                _n_files = len(_pfiles)
+                _total_bytes = sum(os.path.getsize(f) for f in _pfiles)
+                shutil.rmtree(parts_dir)
+                print(f"   🗑️ Parent post-all-chunks cleanup: {_n_files} part files"
+                      f" ({_total_bytes / 1e6:.1f} MB)")
+        except Exception as e:
+            print(f"   ⚠️  Post-chunks parent cleanup exception: {e}")
+
+        if any_chunk_failed:
+            results_summary[symbol] = {'status': 'partial'}
+        else:
+            results_summary[symbol] = {'status': 'ok'}
+
+        # B.1 fix v18.1 — defensive cleanup parent context post-symbol completion.
+        # Pattern equivalente legacy step_regime_wf:589-597 aplicado inter-symbol.
+        try:
+            import gc as _gc_b1
+            _gc_b1.collect()
+            from numba import cuda as _cuda_b1
+            _cuda_b1.current_context().deallocations.clear()
+        except Exception:
+            pass
+
+    return failed, results_summary
+
+
 def main():
     args = parse_args()
     t0 = time.time()
+
+    # M4 v18 — worker mode: process single symbol + preset slice, exit
+    if args.internal_subprocess_mode:
+        if not args.target_symbol:
+            print("ERROR: --internal-subprocess-mode requires --target-symbol")
+            sys.exit(1)
+        # Worker delegates to step_regime_wf con scope reducido (single symbol)
+        # process_symbol slicing presets[preset_idx_start:preset_idx_end] vía args.
+        failed, _ = step_regime_wf([args.target_symbol], recycle=False, cli_args=args)
+        sys.exit(0 if not failed else 1)
 
     # Resolver símbolos
     symbols = args.symbols if args.symbols else CONFIG['symbols']
@@ -709,10 +894,20 @@ def main():
     if args.skip_download and from_step == 0:
         from_step = 1  # saltar download
 
+    # H_B isolation fix 2026-05-19 — Resolver paso final inclusive
+    to_step = 3  # default = run through last step (regime-wf)
+    if args.to_step:
+        to_step = STEP_ORDER[args.to_step]
+    if to_step < from_step:
+        print(f"❌ ERROR: --to-step ({args.to_step}) < --from-step ({args.from_step})",
+              file=sys.stderr)
+        sys.exit(1)
+
     print("=" * 70)
     print("🚀 MASTER PIPELINE — Producción")
     print(f"   Símbolos: {len(symbols)}")
     print(f"   Desde paso: {STEP_NAMES[from_step]} ({from_step + 1}/4)")
+    print(f"   Hasta paso: {STEP_NAMES[to_step]} ({to_step + 1}/4)")
     print(f"   Recycle: {'SI' if args.recycle else 'NO'}")
     print(f"   SL: {CONFIG['sl_percent']}% | TS: {CONFIG['ts_percent']}% | "
           f"Commission: {CONFIG['commission_round_trip']}%")
@@ -725,23 +920,29 @@ def main():
     results_summary = {}
 
     # Paso 1: Download
-    if from_step <= 0:
+    if from_step <= 0 and to_step >= 0:
         failed = step_download(symbols, recycle=args.recycle)
         all_failed.extend(failed)
 
     # Paso 2: Train
-    if from_step <= 1:
+    if from_step <= 1 and to_step >= 1:
         failed = step_train(symbols, recycle=args.recycle)
         all_failed.extend(failed)
 
     # Paso 3: Lab Lite
-    if from_step <= 2:
+    if from_step <= 2 and to_step >= 2:
         failed = step_lite(symbols, recycle=args.recycle)
         all_failed.extend(failed)
 
     # Paso 4: Regime Walk-Forward
-    if from_step <= 3:
-        failed, results_summary = step_regime_wf(symbols, recycle=args.recycle)
+    if from_step <= 3 and to_step >= 3:
+        # M4 v18 — orchestrate subprocess respawn cada N presets si flag > 0
+        if args.presets_per_subprocess and args.presets_per_subprocess > 0:
+            failed, results_summary = _step_regime_wf_with_subprocess_respawn(
+                symbols, args)
+        else:
+            failed, results_summary = step_regime_wf(symbols, recycle=args.recycle,
+                                                    cli_args=args)
         all_failed.extend(failed)
 
     total_time = time.time() - t0
