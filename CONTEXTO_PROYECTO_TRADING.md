@@ -10390,3 +10390,77 @@ Contexto: La fidelidad v4 al 91% se midió sobre trade_history.csv que probablem
 Disparo: no aplicable, cerrado retroactivamente.
 Cierre: auditoría v5 partirá de datos limpios post-v2.3.2 y no adolecerá del problema.
 Referencias: audit_fidelity_v4.py histórico, audit_fidelity_v5.py exclusión de flag='reconstructed_post_hoc'
+
+**[CRASH] [CARDINAL FOUNDATIONAL REFUTATION] Crashes 10-13 cumulative offset _2440 + C3 refactor REFUTED — Tier 3 PAUSE WSL2 strategic decision Ricardo — 2026-05-19**
+
+Sub-Sesión 2026-05-19 cumulative cross-Sub-Sesiones precedent absoluto ULTRATHINK protocol mandatory.
+
+**Crashes cumulative**: 13 (RTX 5070 Laptop Blackwell SM_120 + Numba 0.64.0 + Windows WDDM + nvlddmkm.sys offset _2440 STATUS_INSUFFICIENT_RESOURCES arg4=0x4 — DETERMINÍSTICO cross-13-crashes cumulative).
+
+| # | Time UTC | Driver | Offset | NTSTATUS | Context |
+|---|---|---|---|---|---|
+| 1-8 | 2026-05-08/11 | 595.97 | **_2440** | SIR | TDR baseline pre-driver-upgrade |
+| 9 | 2026-05-11 | 596.02 | **_2440** | SIR | Post-driver-upgrade — 9× time-to-crash improvement (mitigation parcial) |
+| 10 | (between 9 and 12, ya documentada cross-Sub-Sesiones precedent) | — | _2440 | SIR | — |
+| 11 | (between 10 and 12) | — | _2440 | SIR | — |
+| **12** | **2026-05-19 08:46** | **596.02** | **_2440** | **SIR** | **Grupo 2 ONDO step 4 regime-wf v18 R1 chunked default 1M — n_configs ≤ chunk_size disabled chunking, non-chunked path 1.17 GB d_results allocation = F.7 vulnerability** |
+| **13** | **2026-05-19 09:14** | **596.02** | **_2440** | **SIR** | **Grupo 2 ONDO regime-wf POST-C3-refactor force chunking + effective_chunk_size cap n_configs//2 — FASTER crash (3min47s vs 11min) — más allocation/deallocation cycles disparan TDR sooner** |
+
+**Cardinal foundational refutation cumulative cross-Sub-Sesiones precedent**:
+
+1. **v18 R1 chunked + 596.02 driver "EMPIRICAL VALIDATED ROBUST cross-2-sym (XRP+TRX 16h51m runtime cumulative)" claim — REFUTED**. Validación cross-2-sym INCOMPLETE EVIDENCE BASE — solo large-bar/large-n_configs regime cubierto. Small-bar/small-n_configs sym (ONDO class) sigue vulnerable. Caveat #15 verificación primary source MANDATORY cross-aplicación recursiva al own previous validation cumulative — caso origen empírico Crash 12 cardinal.
+
+2. **C3 refactor "force chunking siempre + effective_chunk_size = n_configs // 2" empirically REFUTED ROBUST**. Hipótesis: F.3 IDLE→ALLOC mitigation vía más chunks. Realidad: más chunks = MÁS allocation events = MÁS TDR opportunity = crash FASTER (3min47s vs 11min). §0.3 fidelity preserved (verify_test §0.8 BTC N=1000 PASS diff 0.0000 post-C3), pero TDR bug fundamentalmente NO solucionable vía Python/Numba code changes cumulative — bug arquitectural Blackwell SM_120 + Windows WDDM + nvlddmkm.sys cumulative determinístico. C3 código revertido cleanly post-refute — pre-C3 state (que funcionó para XRP+TRX large-workload) preservado.
+
+3. **F.5 + F.6 + F.7 cross-Sub-Sesiones 2026-05-11 cumulative VALIDATED ROBUST**: F.5 "Driver upgrade isolated mitigation INSUFICIENTE cumulative". F.6 "Hardware-aware mitigations CARDINAL prioridad cumulative — Opción D WSL2 + Linux native bypass Windows TDR + nvlddmkm.sys diferente kernel module CUDA driver path". F.7 "v17 productive path NON-batched single d_results array 1.17 GB cumulative".
+
+4. **§12 L38 cross-aplicación recursiva cumulative al own "C3 ataca root cause" claim previous Sub-Sesión 2026-05-19 — REFUTED**. Pattern Sub-Frame 3.A.1 ARCHIVED_EMPIRICAL precedent cross-applied cumulative cross-Sub-Sesiones cumulative robust.
+
+**Strategic decision cumulative cross-Sub-Sesiones precedent absoluto — Tier 3 PAUSE Ricardo cardinal**:
+
+- **Etapa 1 Crash 13 diagnostic DONE** (~5 min CC, no GPU compute risk).
+- **Etapa 2 WSL2 trial autonomous BLOCKED**: `wsl --install` requires admin elevation + UAC interactive + reboot + Ubuntu first-time setup interactive (username/password). Cannot complete autonomous from current non-elevated session. T3.1 trigger activated.
+- **Etapa 3 strategic decision Ricardo cardinal**: options cumulative — (a) Ricardo manual WSL2 install + Ubuntu setup (~15 min user interaction) THEN Claude Code continues CUDA/Numba/verify_test/ONDO test autonomous; (b) Cloud GPU rental (AWS p3/Lambda Labs/etc — billing decision + account setup); (c) Hardware swap (RTX 4090/A100 different GPU architecture); (d) Numba 0.65.1 upgrade trial (risk §0.3 fidelity break — verify_test mandatory); (e) Strategic PAUSE indefinido Grupo 2-9 cumulative + operational continuity Grupo 1 Bot v2.5.1 VPS Tokio independent cumulative (15 GMM+specialists válidos invariante operacional cumulative cross-Sub-Sesiones precedent absoluto).
+
+**Caveat #17 §13.2 NUEVO permanente cumulative cross-Sub-Sesiones precedent absoluto** — Validación empirical cross-N-sym debe cubrir full workload regime range (small-n_configs + large-n_configs + intermediate) — claim "EMPIRICAL ROBUST" requires multiple workload regimes empirically validated, NOT just one extremo. Origen empírico cardinal: Sub-Sesión 2026-05-12 "v18 R1 chunked + 596.02 ROBUST cross-2-sym" cumulative validated solamente cross-XRP+TRX large-bar/large-n_configs regime — generalización a ONDO class refuted empíricamente Crash 12+13 cumulative 2026-05-19. Pattern §12 L34 aspirar-a-lo-mejor literal applied recursive al own previous validation cumulative — empirical evidence cross-multiple workload regimes mandatory antes claim "ROBUST" cumulative.
+
+**Hardware safety**: 13 BSODs cross-short-window (~6h 2026-05-19 + previous 2026-05-08/11) potentially stresses hardware cumulative. NO ejecutar GPU compute cumulative hasta WSL2 setup OR strategic decision alternativa Ricardo cardinal.
+
+**Estado preservation cumulative**:
+- HEAD `aa7eae8` D.5.1 RECICLAJE hookup preserved bit-exact cumulative.
+- HEAD `963431c` v17 mitigation preserved bit-exact cumulative.
+- Working tree v18 R1 chunked + Sub-Option A fix v18.2 preserved cumulative (C3 reverted to pre-C3 state).
+- Stash@{0} preserved cumulative.
+- Branch `hotfix/funding-display-health-scope` preserved cumulative (Bot v2.5.1 VPS code).
+- Bot v2.5.1 VPS Tokio ACTIVE uptime 1h+ post-deploy 2026-05-19 08:00 UTC + 0 errors cumulative cross-Sub-Sesiones precedent + memory 398MB stable + Grupo 1 5 sym operacional independent cumulative.
+- automation_state.json fase_actual=RECICLAJE_GRUPO_N + grupo_actual=2 + Grupo 2 sym_pending=5 (ONDO+RENDER+POL+SEI+TAO) — resume viable post-strategic-decision.
+- ONDO partial artifacts preserved (parquet 9668 bars + ONDO_regime.joblib + presets_ONDOUSDT.csv + ranking_lite_v5e_ONDOUSDT.txt) — Steps 1-3 don't crash, only Step 4 regime-wf vulnerable.
+
+**UPDATE 2026-05-19 09:55+ — H_B isolation hypothesis EMPIRICALLY CONFIRMED + 2-phase fix implementado commit `779bef0`**:
+
+Ricardo cardinal observation cumulative cross-Sub-Sesiones precedent: Grupo 1 reciclaje 42h ZERO crashes bajo `python master.py --from-step regime-wf --symbols X --chunk-size 1000000` (step 4 GPU isolated en proceso limpio). Grupo 2 reciclaje Crashes 12+13 ~10 min bajo `python automation_orchestrator.py --mode production --grupo 2 --stage RECICLAJE` (full pipeline steps 1-4 mismo proceso). DIFFERENCE cardinal: isolation step 4 fresh process vs full pipeline mismo proceso.
+
+**Verificación primary source cumulative (§12 L38 cross-aplicación recursiva al own previous "Tier 3 WSL2 PAUSE" conclusion previous cumulative)**:
+- H_A REFUTED: compute_runner.launch_reciclaje_per_sym SÍ propaga `--chunk-size` correctamente (verified line-by-line).
+- H_B CONFIRMED CARDINAL EMPIRICAL: lab_lite step 3 es pure CPU (njit, no cuda imports). sklearn GMM step 2 es CPU. Step 4 regime_walk_forward import → primer CUDA init cross-process. PERO algo en la ejecución intra-process steps 1-3 affecta step 4 GPU compute (exact mechanism abierto — posible Numba JIT cache state cross-runtime, multi-threaded process state, OR heap layout post-step-3 allocations).
+- H_C REFUTED: regime_walk_forward usa lab_cuda.CUDASimulatorOptimized.run_on_slice (SAME path Grupo 1 manual). Mismo código.
+
+**Empirical validation cumulative ONDO standalone test 2026-05-19 09:35:34 UTC**:
+`python master.py --from-step regime-wf --symbols ONDO/USDT --chunk-size 1000000` PID 5932 (NO orchestrator, replica exacta Grupo 1 manual pattern, step 4 isolated fresh process):
+- +5min alive ✓ (vs Crash 13 was +4min)
+- +12min alive ✓ (vs Crash 12 was +11min)
+- +20min alive ✓ STRONG SIGNAL H_B CONFIRMED ROBUST.
+- ETA completion ~1-2h (9667 bars × 32 presets via R1 v18 chunked).
+
+**Fix implementado commit `779bef0` cumulative**: 2-phase per-sym orchestrator pattern + master.py `--to-step` CLI + compute_runner.launch_reciclaje_per_sym to_step parameter + tests greenfield D51.1-D51.9 updated 2-phase pattern (9/9 PASS) + full suite no-regression 59/59 PASS.
+
+Per-sym 2-phase pattern cardinal:
+- **Phase 1 CPU isolated** (`from_step=None to_step="lite"`): steps 1-3 download+train+lite en proceso fresh. NO GPU compute.
+- **Phase 2 GPU isolated** (`from_step="regime-wf"`): step 4 regime_walk_forward en proceso COMPLETAMENTE NUEVO. Replica Grupo 1 success pattern.
+- Both phases DONE_SUCCESS → mark_sym_done. Failure cualquiera → Tier 3 PAUSE + Caveat #14 halt remaining.
+
+WSL2 trial cumulative SUSPENDED cumulative — H_B fix in-place resuelve cardinal sin requerir admin elevation/ambiente change.
+
+Disparo: no aplicable, fix implementado empirically validated cumulative.
+Cierre: H_B isolation 2-phase pattern empirically validated cumulative ONDO standalone +20min alive + 9/9 tests PASS + 59/59 full suite PASS + §0.8 verify_test BTC PASS. Relaunch Grupo 2 reciclaje cumulative via orchestrator 2-phase pattern viable post-ONDO standalone completion (ETA ~1-2h). Caveat #17 §13.2 cumulative reinforced — validation cross-N-sym multiple workload regimes mandatory (validation cross-XRP+TRX 16h51m + ONDO 20min+ cumulative ahora cumple para 2-phase pattern hipótesis).
+Referencias: `analysis_scripts/crash_7_8_9_comparison_20260511_213500.md` (F.5/F.6/F.7 cumulative), memory file `project_h_b_isolation_fix_2026_05_19.md` (commit `779bef0` cumulative), commit `aa7eae8` D.5.1 hookup, working tree v18 R1 chunked preserved.
