@@ -68,7 +68,7 @@ def _make_launcher(captured_calls: list, pid_seq: Optional[List[int]] = None):
     counter = {"i": 0}
 
     def _launch(*, symbol, chunk_size, log_path, err_path,
-                 from_step=None, to_step=None):
+                 from_step=None, to_step=None, recycle=True):
         captured_calls.append({
             "symbol": symbol,
             "chunk_size": chunk_size,
@@ -76,6 +76,7 @@ def _make_launcher(captured_calls: list, pid_seq: Optional[List[int]] = None):
             "err_path": err_path,
             "from_step": from_step,
             "to_step": to_step,
+            "recycle": recycle,
         })
         pid = pid_seq[counter["i"]] if pid_seq and counter["i"] < len(pid_seq) else 1000 + counter["i"]
         counter["i"] += 1

@@ -547,6 +547,7 @@ class AutomationOrchestrator:
         poll_interval: int = 120,
         timeout_per_sym: int = 18 * 3600,
         from_step: Optional[str] = None,
+        recycle: bool = True,
         on_poll: Optional[Any] = None,
         launcher=None,
         waiter=None,
@@ -622,6 +623,7 @@ class AutomationOrchestrator:
                 err_path=err_p,
                 from_step=from_step_arg,
                 to_step=to_step_arg,
+                recycle=recycle,
             )
             phase_reports.append(TierReport(
                 tier=TIER_2,
@@ -1094,6 +1096,10 @@ def _build_argparser() -> argparse.ArgumentParser:
                     help="R1 v18 chunk_size for RECICLAJE (default 1M empirical-validated)")
     p.add_argument("--from-step", default=None,
                     help="master.py --from-step passthrough for RECICLAJE (default: full pipeline)")
+    p.add_argument("--no-recycle", action="store_true",
+                    help="Skip --recycle for master.py — Phase 1 effectively no-op si "
+                         "artifacts existen. Use for sub-test bit-exact comparison cumulative "
+                         "vs manual --from-step regime-wf reference cumulative H_B validation.")
     p.add_argument("--simulate-grupo", type=int, default=None, help="simulate full flow for grupo N (1..9)")
     p.add_argument("--status", action="store_true", help="print status and exit (read-only)")
     p.add_argument("--authorize-deploy", type=int, default=None, help="clear Tier 3 gate for grupo N")
@@ -1185,6 +1191,7 @@ def main(argv: Optional[List[str]] = None) -> int:
                     poll_interval=args.poll_interval,
                     timeout_per_sym=args.timeout_per_sym,
                     from_step=args.from_step,
+                    recycle=not args.no_recycle,
                 )
             except OrchestratorError as e:
                 print(f"ERROR: {e}", file=sys.stderr)
