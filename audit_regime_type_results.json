@@ -1,0 +1,665 @@
+{
+  "part_a": [
+    {
+      "sym": "BTC/USDT",
+      "k": 0,
+      "centroid": {
+        "Hurst": 0.515,
+        "Z_ATR": -0.549,
+        "ER": 0.17
+      },
+      "cluster_name": null,
+      "pct_recent_5k": 0.2816,
+      "pct_full_hist": 0.2855,
+      "roll500_max_recent": 0.542,
+      "regime_span": [
+        "2017-09-28",
+        "2026-05-07"
+      ],
+      "klass": "REPRESENTADO",
+      "A_pf_fwd": 5.79,
+      "B2_pf_fwd": 4.913,
+      "A_pf_combined": 3.074,
+      "B2_pf_combined": 3.081,
+      "A_trades_fwd": 95,
+      "B2_trades_fwd": 73,
+      "A_pf_outside": 9.512814305939886,
+      "B2_pf_outside": 5.945989045128244,
+      "A_n_outside": 73,
+      "B2_n_outside": 62
+    },
+    {
+      "sym": "BTC/USDT",
+      "k": 1,
+      "centroid": {
+        "Hurst": 0.517,
+        "Z_ATR": 0.948,
+        "ER": 0.153
+      },
+      "cluster_name": null,
+      "pct_recent_5k": 0.1906,
+      "pct_full_hist": 0.2341,
+      "roll500_max_recent": 0.666,
+      "regime_span": [
+        "2017-10-15",
+        "2026-04-24"
+      ],
+      "klass": "REPRESENTADO",
+      "A_pf_fwd": 4.047,
+      "B2_pf_fwd": 3.746,
+      "A_pf_combined": 2.024,
+      "B2_pf_combined": 2.23,
+      "A_trades_fwd": 58,
+      "B2_trades_fwd": 62,
+      "A_pf_outside": 5.709237892036073,
+      "B2_pf_outside": 3.271680819465074,
+      "A_n_outside": 50,
+      "B2_n_outside": 53
+    },
+    {
+      "sym": "BTC/USDT",
+      "k": 2,
+      "centroid": {
+        "Hurst": 0.512,
+        "Z_ATR": -0.244,
+        "ER": 0.053
+      },
+      "cluster_name": null,
+      "pct_recent_5k": 0.5278,
+      "pct_full_hist": 0.4804,
+      "roll500_max_recent": 0.812,
+      "regime_span": [
+        "2017-09-29",
+        "2026-05-08"
+      ],
+      "klass": "REPRESENTADO",
+      "A_pf_fwd": 4.145,
+      "B2_pf_fwd": 4.912,
+      "A_pf_combined": 2.584,
+      "B2_pf_combined": 2.366,
+      "A_trades_fwd": 53,
+      "B2_trades_fwd": 58,
+      "A_pf_outside": 4.702462044292462,
+      "B2_pf_outside": 6.269170450430354,
+      "A_n_outside": 43,
+      "B2_n_outside": 43
+    },
+    {
+      "_meta": {
+        "sym": "BTC/USDT",
+        "n_bars": 76349,
+        "n_valid_win": 5000,
+        "win_start": "2025-10-12",
+        "hist_start": "2017-09-28",
+        "hist_end": "2026-05-08",
+        "training_date_range": [
+          "2017-08-17 04:00:00",
+          "2026-05-08 16:00:00"
+        ]
+      }
+    },
+    {
+      "sym": "ETH/USDT",
+      "k": 0,
+      "centroid": {
+        "Hurst": 0.509,
+        "Z_ATR": -0.603,
+        "ER": 0.099
+      },
+      "cluster_name": null,
+      "pct_recent_5k": 0.3496,
+      "pct_full_hist": 0.3167,
+      "roll500_max_recent": 0.646,
+      "regime_span": [
+        "2017-09-28",
+        "2026-05-08"
+      ],
+      "klass": "REPRESENTADO",
+      "A_pf_fwd": 3.307,
+      "B2_pf_fwd": 3.755,
+      "A_pf_combined": 1.729,
+      "B2_pf_combined": 2.804,
+      "A_trades_fwd": 52,
+      "B2_trades_fwd": 33,
+      "A_pf_outside": 1.9149078097600012,
+      "B2_pf_outside": 3.319860850335787,
+      "A_n_outside": 46,
+      "B2_n_outside": 31
+    },
+    {
+      "sym": "ETH/USDT",
+      "k": 1,
+      "centroid": {
+        "Hurst": 0.526,
+        "Z_ATR": 0.052,
+        "ER": 0.041
+      },
+      "cluster_name": null,
+      "pct_recent_5k": 0.3708,
+      "pct_full_hist": 0.3205,
+      "roll500_max_recent": 0.646,
+      "regime_span": [
+        "2017-09-29",
+        "2026-05-08"
+      ],
+      "klass": "REPRESENTADO",
+      "A_pf_fwd": 628.284,
+      "B2_pf_fwd": 4.424,
+      "A_pf_combined": 5.325,
+      "B2_pf_combined": 1.952,
+      "A_trades_fwd": 16,
+      "B2_trades_fwd": 53,
+      "A_pf_outside": 328.03328552506827,
+      "B2_pf_outside": 3.4649223630433466,
+      "A_n_outside": 10,
+      "B2_n_outside": 36
+    },
+    {
+      "sym": "ETH/USDT",
+      "k": 2,
+      "centroid": {
+        "Hurst": 0.519,
+        "Z_ATR": 0.424,
+        "ER": 0.182
+      },
+      "cluster_name": null,
+      "pct_recent_5k": 0.2796,
+      "pct_full_hist": 0.3628,
+      "roll500_max_recent": 0.694,
+      "regime_span": [
+        "2017-10-13",
+        "2026-05-08"
+      ],
+      "klass": "REPRESENTADO",
+      "A_pf_fwd": 3.253,
+      "B2_pf_fwd": 4.312,
+      "A_pf_combined": 1.883,
+      "B2_pf_combined": 2.598,
+      "A_trades_fwd": 66,
+      "B2_trades_fwd": 65,
+      "A_pf_outside": 2.8810818460596814,
+      "B2_pf_outside": 4.234479253423301,
+      "A_n_outside": 58,
+      "B2_n_outside": 53
+    },
+    {
+      "_meta": {
+        "sym": "ETH/USDT",
+        "n_bars": 76349,
+        "n_valid_win": 5000,
+        "win_start": "2025-10-12",
+        "hist_start": "2017-09-28",
+        "hist_end": "2026-05-08",
+        "training_date_range": [
+          "2017-08-17 04:00:00",
+          "2026-05-08 16:00:00"
+        ]
+      }
+    },
+    {
+      "sym": "BNB/USDT",
+      "k": 0,
+      "centroid": {
+        "Hurst": 0.507,
+        "Z_ATR": -0.234,
+        "ER": 0.048
+      },
+      "cluster_name": null,
+      "pct_recent_5k": 0.44,
+      "pct_full_hist": 0.4154,
+      "roll500_max_recent": 0.726,
+      "regime_span": [
+        "2018-01-01",
+        "2026-05-08"
+      ],
+      "klass": "REPRESENTADO",
+      "A_pf_fwd": 4.082,
+      "B2_pf_fwd": 2.912,
+      "A_pf_combined": 2.384,
+      "B2_pf_combined": 5.96,
+      "A_trades_fwd": 72,
+      "B2_trades_fwd": 87,
+      "A_pf_outside": 3.984136496227083,
+      "B2_pf_outside": 2.896656327213167,
+      "A_n_outside": 64,
+      "B2_n_outside": 80
+    },
+    {
+      "sym": "BNB/USDT",
+      "k": 1,
+      "centroid": {
+        "Hurst": 0.522,
+        "Z_ATR": 0.946,
+        "ER": 0.147
+      },
+      "cluster_name": null,
+      "pct_recent_5k": 0.125,
+      "pct_full_hist": 0.2753,
+      "roll500_max_recent": 0.666,
+      "regime_span": [
+        "2017-12-17",
+        "2026-05-08"
+      ],
+      "klass": "REPRESENTADO",
+      "A_pf_fwd": 3.364,
+      "B2_pf_fwd": 4.122,
+      "A_pf_combined": 1.918,
+      "B2_pf_combined": 2.854,
+      "A_trades_fwd": 72,
+      "B2_trades_fwd": 64,
+      "A_pf_outside": 2.8448603409391264,
+      "B2_pf_outside": 3.8723257075264734,
+      "A_n_outside": 68,
+      "B2_n_outside": 58
+    },
+    {
+      "sym": "BNB/USDT",
+      "k": 2,
+      "centroid": {
+        "Hurst": 0.517,
+        "Z_ATR": -0.618,
+        "ER": 0.127
+      },
+      "cluster_name": null,
+      "pct_recent_5k": 0.435,
+      "pct_full_hist": 0.3092,
+      "roll500_max_recent": 0.692,
+      "regime_span": [
+        "2018-01-22",
+        "2026-05-07"
+      ],
+      "klass": "REPRESENTADO",
+      "A_pf_fwd": 3.909,
+      "B2_pf_fwd": 3.611,
+      "A_pf_combined": 2.603,
+      "B2_pf_combined": 2.52,
+      "A_trades_fwd": 57,
+      "B2_trades_fwd": 53,
+      "A_pf_outside": 3.8947977442323243,
+      "B2_pf_outside": 4.889009766237129,
+      "A_n_outside": 33,
+      "B2_n_outside": 27
+    },
+    {
+      "_meta": {
+        "sym": "BNB/USDT",
+        "n_bars": 74412,
+        "n_valid_win": 5000,
+        "win_start": "2025-10-12",
+        "hist_start": "2017-12-17",
+        "hist_end": "2026-05-08",
+        "training_date_range": [
+          "2017-11-06 03:00:00",
+          "2026-05-08 16:00:00"
+        ]
+      }
+    },
+    {
+      "sym": "SEI/USDT",
+      "k": 0,
+      "centroid": {
+        "Hurst": 0.505,
+        "Z_ATR": 1.15,
+        "ER": 0.099
+      },
+      "cluster_name": null,
+      "pct_recent_5k": 0.1,
+      "pct_full_hist": 0.2533,
+      "roll500_max_recent": 0.472,
+      "regime_span": [
+        "2023-10-23",
+        "2026-05-16"
+      ],
+      "klass": "AUSENTE",
+      "A_pf_fwd": 3.925,
+      "B2_pf_fwd": 3.232,
+      "A_pf_combined": 1.884,
+      "B2_pf_combined": 1.598,
+      "A_trades_fwd": 37,
+      "B2_trades_fwd": 38,
+      "A_pf_outside": 4.671885271835396,
+      "B2_pf_outside": 3.1006279326281962,
+      "A_n_outside": 28,
+      "B2_n_outside": 28
+    },
+    {
+      "sym": "SEI/USDT",
+      "k": 1,
+      "centroid": {
+        "Hurst": 0.523,
+        "Z_ATR": -0.591,
+        "ER": 0.061
+      },
+      "cluster_name": null,
+      "pct_recent_5k": 0.5514,
+      "pct_full_hist": 0.4607,
+      "roll500_max_recent": 0.852,
+      "regime_span": [
+        "2023-09-26",
+        "2026-05-07"
+      ],
+      "klass": "REPRESENTADO",
+      "A_pf_fwd": 4.168,
+      "B2_pf_fwd": 3.775,
+      "A_pf_combined": 1.802,
+      "B2_pf_combined": 2.393,
+      "A_trades_fwd": 49,
+      "B2_trades_fwd": 49,
+      "A_pf_outside": 7.0959382373577204,
+      "B2_pf_outside": 6.141715146291681,
+      "A_n_outside": 7,
+      "B2_n_outside": 6
+    },
+    {
+      "sym": "SEI/USDT",
+      "k": 2,
+      "centroid": {
+        "Hurst": 0.522,
+        "Z_ATR": -0.484,
+        "ER": 0.181
+      },
+      "cluster_name": null,
+      "pct_recent_5k": 0.3486,
+      "pct_full_hist": 0.286,
+      "roll500_max_recent": 0.656,
+      "regime_span": [
+        "2023-09-26",
+        "2026-05-19"
+      ],
+      "klass": "REPRESENTADO",
+      "A_pf_fwd": 3.718,
+      "B2_pf_fwd": 3.331,
+      "A_pf_combined": 1.908,
+      "B2_pf_combined": 2.001,
+      "A_trades_fwd": 46,
+      "B2_trades_fwd": 51,
+      "A_pf_outside": 9.158230795415365,
+      "B2_pf_outside": 2.2594309949822997,
+      "A_n_outside": 7,
+      "B2_n_outside": 15
+    },
+    {
+      "_meta": {
+        "sym": "SEI/USDT",
+        "n_bars": 24201,
+        "n_valid_win": 5000,
+        "win_start": "2025-10-23",
+        "hist_start": "2023-09-26",
+        "hist_end": "2026-05-19",
+        "training_date_range": [
+          "2023-08-15 12:00:00",
+          "2026-05-19 20:00:00"
+        ]
+      }
+    },
+    {
+      "sym": "POL/USDT",
+      "k": 0,
+      "centroid": {
+        "Hurst": 0.511,
+        "Z_ATR": 0.932,
+        "ER": 0.133
+      },
+      "cluster_name": null,
+      "pct_recent_5k": 0.1624,
+      "pct_full_hist": 0.2407,
+      "roll500_max_recent": 0.776,
+      "regime_span": [
+        "2024-11-02",
+        "2026-05-17"
+      ],
+      "klass": "REPRESENTADO",
+      "A_pf_fwd": 2.88,
+      "B2_pf_fwd": 3.228,
+      "A_pf_combined": 1.73,
+      "B2_pf_combined": 2.036,
+      "A_trades_fwd": 23,
+      "B2_trades_fwd": 28,
+      "A_pf_outside": 0.5853981830474989,
+      "B2_pf_outside": 1.0057518654912452,
+      "A_n_outside": 10,
+      "B2_n_outside": 10
+    },
+    {
+      "sym": "POL/USDT",
+      "k": 1,
+      "centroid": {
+        "Hurst": 0.542,
+        "Z_ATR": -0.601,
+        "ER": 0.136
+      },
+      "cluster_name": null,
+      "pct_recent_5k": 0.3276,
+      "pct_full_hist": 0.3294,
+      "roll500_max_recent": 0.55,
+      "regime_span": [
+        "2024-10-25",
+        "2026-05-19"
+      ],
+      "klass": "REPRESENTADO",
+      "A_pf_fwd": 3.333,
+      "B2_pf_fwd": 3.317,
+      "A_pf_combined": 2.678,
+      "B2_pf_combined": 2.397,
+      "A_trades_fwd": 39,
+      "B2_trades_fwd": 39,
+      "A_pf_outside": null,
+      "B2_pf_outside": null,
+      "A_n_outside": 0,
+      "B2_n_outside": 0
+    },
+    {
+      "sym": "POL/USDT",
+      "k": 2,
+      "centroid": {
+        "Hurst": 0.507,
+        "Z_ATR": -0.487,
+        "ER": 0.054
+      },
+      "cluster_name": null,
+      "pct_recent_5k": 0.51,
+      "pct_full_hist": 0.4299,
+      "roll500_max_recent": 0.73,
+      "regime_span": [
+        "2024-10-29",
+        "2026-05-19"
+      ],
+      "klass": "REPRESENTADO",
+      "A_pf_fwd": 4.081,
+      "B2_pf_fwd": 3.981,
+      "A_pf_combined": 2.064,
+      "B2_pf_combined": 2.001,
+      "A_trades_fwd": 49,
+      "B2_trades_fwd": 35,
+      "A_pf_outside": null,
+      "B2_pf_outside": null,
+      "A_n_outside": 0,
+      "B2_n_outside": 0
+    },
+    {
+      "_meta": {
+        "sym": "POL/USDT",
+        "n_bars": 14720,
+        "n_valid_win": 5000,
+        "win_start": "2025-10-23",
+        "hist_start": "2024-10-25",
+        "hist_end": "2026-05-19",
+        "training_date_range": [
+          "2024-09-13 10:00:00",
+          "2026-05-19 17:00:00"
+        ]
+      }
+    },
+    {
+      "sym": "ONDO/USDT",
+      "k": 0,
+      "centroid": {
+        "Hurst": 0.527,
+        "Z_ATR": -0.459,
+        "ER": 0.151
+      },
+      "cluster_name": null,
+      "pct_recent_5k": 0.4038,
+      "pct_full_hist": 0.4003,
+      "roll500_max_recent": 0.872,
+      "regime_span": [
+        "2025-05-23",
+        "2026-05-18"
+      ],
+      "klass": "REPRESENTADO",
+      "A_pf_fwd": 4.061,
+      "B2_pf_fwd": 3.72,
+      "A_pf_combined": 1.687,
+      "B2_pf_combined": 2.202,
+      "A_trades_fwd": 45,
+      "B2_trades_fwd": 43,
+      "A_pf_outside": null,
+      "B2_pf_outside": null,
+      "A_n_outside": 0,
+      "B2_n_outside": 0
+    },
+    {
+      "sym": "ONDO/USDT",
+      "k": 1,
+      "centroid": {
+        "Hurst": 0.526,
+        "Z_ATR": -0.586,
+        "ER": 0.044
+      },
+      "cluster_name": null,
+      "pct_recent_5k": 0.4534,
+      "pct_full_hist": 0.4514,
+      "roll500_max_recent": 0.766,
+      "regime_span": [
+        "2025-05-23",
+        "2026-05-19"
+      ],
+      "klass": "REPRESENTADO",
+      "A_pf_fwd": 3.177,
+      "B2_pf_fwd": 3.287,
+      "A_pf_combined": 1.926,
+      "B2_pf_combined": 1.98,
+      "A_trades_fwd": 31,
+      "B2_trades_fwd": 25,
+      "A_pf_outside": null,
+      "B2_pf_outside": null,
+      "A_n_outside": 0,
+      "B2_n_outside": 0
+    },
+    {
+      "sym": "ONDO/USDT",
+      "k": 2,
+      "centroid": {
+        "Hurst": 0.528,
+        "Z_ATR": 1.269,
+        "ER": 0.114
+      },
+      "cluster_name": null,
+      "pct_recent_5k": 0.1428,
+      "pct_full_hist": 0.1483,
+      "roll500_max_recent": 0.588,
+      "regime_span": [
+        "2025-06-26",
+        "2026-05-17"
+      ],
+      "klass": "REPRESENTADO",
+      "A_pf_fwd": 2.738,
+      "B2_pf_fwd": 3.133,
+      "A_pf_combined": 1.823,
+      "B2_pf_combined": 1.872,
+      "A_trades_fwd": 33,
+      "B2_trades_fwd": 32,
+      "A_pf_outside": null,
+      "B2_pf_outside": null,
+      "A_n_outside": 0,
+      "B2_n_outside": 0
+    },
+    {
+      "_meta": {
+        "sym": "ONDO/USDT",
+        "n_bars": 9668,
+        "n_valid_win": 5000,
+        "win_start": "2025-10-23",
+        "hist_start": "2025-05-23",
+        "hist_end": "2026-05-19",
+        "training_date_range": [
+          "2025-04-11 14:00:00",
+          "2026-05-19 09:00:00"
+        ]
+      }
+    }
+  ],
+  "part_b": {
+    "counts": {
+      "REPRESENTADO": 17,
+      "AUSENTE": 1
+    },
+    "results": {
+      "pf_fwd": {
+        "AUSENTE (A blind \u2014 \u00a70.0 predicts B2 wins)": {
+          "metric": "B2_pf_fwd vs A_pf_fwd",
+          "n_cells": 1,
+          "n_powered": 1,
+          "B2_win_rate": 0.0,
+          "B2_win_rate_powered": 0.0,
+          "delta_mean": -0.693,
+          "delta_median": -0.693,
+          "delta_mean_capped10": -0.693,
+          "delta_median_powered": -0.693
+        },
+        "REPRESENTADO (A sees regime \u2014 predicts tie)": {
+          "metric": "B2_pf_fwd vs A_pf_fwd",
+          "n_cells": 17,
+          "n_powered": 17,
+          "B2_win_rate": 0.412,
+          "B2_win_rate_powered": 0.412,
+          "delta_mean": -36.698,
+          "delta_median": -0.1,
+          "delta_mean_capped10": -0.588,
+          "delta_median_powered": -0.1
+        }
+      },
+      "pf_combined": {
+        "AUSENTE (A blind \u2014 \u00a70.0 predicts B2 wins)": {
+          "metric": "B2_pf_combined vs A_pf_combined",
+          "n_cells": 1,
+          "n_powered": 1,
+          "B2_win_rate": 0.0,
+          "B2_win_rate_powered": 0.0,
+          "delta_mean": -0.286,
+          "delta_median": -0.286,
+          "delta_mean_capped10": -0.286,
+          "delta_median_powered": -0.286
+        },
+        "REPRESENTADO (A sees regime \u2014 predicts tie)": {
+          "metric": "B2_pf_combined vs A_pf_combined",
+          "n_cells": 17,
+          "n_powered": 17,
+          "B2_win_rate": 0.706,
+          "B2_win_rate_powered": 0.706,
+          "delta_mean": 0.241,
+          "delta_median": 0.093,
+          "delta_mean_capped10": 0.241,
+          "delta_median_powered": 0.093
+        }
+      }
+    }
+  },
+  "part_c": {
+    "AUSENTE": {
+      "n_cells": 1,
+      "B2_win_rate": 0.0,
+      "delta_median": -1.571
+    },
+    "REPRESENTADO": {
+      "n_cells": 8,
+      "B2_win_rate": 0.625,
+      "delta_median": 1.011
+    }
+  },
+  "params": {
+    "LL_WINDOW": 5000,
+    "REPR_THRESHOLD": 0.15,
+    "MIN_TR_FWD": 15
+  }
+}
