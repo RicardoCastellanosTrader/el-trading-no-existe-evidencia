@@ -1,0 +1,71 @@
+{
+  "c1_4_identity": {
+    "calc_alma": true,
+    "calc_dema": true,
+    "calc_ema": true,
+    "calc_frama": true,
+    "calc_hma": true,
+    "calc_jma": true,
+    "calc_kama": true,
+    "calc_ma": false,
+    "calc_mcginley": true,
+    "calc_sma": true,
+    "calc_ssmoother": true,
+    "calc_t3": true,
+    "calc_tema": true,
+    "calc_tenkan": true,
+    "calc_vidya": true,
+    "calc_vwma": true,
+    "calc_zlema": true
+  },
+  "c1_4_n_identical": 16,
+  "c1_4_total": 17,
+  "c1_1_verify": {
+    "BTC/USDT": {
+      "rc": 0,
+      "err": null,
+      "verdict": "PASS (diff 0.0000)"
+    },
+    "ETH/USDT": {
+      "rc": 1,
+      "err": null,
+      "verdict": "FAIL rc=1"
+    },
+    "BNB/USDT": {
+      "rc": 0,
+      "err": null,
+      "verdict": "PASS (diff 0.0000)"
+    },
+    "SEI/USDT": {
+      "rc": 0,
+      "err": null,
+      "verdict": "PASS (diff 0.0000)"
+    },
+    "POL/USDT": {
+      "rc": 0,
+      "err": null,
+      "verdict": "PASS (diff 0.0000)"
+    },
+    "ONDO/USDT": {
+      "rc": 1,
+      "err": null,
+      "verdict": "FAIL rc=1"
+    },
+    "TRX/USDT": {
+      "rc": 1,
+      "err": null,
+      "verdict": "FAIL rc=1"
+    },
+    "XRP/USDT": {
+      "rc": 0,
+      "err": null,
+      "verdict": "PASS (diff 0.0000)"
+    },
+    "RENDER/USDT": {
+      "rc": 1,
+      "err": null,
+      "verdict": "FAIL rc=1"
+    }
+  },
+  "c1_1_n_pass": 5
+}

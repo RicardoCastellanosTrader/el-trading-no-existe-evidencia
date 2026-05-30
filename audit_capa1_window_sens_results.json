@@ -1,0 +1,42 @@
+{
+  "ETH/USDT": {
+    "FRAMA(60)": {
+      "div_roll500_pct": 0.0,
+      "div_roll1500_pct": 0.0
+    },
+    "FRAMA(240)": {
+      "div_roll500_pct": 0.0,
+      "div_roll1500_pct": 0.0
+    }
+  },
+  "ONDO/USDT": {
+    "KAMA(57)": {
+      "div_roll500_pct": 0.0,
+      "div_roll1500_pct": 0.0
+    },
+    "KAMA(228)": {
+      "div_roll500_pct": 0.0093,
+      "div_roll1500_pct": 0.0
+    }
+  },
+  "TRX/USDT": {
+    "VIDYA(69)": {
+      "div_roll500_pct": 0.6469,
+      "div_roll1500_pct": 0.0049
+    },
+    "VIDYA(276)": {
+      "div_roll500_pct": 5.7773,
+      "div_roll1500_pct": 1.1822
+    }
+  },
+  "RENDER/USDT": {
+    "McGinley(45)": {
+      "div_roll500_pct": 0.0,
+      "div_roll1500_pct": 0.0
+    },
+    "McGinley(180)": {
+      "div_roll500_pct": 0.0207,
+      "div_roll1500_pct": 0.0
+    }
+  }
+}

@@ -1,4 +1,11 @@
-"""Sequencer for ETAPA 2 walk-forward audit (Caveat #21 §13.2).
+"""[DEPRECATED 2026-05-30 — Caveat #22 §13.2] NO USAR. Invoca regime_walk_forward.py
+por CLI SIN la CONFIG metodológica productiva (no expone --fwd-min-trades/--fwd-min-pf;
+corre defaults divergentes _FWD_MIN_TRADES=25/_FWD_MIN_PF=1.1 vs productivo 15/1.0 +
+toxic_tail fijo). CASO ORIGEN de Caveat #22 (contaminación 3-mismatch, 58h invalidadas).
+SUPERSEDED por run_p4_sequencer.py + audit_wrapper_master.py (patrón master.step_regime_wf,
+bit-exact P4). Para comparación metodológica vs productivo usar el wrapper master.py.
+
+Sequencer for ETAPA 2 walk-forward audit (Caveat #21 §13.2).
 
 Runs sequentially (Caveat #14 sequential strict, NO parallel):
   1. ONDO/USDT × B2 (per-cluster full-history pool)

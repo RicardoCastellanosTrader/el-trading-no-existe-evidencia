@@ -1,0 +1,398 @@
+[
+  {
+    "sym": "BTC/USDT",
+    "rc": 0,
+    "preset": {
+      "fast": "VIDYA(16)",
+      "slow": "SMA(60)",
+      "trend": "SMA(240)"
+    },
+    "ma_types": [
+      "VIDYA",
+      "SMA",
+      "SMA"
+    ],
+    "has_iterative_MA": true,
+    "trades_match": true,
+    "pnl_diff_pp": 0.0,
+    "metrics": {
+      "Trades": {
+        "brain": 18.0,
+        "kernel": 18.0,
+        "diff": 0.0
+      },
+      "Wins": {
+        "brain": 6.0,
+        "kernel": 6.0,
+        "diff": 0.0
+      },
+      "PnL neto %": {
+        "brain": -3.0391,
+        "kernel": -3.0391,
+        "diff": 0.0
+      },
+      "Gross profit %": {
+        "brain": 6.166,
+        "kernel": 6.166,
+        "diff": 0.0
+      },
+      "Gross loss %": {
+        "brain": 9.2051,
+        "kernel": 9.2051,
+        "diff": 0.0
+      }
+    }
+  },
+  {
+    "sym": "ETH/USDT",
+    "rc": 1,
+    "preset": {
+      "fast": "VIDYA(18)",
+      "slow": "FRAMA(60)",
+      "trend": "FRAMA(240)"
+    },
+    "ma_types": [
+      "VIDYA",
+      "FRAMA",
+      "FRAMA"
+    ],
+    "has_iterative_MA": true,
+    "trades_match": false,
+    "pnl_diff_pp": 0.3445,
+    "metrics": {
+      "Trades": {
+        "brain": 9.0,
+        "kernel": 10.0,
+        "diff": -1.0
+      },
+      "Wins": {
+        "brain": 7.0,
+        "kernel": 8.0,
+        "diff": -1.0
+      },
+      "PnL neto %": {
+        "brain": 10.2749,
+        "kernel": 10.6194,
+        "diff": -0.3445
+      },
+      "Gross profit %": {
+        "brain": 14.0356,
+        "kernel": 14.3801,
+        "diff": -0.3445
+      },
+      "Gross loss %": {
+        "brain": 3.7607,
+        "kernel": 3.7607,
+        "diff": 0.0
+      }
+    }
+  },
+  {
+    "sym": "BNB/USDT",
+    "rc": 0,
+    "preset": {
+      "fast": "SMA(24)",
+      "slow": "TEMA(69)",
+      "trend": "TEMA(276)"
+    },
+    "ma_types": [
+      "SMA",
+      "TEMA",
+      "TEMA"
+    ],
+    "has_iterative_MA": true,
+    "trades_match": true,
+    "pnl_diff_pp": 0.0,
+    "metrics": {
+      "Trades": {
+        "brain": 9.0,
+        "kernel": 9.0,
+        "diff": 0.0
+      },
+      "Wins": {
+        "brain": 4.0,
+        "kernel": 4.0,
+        "diff": 0.0
+      },
+      "PnL neto %": {
+        "brain": -0.5629,
+        "kernel": -0.5629,
+        "diff": 0.0
+      },
+      "Gross profit %": {
+        "brain": 3.5876,
+        "kernel": 3.5876,
+        "diff": 0.0
+      },
+      "Gross loss %": {
+        "brain": 4.1506,
+        "kernel": 4.1506,
+        "diff": 0.0
+      }
+    }
+  },
+  {
+    "sym": "SEI/USDT",
+    "rc": 0,
+    "preset": {
+      "fast": "SMA(12)",
+      "slow": "ZLEMA(36)",
+      "trend": "ZLEMA(144)"
+    },
+    "ma_types": [
+      "SMA",
+      "ZLEMA",
+      "ZLEMA"
+    ],
+    "has_iterative_MA": true,
+    "trades_match": true,
+    "pnl_diff_pp": 0.0,
+    "metrics": {
+      "Trades": {
+        "brain": 9.0,
+        "kernel": 9.0,
+        "diff": 0.0
+      },
+      "Wins": {
+        "brain": 4.0,
+        "kernel": 4.0,
+        "diff": 0.0
+      },
+      "PnL neto %": {
+        "brain": -2.188,
+        "kernel": -2.188,
+        "diff": 0.0
+      },
+      "Gross profit %": {
+        "brain": 1.777,
+        "kernel": 1.777,
+        "diff": 0.0
+      },
+      "Gross loss %": {
+        "brain": 3.965,
+        "kernel": 3.965,
+        "diff": 0.0
+      }
+    }
+  },
+  {
+    "sym": "POL/USDT",
+    "rc": 0,
+    "preset": {
+      "fast": "T3(20)",
+      "slow": "SMA(30)",
+      "trend": "SMA(120)"
+    },
+    "ma_types": [
+      "T3",
+      "SMA",
+      "SMA"
+    ],
+    "has_iterative_MA": true,
+    "trades_match": true,
+    "pnl_diff_pp": 0.0,
+    "metrics": {
+      "Trades": {
+        "brain": 10.0,
+        "kernel": 10.0,
+        "diff": 0.0
+      },
+      "Wins": {
+        "brain": 6.0,
+        "kernel": 6.0,
+        "diff": 0.0
+      },
+      "PnL neto %": {
+        "brain": 2.9483,
+        "kernel": 2.9483,
+        "diff": 0.0
+      },
+      "Gross profit %": {
+        "brain": 8.8858,
+        "kernel": 8.8858,
+        "diff": 0.0
+      },
+      "Gross loss %": {
+        "brain": 5.9374,
+        "kernel": 5.9374,
+        "diff": 0.0
+      }
+    }
+  },
+  {
+    "sym": "ONDO/USDT",
+    "rc": 1,
+    "preset": {
+      "fast": "T3(22)",
+      "slow": "KAMA(57)",
+      "trend": "KAMA(228)"
+    },
+    "ma_types": [
+      "T3",
+      "KAMA",
+      "KAMA"
+    ],
+    "has_iterative_MA": true,
+    "trades_match": false,
+    "pnl_diff_pp": 0.2802,
+    "metrics": {
+      "Trades": {
+        "brain": 43.0,
+        "kernel": 44.0,
+        "diff": -1.0
+      },
+      "Wins": {
+        "brain": 20.0,
+        "kernel": 21.0,
+        "diff": -1.0
+      },
+      "PnL neto %": {
+        "brain": 6.5749,
+        "kernel": 6.8551,
+        "diff": -0.2802
+      },
+      "Gross profit %": {
+        "brain": 40.4696,
+        "kernel": 40.5216,
+        "diff": -0.0521
+      },
+      "Gross loss %": {
+        "brain": 33.8947,
+        "kernel": 33.6666,
+        "diff": 0.2281
+      }
+    }
+  },
+  {
+    "sym": "TRX/USDT",
+    "rc": 1,
+    "preset": {
+      "fast": "TEMA(8)",
+      "slow": "VIDYA(69)",
+      "trend": "VIDYA(276)"
+    },
+    "ma_types": [
+      "TEMA",
+      "VIDYA",
+      "VIDYA"
+    ],
+    "has_iterative_MA": true,
+    "trades_match": false,
+    "pnl_diff_pp": 0.7479,
+    "metrics": {
+      "Trades": {
+        "brain": 15.0,
+        "kernel": 16.0,
+        "diff": -1.0
+      },
+      "Wins": {
+        "brain": 5.0,
+        "kernel": 4.0,
+        "diff": 1.0
+      },
+      "PnL neto %": {
+        "brain": -2.8849,
+        "kernel": -3.6327,
+        "diff": 0.7479
+      },
+      "Gross profit %": {
+        "brain": 2.082,
+        "kernel": 2.0276,
+        "diff": 0.0544
+      },
+      "Gross loss %": {
+        "brain": 4.9668,
+        "kernel": 5.6603,
+        "diff": -0.6935
+      }
+    }
+  },
+  {
+    "sym": "XRP/USDT",
+    "rc": 0,
+    "preset": {
+      "fast": "FRAMA(22)",
+      "slow": "SSmoother(33)",
+      "trend": "SSmoother(132)"
+    },
+    "ma_types": [
+      "FRAMA",
+      "SSmoother",
+      "SSmoother"
+    ],
+    "has_iterative_MA": true,
+    "trades_match": true,
+    "pnl_diff_pp": 0.0,
+    "metrics": {
+      "Trades": {
+        "brain": 10.0,
+        "kernel": 10.0,
+        "diff": 0.0
+      },
+      "Wins": {
+        "brain": 5.0,
+        "kernel": 5.0,
+        "diff": 0.0
+      },
+      "PnL neto %": {
+        "brain": -3.076,
+        "kernel": -3.076,
+        "diff": 0.0
+      },
+      "Gross profit %": {
+        "brain": 1.3959,
+        "kernel": 1.3959,
+        "diff": 0.0
+      },
+      "Gross loss %": {
+        "brain": 4.4719,
+        "kernel": 4.4719,
+        "diff": 0.0
+      }
+    }
+  },
+  {
+    "sym": "RENDER/USDT",
+    "rc": 1,
+    "preset": {
+      "fast": "VIDYA(18)",
+      "slow": "McGinley(45)",
+      "trend": "McGinley(180)"
+    },
+    "ma_types": [
+      "VIDYA",
+      "McGinley",
+      "McGinley"
+    ],
+    "has_iterative_MA": true,
+    "trades_match": true,
+    "pnl_diff_pp": 0.2073,
+    "metrics": {
+      "Trades": {
+        "brain": 21.0,
+        "kernel": 21.0,
+        "diff": 0.0
+      },
+      "Wins": {
+        "brain": 13.0,
+        "kernel": 13.0,
+        "diff": 0.0
+      },
+      "PnL neto %": {
+        "brain": 7.1688,
+        "kernel": 6.9615,
+        "diff": 0.2073
+      },
+      "Gross profit %": {
+        "brain": 14.1843,
+        "kernel": 14.1843,
+        "diff": 0.0
+      },
+      "Gross loss %": {
+        "brain": 7.0154,
+        "kernel": 7.2228,
+        "diff": -0.2073
+      }
+    }
+  }
+]

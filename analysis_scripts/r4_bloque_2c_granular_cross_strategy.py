@@ -61,8 +61,10 @@ JSONS_DIR = os.path.join(_ROOT, 'regime_wf')
 PRESETS_DIR = os.path.join(_ROOT, 'output', 'production')
 TOP_N_PER_CLUSTER = 3  # top-3 by pf_fwd_ci_low (M2 fix order)
 MAX_TRADES_PER_CONFIG = 1000
-TRAIN_RATIO = 0.70
-MIN_EPISODE_BARS = 50
+# Caveat #22 §13.2 remediación 2026-05-30: CONFIG productiva forzada (no constantes locales).
+from master import CONFIG as _PROD_CONFIG
+TRAIN_RATIO = _PROD_CONFIG['train_ratio']
+MIN_EPISODE_BARS = _PROD_CONFIG['min_episode_bars']
 
 # Path γ TF reason_exit enum (lab_historico_numba_v8_3.py)
 TF_REASON_LABELS = {
@@ -364,10 +366,14 @@ def main():
             continue
         cluster_labels, n_clusters = compute_cluster_labels(df_ohlcv, model_data)
         episodes = identify_episodes(cluster_labels, n_clusters, min_bars=MIN_EPISODE_BARS)
+        # Caveat #22 §13.2: toxic_tail DYNAMIC (gmm_probs) como productivo, NO fijo 50.
+        gmm_probs = compute_gmm_probs(df_ohlcv, model_data)
         regime_labels, n_doubled, _ = build_regime_labels(
             cluster_labels, episodes, n_clusters, train_ratio=TRAIN_RATIO,
-            toxic_tail=50, gmm_probs=None, confirm_threshold=0.75,
-            max_toxic_tail=100, min_toxic_tail=5,
+            toxic_tail=0, gmm_probs=gmm_probs,
+            confirm_threshold=_PROD_CONFIG['confirm_threshold'],
+            max_toxic_tail=_PROD_CONFIG['max_toxic_tail'],
+            min_toxic_tail=_PROD_CONFIG['min_toxic_tail'],
         )
         presets_list = load_presets(sym_full, PRESETS_DIR)
         if presets_list is None or len(presets_list) == 0:

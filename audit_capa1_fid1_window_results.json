@@ -1,0 +1,62 @@
+[
+  {
+    "sym": "ETH/USDT",
+    "W500": {
+      "match_rate": 98.8,
+      "matched": 82,
+      "n_brain": 83,
+      "n_kernel": 82
+    },
+    "W1500": {
+      "match_rate": 98.55,
+      "matched": 68,
+      "n_brain": 69,
+      "n_kernel": 68
+    }
+  },
+  {
+    "sym": "ONDO/USDT",
+    "W500": {
+      "match_rate": 98.45,
+      "matched": 254,
+      "n_brain": 258,
+      "n_kernel": 257
+    },
+    "W1500": {
+      "match_rate": 100.0,
+      "matched": 180,
+      "n_brain": 180,
+      "n_kernel": 180
+    }
+  },
+  {
+    "sym": "TRX/USDT",
+    "W500": {
+      "match_rate": 84.54,
+      "matched": 82,
+      "n_brain": 97,
+      "n_kernel": 92
+    },
+    "W1500": {
+      "match_rate": 97.06,
+      "matched": 66,
+      "n_brain": 68,
+      "n_kernel": 68
+    }
+  },
+  {
+    "sym": "XRP/USDT",
+    "W500": {
+      "match_rate": 100.0,
+      "matched": 78,
+      "n_brain": 78,
+      "n_kernel": 78
+    },
+    "W1500": {
+      "match_rate": 100.0,
+      "matched": 53,
+      "n_brain": 53,
+      "n_kernel": 53
+    }
+  }
+]

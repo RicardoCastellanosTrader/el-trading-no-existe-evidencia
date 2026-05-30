@@ -1,0 +1,216 @@
+{
+  "computes_as_designed": true,
+  "blocker_for_production": false,
+  "go_nogo": "GO",
+  "confirmed_findings": [
+    {
+      "severity": "CRITICO",
+      "subsystem": "mr-zones",
+      "title": "cancel_ghost zone calculation uses wrong slow_line temporal reference (mirrored in live engine and kernel)",
+      "location": "live/brain_engine.py:1813 | mean_reversion_kernel.py:427",
+      "why": "In cancel_ghost logic the trajectory-bar loop reuses `sf = slow_forming[t]` (today's current forming slow line) for ALL trajectory-bar iterations instead of `slow_forming[traj_bar]` (each bar's own forming slow line). The kernel exhibits the identical pattern at line 427. Because live engine and kernel share the SAME bug, replay parity is preserved and the system computes self-consistently — but the ghost-cancel semantics are systematically biased: earlier trajectory bars evaluate against today's final forming state rather than their own intra-day state, causing false-positive (excess cancels) or false-negative (missed cancels) ghost detections depending on slow-line evolution. This is a correctness defect in cancel logic, not a pipeline/recycling defect.",
+      "recommendation": "Replace `sf = slow_forming[t]` with `sf = slow_forming[traj_bar]` at brain_engine.py:1813 AND mean_reversion_kernel.py:427 in lockstep to preserve replay bit-exactness. Align cancel_ghost temporal semantics with cancel_zona (same-day forming[t] only after loop, slow_resolved[entry_bar] for closed days). Re-run MR fidelity parity (audit_mr_fidelity) after the dual fix."
+    },
+    {
+      "severity": "CRITICO",
+      "subsystem": "aux-parity",
+      "title": "run_etapa2_sequencer.py invokes regime_walk_forward.py via CLI without CONFIG override (undocumented Caveat #22 instance)",
+      "location": "run_etapa2_sequencer.py:64-69 | regime_walk_forward.py argparse 2748-2764",
+      "why": "The sequencer launches regime_walk_forward.py as a subprocess passing only --symbols/--presets-dir/--output-dir. Verified the rwf argparse exposes NO --fwd-min-trades or --fwd-min-pf flags, so the subprocess runs with hardcoded _FWD_MIN_TRADES=25 and _FWD_MIN_PF=1.1 instead of the productive CONFIG values (15 and 1.0 set by master.py:443-450). This is the known Caveat #22 contamination class (the cited 3-mismatch / 58h-wasted incident). It affects STAGE 2 ETAPA2 cross-class auditing, NOT the RECICLAJE step that Grupo 3 resumes through (master.step_regime_wf applies the full CONFIG override correctly).",
+      "recommendation": "Migrate run_etapa2_sequencer.py to the audit_wrapper_master.py pattern (direct master.step_regime_wf call) used correctly by run_p4_sequencer.py, OR add --fwd-min-trades/--fwd-min-pf/--cross-cluster-* CLI args to regime_walk_forward.py and pass CONFIG values. Document the instance under Caveat #22 §13.2. MUST be fixed before the ETAPA2/STAGE2 cross-class stage of Grupo 3, but does not block the RECICLAJE launch."
+    },
+    {
+      "severity": "CRITICO",
+      "subsystem": "aux-parity",
+      "title": "r4_bloque_2c_granular_cross_strategy.py hardcodes toxic_tail=50 vs CONFIG 'dynamic' (Caveat #22 instance)",
+      "location": "analysis_scripts/r4_bloque_2c_granular_cross_strategy.py:369",
+      "why": "Verified line 367-371 calls build_regime_labels(..., toxic_tail=50, ...) while master.py CONFIG['toxic_tail']='dynamic'. This produces regime labels with a fixed 50-bar toxic-tail extension instead of the productive dynamic GMM-probability-driven extension, so this analysis script's labels diverge from productive. It is an offline cross-strategy analysis script, not part of the productive RECICLAJE pipeline, so it does not contaminate Grupo 3 recycling output.",
+      "recommendation": "Import CONFIG from master and replace the hardcoded call with dynamic-mode parameters (toxic_tail_mode='dynamic', toxic_tail=0, max_toxic_tail=CONFIG['max_toxic_tail'], min_toxic_tail=CONFIG['min_toxic_tail']). Document under Caveat #22. Required before trusting any new r4_bloque_2c output; not a recycling blocker."
+    },
+    {
+      "severity": "SERIO",
+      "subsystem": "indicators-dispatcher",
+      "title": "MA dispatcher signature INCOMPATIBILITY between lab_lite (INT) and lab_historico (STRING)",
+      "location": "lab_lite_zonas_v5e.py:167-184 vs lab_historico_numba_v8_3.py:954-972",
+      "why": "lab_lite.calc_ma() routes by integer (signature close,high,low,volume,ma_type_int,period,p1,p2) while lab_historico.calc_ma() routes by string with INVERTED parameter order (ma_type_str,close,high,low,volume,period,p1,p2). brain_engine correctly imports and uses the lab_historico STRING dispatcher for live trading, so production is correct today. The duplication is latent fragility: any future code path mixing both dispatchers (kernel replay, refactor) silently routes to wrong implementation / inverted args.",
+      "recommendation": "Consolidate to ONE canonical STRING dispatcher in lab_historico as source-of-truth. Mark lab_lite's INT dispatcher deprecated (internal-simulation-only) and audit that no INT routing leaks outside lab_lite's catalog builder."
+    },
+    {
+      "severity": "SERIO",
+      "subsystem": "indicators-dispatcher",
+      "title": "INT->STRING MA-type conversion in preset round-trip lacks verification test",
+      "location": "lab_lite_zonas_v5e.py:378-389 (result_to_preset_tuple)",
+      "why": "result_to_preset_tuple() maps internal INT codes 0-15 to STRING names via MA_NAMES.get(type_idx,f'T{type_idx}'); this tuple feeds brain_engine STRING dispatcher. No test verifies EVERY INT 0-15 resolves to a valid lab_historico calc_ma call. A typo in MA_NAMES (e.g. ZLMA vs ZLEMA) would silently export a wrong MA type while lab_lite simulation used its own cached INT dispatcher — latent silent mismatch in preset export.",
+      "recommendation": "Add a round-trip test (broader than test_a12_ma_parity) asserting each INT 0-15 -> STRING executes calc_ma on a synthetic series with no unhandled-type fallback, and cross-check MA_NAMES against lab_historico function definitions and SYMBOL_ZONE_PRESETS."
+    },
+    {
+      "severity": "SERIO",
+      "subsystem": "mr-zones",
+      "title": "Deprecated MR state fields assigned but never read (dead state)",
+      "location": "live/brain_engine.py:2153-2176 (assignments), 148-156 (field defs)",
+      "why": "Entry logic assigns mr_entry_filters_forming, mr_entry_slow_line, mr_zone_history (marked 'A05 S2 DEPRECATED 2026-04-23 / NUNCA leídos'). They are write-only, kept only for engine_state.json back-compat, increasing state bloat and maintenance confusion. Not a correctness defect.",
+      "recommendation": "Remove the assignments (and mr_zone_history append) and schedule the SymbolState fields for removal once engine_state.json serialization omits them."
+    },
+    {
+      "severity": "SERIO",
+      "subsystem": "tech-debt",
+      "title": "Silent exception suppression in resume JSON-read logic",
+      "location": "regime_walk_forward.py:519-520 | master.py:519-520",
+      "why": "A bare `except Exception:` swallows all errors when reading an existing final-output JSON, marking the symbol 'skipped' with no logging. A corrupted/permission-denied JSON is silently treated as a successful skip, so resume cannot distinguish a true skip from a read error — risk of silently omitting a symbol from recycling output.",
+      "recommendation": "Catch specific exceptions (IOError, json.JSONDecodeError), log error context, and surface a distinct 'skip_error' state (re-raise on unexpected exceptions) so resume integrity is auditable."
+    },
+    {
+      "severity": "SERIO",
+      "subsystem": "tech-debt",
+      "title": "Bare except in step_regime_wf CUDA cleanup swallows all exceptions",
+      "location": "master.py:606-607",
+      "why": "The post-DIAG.11 inter-symbol CUDA cleanup wraps cleanup in `except Exception:` which also swallows critical failures (and offers no logging), preventing operator awareness if numba/cuda teardown fails mid-recycling.",
+      "recommendation": "Narrow to `except (ImportError, AttributeError, RuntimeError):`, log unhandled exceptions separately, and guard the surrounding gc.collect()."
+    },
+    {
+      "severity": "SERIO",
+      "subsystem": "tech-debt",
+      "title": "Corrupted-parquet integrity check deletes parts with no rollback",
+      "location": "regime_walk_forward.py:157-169 (_all_parts_valid_or_clean)",
+      "why": "The integrity check deletes corrupted part files as a side-effect. If os.unlink succeeds but regeneration later fails, the part data is lost with no transactional guarantee, leaving the pipeline unable to recover that variant. (Note: the resume completeness logic itself was REFUTED — it does verify all part paths — but the unguarded deletion side-effect is the real residual risk.)",
+      "recommendation": "Defer deletion until after successful regeneration, or move corrupted parts to a temp backup before unlink, and track deleted_parts so a failed regeneration aborts cleanly."
+    },
+    {
+      "severity": "SERIO",
+      "subsystem": "aux-parity",
+      "title": "audit_contamination.py uses rwf module defaults without CONFIG override",
+      "location": "audit_contamination.py:23-63",
+      "why": "Uses rwf.MIN_EPISODE_BARS and rwf.TRAIN_RATIO from module defaults (currently 50/0.70, matching CONFIG) without importing CONFIG from master. Values align today so results are currently valid, but this is a single-point-of-failure: a future CONFIG change silently desynchronizes this contamination audit (the exact failure mode Caveat #22 guards against).",
+      "recommendation": "Add `from master import CONFIG; rwf.TRAIN_RATIO=CONFIG['train_ratio']; rwf.MIN_EPISODE_BARS=CONFIG['min_episode_bars']` at top of script to guarantee productive consistency."
+    },
+    {
+      "severity": "SERIO",
+      "subsystem": "aux-parity",
+      "title": "audit_contamination_part_b.py uses rwf module defaults without CONFIG override",
+      "location": "audit_contamination_part_b.py:29-31, 276-289",
+      "why": "Relies on rwf.MIN_EPISODE_BARS and rwf.TRAIN_RATIO from module scope (currently matching CONFIG) although it hardcodes toxic_tail params explicitly. As a critical contamination audit it must guarantee productive alignment; current match is coincidental, not enforced.",
+      "recommendation": "Import CONFIG from master and set rwf.TRAIN_RATIO / rwf.MIN_EPISODE_BARS (plus toxic_tail) from it so the audit cannot silently drift."
+    },
+    {
+      "severity": "MENOR",
+      "subsystem": "mr-zones",
+      "title": "cancel_zona zero/invalid entry_bar_timestamp falls back silently to same-day",
+      "location": "live/brain_engine.py:1762-1791",
+      "why": "When entry_bar_timestamp<=0 the code defaults to ts_now (same-day branch) rather than warning. Safer than crashing, but a zero timestamp from a failed entry record silently passes all checks and could mask an upstream state bug.",
+      "recommendation": "Add an explicit guard: if a position exists but entry_bar_timestamp<=0, log a warning (or return False early) rather than silently treating it as same-day."
+    },
+    {
+      "severity": "MENOR",
+      "subsystem": "mr-zones",
+      "title": "TF exit filter loop iterates range(4) but MR only uses TF1-TF3",
+      "location": "live/brain_engine.py:1993-2002",
+      "why": "Exit loop iterates bits 0-3 though MR supports only TF1-TF3 (bit 3 always 0 in MR exit_mask). Kernel uses range(4) too, so it is synchronized and harmless, but imprecise vs the 'no MA filters TF4/TF5' comment — minor review-confusion risk only.",
+      "recommendation": "Reduce to range(3) (kept in lockstep with the kernel) with a comment clarifying MR's TF1-TF3 scope, or document the intentional kernel alignment."
+    },
+    {
+      "severity": "MENOR",
+      "subsystem": "indicators-dispatcher",
+      "title": "brain_engine lacks runtime assertion that MA types are STRING (fragile to INT refactor)",
+      "location": "live/brain_engine.py:39-48 (import), 1122-1130 (compute_mas)",
+      "why": "brain_engine currently correctly receives STRING MA types from specialist_configs JSON and presets CSV and calls the lab_historico STRING dispatcher. Code is correct today, but there is no assertion guarding against a future refactor that encodes MA types as INT, which would crash or misroute.",
+      "recommendation": "Add a runtime assertion in compute_mas() that ma_type is a STRING before calling calc_ma(), and a symmetric assertion in lab_historico.calc_ma()."
+    },
+    {
+      "severity": "MENOR",
+      "subsystem": "indicators-dispatcher",
+      "title": "FRAMA/Tenkan high/low-array requirement differs subtly between the two dispatchers",
+      "location": "lab_lite_zonas_v5e.py:178,182 vs lab_historico_numba_v8_3.py:967,971",
+      "why": "Both dispatchers correctly pass high/low for FRAMA (10) and Tenkan (14) in all active paths, but lab_lite's signature is explicit-always while lab_historico's is conditional — a direct/future caller could omit high/low and hit a signature mismatch.",
+      "recommendation": "Unify dispatcher signatures (require high/low everywhere, or sentinel-default with validation) and document which MAs need high/low."
+    },
+    {
+      "severity": "MENOR",
+      "subsystem": "pipeline",
+      "title": "identify_episodes clusters with zero valid episodes tracked but worth explicit logging",
+      "location": "regime_walk_forward.py:288-361",
+      "why": "Clusters below the min-episode threshold are explicitly marked valid:False in split_info (no data loss — the stronger 'silent skip' claim was REFUTED), but there is no explicit log distinguishing n_episodes=0 from valid:False, hampering auditing of why a cluster produced no specialists.",
+      "recommendation": "Log which clusters have zero valid episodes and mark n_episodes=0 distinctly from valid:False in split_info for auditability."
+    },
+    {
+      "severity": "MENOR",
+      "subsystem": "pipeline",
+      "title": "lab_lite vs regime_walk_forward differ in regime-model-missing fallback behavior",
+      "location": "lab_lite_zonas_v5e.py:412-420 vs regime_walk_forward.py:242-256",
+      "why": "Both read identical lookback from the same pretrained model in the normal path. If the model is missing/corrupt, lab_lite falls back to all-bars=cluster0 while regime_walk_forward leaves -1 labels — asymmetric cluster assignment for the same data. Requires model corruption to manifest, and labels are visible (not silent).",
+      "recommendation": "Make the model-missing fallback identical across both modules and add a master.py post-step check that the regime model exists before step_regime_wf."
+    },
+    {
+      "severity": "MENOR",
+      "subsystem": "tech-debt",
+      "title": "DSR backward-compat default 'none' lacks module-load log",
+      "location": "regime_walk_forward.py:1108-1112",
+      "why": "_R1_DSR_METHOD='none' disables DSR filtering by default (documented in a comment) but there is no module-load log announcing the active method, so operators may not realize filtering is off (or on) for a given run.",
+      "recommendation": "Log the active DSR method at module load, and log the count of configs filtered when DSR is applied in extract_validated_specialists."
+    },
+    {
+      "severity": "MENOR",
+      "subsystem": "tech-debt",
+      "title": "Empty-DataFrame bootstrap column assignment yields all-NaN instead of intended scalars",
+      "location": "regime_walk_forward.py:1305-1311",
+      "why": "When len(df)==0, scalar assignments to DataFrame columns broadcast to NaN rather than the intended 0/False values — an edge-case data-integrity quirk (does not crash).",
+      "recommendation": "Return the empty df directly without adding columns when len(df)==0, or broadcast scalars to df.shape[0] explicitly."
+    },
+    {
+      "severity": "MENOR",
+      "subsystem": "tech-debt",
+      "title": "Regime-model load failure fallback marked in metadata but not surfaced as clustering_mode",
+      "location": "lab_lite_zonas_v5e.py:412-420",
+      "why": "The fallback returns method='fallback_no_model' and prints a warning, so it is not fully silent, but it lacks a distinct top-level clustering_mode field in the final output to make downstream consumers branch on fallback vs pretrained-GMM.",
+      "recommendation": "Add an explicit clustering_mode field (pretrained_gmm / fallback_no_model / fallback_no_joblib) to cluster_info and ensure operator-visible warning."
+    },
+    {
+      "severity": "MENOR",
+      "subsystem": "aux-parity",
+      "title": "sub_frame_3a1_gmm_n_pthreshold_grid.py hardcodes CONFIG-matching defaults (DRY violation)",
+      "location": "analysis_scripts/sub_frame_3a1_gmm_n_pthreshold_grid.py:105-110",
+      "why": "Replicates TRAIN_RATIO/MIN_EPISODE_BARS/toxic-tail defaults that currently match CONFIG without importing it. Low functional risk (values match, and it is an ablation script, not a critical audit) but stale-on-CONFIG-change.",
+      "recommendation": "Import CONFIG from master and derive the constants from it."
+    },
+    {
+      "severity": "COSMETICO",
+      "subsystem": "indicators-dispatcher",
+      "title": "lab_lite retains its own INT calc_ma dispatcher in addition to importing lab_historico functions (documented debt)",
+      "location": "lab_lite_zonas_v5e.py:127-131 (imports), 167-184 (INT dispatcher)",
+      "why": "Two independent dispatchers for the same 16 MAs (documented as intentional A12 back-compat). Works correctly; if MA #17 is added to lab_historico the lab_lite INT dispatcher becomes incomplete. Latent code debt, not a bug.",
+      "recommendation": "Mark the INT dispatcher @deprecated (internal-simulation-only) and plan removal post-reciclaje; prefer the STRING dispatcher for all new code."
+    },
+    {
+      "severity": "COSMETICO",
+      "subsystem": "indicators-dispatcher",
+      "title": "MA_NAMES dict duplicates MA names also embedded in lab_historico presets",
+      "location": "lab_lite_zonas_v5e.py:136-140 vs lab_historico_numba_v8_3.py:91-412",
+      "why": "Knowledge duplicated across scopes; currently consistent (zero inconsistency found) but a single point of drift if either changes independently.",
+      "recommendation": "Optional: extract a shared ma_constants.py with canonical MA_NAMES and INT<->STRING mapping imported by both modules."
+    },
+    {
+      "severity": "COSMETICO",
+      "subsystem": "aux-parity",
+      "title": "r4_bloque_2c also defines local TRAIN_RATIO/MIN_EPISODE_BARS (DRY violation)",
+      "location": "analysis_scripts/r4_bloque_2c_granular_cross_strategy.py:64-65",
+      "why": "Local constants match CONFIG but are not imported from it; secondary to the CRITICO toxic_tail=50 issue in the same file.",
+      "recommendation": "Fold into the same CONFIG import used to fix the toxic_tail issue."
+    },
+    {
+      "severity": "COSMETICO",
+      "subsystem": "aux-parity",
+      "title": "v18_baseline_sei_1preset_capture.py is the correct CONFIG-propagation template (positive finding)",
+      "location": "analysis_scripts/v18_baseline_sei_1preset_capture.py:34-60",
+      "why": "Correctly imports CONFIG and sets all rwf+lab module defaults mirroring master.py:432-457. Confirmed as the model pattern for analysis scripts; no action needed.",
+      "recommendation": "Use as the canonical template for retrofitting the non-compliant aux scripts."
+    },
+    {
+      "severity": "COSMETICO",
+      "subsystem": "aux-parity",
+      "title": "audit_fidelity_v5.py / v5_2.py verified safe (use own kernel constants, no rwf module defaults)",
+      "location": "audit_fidelity_v5.py, audit_fidelity_v5_2.py",
+      "why": "Lazy-import pattern extracts kernel constants matching CONFIG and does not call rwf functions depending on MIN_EPISODE_BARS/TRAIN_RATIO. The earlier concern was prudent but verification shows they are not a Caveat #22 instance.",
+      "recommendation": "No code change required; document them as verified-clean in the Caveat #22 audit checklist."
+    }
+  ],
+  "summary": "Certification synthesized from 4 subsystem audits (indicators-dispatcher, mr-zones, pipeline, tech-debt, aux-parity) after applying adversarial verdicts. REFUTADO/DESCARTADO findings were dropped (notably: the doubled-regime-label bounds, resume completeness check, toxic-tail cross-cluster overlap, CONFIG-global propagation, several tech-debt division/null-guard items, and the zone_bull/bear NaN inconsistency — all verified already-correct in source). 27 findings retained as CONFIRMADO/AJUSTADO: 3 CRITICO, 9 SERIO, 9 MENOR, 6 COSMETICO.\\n\\nThe system computes as designed: live trading correctly uses the lab_historico STRING MA dispatcher; the RECICLAJE step (master.step_regime_wf) applies the full productive CONFIG override (verified master.py:432-484), so the recycling path that Grupo 3 resumes through is CONFIG-clean. The 3 CRITICO findings were each verified at primary source. (1) cancel_ghost slow_line temporal bug is mirrored identically in live engine (brain_engine.py:1813) AND kernel (mean_reversion_kernel.py:427) — it biases MR cancel semantics but, because both copies share the bug, replay parity holds and it is a live-trading-correctness defect, NOT a recycling-pipeline defect. (2) run_etapa2_sequencer.py CLI contamination (verified rwf argparse exposes no --fwd-min-trades/--fwd-min-pf) is a genuine undocumented Caveat #22 instance, but it lives in the STAGE 2 / ETAPA2 cross-class audit stage, not in RECICLAJE. (3) r4_bloque_2c hardcoded toxic_tail=50 vs CONFIG 'dynamic' (verified line 369) is an offline cross-strategy analysis script outside the productive recycling pipeline.\\n\\nGO/NO-GO: GO. None of the 3 CRITICO findings sits on the Grupo 3 RECICLAJE launch path — they affect live MR cancel logic and downstream cross-class/analysis stages respectively. However, the two aux-parity CRITICO Caveat #22 instances (run_etapa2_sequencer.py and r4_bloque_2c) MUST be remediated before reaching the CROSS_CLASS/STAGE 2 cross-class auditing phase of Grupo 3, and the cancel_ghost dual-fix (brain_engine + kernel in lockstep, followed by MR fidelity re-parity) MUST be applied before the next Bot deployment. Recommended pre-STAGE2 actions: migrate run_etapa2_sequencer.py to the audit_wrapper_master.py pattern (model: run_p4_sequencer.py / v18_baseline template), CONFIG-ize r4_bloque_2c + audit_contamination[_part_b].py, and document all instances under Caveat #22 §13.2."
+}

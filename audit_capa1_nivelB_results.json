@@ -1,0 +1,92 @@
+[
+  {
+    "sym": "ETH/USDT",
+    "group": "DIVERGENT",
+    "rc": 1,
+    "nivelB_pass": false,
+    "brain_trades": 149.0,
+    "kernel_trades": 163.0,
+    "pnl_rel_pct": 53.06,
+    "match_pct": 91.41
+  },
+  {
+    "sym": "ONDO/USDT",
+    "group": "DIVERGENT",
+    "rc": 1,
+    "nivelB_pass": false,
+    "brain_trades": 586.0,
+    "kernel_trades": 581.0,
+    "pnl_rel_pct": 28.25,
+    "match_pct": 99.15
+  },
+  {
+    "sym": "TRX/USDT",
+    "group": "DIVERGENT",
+    "rc": 1,
+    "nivelB_pass": false,
+    "brain_trades": 198.0,
+    "kernel_trades": 194.0,
+    "pnl_rel_pct": 216.12,
+    "match_pct": 97.98
+  },
+  {
+    "sym": "RENDER/USDT",
+    "group": "DIVERGENT",
+    "rc": 0,
+    "nivelB_pass": true,
+    "brain_trades": 580.0,
+    "kernel_trades": 584.0,
+    "pnl_rel_pct": 0.45,
+    "match_pct": 99.32
+  },
+  {
+    "sym": "BTC/USDT",
+    "group": "CONTROL",
+    "rc": 0,
+    "nivelB_pass": true,
+    "brain_trades": 291.0,
+    "kernel_trades": 293.0,
+    "pnl_rel_pct": 3.53,
+    "match_pct": 99.32
+  },
+  {
+    "sym": "BNB/USDT",
+    "group": "CONTROL",
+    "rc": 0,
+    "nivelB_pass": true,
+    "brain_trades": 141.0,
+    "kernel_trades": 142.0,
+    "pnl_rel_pct": 4.38,
+    "match_pct": 99.3
+  },
+  {
+    "sym": "SEI/USDT",
+    "group": "CONTROL",
+    "rc": 0,
+    "nivelB_pass": true,
+    "brain_trades": 199.0,
+    "kernel_trades": 199.0,
+    "pnl_rel_pct": 0.0,
+    "match_pct": 100.0
+  },
+  {
+    "sym": "POL/USDT",
+    "group": "CONTROL",
+    "rc": 0,
+    "nivelB_pass": true,
+    "brain_trades": 229.0,
+    "kernel_trades": 229.0,
+    "pnl_rel_pct": 6.77,
+    "match_pct": 100.0
+  },
+  {
+    "sym": "XRP/USDT",
+    "group": "CONTROL",
+    "rc": 1,
+    "nivelB_pass": false,
+    "brain_trades": 162.0,
+    "kernel_trades": 163.0,
+    "pnl_rel_pct": 68.1,
+    "match_pct": 99.39
+  }
+]

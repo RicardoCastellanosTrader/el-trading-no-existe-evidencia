@@ -30,6 +30,12 @@ import lab_historico_numba_v8_3 as lab
 import regime_walk_forward as rwf
 import lab_lite_zonas_v5e as ll  # only for find_preset_in_csv lookup
 
+# Caveat #22 §13.2 remediación 2026-05-30: forzar paridad CONFIG productiva
+# (toxic_tail ya se pasa explícito vía PROD_* abajo; esto fuerza TRAIN_RATIO/MIN_EPISODE_BARS).
+from master import CONFIG as _PROD_CONFIG
+rwf.TRAIN_RATIO = _PROD_CONFIG['train_ratio']
+rwf.MIN_EPISODE_BARS = _PROD_CONFIG['min_episode_bars']
+
 
 LL_WINDOW = 5000
 

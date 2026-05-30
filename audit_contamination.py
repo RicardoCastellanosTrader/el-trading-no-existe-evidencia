@@ -23,6 +23,12 @@ import pandas as pd
 import regime_walk_forward as rwf
 import lab_lite_zonas_v5e as ll
 
+# Caveat #22 §13.2 remediación 2026-05-30: forzar paridad CONFIG productiva
+# (evita depender de defaults de módulo rwf que coincidían por azar — single-point-of-failure).
+from master import CONFIG as _PROD_CONFIG
+rwf.TRAIN_RATIO = _PROD_CONFIG['train_ratio']
+rwf.MIN_EPISODE_BARS = _PROD_CONFIG['min_episode_bars']
+
 
 def analyze_overlap(symbol: str, parquet_dir: str = "data_cache",
                      model_dir: str = "regime_models") -> dict:
