@@ -1,0 +1,204 @@
+{
+  "schema_version": 1,
+  "created_at": "2026-05-12T05:47:50Z",
+  "updated_at": "2026-06-01T03:28:25Z",
+  "grupo_actual": 3,
+  "fase_actual": "RECICLAJE_GRUPO_N",
+  "grupos": {
+    "1": {
+      "symbols": [
+        "BTCUSDT",
+        "ETHUSDT",
+        "BNBUSDT",
+        "XRPUSDT",
+        "TRXUSDT"
+      ],
+      "sym_done_grupo_N": [
+        "BTCUSDT",
+        "ETHUSDT",
+        "BNBUSDT",
+        "XRPUSDT",
+        "TRXUSDT"
+      ],
+      "sym_pending_grupo_N": [],
+      "cross_options_done": [
+        "BTC_SOURCE",
+        "ETH_SOURCE",
+        "PER_SYM_BASELINE"
+      ],
+      "cross_options_pending": [],
+      "analysis_report_path": "deployment_package_grupo_1\\deployment_report_grupo_1.json",
+      "deployment_ack": true,
+      "tier3_gate_pending": false,
+      "active_subprocess": {}
+    },
+    "2": {
+      "symbols": [
+        "ONDOUSDT",
+        "RENDERUSDT",
+        "POLUSDT",
+        "SEIUSDT",
+        "TAOUSDT"
+      ],
+      "sym_done_grupo_N": [
+        "ONDOUSDT",
+        "RENDERUSDT",
+        "POLUSDT",
+        "SEIUSDT",
+        "TAOUSDT"
+      ],
+      "sym_pending_grupo_N": [],
+      "cross_options_done": [
+        "BTC_SOURCE",
+        "ETH_SOURCE",
+        "PER_SYM_BASELINE"
+      ],
+      "cross_options_pending": [],
+      "analysis_report_path": "deployment_package_grupo_2\\deployment_report_grupo_2.json",
+      "deployment_ack": true,
+      "tier3_gate_pending": false,
+      "active_subprocess": {}
+    },
+    "3": {
+      "symbols": [
+        "SOLUSDT",
+        "DOGEUSDT",
+        "ADAUSDT",
+        "BCHUSDT",
+        "LINKUSDT"
+      ],
+      "sym_done_grupo_N": [
+        "SOLUSDT",
+        "DOGEUSDT",
+        "ADAUSDT",
+        "BCHUSDT",
+        "LINKUSDT"
+      ],
+      "sym_pending_grupo_N": [],
+      "cross_options_done": [],
+      "cross_options_pending": [
+        "BTC_SOURCE",
+        "ETH_SOURCE",
+        "PER_SYM_BASELINE"
+      ],
+      "analysis_report_path": null,
+      "deployment_ack": false,
+      "tier3_gate_pending": true,
+      "active_subprocess": {}
+    }
+  },
+  "last_completed": {
+    "state": "NEXT_GRUPO",
+    "grupo_id": 3,
+    "timestamp": "2026-05-22T19:13:04Z"
+  },
+  "crash_recovery_resume_point": {
+    "state": "NEXT_GRUPO",
+    "grupo_id": 3,
+    "context": {
+      "target": "RECICLAJE_GRUPO_N"
+    },
+    "timestamp": "2026-05-22T19:13:04Z"
+  },
+  "tier3_gate_pending": true,
+  "history": [
+    {
+      "ts": "2026-05-13T18:53:09Z",
+      "from": "IDLE",
+      "to": "RECICLAJE_GRUPO_N",
+      "grupo_id": 1,
+      "note": "post_grupo1_reciclaje_done_2026_05_12"
+    },
+    {
+      "ts": "2026-05-13T18:53:09Z",
+      "from": "RECICLAJE_GRUPO_N",
+      "to": "CROSS_CLASS_GRUPO_N",
+      "grupo_id": 1,
+      "note": "reciclaje_complete_grupo_1_2026_05_13"
+    },
+    {
+      "ts": "2026-05-17T03:33:15Z",
+      "from": "CROSS_CLASS_GRUPO_N",
+      "to": "ANALYSIS_GRUPO_N",
+      "grupo_id": 1,
+      "note": "stage1_cross_class_complete_2026_05_17"
+    },
+    {
+      "ts": "2026-05-17T03:33:20Z",
+      "from": "ANALYSIS_GRUPO_N",
+      "to": "DEPLOYMENT_READY_GRUPO_N",
+      "grupo_id": 1,
+      "note": "analysis_complete_real_compute"
+    },
+    {
+      "ts": "2026-05-17T11:28:27Z",
+      "from": "DEPLOYMENT_READY_GRUPO_N",
+      "to": "DEPLOYED_GRUPO_N",
+      "grupo_id": 1,
+      "note": "autonomous_deploy_2026_05_17_pid_136900"
+    },
+    {
+      "ts": "2026-05-17T11:28:27Z",
+      "from": "DEPLOYED_GRUPO_N",
+      "to": "NEXT_GRUPO",
+      "grupo_id": 1,
+      "note": "grupo_1_deployed_ok_2026_05_17"
+    },
+    {
+      "ts": "2026-05-19T08:35:31Z",
+      "from": "NEXT_GRUPO",
+      "to": "RECICLAJE_GRUPO_N",
+      "grupo_id": 2,
+      "note": "production_launch_grupo_2"
+    },
+    {
+      "ts": "2026-05-20T02:44:16Z",
+      "from": "RECICLAJE_GRUPO_N",
+      "to": "CROSS_CLASS_GRUPO_N",
+      "grupo_id": 2,
+      "note": "watcher_auto_transition_cross_class"
+    },
+    {
+      "ts": "2026-05-21T06:41:52Z",
+      "from": "CROSS_CLASS_GRUPO_N",
+      "to": "ANALYSIS_GRUPO_N",
+      "grupo_id": 2,
+      "note": "watcher_auto_transition_analysis"
+    },
+    {
+      "ts": "2026-05-21T06:41:53Z",
+      "from": "ANALYSIS_GRUPO_N",
+      "to": "DEPLOYMENT_READY_GRUPO_N",
+      "grupo_id": 2,
+      "note": "analysis_complete_real_compute"
+    },
+    {
+      "ts": "2026-05-22T18:17:19Z",
+      "from": "DEPLOYMENT_READY_GRUPO_N",
+      "to": "DEPLOYED_GRUPO_N",
+      "grupo_id": 2,
+      "note": "ricardo_authorized_v2.6.0_2026-05-22"
+    },
+    {
+      "ts": "2026-05-22T18:17:37Z",
+      "from": "DEPLOYED_GRUPO_N",
+      "to": "NEXT_GRUPO",
+      "grupo_id": 2,
+      "note": "ricardo_authorized_v2_6_0_deployed_2026_05_22"
+    },
+    {
+      "ts": "2026-05-22T19:13:04Z",
+      "from": "NEXT_GRUPO",
+      "to": "RECICLAJE_GRUPO_N",
+      "grupo_id": 3,
+      "note": "production_launch_grupo_3"
+    },
+    {
+      "ts": "2026-05-22T20:59:00Z",
+      "from": "RECICLAJE_GRUPO_N",
+      "to": "RECICLAJE_GRUPO_N",
+      "grupo_id": 3,
+      "note": "PAUSED_GRUPO_3_lab_lite_window_audit_2026_05_22_ricardo_directive"
+    }
+  ]
+}
