@@ -22,6 +22,7 @@ Uso:
 import os
 import sys
 import time
+import json
 import argparse
 from datetime import datetime, timedelta
 
@@ -509,15 +510,18 @@ def step_regime_wf(symbols, recycle=False, cli_args=None):
         if not recycle and os.path.exists(jp):
             # Leer resumen del JSON existente
             try:
-                import json
                 with open(jp, 'r', encoding='utf-8') as f:
                     data = json.load(f)
                 n_clusters = data.get('n_clusters', '?')
                 clusters_info = data.get('clusters', {})
                 specs_per = {k: len(v.get('specialists', [])) for k, v in clusters_info.items()}
                 results_summary[symbol] = {'status': 'skipped', 'n_clusters': n_clusters, 'specs': specs_per}
-            except Exception:
-                results_summary[symbol] = {'status': 'skipped'}
+            except (OSError, json.JSONDecodeError) as _e:
+                # tanda tech-debt 2026-06-05: distinguir skip por error de lectura de
+                # skip limpio — un JSON corrupto/ilegible NO debe pasar por 'skipped'
+                # silencioso (riesgo de omitir un símbolo del output sin aviso).
+                results_summary[symbol] = {'status': 'skip_read_error', 'error': f"{type(_e).__name__}: {_e}"}
+                print(f"   ⚠️  {symbol}: JSON final existe pero ILEGIBLE ({type(_e).__name__}: {_e}) — marcado skip_read_error")
             print(f"\n   [{i}/{len(symbols)}] {symbol} — JSON final existe, saltando")
             skipped += 1
             continue
@@ -603,8 +607,10 @@ def step_regime_wf(symbols, recycle=False, cli_args=None):
         try:
             from numba import cuda as _cuda_v17
             _cuda_v17.current_context().deallocations.clear()
-        except Exception:
-            pass
+        except (ImportError, AttributeError, RuntimeError) as _ce:
+            # tanda tech-debt 2026-06-05: cleanup CUDA es best-effort, pero logear el
+            # fallo (antes era silencioso — operador sin visibilidad si teardown falla).
+            print(f"   ⚠️  CUDA dealloc flush inter-symbol falló (best-effort): {type(_ce).__name__}: {_ce}")
 
     print(f"\n   Resultado: {completed} completados, {skipped} saltados, {len(failed)} fallidos")
     if failed:

@@ -71,6 +71,7 @@ MAX_GRUPO = 9  # 45 sym / 5 per grupo
 DEFAULT_GRUPO_PLAN: Dict[int, List[str]] = {
     1: ["BTCUSDT", "ETHUSDT", "BNBUSDT", "XRPUSDT", "TRXUSDT"],
     2: ["ONDOUSDT", "RENDERUSDT", "POLUSDT", "SEIUSDT", "TAOUSDT"],
+    3: ["SOLUSDT", "DOGEUSDT", "ADAUSDT", "BCHUSDT", "LINKUSDT"],
 }
 
 
@@ -381,6 +382,25 @@ class AutomationOrchestrator:
         # Default filesystem check
         candidate = Path("regime_wf") / f"{sym}_specialist_configs.json"
         return candidate.exists()
+
+    @staticmethod
+    def _reciclaje_specialist_valid(path: "Path") -> bool:
+        """tanda tech-debt 2026-06-05: True iff specialist JSON existe + completo
+        (n_clusters clusters, todos con top_configs no vacíos). Conservador: cualquier
+        error de lectura/parcialidad → False (re-computa, nunca salta un output dudoso)."""
+        try:
+            if not path.exists():
+                return False
+            with open(path, "r", encoding="utf-8") as f:
+                d = json.load(f)
+            nc = d.get("n_clusters")
+            cl = d.get("clusters", {})
+            if not isinstance(nc, int) or nc <= 0:
+                return False
+            full = [k for k, v in cl.items() if v.get("top_configs")]
+            return len(full) == nc
+        except (OSError, json.JSONDecodeError, AttributeError, TypeError):
+            return False
 
     # ------------------------------------------------------------------
     # simulated work helpers (DRY-RUN ONLY)
@@ -694,8 +714,26 @@ class AutomationOrchestrator:
         # vs Grupo 2 Crashes 12+13 con full pipeline same process refuted.
         # Per-sym 2-phase pattern: Phase 1 CPU steps 1-3 + Phase 2 GPU step 4 isolated.
         for sym in pending_snapshot:
-            # Phase 1: CPU steps 1-3 (download + train + lite) — recycle=True forces refresh
             base_sym = sym.replace("/USDT", "").replace("USDT", "")
+
+            # tanda tech-debt 2026-06-05 (salvaguarda anti-re-run, Caveat #20 secuela):
+            # resume-skip — si el specialist final ya existe + es válido en disco, marcar
+            # done y saltar en vez de re-computar. Blinda contra estado stale (active_subprocess
+            # apuntando a un PID muerto cuyo output SÍ se completó, p.ej. parent matado
+            # externamente antes de persistir mark_sym_done). Verificación primary-source (#15).
+            already = Path("regime_wf") / f"{base_sym}USDT_specialist_configs.json"
+            if self._reciclaje_specialist_valid(already):
+                if sym in grupo["sym_pending_grupo_N"]:
+                    self.mark_sym_done(grupo_id, sym)
+                reports.append(TierReport(
+                    tier=TIER_1,
+                    message=f"RECICLAJE {sym}: specialist ya válido en disco — resume-skip (no re-compute)",
+                    grupo_id=grupo_id,
+                    context={"symbol": sym, "specialist_path": str(already)},
+                ))
+                continue
+
+            # Phase 1: CPU steps 1-3 (download + train + lite) — recycle=True forces refresh
             phase1_expected = Path("output/production") / f"presets_{base_sym}USDT.csv"
             ok1, p1_reports = _run_phase(
                 sym=sym, phase_label="phase1_cpu",

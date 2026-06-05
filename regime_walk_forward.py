@@ -158,14 +158,26 @@ def _all_parts_valid_or_clean(part_paths):
             corrupted.append((p, type(_e).__name__, str(_e)[:120]))
     if not corrupted:
         return True
-    # Integrity FAIL — delete corrupted parts so regeneration produces fresh valid
+    # Integrity FAIL — move corrupted parts to .corrupt-bak (rollback safety) so
+    # regeneration produces fresh valid parts, but the corrupted bytes are NOT lost
+    # if regeneration itself fails (tanda tech-debt 2026-06-05: rename-not-unlink).
     for p, _et, _msg in corrupted:
+        bak = p + ".corrupt-bak"
         try:
-            os.unlink(p)
-            print(f"   🩹 Resume integrity: deleted corrupted "
-                  f"{os.path.basename(p)} ({_et}: {_msg})")
+            if os.path.exists(bak):
+                os.unlink(bak)  # stale prior backup
+            os.replace(p, bak)
+            print(f"   🩹 Resume integrity: quarantined corrupted "
+                  f"{os.path.basename(p)} → {os.path.basename(bak)} ({_et}: {_msg})")
         except OSError as _oe:
-            print(f"   ⚠️  Resume integrity: failed to delete {p}: {_oe}")
+            # Fallback: if rename fails, attempt delete (original behaviour) rather
+            # than leaving a corrupt part that would re-fail the integrity check.
+            try:
+                os.unlink(p)
+                print(f"   ⚠️  Resume integrity: backup failed ({_oe}); deleted corrupted "
+                      f"{os.path.basename(p)} ({_et}: {_msg})")
+            except OSError as _oe2:
+                print(f"   ⚠️  Resume integrity: failed to quarantine/delete {p}: {_oe2}")
     return False
 
 
