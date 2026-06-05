@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "created_at": "2026-05-12T05:47:50Z",
-  "updated_at": "2026-06-01T03:28:25Z",
-  "grupo_actual": 3,
-  "fase_actual": "RECICLAJE_GRUPO_N",
+  "updated_at": "2026-06-05T09:35:20Z",
+  "grupo_actual": 4,
+  "fase_actual": "NEXT_GRUPO",
   "grupos": {
     "1": {
       "symbols": [
@@ -75,32 +75,32 @@
         "LINKUSDT"
       ],
       "sym_pending_grupo_N": [],
-      "cross_options_done": [],
-      "cross_options_pending": [
+      "cross_options_done": [
         "BTC_SOURCE",
         "ETH_SOURCE",
         "PER_SYM_BASELINE"
       ],
-      "analysis_report_path": null,
-      "deployment_ack": false,
-      "tier3_gate_pending": true,
+      "cross_options_pending": [],
+      "analysis_report_path": "deployment_package_grupo_3\\deployment_report_grupo_3.json",
+      "deployment_ack": true,
+      "tier3_gate_pending": false,
       "active_subprocess": {}
     }
   },
   "last_completed": {
-    "state": "NEXT_GRUPO",
+    "state": "DEPLOYED_GRUPO_N",
     "grupo_id": 3,
-    "timestamp": "2026-05-22T19:13:04Z"
+    "timestamp": "2026-06-05T09:35:20Z"
   },
   "crash_recovery_resume_point": {
-    "state": "NEXT_GRUPO",
+    "state": "DEPLOYED_GRUPO_N",
     "grupo_id": 3,
     "context": {
-      "target": "RECICLAJE_GRUPO_N"
+      "target": "NEXT_GRUPO"
     },
-    "timestamp": "2026-05-22T19:13:04Z"
+    "timestamp": "2026-06-05T09:35:20Z"
   },
-  "tier3_gate_pending": true,
+  "tier3_gate_pending": false,
   "history": [
     {
       "ts": "2026-05-13T18:53:09Z",
@@ -199,6 +199,41 @@
       "to": "RECICLAJE_GRUPO_N",
       "grupo_id": 3,
       "note": "PAUSED_GRUPO_3_lab_lite_window_audit_2026_05_22_ricardo_directive"
+    },
+    {
+      "ts": "2026-06-01T10:46:24Z",
+      "from": "RECICLAJE_GRUPO_N",
+      "to": "CROSS_CLASS_GRUPO_N",
+      "grupo_id": 3,
+      "note": "manual_supervised_reciclaje_complete_grupo3_2026_06_01"
+    },
+    {
+      "ts": "2026-06-05T05:01:37Z",
+      "from": "CROSS_CLASS_GRUPO_N",
+      "to": "ANALYSIS_GRUPO_N",
+      "grupo_id": 3,
+      "note": "manual_supervised_cross_class_complete_grupo3_2026_06_05"
+    },
+    {
+      "ts": "2026-06-05T05:01:43Z",
+      "from": "ANALYSIS_GRUPO_N",
+      "to": "DEPLOYMENT_READY_GRUPO_N",
+      "grupo_id": 3,
+      "note": "analysis_complete_real_compute"
+    },
+    {
+      "ts": "2026-06-05T09:35:20Z",
+      "from": "DEPLOYMENT_READY_GRUPO_N",
+      "to": "DEPLOYED_GRUPO_N",
+      "grupo_id": 3,
+      "note": "autonomous_deploy_grupo_3_v2_7_0_20260605"
+    },
+    {
+      "ts": "2026-06-05T09:35:20Z",
+      "from": "DEPLOYED_GRUPO_N",
+      "to": "NEXT_GRUPO",
+      "grupo_id": 3,
+      "note": "grupo_3_deployed_ok_v2_7_0"
     }
   ]
 }
