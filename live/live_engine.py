@@ -58,7 +58,7 @@ from live.health_monitor import (
 
 logger = logging.getLogger("live.live_engine")
 
-BOT_VERSION = "2.7.1"  # v2.7.1: ORPHAN_CLOSE fill real + alerta + reporting robusto + START enriquecido
+BOT_VERSION = "2.7.2"  # v2.7.1: ORPHAN_CLOSE fill real + alerta + reporting robusto + START enriquecido
 
 _project_root = Path(__file__).parent.parent
 
