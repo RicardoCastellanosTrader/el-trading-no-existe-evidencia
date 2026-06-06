@@ -883,7 +883,7 @@ class LiveEngine:
                     f"PnL={pnl:+.2f} USDT"
                 )
                 if funding != 0:
-                    msg += f" (funding: {funding:+.2f} USDT)"
+                    msg += f" (funding: {funding:+.4f} USDT)"
                 asyncio.create_task(self._send_alert(msg))
 
         # Alertas por errores
