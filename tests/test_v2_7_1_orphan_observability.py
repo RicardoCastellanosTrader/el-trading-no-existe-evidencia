@@ -136,3 +136,47 @@ def test_b2_no_orphan_when_position_still_open(monkeypatch):
 
 if __name__ == "__main__":
     sys.exit(pytest.main([__file__, "-v"]))
+
+
+# ---------- v2.7.2 fill-size sanity gate ----------
+def test_b2_inconsistent_fill_falls_back_estimated(monkeypatch):
+    """Fill internamente inconsistente (cost NO ≈ price×amount) → gate1 runtime →
+    fallback estimado, NUNCA PnL corrupto. Defensa-en-profundidad: aunque data_feed
+    v2.7.2 ya extrae info.volume/info.amount correctos, el gate runtime blinda contra
+    cualquier fill cuyo cost no cuadre con price×amount."""
+    bad_fill = {"price": 0.07862, "amount": 166.0, "cost": 326.27,  # cost NO = price*amount
+                "fee_usdt": 0.0065, "timestamp_ms": 1780720256000, "side": "sell"}
+    eng, le = _make_engine(monkeypatch, real_positions={}, recent_fill=bad_fill)
+    eng.brain.symbol_state["DOGE/USDT"] = FakeSymbolState(1, 0.08274, 0.07896)
+    pre = {"DOGE/USDT": {"side": "long", "entry_price": 0.08274, "sl_level": 0.07896,
+                          "entry_timestamp_ms": 1780707601767}}
+    allocations = {"DOGE/USDT": {"action": "CLOSE_LONG"}}
+    exec_report = FakeExecReport()
+
+    asyncio.run(eng._reconcile_brain_after_execution(exec_report, pre, allocations))
+
+    assert len(eng._logged_trades) == 1
+    t = eng._logged_trades[0]
+    assert t["flag"] == "exchange_side_close_estimated", \
+        "fill inconsistente (25x) NO debe confiarse → flag estimated"
+    assert t["size_usdt"] == 0.0, "size del fill inflado NO se escribe"
+    assert t["pnl_usdt"] == 0.0, "PnL corrupto NO se escribe (fallback)"
+    assert any("ESTIMADO" in a.upper() for a in eng.alerts), "alerta indica estimado"
+
+
+def test_b2_consistent_fill_trusted(monkeypatch):
+    """Fill auto-consistente (cost ≈ price*amount) → confiado, PnL real escrito."""
+    good_fill = {"price": 0.07862, "amount": 166.0, "cost": 13.05,  # 0.07862*166≈13.05 ✓
+                 "fee_usdt": 0.0065, "timestamp_ms": 1780720256000, "side": "sell"}
+    eng, le = _make_engine(monkeypatch, real_positions={}, recent_fill=good_fill)
+    eng.brain.symbol_state["DOGE/USDT"] = FakeSymbolState(1, 0.08274, 0.07896)
+    pre = {"DOGE/USDT": {"side": "long", "entry_price": 0.08274, "sl_level": 0.07896,
+                          "entry_timestamp_ms": 1780707601767}}
+    allocations = {"DOGE/USDT": {"action": "CLOSE_LONG"}}
+    exec_report = FakeExecReport()
+
+    asyncio.run(eng._reconcile_brain_after_execution(exec_report, pre, allocations))
+    t = eng._logged_trades[0]
+    assert t["flag"] == "exchange_side_close", "fill consistente → confiado"
+    assert t["size_usdt"] == 13.05, "size real escrito"
+    assert t["pnl_usdt"] != 0.0, "PnL real escrito"

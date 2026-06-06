@@ -1035,7 +1035,27 @@ class LiveEngine:
             except Exception as e:
                 logger.warning(f"[ORPHAN_CLOSE] {sym}: fill recovery falló: {e}")
 
+            # v2.7.2 SANITY GATE runtime (defensa-en-profundidad): el fill recuperado
+            # debe ser auto-consistente (cost ≈ price × amount). La causa raíz del 25×
+            # se corrige en data_feed.get_recent_closed_fill (usa info.volume/info.amount
+            # de BingX, NO los campos ccxt mal-mapeados); este gate blinda en runtime
+            # contra CUALQUIER fill cuyo cost no cuadre con price×amount. Si falla →
+            # fallback _estimated, NUNCA escribir PnL corrupto con flag legítimo.
+            fill_trusted = False
             if real_fill and real_fill.get("price", 0) > 0:
+                _p = real_fill["price"]
+                _amt = real_fill.get("amount", 0.0) or 0.0
+                _cost = real_fill.get("cost", 0.0) or 0.0
+                if _amt > 0 and _cost > 0 and abs(_p * _amt - _cost) / max(_cost, 1e-9) <= 0.10:
+                    fill_trusted = True
+                else:
+                    logger.warning(
+                        f"[ORPHAN_CLOSE] {sym}: fill NO fiable "
+                        f"(price*amount={_p * _amt:.4f} vs cost={_cost:.4f}) "
+                        f"→ fallback estimado (no confiar PnL)"
+                    )
+
+            if fill_trusted:
                 exit_price = real_fill["price"]
                 size_usdt = real_fill.get("cost", 0.0)
                 fee_usdt = real_fill.get("fee_usdt", 0.0)

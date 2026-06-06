@@ -486,14 +486,43 @@ async def get_recent_closed_fill(
 
     # El trade de cierre es el más reciente (mayor timestamp).
     last = max(trades, key=lambda t: t.get("timestamp", 0) or 0)
-    fee_cost = 0.0
-    fee = last.get("fee") or {}
-    if isinstance(fee, dict):
-        fee_cost = float(fee.get("cost", 0) or 0)
+
+    # v2.7.2 fill-size fix: ccxt mapea MAL los campos de BingX (pone amount=base*N,
+    # cost=price*amount_erróneo → inflado ~25×). Los valores CORRECTOS están en el
+    # `info` crudo de BingX: info.volume = cantidad base (DOGE), info.amount = coste
+    # quote (USDT), info.commission = fee. Preferir info crudo; fallback a ccxt.
+    info = last.get("info", {}) or {}
+
+    def _f(*keys):
+        for k in keys:
+            v = info.get(k)
+            if v not in (None, ""):
+                try:
+                    return float(v)
+                except (TypeError, ValueError):
+                    pass
+        return None
+
+    base_amount = _f("volume")              # DOGE base units
+    quote_cost = _f("amount")               # USDT notional (BingX semántica)
+    raw_commission = _f("commission")       # negativo en BingX (fee pagado)
+    fee_cost = abs(raw_commission) if raw_commission is not None else 0.0
+
+    # Fallback a campos ccxt SOLO si el info crudo no trae los valores.
+    if base_amount is None:
+        base_amount = float(last.get("amount", 0) or 0)
+    if quote_cost is None:
+        # ccxt cost; si parece inconsistente se filtrará por el sanity gate del caller.
+        quote_cost = float(last.get("cost", 0) or 0)
+    if fee_cost == 0.0:
+        fee = last.get("fee") or {}
+        if isinstance(fee, dict):
+            fee_cost = abs(float(fee.get("cost", 0) or 0))
+
     return {
         "price": float(last.get("price", 0) or 0),
-        "amount": float(last.get("amount", 0) or 0),
-        "cost": float(last.get("cost", 0) or 0),
+        "amount": base_amount,          # base units (DOGE) — info.volume corregido
+        "cost": quote_cost,             # USDT notional — info.amount corregido (NO ccxt inflado)
         "fee_usdt": fee_cost,
         "timestamp_ms": int(last.get("timestamp", 0) or 0),
         "side": last.get("side", ""),
