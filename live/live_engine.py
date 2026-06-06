@@ -516,11 +516,19 @@ class LiveEngine:
             if self.brain:
                 for sym, ss in self.brain.symbol_state.items():
                     if ss.position != 0:
+                        # v2.7.2: capturar SIZE real de la posición (base + notional USDT)
+                        # desde el exchange ANTES de la ejecución → fuente del sanity gate
+                        # contra posición trackeada en ORPHAN_CLOSE (el brain NO trackea size).
+                        _rp = positions.get(sym, {})
+                        _base_size = float(_rp.get("size", 0.0) or 0.0)
+                        _notional = _base_size * (ss.entry_price or 0.0)
                         pre_signal_state[sym] = {
                             "position": ss.position,
                             "side": "long" if ss.position == 1 else "short",
                             "entry_price": ss.entry_price,
                             "sl_level": ss.sl_level,
+                            "tracked_base_size": _base_size,
+                            "tracked_notional_usdt": _notional,
                             "entry_bar_timestamp": getattr(
                                 ss, "entry_bar_timestamp", 0
                             ),
@@ -1035,23 +1043,36 @@ class LiveEngine:
             except Exception as e:
                 logger.warning(f"[ORPHAN_CLOSE] {sym}: fill recovery falló: {e}")
 
-            # v2.7.2 SANITY GATE runtime (defensa-en-profundidad): el fill recuperado
-            # debe ser auto-consistente (cost ≈ price × amount). La causa raíz del 25×
-            # se corrige en data_feed.get_recent_closed_fill (usa info.volume/info.amount
-            # de BingX, NO los campos ccxt mal-mapeados); este gate blinda en runtime
-            # contra CUALQUIER fill cuyo cost no cuadre con price×amount. Si falla →
-            # fallback _estimated, NUNCA escribir PnL corrupto con flag legítimo.
+            # v2.7.2 SANITY GATE runtime — DOBLE gate ortogonal (defensa-en-profundidad).
+            # La causa raíz del 25× se corrige en data_feed.get_recent_closed_fill
+            # (usa info.volume/info.amount BingX, NO los campos ccxt mal-mapeados).
+            # Gate1 (auto-consistencia cost≈price×amount): cubre fills malformados.
+            # Gate2 (vs posición TRACKEADA): cubre fills internamente consistentes pero
+            #   a ESCALA equivocada — exactamente el bug DOGE (4150×0.07862=326 ES
+            #   internamente consistente; Gate1 lo aprobaría, Gate2 lo caza). El bot
+            #   CONOCE el size que abrió → un fill cuyo amount diverge >10% del size
+            #   trackeado NO es fiable. Cualquiera que falle → fallback _estimated.
             fill_trusted = False
+            tracked_base = pre.get("tracked_base_size", 0.0) or 0.0
             if real_fill and real_fill.get("price", 0) > 0:
                 _p = real_fill["price"]
                 _amt = real_fill.get("amount", 0.0) or 0.0
                 _cost = real_fill.get("cost", 0.0) or 0.0
-                if _amt > 0 and _cost > 0 and abs(_p * _amt - _cost) / max(_cost, 1e-9) <= 0.10:
+                gate1 = (_amt > 0 and _cost > 0
+                         and abs(_p * _amt - _cost) / max(_cost, 1e-9) <= 0.10)
+                # gate2: amount del fill ≈ size base trackeado (±10%, cubre parciales+fees).
+                # Si NO conocemos el size trackeado (0), gate2 NO puede validar → conservador
+                # exige conocerlo para confiar (sin ancla, no se confía el PnL real).
+                gate2 = (tracked_base > 0
+                         and abs(_amt - tracked_base) / tracked_base <= 0.10)
+                if gate1 and gate2:
                     fill_trusted = True
                 else:
                     logger.warning(
                         f"[ORPHAN_CLOSE] {sym}: fill NO fiable "
-                        f"(price*amount={_p * _amt:.4f} vs cost={_cost:.4f}) "
+                        f"(gate1_consist={gate1} gate2_tracked={gate2}; "
+                        f"fill_amount={_amt} tracked_size={tracked_base} "
+                        f"price*amount={_p * _amt:.4f} cost={_cost:.4f}) "
                         f"→ fallback estimado (no confiar PnL)"
                     )
 

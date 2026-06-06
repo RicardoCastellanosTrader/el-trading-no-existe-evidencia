@@ -80,7 +80,7 @@ def test_b1_orphan_real_fill_recorded_and_alerted(monkeypatch):
     eng, le = _make_engine(monkeypatch, real_positions={}, recent_fill=real_fill)
     eng.brain.symbol_state["DOGE/USDT"] = FakeSymbolState(1, 0.08274, 0.07896)
     pre = {"DOGE/USDT": {"side": "long", "entry_price": 0.08274, "sl_level": 0.07896,
-                          "entry_timestamp_ms": 1780707601767}}
+                          "entry_timestamp_ms": 1780707601767, "tracked_base_size": 166.0}}
     allocations = {"DOGE/USDT": {"action": "CLOSE_LONG"}}
     exec_report = FakeExecReport()
 
@@ -101,7 +101,7 @@ def test_b1_orphan_fallback_estimated_when_no_fill(monkeypatch):
     eng, le = _make_engine(monkeypatch, real_positions={}, recent_fill=None)
     eng.brain.symbol_state["SOL/USDT"] = FakeSymbolState(-1, 150.0, 157.5)
     pre = {"SOL/USDT": {"side": "short", "entry_price": 150.0, "sl_level": 157.5,
-                         "entry_timestamp_ms": 1780707601767}}
+                         "entry_timestamp_ms": 1780707601767, "tracked_base_size": 0.1}}
     allocations = {"SOL/USDT": {"action": "CLOSE_SHORT"}}
     exec_report = FakeExecReport()
 
@@ -126,7 +126,7 @@ def test_b2_no_orphan_when_position_still_open(monkeypatch):
     )
     eng.brain.symbol_state["DOGE/USDT"] = FakeSymbolState(1, 0.08274, 0.07896)
     pre = {"DOGE/USDT": {"side": "long", "entry_price": 0.08274, "sl_level": 0.07896,
-                          "entry_timestamp_ms": 0}}
+                          "entry_timestamp_ms": 0, "tracked_base_size": 166.0}}
     allocations = {"DOGE/USDT": {"action": "CLOSE_LONG"}}
     exec_report = FakeExecReport()
 
@@ -149,7 +149,7 @@ def test_b2_inconsistent_fill_falls_back_estimated(monkeypatch):
     eng, le = _make_engine(monkeypatch, real_positions={}, recent_fill=bad_fill)
     eng.brain.symbol_state["DOGE/USDT"] = FakeSymbolState(1, 0.08274, 0.07896)
     pre = {"DOGE/USDT": {"side": "long", "entry_price": 0.08274, "sl_level": 0.07896,
-                          "entry_timestamp_ms": 1780707601767}}
+                          "entry_timestamp_ms": 1780707601767, "tracked_base_size": 166.0}}
     allocations = {"DOGE/USDT": {"action": "CLOSE_LONG"}}
     exec_report = FakeExecReport()
 
@@ -171,7 +171,7 @@ def test_b2_consistent_fill_trusted(monkeypatch):
     eng, le = _make_engine(monkeypatch, real_positions={}, recent_fill=good_fill)
     eng.brain.symbol_state["DOGE/USDT"] = FakeSymbolState(1, 0.08274, 0.07896)
     pre = {"DOGE/USDT": {"side": "long", "entry_price": 0.08274, "sl_level": 0.07896,
-                          "entry_timestamp_ms": 1780707601767}}
+                          "entry_timestamp_ms": 1780707601767, "tracked_base_size": 166.0}}
     allocations = {"DOGE/USDT": {"action": "CLOSE_LONG"}}
     exec_report = FakeExecReport()
 
@@ -180,3 +180,45 @@ def test_b2_consistent_fill_trusted(monkeypatch):
     assert t["flag"] == "exchange_side_close", "fill consistente → confiado"
     assert t["size_usdt"] == 13.05, "size real escrito"
     assert t["pnl_usdt"] != 0.0, "PnL real escrito"
+
+
+# ---------- v2.7.2 gate2: posición trackeada (el bug REAL de hoy) ----------
+def test_b2_gate2_consistent_but_wrong_scale_falls_back(monkeypatch):
+    """CARDINAL — codifica el bug DOGE de hoy: fill INTERNAMENTE consistente
+    (cost = price×amount, gate1 PASA) pero a ESCALA equivocada (25× el size
+    trackeado). gate1 es CIEGO a esto (4150×0.07862=326.27 ✓ interno); SOLO
+    gate2 (vs posición trackeada 166 DOGE) lo caza → fallback estimado."""
+    # ccxt-style fill: amount=4150 inflado, pero cost=price*amount (consistente interno)
+    scale_fill = {"price": 0.07862, "amount": 4150.0, "cost": 326.273,
+                  "fee_usdt": 0.0065, "timestamp_ms": 1780720256000, "side": "sell"}
+    eng, le = _make_engine(monkeypatch, real_positions={}, recent_fill=scale_fill)
+    eng.brain.symbol_state["DOGE/USDT"] = FakeSymbolState(1, 0.08274, 0.07896)
+    pre = {"DOGE/USDT": {"side": "long", "entry_price": 0.08274, "sl_level": 0.07896,
+                          "entry_timestamp_ms": 1780707601767,
+                          "tracked_base_size": 166.0}}  # bot trackeó 166 DOGE, no 4150
+    allocations = {"DOGE/USDT": {"action": "CLOSE_LONG"}}
+    exec_report = FakeExecReport()
+
+    asyncio.run(eng._reconcile_brain_after_execution(exec_report, pre, allocations))
+
+    t = eng._logged_trades[0]
+    assert t["flag"] == "exchange_side_close_estimated", \
+        "fill 25× el size trackeado NO debe confiarse (gate2) aunque gate1 pase"
+    assert t["pnl_usdt"] == 0.0, "NUNCA escribir PnL a escala equivocada"
+
+
+def test_b2_no_tracked_size_is_conservative(monkeypatch):
+    """Sin size trackeado (0) → gate2 no puede validar → conservador: NO confía PnL."""
+    fill = {"price": 0.07862, "amount": 166.0, "cost": 13.05,
+            "fee_usdt": 0.0065, "timestamp_ms": 1780720256000, "side": "sell"}
+    eng, le = _make_engine(monkeypatch, real_positions={}, recent_fill=fill)
+    eng.brain.symbol_state["DOGE/USDT"] = FakeSymbolState(1, 0.08274, 0.07896)
+    pre = {"DOGE/USDT": {"side": "long", "entry_price": 0.08274, "sl_level": 0.07896,
+                          "entry_timestamp_ms": 1780707601767, "tracked_base_size": 0.0}}
+    allocations = {"DOGE/USDT": {"action": "CLOSE_LONG"}}
+    exec_report = FakeExecReport()
+
+    asyncio.run(eng._reconcile_brain_after_execution(exec_report, pre, allocations))
+    t = eng._logged_trades[0]
+    assert t["flag"] == "exchange_side_close_estimated", \
+        "sin ancla de size trackeado → conservador (no confía PnL)"
