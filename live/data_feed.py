@@ -435,6 +435,72 @@ async def get_open_orders(
 
 
 # ---------------------------------------------------------------------------
+# 3b. get_recent_closed_fill (v2.7.1 — recuperar fill REAL de cierre exchange-side)
+# ---------------------------------------------------------------------------
+async def get_recent_closed_fill(
+    symbol: str,
+    since_ms: int | None = None,
+    exchange: ccxt_async.bingx | None = None,
+) -> dict | None:
+    """Recupera el fill REAL del cierre exchange-side (SL trigger / liquidación /
+    cierre manual) de un símbolo, vía fetch_my_trades. v2.7.1 — alimenta ORPHAN_CLOSE
+    para registrar PnL real (no estimado) + alerta Telegram.
+
+    Args:
+        symbol: formato master.py ('DOGE/USDT').
+        since_ms: epoch ms desde el que buscar trades (típicamente entry_timestamp_ms
+            de la posición huérfana). None = última hora.
+
+    Returns:
+        {'price': fill_price, 'amount': base_amount, 'cost': quote_usdt,
+         'fee_usdt': fee, 'timestamp_ms': ts, 'side': 'buy'/'sell'} del trade de
+         cierre más reciente, o None si el exchange no devuelve fills (retención/API).
+    """
+    own_exchange = exchange is None
+    if own_exchange:
+        exchange = _create_bingx_exchange()
+
+    bingx_sym = to_bingx_symbol(symbol)
+    if since_ms is None:
+        since_ms = int(time.time() * 1000) - 3_600_000  # última hora
+
+    try:
+        trades = await _retry_async(
+            lambda: exchange.fetch_my_trades(bingx_sym, since=since_ms, limit=50),
+            name="fetch_my_trades",
+        )
+    except Exception as e:
+        logger.warning(f"[ORPHAN_FILL] {symbol}: fetch_my_trades falló: {_sanitize_error(e)}")
+        if own_exchange:
+            await exchange.close()
+        return None
+    finally:
+        if own_exchange and exchange:
+            try:
+                await exchange.close()
+            except Exception:
+                pass
+
+    if not trades:
+        return None
+
+    # El trade de cierre es el más reciente (mayor timestamp).
+    last = max(trades, key=lambda t: t.get("timestamp", 0) or 0)
+    fee_cost = 0.0
+    fee = last.get("fee") or {}
+    if isinstance(fee, dict):
+        fee_cost = float(fee.get("cost", 0) or 0)
+    return {
+        "price": float(last.get("price", 0) or 0),
+        "amount": float(last.get("amount", 0) or 0),
+        "cost": float(last.get("cost", 0) or 0),
+        "fee_usdt": fee_cost,
+        "timestamp_ms": int(last.get("timestamp", 0) or 0),
+        "side": last.get("side", ""),
+    }
+
+
+# ---------------------------------------------------------------------------
 # 4. get_balance
 # ---------------------------------------------------------------------------
 async def get_balance(

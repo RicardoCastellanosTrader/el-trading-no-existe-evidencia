@@ -24,6 +24,7 @@ from live.data_feed import (
     download_all_ohlcv,
     get_open_positions,
     get_open_orders,
+    get_recent_closed_fill,
     get_balance,
     MASTER_SYMBOLS,
 )
@@ -56,6 +57,8 @@ from live.health_monitor import (
 )
 
 logger = logging.getLogger("live.live_engine")
+
+BOT_VERSION = "2.7.1"  # v2.7.1: ORPHAN_CLOSE fill real + alerta + reporting robusto + START enriquecido
 
 _project_root = Path(__file__).parent.parent
 
@@ -193,7 +196,9 @@ class LiveEngine:
         self.last_cycle_time: datetime | None = None
         self.consecutive_errors: int = 0
         self._balance_24h_ago: float | None = None
-        self._last_daily_summary: int = -1  # hora UTC del último resumen
+        self._last_daily_summary: int = -1  # v2.7.1: ordinal del día del último resumen (date.toordinal)
+        self._last_report_ts: float = 0.0   # v2.7.1 watchdog: epoch del último resumen emitido
+        self._silence_alerted: bool = False  # v2.7.1 watchdog: evita spam de ERROR silencio
 
         # Drawdown circuit breaker
         self._peak_balance: float = 0.0
@@ -311,13 +316,17 @@ class LiveEngine:
         self.running = True
         elapsed = time.perf_counter() - t0
 
+        # v2.7.1: START enriquecido con versión + hora UTC → un arranque/restart
+        # (deploy, reboot, crash-recovery) es inequívocamente visible en Telegram.
         msg = (
-            f"Bot arrancado. {len(symbols)} simbolos, "
-            f"{n_specs} con specialists, {mode}, "
+            f"v{BOT_VERSION} arrancado {self.start_time.strftime('%Y-%m-%d %H:%M:%S')} UTC. "
+            f"{len(symbols)} simbolos, {n_specs} con specialists, {mode}, "
             f"balance={bal['total']:.0f} USDT ({elapsed:.1f}s)"
         )
         logger.info(f"[ENGINE] {msg}")
         await self._send_alert(f"[START] {msg}")
+        # Watchdog: arranque cuenta como "actividad de reporte" para no falsar silencio.
+        self._last_report_ts = time.time()
 
     # ------------------------------------------------------------------
     # Drawdown circuit breaker
@@ -894,25 +903,49 @@ class LiveEngine:
                     f"{self._balance_24h_ago:.0f} -> {total_balance:.0f} USDT"
                 )
 
-        # Resumen diario a las 00:00 UTC
+        # Resumen diario + health (v2.7.1 bug 3 fix):
+        #  - CATCH-UP: dispara en CUALQUIER ciclo donde la fecha cambió (no solo
+        #    hour==0) → una excepción en la ventana 00:00 ya NO pierde el día.
+        #  - DESACOPLADO: scope try/except propio → un fallo aquí NO contamina el
+        #    ciclo, y un fallo del ciclo NO impide el reporte (corre en _post_cycle).
         now_utc = datetime.now(timezone.utc)
-        if (self.config.alert_daily_summary
-                and now_utc.hour == 0
-                and self._last_daily_summary != now_utc.day):
-            self._last_daily_summary = now_utc.day
-            await self._send_daily_summary(balance)
-            self._balance_24h_ago = total_balance
+        today_ordinal = now_utc.toordinal()
+        try:
+            if (self.config.alert_daily_summary
+                    and self._last_daily_summary != today_ordinal):
+                self._last_daily_summary = today_ordinal
+                await self._send_daily_summary(balance)
+                self._balance_24h_ago = total_balance
+                self._last_report_ts = time.time()  # watchdog: marca reporte emitido
 
-            # Health monitor — evalúa rendimiento real vs esperado
-            try:
-                health_cfg = HealthConfig(
-                    trade_log_path=self.config.trade_log_path,
-                    specialist_configs_dir=self.config.specialist_configs_dir,
-                )
-                health_summary = generate_daily_health_summary(health_cfg)
-                await self._send_alert(health_summary)
-            except Exception as e:
-                logger.warning(f"[ENGINE] Health monitor error: {e}")
+                # Health monitor — evalúa rendimiento real vs esperado
+                try:
+                    health_cfg = HealthConfig(
+                        trade_log_path=self.config.trade_log_path,
+                        specialist_configs_dir=self.config.specialist_configs_dir,
+                    )
+                    health_summary = generate_daily_health_summary(health_cfg)
+                    await self._send_alert(health_summary)
+                except Exception as e:
+                    logger.warning(f"[ENGINE] Health monitor error: {e}")
+        except Exception as e:
+            logger.error(f"[ENGINE] Resumen diario falló (catch-up reintentará): {e}")
+
+        # WATCHDOG de silencio (v2.7.1 bug 3): si el último reporte excede ~26h
+        # (margen sobre el período diario) → ERROR alert (el bot detecta su silencio).
+        try:
+            if self._last_report_ts > 0:
+                silence_h = (time.time() - self._last_report_ts) / 3600.0
+                if silence_h > 26.0 and not self._silence_alerted:
+                    self._silence_alerted = True
+                    await self._send_alert(
+                        f"[ERROR] Watchdog: sin resumen diario hace {silence_h:.1f}h "
+                        f"(esperado ~24h) — posible fallo de reporting"
+                    )
+                elif silence_h <= 26.0:
+                    self._silence_alerted = False
+        except Exception as e:
+            logger.warning(f"[ENGINE] Watchdog silencio error: {e}")
 
     async def _send_daily_summary(self, balance: dict):
         """Envía resumen diario."""
@@ -989,30 +1022,71 @@ class LiveEngine:
                 )
                 continue
 
-            estimated_exit = sl_level
-            if side == "long":
-                pnl_pct = (estimated_exit - entry_price) / entry_price
+            # v2.7.1: recuperar el FILL REAL del exchange (SL trigger / liquidación /
+            # cierre manual) en vez de registrar fantasma pnl=0. Fallback honesto a
+            # estimado SI el exchange no devuelve el fill (retención/API).
+            real_fill = None
+            try:
+                real_fill = await get_recent_closed_fill(
+                    sym,
+                    since_ms=pre.get("entry_timestamp_ms", 0) or None,
+                    exchange=self.exchange,
+                )
+            except Exception as e:
+                logger.warning(f"[ORPHAN_CLOSE] {sym}: fill recovery falló: {e}")
+
+            if real_fill and real_fill.get("price", 0) > 0:
+                exit_price = real_fill["price"]
+                size_usdt = real_fill.get("cost", 0.0)
+                fee_usdt = real_fill.get("fee_usdt", 0.0)
+                if side == "long":
+                    pnl_pct = (exit_price - entry_price) / entry_price
+                else:
+                    pnl_pct = (entry_price - exit_price) / entry_price
+                pnl_usdt = pnl_pct * size_usdt - fee_usdt
+                flag = "exchange_side_close"
+                fill_label = "fill real"
             else:
-                pnl_pct = (entry_price - estimated_exit) / entry_price
+                # Fallback: estimado por sl_level — flag explícito, NUNCA pnl=0 silencioso.
+                exit_price = sl_level
+                size_usdt = 0.0
+                if side == "long":
+                    pnl_pct = (exit_price - entry_price) / entry_price
+                else:
+                    pnl_pct = (entry_price - exit_price) / entry_price
+                pnl_usdt = 0.0  # desconocido sin fill — pnl_pct sí refleja el estimado
+                flag = "exchange_side_close_estimated"
+                fill_label = "fill ESTIMADO (exchange no devolvió fill)"
 
             logger.info(
-                f"[ORPHAN_CLOSE] {sym} reconstructed: {side} "
-                f"entry={entry_price} exit~={estimated_exit} "
-                f"pnl~={pnl_pct * 100:.2f}%"
+                f"[ORPHAN_CLOSE] {sym} {side} entry={entry_price} "
+                f"exit={exit_price} pnl~={pnl_pct * 100:.2f}% "
+                f"pnl_usdt={pnl_usdt:.2f} ({fill_label}, flag={flag})"
             )
 
             log_trade({
                 "symbol": sym,
                 "side": side,
                 "entry_price": entry_price,
-                "exit_price": estimated_exit,
-                "size_usdt": 0.0,
-                "pnl_usdt": 0.0,
-                "reason_exit": "sl_trigger_reconstructed",
+                "exit_price": exit_price,
+                "size_usdt": size_usdt,
+                "pnl_usdt": pnl_usdt,
+                "reason_exit": "sl_trigger_exchange_side",
                 "funding_paid": 0.0,
-                "flag": "reconstructed",
+                "flag": flag,
                 "entry_timestamp_ms": pre.get("entry_timestamp_ms", 0),
             })
+
+            # Alerta Telegram CLOSE exchange-side (bug 1 fix) — SIEMPRE que una
+            # posición desaparezca fuera de acción del bot.
+            try:
+                await self._send_alert(
+                    f"[CLOSE] {side.upper()} {sym} SL exchange-side "
+                    f"@ {exit_price:.6f} PnL={pnl_usdt:+.2f} USDT "
+                    f"({pnl_pct * 100:+.2f}%) [{fill_label}]"
+                )
+            except Exception as e:
+                logger.warning(f"[ORPHAN_CLOSE] {sym}: alerta CLOSE falló: {e}")
 
         # --- Bug #1: Limpiar fantasmas (v2.4.2 silent reconcile) ---
         # Diferencia rollback esperado (portfolio FLAT o execution fallo)
