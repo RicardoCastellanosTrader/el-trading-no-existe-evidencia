@@ -72,6 +72,10 @@ DEFAULT_GRUPO_PLAN: Dict[int, List[str]] = {
     1: ["BTCUSDT", "ETHUSDT", "BNBUSDT", "XRPUSDT", "TRXUSDT"],
     2: ["ONDOUSDT", "RENDERUSDT", "POLUSDT", "SEIUSDT", "TAOUSDT"],
     3: ["SOLUSDT", "DOGEUSDT", "ADAUSDT", "BCHUSDT", "LINKUSDT"],
+    # Grupo 4 — next-5 clase amplio por bar-count de los 30 restantes
+    # (LTC 73.5K / XLM 69.5K / ETC 69.2K / VET 68.2K / FET 63.0K bars,
+    # mismo criterio de seleccion G3; audit gaps benigno pre-2020 — 2026-06-06).
+    4: ["LTCUSDT", "XLMUSDT", "ETCUSDT", "VETUSDT", "FETUSDT"],
 }
 
 
@@ -384,12 +388,20 @@ class AutomationOrchestrator:
         return candidate.exists()
 
     @staticmethod
-    def _reciclaje_specialist_valid(path: "Path") -> bool:
+    def _reciclaje_specialist_valid(path: "Path", min_mtime: Optional[float] = None) -> bool:
         """tanda tech-debt 2026-06-05: True iff specialist JSON existe + completo
         (n_clusters clusters, todos con top_configs no vacíos). Conservador: cualquier
-        error de lectura/parcialidad → False (re-computa, nunca salta un output dudoso)."""
+        error de lectura/parcialidad → False (re-computa, nunca salta un output dudoso).
+
+        Ancla de recencia 2026-06-06 (caso origen G4 launch): `min_mtime` (epoch) —
+        si se pasa, el JSON además debe haberse escrito EN o DESPUÉS del ancla.
+        Sin ancla, los JSONs legacy del reciclaje cartera-completa marzo/abril 2026
+        pasan la validación estructural y el resume-skip salta el grupo entero
+        (G4 LTC/XLM/ETC/VET/FET mtimes 30/03-10/04 aceptados como DONE)."""
         try:
             if not path.exists():
+                return False
+            if min_mtime is not None and path.stat().st_mtime < min_mtime:
                 return False
             with open(path, "r", encoding="utf-8") as f:
                 d = json.load(f)
@@ -620,6 +632,19 @@ class AutomationOrchestrator:
 
         reports: List[TierReport] = []
 
+        # Ancla de recencia resume-skip (2026-06-06, caso origen G4 launch): se fija
+        # UNA vez al primer arranque del RECICLAJE de este grupo y se persiste. El
+        # resume-skip solo acepta specialists escritos >= ancla (artefactos frescos
+        # del MISMO grupo tras un relaunch — intent Caveat #20 secuela preservado);
+        # JSONs legacy de reciclajes previos quedan excluidos (re-compute).
+        anchor_iso = grupo.get("reciclaje_started_at")
+        if anchor_iso is None:
+            anchor_iso = self.clock()
+            grupo["reciclaje_started_at"] = anchor_iso
+            self._save_state_internal(reason=f"reciclaje_anchor_grupo_{grupo_id}")
+        anchor_epoch = datetime.strptime(
+            anchor_iso, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc).timestamp()
+
         # Snapshot pending list (mutation during iteration via mark_sym_done)
         pending_snapshot = list(grupo["sym_pending_grupo_N"])
 
@@ -722,7 +747,7 @@ class AutomationOrchestrator:
             # apuntando a un PID muerto cuyo output SÍ se completó, p.ej. parent matado
             # externamente antes de persistir mark_sym_done). Verificación primary-source (#15).
             already = Path("regime_wf") / f"{base_sym}USDT_specialist_configs.json"
-            if self._reciclaje_specialist_valid(already):
+            if self._reciclaje_specialist_valid(already, min_mtime=anchor_epoch):
                 if sym in grupo["sym_pending_grupo_N"]:
                     self.mark_sym_done(grupo_id, sym)
                 reports.append(TierReport(

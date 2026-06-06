@@ -53,6 +53,40 @@ def test_a3_specialist_valid_corrupt_json_is_false(tmp_path):
     assert ao.AutomationOrchestrator._reciclaje_specialist_valid(p) is False
 
 
+# ---------- ancla de recencia resume-skip (2026-06-06, caso origen G4 launch) ----------
+def test_a3_specialist_valid_stale_mtime_is_false(tmp_path):
+    """JSON estructuralmente válido pero LEGACY (mtime < ancla) -> NO válido (re-compute)."""
+    import time
+    import automation_orchestrator as ao
+    p = tmp_path / "LTCUSDT_specialist_configs.json"
+    _make_specialist(p, 3, full=True)
+    legacy = time.time() - 30 * 86400  # 30 días atrás (reciclaje marzo/abril)
+    os.utime(p, (legacy, legacy))
+    anchor = time.time() - 60  # ancla = launch hace 1 min
+    assert ao.AutomationOrchestrator._reciclaje_specialist_valid(p, min_mtime=anchor) is False
+
+
+def test_a3_specialist_valid_fresh_mtime_is_true(tmp_path):
+    """JSON válido escrito DESPUÉS del ancla (relaunch mid-grupo) -> skip preservado."""
+    import time
+    import automation_orchestrator as ao
+    p = tmp_path / "LTCUSDT_specialist_configs.json"
+    _make_specialist(p, 3, full=True)  # mtime = ahora
+    anchor = time.time() - 3600  # ancla = launch hace 1h
+    assert ao.AutomationOrchestrator._reciclaje_specialist_valid(p, min_mtime=anchor) is True
+
+
+def test_a3_specialist_valid_no_anchor_backward_compat(tmp_path):
+    """Sin min_mtime el comportamiento original se preserva (validez estructural sola)."""
+    import time
+    import automation_orchestrator as ao
+    p = tmp_path / "X_specialist_configs.json"
+    _make_specialist(p, 3, full=True)
+    legacy = time.time() - 30 * 86400
+    os.utime(p, (legacy, legacy))
+    assert ao.AutomationOrchestrator._reciclaje_specialist_valid(p) is True
+
+
 # ---------- A.2 rwf integrity check quarantine ----------
 def test_a2_corrupted_part_quarantined_not_deleted(tmp_path):
     import regime_walk_forward as rwf

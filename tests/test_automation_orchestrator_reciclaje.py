@@ -385,3 +385,96 @@ def test_d51_9_all_sym_done_tier2_announce(tmp_path, monkeypatch):
 
     # State should still be RECICLAJE — caller drives transition to CROSS_CLASS
     assert orch.state["fase_actual"] == ao.STATE_RECICLAJE
+
+
+# -----------------------------------------------------------------------------
+# D51.10/11/12: ancla de recencia resume-skip (2026-06-06, caso origen G4 launch
+# — JSONs legacy reciclaje cartera-completa marzo/abril aceptados como DONE)
+# -----------------------------------------------------------------------------
+
+def _write_valid_specialist(path: Path, mtime: float = None) -> None:
+    import json as _json
+    import os as _os
+    clusters = {str(k): {"top_configs": [{"config_id": 1, "pf_fwd": 2.0}]}
+                for k in range(3)}
+    path.write_text(_json.dumps({"n_clusters": 3, "clusters": clusters}),
+                    encoding="utf-8")
+    if mtime is not None:
+        _os.utime(path, (mtime, mtime))
+
+
+def test_d51_10_legacy_specialist_not_skipped(tmp_path, monkeypatch):
+    """Specialist VÁLIDO pero legacy (mtime << launch) -> NO resume-skip, re-computa."""
+    import time
+    monkeypatch.chdir(tmp_path)
+    symbols = ["LTCUSDT", "XLMUSDT", "ETCUSDT", "VETUSDT", "FETUSDT"]
+    _create_primary_sources(tmp_path, symbols)
+    # Sobrescribir con specialists VÁLIDOS pero legacy (30 días atrás)
+    legacy = time.time() - 30 * 86400
+    for sym in symbols:
+        _write_valid_specialist(tmp_path / "regime_wf" / f"{sym}_specialist_configs.json",
+                                mtime=legacy)
+    orch = _build_orch_at_reciclaje(tmp_path, grupo_id=4, symbols=symbols)
+
+    captured = []
+    launcher = _make_launcher(captured)
+    waiter = _make_waiter([_StubStatus.DONE_SUCCESS] * 10)
+
+    orch.run_reciclaje_real_compute(
+        4, launcher=launcher, waiter=waiter, log_dir=str(tmp_path)
+    )
+
+    # Los 5 sym DEBEN computarse (10 launches) — el legacy NO satisface el ancla
+    assert len(captured) == 10, \
+        f"Legacy specialists deben re-computarse, got {len(captured)} launches"
+    # Ancla persistida en estado
+    assert orch.state["grupos"]["4"].get("reciclaje_started_at") is not None
+
+
+def test_d51_11_fresh_specialist_skipped_after_relaunch(tmp_path, monkeypatch):
+    """Specialist escrito DESPUÉS del ancla (relaunch mid-grupo, Caveat #20 secuela)
+    -> resume-skip preservado para ese sym."""
+    import time
+    monkeypatch.chdir(tmp_path)
+    symbols = ["LTCUSDT", "XLMUSDT", "ETCUSDT", "VETUSDT", "FETUSDT"]
+    _create_primary_sources(tmp_path, symbols)
+    orch = _build_orch_at_reciclaje(tmp_path, grupo_id=4, symbols=symbols)
+    # Simular relaunch: ancla fijada hace 1h + LTC completado DESPUÉS del ancla
+    from datetime import datetime, timezone, timedelta
+    anchor_dt = datetime.now(timezone.utc) - timedelta(hours=1)
+    orch.state["grupos"]["4"]["reciclaje_started_at"] = \
+        anchor_dt.strftime("%Y-%m-%dT%H:%M:%SZ")
+    _write_valid_specialist(tmp_path / "regime_wf" / "LTCUSDT_specialist_configs.json")
+
+    captured = []
+    launcher = _make_launcher(captured)
+    # 4 sym restantes × 2 phases = 8 (LTC skipped)
+    waiter = _make_waiter([_StubStatus.DONE_SUCCESS] * 8)
+
+    reports = orch.run_reciclaje_real_compute(
+        4, launcher=launcher, waiter=waiter, log_dir=str(tmp_path)
+    )
+
+    assert len(captured) == 8, f"LTC fresh debe skipearse, got {len(captured)} launches"
+    assert "LTCUSDT" not in [c["symbol"] for c in captured]
+    assert "LTCUSDT" in orch.state["grupos"]["4"]["sym_done_grupo_N"]
+    skip_reports = [r for r in reports if "resume-skip" in r.message]
+    assert len(skip_reports) == 1 and skip_reports[0].context["symbol"] == "LTCUSDT"
+
+
+def test_d51_12_anchor_stable_across_relaunches(tmp_path, monkeypatch):
+    """El ancla se fija UNA vez (primer arranque) y NO se re-fija en relaunches."""
+    monkeypatch.chdir(tmp_path)
+    symbols = ["LTCUSDT", "XLMUSDT", "ETCUSDT", "VETUSDT", "FETUSDT"]
+    _create_primary_sources(tmp_path, symbols)
+    orch = _build_orch_at_reciclaje(tmp_path, grupo_id=4, symbols=symbols)
+    sentinel = "2026-06-06T00:00:00Z"
+    orch.state["grupos"]["4"]["reciclaje_started_at"] = sentinel
+
+    orch.run_reciclaje_real_compute(
+        4, launcher=_make_launcher([]),
+        waiter=_make_waiter([_StubStatus.DONE_SUCCESS] * 10),
+        log_dir=str(tmp_path),
+    )
+
+    assert orch.state["grupos"]["4"]["reciclaje_started_at"] == sentinel
