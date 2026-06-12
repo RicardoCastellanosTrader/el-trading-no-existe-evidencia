@@ -168,8 +168,27 @@ def _load_trades(config: HealthConfig) -> pd.DataFrame:
     df = df[~df['flag'].isin(EXCLUDE_FLAGS)].reset_index(drop=True)
 
     cutoff = datetime.now(timezone.utc) - timedelta(days=config.evaluation_window_days)
+    # Path C anchor (2026-05-19): si last_recycle.txt es más reciente que la
+    # ventana rolling 30d, usar esa fecha como corte. Bajo deployment
+    # incremental rolling Path C (Grupo 1 deploy 2026-05-17), trades
+    # pre-deploy usan specialists distintos a los actuales — compararlos
+    # contra el pf_combined post-reciclaje produce falsos CRITICAL.
+    # Anchor a last_recycle.txt elimina contaminación pre-deploy hasta
+    # que la ventana rolling natural (30d) supere al deploy.
+    recycle_path = Path(config.last_recycle_file)
+    if recycle_path.exists():
+        try:
+            last_recycle_dt = datetime.fromisoformat(
+                recycle_path.read_text().strip()
+            )
+            if last_recycle_dt.tzinfo is None:
+                last_recycle_dt = last_recycle_dt.replace(tzinfo=timezone.utc)
+            if last_recycle_dt > cutoff:
+                cutoff = last_recycle_dt
+        except Exception as e:
+            logger.debug(f"[HEALTH] last_recycle anchor parse fail: {e}")
     if df['timestamp'].dt.tz is None:
-        cutoff = cutoff.replace(tzinfo=None)
+        cutoff = cutoff.replace(tzinfo=None) if cutoff.tzinfo is not None else cutoff
     df = df[df['timestamp'] >= cutoff].copy()
     return df
 
@@ -271,6 +290,15 @@ def evaluate_health(config: HealthConfig) -> HealthReport:
     # del check df.empty porque DD depende del balance persistente, no de
     # los trades en la ventana rolling.
     report.portfolio_dd_from_peak = _compute_portfolio_dd(config)
+
+    # Scope filter (2026-05-19): bajo Path C incremental rolling sólo
+    # evaluamos símbolos con specialist_configs cargados (Grupo N actual).
+    # Trades históricos de símbolos archivados (pre-scope-reduction) no
+    # tienen pf_expected comparable y generan ruido (false HEALTHY con
+    # pf_exp=0 + ratio 0%). Filtrar aquí mantiene el reporte limpio.
+    if not df.empty and expected_pf:
+        loaded_symbols = {sym for (sym, _) in expected_pf.keys()}
+        df = df[df['symbol'].isin(loaded_symbols)].copy()
 
     if df.empty:
         report.alerts.append("No hay trades en la ventana de evaluación")
