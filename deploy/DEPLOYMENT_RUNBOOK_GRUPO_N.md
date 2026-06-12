@@ -333,8 +333,26 @@ nunca propagado al VPS). Rollback limpio, sin pérdida. **Era prevenible.**
   Si el import falla → abortar + rollback ANTES de tocar el servicio. Construir el manifest del
   deploy desde el closure real, no desde la lista de archivos "que parecen haber cambiado".
 - **Deploys de DATOS** (`regime_wf/*_specialist_configs.json`, `regime_models/*_regime.joblib`):
-  EXENTOS de este check — son datos que el bot carga al arranque, sin nuevas dependencias de import.
-  (G1-G4 specialists/GMM se desplegaron así sin incidente.)
+  EXENTOS del closure-check — son datos que el bot carga al arranque, sin nuevas dependencias de import.
+  PERO sujetos al **PROVENANCE GATE** (abajo).
+
+**PROVENANCE GATE — MANDATORY en TODO deploy de DATOS (2026-06-12, post-auditoría forense)**:
+- **Origen empírico**: misassignment GMM↔specialist en 11/20 símbolos (3 variantes: G1 GMMs stale
+  de abril nunca actualizados en v2.5.0; cross-source sin GMM del source empaquetado; ADA joblib
+  regenerado 18 min después de su JSON). Sobrevivió 4 deploys + certificación Capa 1+2 porque
+  ningún paso verificaba que el specialist viajara con su GMM COMPAÑERO DE GENERACIÓN.
+  Evidencia completa: `audit_forense_gap_20260612/INFORME_AUDITORIA_FORENSE_GAP.md`.
+- **Regla**: ANTES de todo deploy de specialists/GMM, ejecutar
+  `python deploy/provenance_gate.py --package <dir> --report <deployment_report_grupo_N.json>`
+  → exit 0 obligatorio. Checks: P1 nombres de cluster JSON==joblib (permutación), P2a cutoff de
+  training ≤ generated (companion regenerado), P2b gap cutoff→generated ≤7d (era stale),
+  C1 md5 joblib target == joblib del SOURCE (cross-source), C2 formato cross-class del JSON.
+- Los specialists y sus GMM **viajan JUNTOS en el mismo deploy** (lección G3 + hoy: en G1 el GMM
+  no viajó y nadie lo notó durante 26 días).
+- Validación bidireccional del gate 2026-06-12: contra el estado pre-fix detecta exactamente los
+  11 símbolos del audit (P1×4 + P2b×4 + C1×6); contra el estado post-fix 19/19 PASS.
+- Recomendado: barrido completo del estado VPS (JSONs+joblibs descargados o snapshot) en cada
+  deploy, no solo del package incremental.
 
 **Corolario de fidelidad §0.3**: un deploy de código que cruza muchas semanas de evolución
 (p.ej. swap del stack de señales abril→junio) NO se valida solo con el gate de auto-consistencia

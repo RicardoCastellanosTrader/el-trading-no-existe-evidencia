@@ -1,0 +1,62 @@
+{
+ "BTC": {
+  "source_model": "BTC",
+  "md5": "9c2d2d01df0a4d38921072dd4facac15",
+  "variante": "A_per_sym",
+  "src_mtime": 1778256142.4512324
+ },
+ "ETH": {
+  "source_model": "ETH",
+  "md5": "374b6b12191e8899b5d67fb1b63135ca",
+  "variante": "A_per_sym",
+  "src_mtime": 1778256147.8450952
+ },
+ "BNB": {
+  "source_model": "BNB",
+  "md5": "588436d046c1bee11bc9394dc9e0ba41",
+  "variante": "A_per_sym",
+  "src_mtime": 1778256135.4547634
+ },
+ "TRX": {
+  "source_model": "TRX",
+  "md5": "002be59ba3f3f66ce7665618b5ca666e",
+  "variante": "A_per_sym",
+  "src_mtime": 1778256160.990835
+ },
+ "XRP": {
+  "source_model": "BTC",
+  "md5": "9c2d2d01df0a4d38921072dd4facac15",
+  "variante": "B_cross_source",
+  "src_mtime": 1778256142.4512324
+ },
+ "ONDO": {
+  "source_model": "BTC",
+  "md5": "9c2d2d01df0a4d38921072dd4facac15",
+  "variante": "B_cross_source",
+  "src_mtime": 1778256142.4512324
+ },
+ "DOGE": {
+  "source_model": "BTC",
+  "md5": "9c2d2d01df0a4d38921072dd4facac15",
+  "variante": "B_cross_source",
+  "src_mtime": 1778256142.4512324
+ },
+ "FET": {
+  "source_model": "BTC",
+  "md5": "9c2d2d01df0a4d38921072dd4facac15",
+  "variante": "B_cross_source",
+  "src_mtime": 1778256142.4512324
+ },
+ "RENDER": {
+  "source_model": "ETH",
+  "md5": "374b6b12191e8899b5d67fb1b63135ca",
+  "variante": "B_cross_source",
+  "src_mtime": 1778256147.8450952
+ },
+ "XLM": {
+  "source_model": "ETH",
+  "md5": "374b6b12191e8899b5d67fb1b63135ca",
+  "variante": "B_cross_source",
+  "src_mtime": 1778256147.8450952
+ }
+}
