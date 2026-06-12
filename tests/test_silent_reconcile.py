@@ -58,6 +58,7 @@ class FakeEngine:
         self._real_positions = real_positions
         self.config = type("C", (), {"dry_run": dry_run})()
         self.exchange = None  # no usado por el patch
+        self._open_clusters = {}  # v2.8.1: side-table cluster de apertura (prune en reconcile)
 
 
 async def _run_reconcile(engine, exec_report, allocations):

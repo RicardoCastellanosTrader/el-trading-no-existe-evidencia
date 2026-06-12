@@ -951,6 +951,7 @@ async def execute_cycle(
                         "reason_exit": action.get("reason", ""),
                         "funding_paid": funding_paid,
                         "entry_timestamp_ms": pos.get("entry_timestamp_ms", 0),
+                        "cluster": pos.get("cluster", ""),
                     })
                 elif result.get("action") == "already_closed_by_sl":
                     # Posicion cerrada por SL trigger de BingX intrabar
@@ -979,6 +980,7 @@ async def execute_cycle(
                         "reason_exit": "sl_trigger_hit",
                         "funding_paid": 0.0,
                         "entry_timestamp_ms": pos.get("entry_timestamp_ms", 0),
+                        "cluster": pos.get("cluster", ""),
                     })
                     logger.info(
                         f"[EXEC] {sym} registrado como sl_trigger_hit: "
@@ -1042,10 +1044,17 @@ def log_trade(trade: dict, filepath: str | Path | None = None):
     Appends trade al CSV de historial.
 
     Columnas: timestamp, symbol, side, entry_price, exit_price, size_usdt,
-              pnl_pct, pnl_usdt, reason_exit
+              pnl_pct, pnl_usdt, funding_paid, reason_exit, flag,
+              entry_timestamp_ms, cluster (v2.8.1: régimen de apertura)
     """
     filepath = Path(filepath) if filepath else TRADE_LOG_PATH
 
+    # v2.8.1: columna 'cluster' = régimen GMM de APERTURA del trade (no el actual).
+    # Permite al health_monitor evaluar por par (símbolo, cluster) = el specialist,
+    # cerrando el doble defecto dilución + baseline-incoherente. Vacío si desconocido
+    # (posición sin cluster trackeado, p.ej. sobreviviente de restart) → health la excluye.
+    _cluster = trade.get("cluster", "")
+    _cluster = "" if _cluster is None else _cluster
     row = {
         "timestamp": _now_str(),
         "symbol": trade.get("symbol", ""),
@@ -1058,6 +1067,7 @@ def log_trade(trade: dict, filepath: str | Path | None = None):
         "reason_exit": trade.get("reason_exit", ""),
         "flag": trade.get("flag", ""),
         "entry_timestamp_ms": trade.get("entry_timestamp_ms", 0),
+        "cluster": _cluster,
     }
 
     # Calcular pnl_pct
@@ -1076,7 +1086,7 @@ def log_trade(trade: dict, filepath: str | Path | None = None):
     fieldnames = [
         "timestamp", "symbol", "side", "entry_price", "exit_price",
         "size_usdt", "pnl_pct", "pnl_usdt", "funding_paid", "reason_exit",
-        "flag", "entry_timestamp_ms",
+        "flag", "entry_timestamp_ms", "cluster",
     ]
 
     file_exists = filepath.exists()

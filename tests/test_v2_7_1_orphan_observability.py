@@ -53,6 +53,7 @@ def _make_engine(monkeypatch, real_positions, recent_fill):
     eng.exchange = None
     eng.config = types.SimpleNamespace(dry_run=False)
     eng.alerts = []
+    eng._open_clusters = {}  # v2.8.1: side-table cluster de apertura (prune en reconcile)
 
     async def fake_get_positions(exchange=None):
         return real_positions

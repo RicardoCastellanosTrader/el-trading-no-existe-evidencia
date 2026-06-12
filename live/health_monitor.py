@@ -46,17 +46,27 @@ class HealthConfig:
 
 
 @dataclass
-class SymbolHealth:
+class PairHealth:
+    """v2.8.1: unidad de salud = el SPECIALIST = par (símbolo, cluster).
+
+    Coherente con la arquitectura GMM (1 specialist por régimen). pf_real se
+    computa SOLO con trades abiertos en ese cluster (atribución per-trade vía
+    columna trade_history.cluster), comparado con pf_expected(sym,k) del JSON
+    → cierra el doble defecto: dilución (mezcla de 3 regímenes) + baseline
+    incoherente (real-mezclado vs esperado-de-1-cluster).
+    """
     symbol: str
     cluster: int
     trades_real: int
     pf_real: float
-    pf_expected: float              # del JSON (pf_combined del top config)
+    pf_expected: float              # del JSON (pf_combined del top config del par)
     pf_ratio: float                 # real / expected
     win_rate_real: float
     avg_pnl_real: float
     consecutive_losses: int
     status: str                     # HEALTHY, WARNING, CRITICAL, INSUFFICIENT_DATA
+    current_cluster: int = -1       # contexto: cluster ACTUAL del símbolo (engine_state),
+                                    # distinguido de `cluster` (régimen de apertura del trade)
 
 
 @dataclass
@@ -65,10 +75,18 @@ class HealthReport:
     days_since_recycle: int
     portfolio_pnl_total: float
     portfolio_dd_from_peak: float
-    symbols: list = field(default_factory=list)   # lista de SymbolHealth
+    pairs: list = field(default_factory=list)      # lista de PairHealth (v2.8.1)
+    n_unlabeled_trades: int = 0                     # trades sin cluster (excluidos de eval per-par)
     recycle_recommended: bool = False
     recycle_reasons: list = field(default_factory=list)
     alerts: list = field(default_factory=list)
+
+    def flagged_symbols(self) -> set:
+        """Símbolos con AL MENOS un par evaluado en WARNING/CRITICAL."""
+        return {
+            p.symbol for p in self.pairs
+            if p.status in ("WARNING", "CRITICAL")
+        }
 
 
 # ──────────────────────────────────────────────────────────────────────
@@ -140,17 +158,20 @@ def _load_trades(config: HealthConfig) -> pd.DataFrame:
     if not path.exists() or path.stat().st_size == 0:
         return pd.DataFrame()
 
+    # v2.8.1: columna 'cluster' (13ª, última) = régimen de apertura del trade.
+    # Append al final → lectores posicionales viejos (parts[:12]) la ignoran
+    # sin romper; aquí la leemos para la evaluación per-par.
     CSV_COLUMNS = ['timestamp', 'symbol', 'side', 'entry_price', 'exit_price',
                    'size_usdt', 'pnl_pct', 'pnl_usdt', 'funding_paid',
-                   'reason_exit', 'flag', 'entry_timestamp_ms']
+                   'reason_exit', 'flag', 'entry_timestamp_ms', 'cluster']
     N_COLS = len(CSV_COLUMNS)
     rows = []
     with open(path, 'r', encoding='utf-8', errors='replace') as f:
-        _ = f.readline()  # header (variable: 10/11/12 cols según edad)
+        _ = f.readline()  # header (variable: 10/11/12/13 cols según edad)
         for line in f:
             parts = line.rstrip('\n').split(',')
             while len(parts) < N_COLS:
-                parts.append('')
+                parts.append('')   # filas viejas (12 cols) → cluster='' (NULL)
             rows.append(parts[:N_COLS])
     if not rows:
         return pd.DataFrame()
@@ -159,6 +180,9 @@ def _load_trades(config: HealthConfig) -> pd.DataFrame:
     for col in ('entry_price', 'exit_price', 'size_usdt', 'pnl_pct',
                 'pnl_usdt', 'funding_paid', 'entry_timestamp_ms'):
         df[col] = pd.to_numeric(df[col], errors='coerce')
+    # cluster: string -> Int64 nullable. Vacío/no-numérico → NA (excluido per-par).
+    df['cluster'] = df['cluster'].astype(str).str.strip()
+    df['cluster'] = pd.to_numeric(df['cluster'], errors='coerce').astype('Int64')
     df['timestamp'] = pd.to_datetime(df['timestamp'], errors='coerce')
     df = df.dropna(subset=['timestamp']).reset_index(drop=True)
 
@@ -304,27 +328,47 @@ def evaluate_health(config: HealthConfig) -> HealthReport:
         report.alerts.append("No hay trades en la ventana de evaluación")
         return report
 
-    # --- Métricas de portfolio ---
+    # --- Métricas de portfolio (sobre TODOS los trades en ventana) ---
     report.portfolio_pnl_total = df["pnl_usdt"].sum()
 
-    # --- Métricas por símbolo ---
-    for symbol, sym_df in df.groupby("symbol"):
-        cluster = _get_active_cluster(symbol, config)
-        n_trades = len(sym_df)
-        pnl_series = sym_df["pnl_usdt"].reset_index(drop=True)
+    # v2.8.1: evaluación PER-PAR (símbolo, cluster) = el specialist. Solo trades
+    # con cluster etiquetado; los NULL (pre-v2.8.1 o sin match de backfill) se
+    # EXCLUYEN — no se inventa atribución (decisión Ricardo 4). pf_real(sym,k)
+    # vs pf_expected(sym,k) cierra el doble defecto (dilución + baseline incoherente).
+    labeled = df[df['cluster'].notna()].copy()
+    report.n_unlabeled_trades = int(len(df) - len(labeled))
+
+    if labeled.empty:
+        report.alerts.append(
+            f"No hay trades con cluster etiquetado "
+            f"({report.n_unlabeled_trades} sin etiqueta — backfill pendiente)"
+        )
+        report.recycle_recommended, report.recycle_reasons = check_recycle_triggers(
+            report, config
+        )
+        return report
+
+    # Cluster ACTUAL por símbolo (contexto en el report, NO atribución per-trade)
+    current_clusters = {
+        sym: _get_active_cluster(sym, config)
+        for sym in labeled['symbol'].unique()
+    }
+
+    for (symbol, cluster), pair_df in labeled.groupby(['symbol', 'cluster']):
+        cluster = int(cluster)
+        cur_k = current_clusters.get(symbol, -1)
+        n_trades = len(pair_df)
+        pnl_series = pair_df["pnl_usdt"].reset_index(drop=True)
+        # pf_expected del PROPIO par (sin fallback a otros clusters: la comparación
+        # debe ser apples-to-apples par-a-par).
+        pf_exp = expected_pf.get((symbol, cluster), 0.0)
 
         if n_trades < config.min_trades_to_evaluate:
-            report.symbols.append(SymbolHealth(
-                symbol=symbol,
-                cluster=cluster,
-                trades_real=n_trades,
-                pf_real=0.0,
-                pf_expected=0.0,
-                pf_ratio=0.0,
-                win_rate_real=0.0,
-                avg_pnl_real=0.0,
-                consecutive_losses=0,
-                status="INSUFFICIENT_DATA",
+            report.pairs.append(PairHealth(
+                symbol=symbol, cluster=cluster, trades_real=n_trades,
+                pf_real=0.0, pf_expected=round(pf_exp, 2), pf_ratio=0.0,
+                win_rate_real=0.0, avg_pnl_real=0.0, consecutive_losses=0,
+                status="INSUFFICIENT_DATA", current_cluster=cur_k,
             ))
             continue
 
@@ -332,17 +376,8 @@ def evaluate_health(config: HealthConfig) -> HealthReport:
         win_rate = (pnl_series > 0).sum() / n_trades * 100
         avg_pnl = pnl_series.mean()
         consec_losses = _consecutive_losses(pnl_series)
-
-        # Buscar PF esperado: primero por (symbol, cluster), si no cualquier cluster
-        pf_exp = expected_pf.get((symbol, cluster), 0.0)
-        if pf_exp == 0.0:
-            # Fallback: promedio de todos los clusters del símbolo
-            sym_pfs = [v for (s, c), v in expected_pf.items() if s == symbol]
-            pf_exp = sum(sym_pfs) / len(sym_pfs) if sym_pfs else 0.0
-
         pf_ratio = pf_real / pf_exp if pf_exp > 0 else 0.0
 
-        # Determinar status
         if pf_ratio < config.pf_critical_threshold and pf_exp > 0:
             status = "CRITICAL"
         elif pf_ratio < config.pf_degradation_threshold and pf_exp > 0:
@@ -350,36 +385,24 @@ def evaluate_health(config: HealthConfig) -> HealthReport:
         else:
             status = "HEALTHY"
 
-        # Alertas por trades consecutivos perdedores
         if consec_losses >= config.consecutive_loss_alert:
             status = "WARNING" if status == "HEALTHY" else status
             report.alerts.append(
-                f"{symbol}: {consec_losses} trades perdedores consecutivos"
+                f"{symbol} C{cluster}: {consec_losses} trades perdedores consecutivos"
             )
 
-        sh = SymbolHealth(
-            symbol=symbol,
-            cluster=cluster,
-            trades_real=n_trades,
-            pf_real=round(pf_real, 2),
-            pf_expected=round(pf_exp, 2),
-            pf_ratio=round(pf_ratio, 2),
-            win_rate_real=round(win_rate, 1),
-            avg_pnl_real=round(avg_pnl, 2),
-            consecutive_losses=consec_losses,
-            status=status,
-        )
-        report.symbols.append(sh)
+        report.pairs.append(PairHealth(
+            symbol=symbol, cluster=cluster, trades_real=n_trades,
+            pf_real=round(pf_real, 2), pf_expected=round(pf_exp, 2),
+            pf_ratio=round(pf_ratio, 2), win_rate_real=round(win_rate, 1),
+            avg_pnl_real=round(avg_pnl, 2), consecutive_losses=consec_losses,
+            status=status, current_cluster=cur_k,
+        ))
 
-        if status == "CRITICAL":
+        if status in ("CRITICAL", "WARNING"):
             report.alerts.append(
                 f"{symbol} C{cluster}: PF {pf_real:.1f} vs esperado {pf_exp:.1f} "
-                f"(ratio {pf_ratio:.0%}) — CRITICAL"
-            )
-        elif status == "WARNING":
-            report.alerts.append(
-                f"{symbol} C{cluster}: PF {pf_real:.1f} vs esperado {pf_exp:.1f} "
-                f"(ratio {pf_ratio:.0%}) — WARNING"
+                f"(ratio {pf_ratio:.0%}) — {status}"
             )
 
     # --- Evaluar triggers de reciclaje ---
@@ -412,17 +435,16 @@ def check_recycle_triggers(report: HealthReport, config: HealthConfig) -> tuple:
             f"(máx {config.max_days_since_recycle})"
         )
 
-    # 2. Degradación PF (>=3 símbolos degradados)
-    degraded = [
-        s for s in report.symbols
-        if s.status in ("WARNING", "CRITICAL")
-        and s.pf_ratio < config.pf_degradation_threshold
-        and s.trades_real >= config.min_trades_to_evaluate
-    ]
-    if len(degraded) >= 3:
-        syms = ", ".join(s.symbol for s in degraded[:5])
+    # 2. Degradación PF — semántica de cartera INTACTA: >=3 SÍMBOLOS flagged.
+    # v2.8.1: un símbolo está flagged si AL MENOS uno de sus pares evaluados
+    # (specialist símbolo-cluster) está WARNING/CRITICAL. La detección es ahora
+    # per-par (capta decay régimen-específico antes diluido), pero el gate
+    # anti-churn de cartera (≥3 símbolos) se mantiene sin cambio.
+    flagged = report.flagged_symbols()
+    if len(flagged) >= 3:
+        syms = ", ".join(sorted(flagged)[:5])
         reasons.append(
-            f"Degradación PF: {len(degraded)} símbolos degradados ({syms})"
+            f"Degradación PF: {len(flagged)} símbolos con par degradado ({syms})"
         )
 
     # 3. DD del portfolio
@@ -465,39 +487,49 @@ def generate_daily_health_summary(config: HealthConfig) -> str:
         days_str = f"{report.days_since_recycle}/{config.max_days_since_recycle}"
     lines.append(f"  Days since recycle: {days_str}")
 
-    # Contar por status
-    evaluated = [s for s in report.symbols if s.status != "INSUFFICIENT_DATA"]
-    pending = [s for s in report.symbols if s.status == "INSUFFICIENT_DATA"]
-    total_active = len(evaluated) + len(pending)
-    lines.append(f"\n  Symbols ({total_active} active):")
+    # v2.8.1: presentacion POR EXCEPCIONES, escalable a 45 sym x 3 clusters.
+    # Cabecera con conteos de PARES (specialists); detalle SOLO de degradados;
+    # healthy y acumulando como conteos compactos (decision Ricardo 3).
+    crit = [p for p in report.pairs if p.status == "CRITICAL"]
+    warn = [p for p in report.pairs if p.status == "WARNING"]
+    healthy = [p for p in report.pairs if p.status == "HEALTHY"]
+    pending = [p for p in report.pairs if p.status == "INSUFFICIENT_DATA"]
+    n_sym = len({p.symbol for p in report.pairs})
 
-    # Ordenar: CRITICAL primero, luego WARNING, luego HEALTHY
-    status_order = {"CRITICAL": 0, "WARNING": 1, "HEALTHY": 2, "INSUFFICIENT_DATA": 3}
-    sorted_symbols = sorted(report.symbols, key=lambda s: status_order.get(s.status, 9))
+    lines.append(
+        f"\n  Specialists (pares simbolo-cluster) — {len(report.pairs)} en {n_sym} sym:"
+    )
+    lines.append(
+        f"    ✅ {len(healthy)} healthy · ⏳ {len(pending)} acumulando · "
+        f"⚠️ {len(warn)} warning · 🔴 {len(crit)} critical"
+    )
+    if report.n_unlabeled_trades > 0:
+        lines.append(
+            f"    ℹ️ {report.n_unlabeled_trades} trades sin cluster "
+            f"(excluidos de eval per-par; backfill/pre-v2.8.1)"
+        )
 
-    for sh in sorted_symbols:
-        if sh.status == "INSUFFICIENT_DATA":
-            lines.append(
-                f"    \u23f3 {sh.symbol}: {sh.trades_real} trades "
-                f"(need {config.min_trades_to_evaluate} to evaluate)"
-            )
-        elif sh.status == "HEALTHY":
-            lines.append(
-                f"    \u2705 {sh.symbol} C{sh.cluster}: PF {sh.pf_real} "
-                f"(expected {sh.pf_expected}, ratio {sh.pf_ratio:.0%})"
-            )
-        elif sh.status == "WARNING":
-            lines.append(
-                f"    \u26a0\ufe0f {sh.symbol} C{sh.cluster}: PF {sh.pf_real} "
-                f"(expected {sh.pf_expected}, ratio {sh.pf_ratio:.0%}) "
-                f"\u2190 DEGRADED"
-            )
-        elif sh.status == "CRITICAL":
-            lines.append(
-                f"    \U0001f534 {sh.symbol} C{sh.cluster}: PF {sh.pf_real} "
-                f"(expected {sh.pf_expected}, ratio {sh.pf_ratio:.0%}) "
-                f"\u2190 CRITICAL"
-            )
+    # Detalle SOLO degradados (CRITICAL primero, luego WARNING)
+    def _fmt(p, tag):
+        ctx = "" if (p.current_cluster == p.cluster or p.current_cluster < 0) \
+            else f" [actual C{p.current_cluster}]"
+        return (f"    {tag} {p.symbol} C{p.cluster}: PF {p.pf_real} "
+                f"(exp {p.pf_expected}, ratio {p.pf_ratio:.0%}, n={p.trades_real})"
+                f"{ctx}")
+
+    for p in sorted(crit, key=lambda x: x.pf_ratio):
+        lines.append(_fmt(p, "🔴") + " ← CRITICAL")
+    for p in sorted(warn, key=lambda x: x.pf_ratio):
+        lines.append(_fmt(p, "⚠️") + " ← DEGRADED")
+
+    # Acumulando: conteo compacto + los mas cercanos a N (cap 6, no enumerar todo)
+    if pending:
+        near = sorted(pending, key=lambda x: -x.trades_real)[:6]
+        near_str = ", ".join(f"{p.symbol} C{p.cluster} ({p.trades_real})" for p in near)
+        more = f" +{len(pending) - len(near)} mas" if len(pending) > len(near) else ""
+        lines.append(
+            f"    ⏳ acumulando (need {config.min_trades_to_evaluate}): {near_str}{more}"
+        )
 
     # Recomendación de reciclaje
     if report.recycle_recommended:
@@ -578,13 +610,18 @@ def main():
     print(f"Days since recycle: {report.days_since_recycle}")
     print(f"Portfolio PnL: {report.portfolio_pnl_total:+.2f} USDT")
     print(f"Portfolio DD from peak: {report.portfolio_dd_from_peak:.1f}%")
-    print(f"\nSymbols ({len(report.symbols)}):")
-    for sh in report.symbols:
+    if report.n_unlabeled_trades:
+        print(f"Trades sin cluster (excluidos per-par): {report.n_unlabeled_trades}")
+    print(f"\nSpecialists / pares (símbolo, cluster) ({len(report.pairs)}):")
+    status_order = {"CRITICAL": 0, "WARNING": 1, "HEALTHY": 2, "INSUFFICIENT_DATA": 3}
+    for sh in sorted(report.pairs, key=lambda x: (status_order.get(x.status, 9), x.symbol, x.cluster)):
+        ctx = "" if (sh.current_cluster == sh.cluster or sh.current_cluster < 0) \
+            else f" [actual C{sh.current_cluster}]"
         print(
             f"  [{sh.status:>17s}] {sh.symbol:<12s} C{sh.cluster} | "
             f"trades={sh.trades_real:>3d} PF={sh.pf_real:>5.2f} "
             f"(exp {sh.pf_expected:.2f}, ratio {sh.pf_ratio:.0%}) "
-            f"WR={sh.win_rate_real:.0f}% consec_loss={sh.consecutive_losses}"
+            f"WR={sh.win_rate_real:.0f}% consec_loss={sh.consecutive_losses}{ctx}"
         )
     if report.alerts:
         print(f"\nAlerts ({len(report.alerts)}):")

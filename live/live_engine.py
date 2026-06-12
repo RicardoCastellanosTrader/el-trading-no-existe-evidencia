@@ -58,7 +58,7 @@ from live.health_monitor import (
 
 logger = logging.getLogger("live.live_engine")
 
-BOT_VERSION = "2.7.2"  # v2.7.1: ORPHAN_CLOSE fill real + alerta + reporting robusto + START enriquecido
+BOT_VERSION = "2.8.1"  # v2.8.1: health per-par (símbolo,cluster) + cluster en trade_history (cierra dilución + baseline incoherente)
 
 _project_root = Path(__file__).parent.parent
 
@@ -152,9 +152,17 @@ def _enrich_positions_with_entry_ms(
             snapshot pre-reset. Solo enriquece si pre_ts > 0.
     """
     for sym, pos in positions.items():
-        pre_ts = pre_signal_state.get(sym, {}).get("entry_timestamp_ms", 0)
+        pre = pre_signal_state.get(sym, {})
+        pre_ts = pre.get("entry_timestamp_ms", 0)
         if pre_ts > 0:
             pos["entry_timestamp_ms"] = pre_ts
+        # v2.8.1: enriquecer con el cluster de APERTURA (mismo patrón que
+        # entry_timestamp_ms: la fuente canónica es pre_signal_state, no el
+        # brain post-reset). Permite que log_trade lo escriba por cualquier
+        # path de cierre (close_position lee pos["cluster"]).
+        oc = pre.get("open_cluster")
+        if oc is not None:
+            pos["cluster"] = oc
 
 
 # ---------------------------------------------------------------------------
@@ -207,6 +215,13 @@ class LiveEngine:
         self._prev_dd_multiplier: float = 1.0  # para detectar cambios
         self._circuit_breaker_active: bool = False  # histeresis
         self._dd_alert_pending: str | None = None   # alerta pendiente
+
+        # v2.8.1: side-table {symbol: cluster_de_apertura}. El brain trackea
+        # current_cluster (cambia cada ciclo); el cluster de APERTURA de una
+        # posición debe preservarse open→close para atribuir el trade a su
+        # specialist (par símbolo-cluster). Persistido en engine_state.json.
+        # Fuera del brain state (scope: NO tocar brain/portfolio/kernel).
+        self._open_clusters: dict = {}
 
     # ------------------------------------------------------------------
     # 1. start
@@ -535,6 +550,10 @@ class LiveEngine:
                             "entry_timestamp_ms": getattr(
                                 ss, "entry_timestamp_ms", 0
                             ),
+                            # v2.8.1: cluster de apertura desde la side-table
+                            # (None si la posición no tiene cluster trackeado —
+                            # p.ej. sobreviviente de restart >2h → trade NULL).
+                            "open_cluster": self._open_clusters.get(sym),
                         }
 
             signals = generate_signals(self.brain, market_data, active_configs)
@@ -709,6 +728,13 @@ class LiveEngine:
                         ss = self.brain.symbol_state.get(sym)
                         if ss:
                             ss.entry_timestamp_ms = int(ts_ms)
+                    # v2.8.1: capturar el cluster de APERTURA en la side-table.
+                    # active_configs[sym]["cluster"] = régimen GMM del ciclo en
+                    # que se abrió (mismo "k" loggeado en SIGNALS_RAW).
+                    if sym:
+                        _k = active_configs.get(sym, {}).get("cluster")
+                        if _k is not None:
+                            self._open_clusters[sym] = int(_k)
 
             # ---- RECONCILIACION POST-EJECUCION (v2.3.2) ----
             await self._reconcile_brain_after_execution(
@@ -1116,6 +1142,9 @@ class LiveEngine:
                 "funding_paid": 0.0,
                 "flag": flag,
                 "entry_timestamp_ms": pre.get("entry_timestamp_ms", 0),
+                # v2.8.1: cluster de apertura — un cierre huérfano NUNCA sale
+                # sin el cluster de su apertura (decisión Ricardo A.1).
+                "cluster": pre.get("open_cluster"),
             })
 
             # Alerta Telegram CLOSE exchange-side (bug 1 fix) — SIEMPRE que una
@@ -1184,6 +1213,18 @@ class LiveEngine:
                     f"entry={prev_entry} -> position=0 "
                     f"(no real BingX position)"
                 )
+
+        # v2.8.1: prune side-table de open_clusters. Tras la reconciliación,
+        # ss.position==0 ⟺ la posición está cerrada por CUALQUIER path (close
+        # normal vía _evaluate_bar, orphan/exchange-side, phantom cleanup). Los
+        # log_trade de este ciclo YA leyeron el cluster (close_position antes de
+        # reconcile, orphan dentro del loop arriba). Limpiar evita fugas y
+        # atribución stale en una re-entrada futura del mismo símbolo.
+        if self.brain:
+            for _sym in list(self._open_clusters.keys()):
+                _ss = self.brain.symbol_state.get(_sym)
+                if _ss is None or _ss.position == 0:
+                    self._open_clusters.pop(_sym, None)
 
     # ------------------------------------------------------------------
     # 7. _send_alert
@@ -1310,6 +1351,9 @@ class LiveEngine:
             "circuit_breaker_active": self._circuit_breaker_active,
             "symbols": {},
             "dry_run_positions": save_dry_run_positions() if self.config.dry_run else {},
+            # v2.8.1: side-table cluster de apertura por símbolo (persiste
+            # open→close cruzando restarts dentro de la ventana de recovery 2h).
+            "open_clusters": dict(self._open_clusters),
         }
 
         for sym, ss in self.brain.symbol_state.items():
@@ -1386,6 +1430,11 @@ class LiveEngine:
         self._dd_multiplier = data.get("dd_multiplier", 1.0)
         self._prev_dd_multiplier = self._dd_multiplier
         self._circuit_breaker_active = data.get("circuit_breaker_active", False)
+        # v2.8.1: restaurar side-table de clusters de apertura (claves int).
+        self._open_clusters = {
+            s: int(k) for s, k in data.get("open_clusters", {}).items()
+            if k is not None
+        }
         restored = 0
 
         for sym, ss_data in data.get("symbols", {}).items():
