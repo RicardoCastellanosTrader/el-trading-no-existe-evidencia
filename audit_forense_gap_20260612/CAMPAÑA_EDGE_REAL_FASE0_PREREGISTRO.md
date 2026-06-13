@@ -7,6 +7,22 @@
 
 ---
 
+### ENMIENDA 1 — 2026-06-13 (E1 reducido 6→3 placebos) — FECHADA, decidida ANTES de ver resultados de E1
+
+**Razón**: coste empírico medido de E1 ~**2× el estimado** (PLBGB1 ~5-6h + ~200-300GB parts/placebo → E1 ~40-50h real vs ~18-24h del pre-registro; el espacio de configs domina, no el bar-count menor). Ricardo decidió Opción 2 (trim) para liberar GPU al experimento DECISIVO (E2-full) ~1 día antes.
+
+**Qué cambia**: E1 pasa de 6 a **3 placebos**. Composición elegida (condición #1 — diversidad metodológica obligatoria, NO 3 del mismo tipo): **PLBGB1 (GBM~BTC) + PLBSH1 (SHUF~BTC) + PLBSH2 (SHUF~SOL)** = 1 GBM + 2 block-shuffle, 2 fuentes. El par mismo-fuente BTC (GBM vs SHUF) da la comparación limpia cross-tipo; el shuffle cross-fuente (BTC vs SOL) da robustez. Block-shuffle ponderado por ser el placebo más realista (preserva marginales + vol-clustering intra-bloque).
+
+**Qué NO cambia** (la protección anti-mover-postes): NO toca el N, umbrales, anclas ni diseño de **E2-full (el decisivo)** — congelados. NO toca el ORDEN (condición #3: E1 → E2-full intacto; el noise floor se fija ANTES de E2-full por diseño, no a posteriori). NO toca la regla pre-registrada de E1 (mediana top-1 pf_fwd_ci_low ≥1.7 → floors artefacto).
+
+**Regla de robustez del noise floor (condición #4)**: si los 3 placebos COINCIDEN direccionalmente → noise floor sólido. Si DISCREPAN materialmente entre sí (GBM dice una cosa, shuffle otra) → se REPORTA en T3.2 como hallazgo en sí (discrepancia entre modos de ruido), y podría justificar reactivar el 4º/5º/6º placebo (parquets preservables) tras decisión de Ricardo.
+
+**Distinción enmienda-honesta vs mover-postes**: este registro fechado, decidido sobre coste (no sobre resultados de E1 — ninguno visto aún: 0 specialist JSONs de placebo al momento de enmendar), es la protección. El experimento de APOYO se abarata; el decisivo queda intacto.
+
+**Mecanismo**: parquets de PLBGB2/PLBGB3/PLBSH3 borrados → el driver los salta fail-fast (sin GPU); driver editado a SYMS="PLBGB1 PLBSH1 PLBSH2". PLBGB1 ya corriendo, no se interrumpe.
+
+---
+
 ## PARTE 0.1 — INVENTARIO (read-only, hecho)
 
 ### A. Profundidad de histórico Binance por símbolo (define anclas as-of posibles)
