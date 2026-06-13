@@ -1,0 +1,38 @@
+[
+ {
+  "name": "PLBGB1",
+  "type": "GBM~BTC",
+  "sigma": 0.004964820702746267,
+  "bars": 25000
+ },
+ {
+  "name": "PLBSH1",
+  "type": "SHUF~BTC",
+  "sigma": 0.004964820702746267,
+  "bars": 25000
+ },
+ {
+  "name": "PLBGB2",
+  "type": "GBM~SOL",
+  "sigma": 0.00951328833471623,
+  "bars": 25000
+ },
+ {
+  "name": "PLBSH2",
+  "type": "SHUF~SOL",
+  "sigma": 0.00951328833471623,
+  "bars": 25000
+ },
+ {
+  "name": "PLBGB3",
+  "type": "GBM~SEI",
+  "sigma": 0.012536949979199963,
+  "bars": 25000
+ },
+ {
+  "name": "PLBSH3",
+  "type": "SHUF~SEI",
+  "sigma": 0.012536949979199963,
+  "bars": 24192
+ }
+]
