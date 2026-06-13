@@ -54,9 +54,13 @@ def main():
     ap.add_argument("--phase", type=int, choices=[1, 2], required=True)
     ap.add_argument("--chunk-size", type=int, default=1_000_000)
     args = ap.parse_args()
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except AttributeError:
+        pass
 
     n, sb = prep_truncated(args.symbol, args.anchor)
-    print(f"[asof {args.symbol}@{args.anchor}] prehistoria={n} barras → sandbox {sb}", flush=True)
+    print(f"[asof {args.symbol}@{args.anchor}] prehistoria={n} barras -> sandbox {sb}", flush=True)
 
     import master
     import lab_lite_zonas_v5e as _lab
