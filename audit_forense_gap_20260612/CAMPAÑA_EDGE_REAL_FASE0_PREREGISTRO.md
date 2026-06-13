@@ -1,7 +1,9 @@
 # Campaña de Medición del Edge Real — FASE 0: Inventario + PRE-REGISTRO
 
-**Fecha**: 2026-06-13 · **Estado**: T3.1 — pendiente de aprobación de Ricardo ANTES de generar datos.
-**Regla meta**: este documento se fecha y se aprueba ANTES de correr E1/E2. Los umbrales NO se ajustan tras ver resultados. Una variante sugerida por un resultado es un experimento NUEVO con holdout NUEVO.
+**Fecha**: 2026-06-13 · **Estado**: ✅ **APROBADO por Ricardo 2026-06-13 con 6 ajustes (incorporados abajo). UMBRALES CONGELADOS — no se ajustan al ver resultados.**
+**Regla meta**: este documento se fechó y aprobó ANTES de correr E1/E2. Los umbrales NO se ajustan tras ver resultados. Una variante sugerida por un resultado es un experimento NUEVO con holdout NUEVO.
+
+**Ajustes de aprobación (Ricardo 2026-06-13)**: (1) as-of truncator registra profundidad efectiva (nº barras pre-ancla) por par; (2) base = BTC+SOL+LINK+**LTC** (SEI→experimento-frontera separado); (3) leakage gate excluye el mes del audit del holdout A2 + (6) validación bidireccional del gate; (5) decisión en **3 zonas** (demostrado / ausente / no concluyente). Detalle inline.
 
 ---
 
@@ -91,7 +93,10 @@ Medido del regen ADA (2-fases H_B, histórico 71.397 barras, 30 presets):
 **HONESTIDAD del N (§12 L38)**: el sistema es JOVEN — las ventanas live suman **~70–90 trades**, NO "cientos". E2-lite mejora sobre el audit (N=56, BingX) por: Binance-limpio + artefactos coherentes + pooling 4 gen, pero **NO alcanza cientos**. Los cientos vienen de E2-full (holdouts as-of largos). Declarar esto evita sobre-vender E2-lite.
 
 **Métrica primaria**: PF neto realizado pooled + CI95 bootstrap (10.000). Per-generación + per-(sym,cluster).
-**Regla de decisión (PRE-REGISTRADA)**: rechazo H0 si CI95 inf > 1.0. Si CI95 contiene 1.0 → no se rechaza breakeven (consistente H2). Si CI95 sup < 1.0 → edge neto negativo.
+**Regla de decisión (PRE-REGISTRADA — 3 ZONAS, ajuste #5)**:
+- **EDGE DEMOSTRADO**: punto ≥1.3 Y CI95 inf >1.0.
+- **EDGE AUSENTE**: CI95 sup <1.0 (techo bajo breakeven neto).
+- **NO CONCLUYENTE**: CI95 cruza 1.0 → evidencia insuficiente con este N (sistema joven, N~70-90); regla = más datos antes de conclusión estructural. "No demostrado" ≠ "no hay edge".
 
 **Coste**: replay, ~1h CPU, **sin GPU**. **Holdout consumido**: ventanas live G1–G4 (registradas como QUEMADAS para "realizado de picks desplegados"; ya medidas parcialmente por el audit — no tuneadas).
 
@@ -103,13 +108,15 @@ Medido del regen ADA (2-fases H_B, histórico 71.397 barras, 30 presets):
 
 **Hipótesis**: H0 = el método no generaliza (PF neto holdout ≤ 1.0). Falsable en AMBAS direcciones.
 
-**Diseño (propuesta finita — Ricardo ajusta)**:
-- **4 símbolos** de profundidad mixta: **BTC** (8.7y), **SOL** (5.8y), **LINK** (7.4y), **SEI** (2.8y).
-- **2 anclas**:
-  - **A1 = 2025-10-01** → holdout **2025-10→2026-01** (~3 m). **INDEPENDIENTE de E2-lite** (termina antes del deploy de mayo).
-  - **A2 = 2026-02-01** → holdout **2026-02→2026-06** (~4 m). Solapa calendario con E2-lite (picks distintos; sin tuning cruzado).
+**Diseño BASE (aprobado con ajuste #2)**:
+- **4 símbolos base de profundidad alta/mixta**: **BTC** (8.7y), **SOL** (5.8y), **LINK** (7.4y), **LTC** (8.5y). LTC sustituye a SEI por cobertura de histórico (3 de 4 con ≥7y → picks as-of con prehistoria sólida).
+- **SEI (2.8y) = experimento-frontera SEPARADO** (caso difícil por poca historia; NO se mezcla con la base; ejecutable después si el presupuesto lo permite, con su propio veredicto).
+- **2 anclas** (holdouts en intervalos medio-abiertos, sin solape entre sí ni con E2-lite — ajuste #3):
+  - **A1 = 2025-10-01** → holdout **[2025-10-01, 2026-02-01)** (~4 m). Totalmente INDEPENDIENTE (predata todo deploy de specialists estudiados).
+  - **A2 = 2026-02-01** → holdout **[2026-02-01, 2026-05-17)** (~3.5 m). **Termina el 2026-05-16 (corte ajuste #3): excluye el mes del audit / ventana E2-lite** → "intocado" estricto, sin solape con E2-lite.
+- **Profundidad efectiva registrada (ajuste #1)**: el as-of truncator escribe nº de barras pre-ancla por (símbolo, ancla); el veredicto pondera fiabilidad (BTC ~70k barras vs símbolo joven NO son holdouts equivalentes).
 - 8 runs full-pipeline as-of (truncados al ancla) → replay sobre post-ancla.
-- **N esperado**: ~4 sym × ~100 d × ~0.4 trades/d × 2 anclas ≈ **250–350 trades** ("cientos" reales).
+- **N esperado**: ~4 sym × ~105 d × ~0.4 trades/d × 2 anclas ≈ **250–350 trades** ("cientos" reales).
 
 **ANTI-LEAKAGE (CARDINAL — el hallazgo más crítico de la fase; un leak invalida todo)**:
 verificación primary-source de que el run as-of NO ve dato > ancla en NINGÚN paso:
@@ -117,13 +124,18 @@ verificación primary-source de que el run as-of NO ve dato > ancla en NINGÚN p
 2. **GMM**: training cutoff = ancla (verificar `training_date_range[1]` ≤ ancla en el joblib generado).
 3. **lab_lite**: ventana 5000-barras debe terminar ≤ ancla (verificar última vela del slice).
 4. **walk-forward**: train + forward AMBOS ≤ ancla (el forward es parte de la SELECCIÓN, no de la evaluación; la evaluación es el replay post-ancla separado).
-- Gate de leakage codificado: script que afirma, por cada run, que el max(timestamp) de cada artefacto/intermedio ≤ ancla. FAIL → T3.3 inmediato, fase invalidada.
+5. **Exclusión del mes del audit (ajuste #3)**: el holdout A2 termina en 2026-05-16 — el período que el bot operó en vivo (ventana E2-lite, desde 2026-05-17) queda EXCLUIDO. Verificación explícita en el gate: ningún trade del holdout A2 tiene timestamp ≥ 2026-05-17.
+- Gate de leakage codificado: script que afirma, por cada run, que el max(timestamp) de cada artefacto/intermedio ≤ ancla, y que el holdout no cruza la frontera E2-lite. FAIL → **T3.3 inmediato, fase invalidada**.
+- **VALIDACIÓN BIDIRECCIONAL del gate (ajuste #6, CARDINAL)** — antes de E2-full, igual que el provenance gate (cazó los 11 pre-fix, pasó post-fix):
+  - **Caso honesto**: run as-of limpio → gate PASA (exit 0).
+  - **Caso envenenado**: inyectar deliberadamente UN dato post-cutoff en un intermedio → gate CAZA (falla ruidoso, exit≠0, identifica el paso).
+  - Un leakage no cazado convertiría E2-full en un espejismo con sello de holdout. Sin validación bidireccional verde, E2-full NO corre.
 
-**Métrica primaria**: PF neto realizado sobre holdout, pooled (sym×ancla) + CI95 bootstrap. Per-celda.
-**Regla de decisión (PRE-REGISTRADA, ambas direcciones)**:
-- **Edge SOSTENIDO** si CI95 inf > 1.0 Y punto ≥ ~1.3 → revisa veredicto H2 del audit (**T3.4**), conversación → escala.
-- **Frame 2 a escala** si CI95 contiene 1.0 (punto ~1.0–1.2) → breakeven establecido sobre roca, conversación estructural honesta.
-- **Método net-negativo** si CI95 sup < 1.0.
+**Métrica primaria**: PF neto realizado sobre holdout, pooled (sym×ancla) + CI95 bootstrap. Per-celda + ponderado por profundidad efectiva (ajuste #1).
+**Regla de decisión (PRE-REGISTRADA — 3 ZONAS, ajuste #5; CONGELADA)**:
+- **EDGE DEMOSTRADO**: punto ≥1.3 Y CI95 inf >1.0 → la tesis de edge se sostiene; revisa veredicto H2 del audit (**T3.4**); conversación → escala / Fase 2.
+- **EDGE AUSENTE**: CI95 sup <1.0 (techo bajo breakeven neto) → Frame 2 confirmado; decisión estructural honesta.
+- **NO CONCLUYENTE**: CI95 cruza 1.0 → evidencia insuficiente con este N (~250-350, CI anchos en sistema joven); regla = **más datos / más holdout / más anclas ANTES de conclusión estructural** (NO forzar sí/no sobre evidencia que no alcanza). "No demostrado" ≠ "no hay edge".
 
 **Coste**: 8 runs × ~5–8h ≈ **40–64h GPU** secuencial estricto #14. **Holdout consumido**: (BTC/SOL/LINK/SEI) × (A1, A2) post-ancla — QUEMADOS una vez. Variantes Fase 2 → anclas/símbolos NUEVOS.
 
@@ -135,28 +147,29 @@ verificación primary-source de que el run as-of NO ve dato > ancla en NINGÚN p
 |---|---|---|
 | Sintético E1 (semilla fija) | E1 | no consume real |
 | Live G1–G4 (deploy→2026-06-13) | E2-lite | se quema al correr E2-lite |
-| BTC/SOL/LINK/SEI × {2025-10, 2026-02} post-ancla | E2-full | se quema al correr E2-full |
+| **BTC/SOL/LINK/LTC** × {A1 [2025-10,2026-02), A2 [2026-02,2026-05-17)} | E2-full base | se quema al correr E2-full |
+| SEI × {A1, A2} | E2-full frontera | separado (ajuste #2), se quema si se ejecuta |
 | **Reservado para Fase 2** | palancas | anclas/símbolos NO usados arriba (p.ej. 2025-07, 2025-04; ETH/DOGE/BCH/XLM) |
 
-Solape E2-lite ↔ E2-full A2 (calendario 2026-02→06): picks DISTINTOS, ninguna decisión de tuning cruza entre experimentos. Documentado, no es violación (el holdout se quema por TUNING, no por medición independiente).
+**Sin solape** (ajuste #3): A1 [2025-10,2026-02) + A2 [2026-02,2026-05-17) + E2-lite [2026-05-17,now) tilean el calendario sin intersección. El corte de A2 en 2026-05-16 excluye la ventana que el bot operó en vivo (mes del audit). Holdouts estrictamente intocados.
 
 ---
 
 ## ANDAMIAJE DE HARNESS REQUERIDO (y el invariante que preserva)
 
 - **E1**: generador de placebo (GBM calibrado + block-shuffle, semilla fija) → inyecta parquet sintético; el pipeline corre desde GMM. 
-- **E2-full**: truncador as-of (slice del parquet a ≤ ancla) + gate de leakage (asserts de max-timestamp por paso).
+- **E2-full**: truncador as-of (slice del parquet a ≤ ancla; **registra nº barras pre-ancla por par — ajuste #1**) + gate de leakage (asserts de max-timestamp por paso + exclusión mes-audit en A2) **validado BIDIRECCIONALMENTE antes de E2-full — ajuste #6** (honesto PASA / envenenado FALLA ruidoso).
 - **INVARIANTE**: los scripts del pipeline (`lab_lite`, `regime_walk_forward`, `master`) corren con su LÓGICA INTACTA — el harness solo controla la ENTRADA de datos y verifica cutoffs. **brain/portfolio/kernel/cancel_ghost NO se tocan**. Todo código de harness es test-only y se verifica que no altera el cómputo del pipeline. §13.3 upgrade stack intacto.
 
 ---
 
-## PREGUNTAS PARA TU APROBACIÓN (T3.1) — antes de generar datos
+## RESOLUCIÓN T3.1 — APROBADO 2026-06-13 (las 6 decisiones, congeladas)
 
-1. **Presupuesto GPU E2-full**: ¿4 sym × 2 anclas (~40–64h) OK, o reducir/ampliar? (G5 diferido durante la campaña).
-2. **Símbolos E2-full**: ¿BTC/SOL/LINK/SEI (profundidad mixta), u otra selección? SEI (2.8y) es el más arriesgado por pre-historia.
-3. **Anclas E2-full**: ¿2025-10-01 + 2026-02-01? (la primera da holdout independiente de E2-lite).
-4. **Orden de ejecución**: propongo **E2-lite primero** (barato, sin GPU, mata-objeción-N parcial) → **E1** (noise floor, ~20h) → **E2-full** (decisivo, ~40–64h). ¿OK?
-5. **Umbral "edge sostenido"** E2-full: fijé punto ≥1.3 + CI95 inf >1.0. ¿Lo confirmas o ajustas AHORA (no después)?
-6. **Andamiaje**: ¿autorizas el harness test-only (placebo injector + as-of truncator + leakage gate), entendido que NO toca lógica del pipeline ni código productivo?
+1. **Presupuesto GPU E2-full**: 4×2 (~40–64h) ✅ + registra profundidad efectiva por par.
+2. **Símbolos**: base BTC/SOL/LINK/**LTC** ✅; SEI → frontera separado.
+3. **Anclas**: 2025-10-01 + 2026-02-01 ✅; A2 corta en 2026-05-16 (excluye mes audit).
+4. **Orden**: E2-lite → E1 → E2-full ✅.
+5. **Decisión**: **3 zonas** (demostrado / ausente / no concluyente) ✅, congeladas.
+6. **Andamiaje**: test-only ✅ + **validación bidireccional del leakage gate** antes de E2-full.
 
-**NO genero ningún dato de FASE 1 hasta tu aprobación de este pre-registro.**
+**Umbrales CONGELADOS. FASE 1 procede en orden. Tier 3 en: T3.2 (veredicto 3 zonas), T3.3 (leakage cazado), T3.4 (resultado que revise H2).**
