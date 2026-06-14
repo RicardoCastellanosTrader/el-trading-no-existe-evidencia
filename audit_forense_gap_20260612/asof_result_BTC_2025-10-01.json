@@ -1,0 +1,11 @@
+{
+ "symbol": "BTC",
+ "anchor": "2025-10-01",
+ "holdout_end": "2026-02-01",
+ "n_trades": 49,
+ "pf_net": 0.8034,
+ "sum_pp": -5.08,
+ "leakage_ok": true,
+ "leakage_errs": [],
+ "pre_anchor_bars": 71076
+}

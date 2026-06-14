@@ -51,7 +51,12 @@ def main():
     trades=[]; opent=None
     def close(exitT,xp,reason):
         ep=opent["ep"]
-        pnl=(xp/ep-1)*100 if opent["side"]=="long" else (1-xp/ep)*100
+        if not ep or not xp:
+            pnl=0.0  # posición abierta al cierre del holdout (open_at_end) — excluida del PF
+        elif opent["side"]=="long":
+            pnl=(xp/ep-1)*100
+        else:
+            pnl=(1-xp/ep)*100
         trades.append({"sym":a.symbol,"anchor":a.anchor,"entry_T":str(opent["eT"]),"exit_T":str(exitT),
                        "side":opent["side"],"pnl_pct":round(pnl,4),"reason":reason,"k":opent["k"]})
     for T in hours:
