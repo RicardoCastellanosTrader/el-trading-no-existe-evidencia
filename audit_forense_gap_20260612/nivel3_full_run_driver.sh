@@ -9,7 +9,13 @@ AD=audit_forense_gap_20260612
 ANCHOR=2025-05-01
 SYMS="ETH BNB XRP ATOM THETA ALGO DOT AVAX FET STX INJ IMX OP"
 LOG=$AD/nivel3_full_run.log
-echo "==== NIVEL3 RUN COMPLETO START $(date -u) ancla=$ANCHOR fuente=data_cache ====" | tee -a $LOG
+MONLOG=$AD/nivel3_fullrun_vram_1s.log
+# Monitor VRAM 1s+fsync atado al ciclo de vida del RUN (arranca con el run, trap EXIT lo mata).
+# Fix tras TDR 2026-06-16: el monitor previo muestreaba cada 5 min y bufferizaba -> ceguera del crash.
+python -u $AD/vram_monitor.py --log $MONLOG --interval 1 &
+MONPID=$!
+trap "kill $MONPID 2>/dev/null" EXIT
+echo "==== NIVEL3 RUN COMPLETO START $(date -u) ancla=$ANCHOR fuente=data_cache monPID=$MONPID ====" | tee -a $LOG
 for S in $SYMS; do
   SEAL=$AD/nivel3_resmoke_trades_${S}_${ANCHOR}_data_cache.json
   if [ -f "$SEAL" ]; then echo "[$S] SKIP (sealed existe) $(date -u)" | tee -a $LOG; continue; fi
