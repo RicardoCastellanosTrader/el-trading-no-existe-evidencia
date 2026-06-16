@@ -243,8 +243,33 @@ Corrió el pipeline GPU end-to-end (1 anclaje completo antes de abortar por bug,
 - 13 símbolos × **318 anclajes frescos** (Σ tabla) × ~7 min (agnóstico) ≈ **~37 h**; con instrumentación régimen ~×1.4 ≈ **~50-55 h compute** + overhead per-símbolo (config-gen 20.9M + warmup) ~1-2 h.
 - **Wall-clock secuencial-estricto #14 ≈ ~2-3.5 días GPU.** VRAM holgada (peak 1.3 GB). Disco negligible (default mode). Safety-factor ahora **~1.5-2× empírico** (cubre instrumentación + varianza), no 5-10× ciego.
 
-## RESOLUCIÓN T3.1-bis — PENDIENTE (Ricardo)
-1. **Aprobar el presupuesto recalibrado** (~2-3.5 días GPU, VRAM/disco seguros).
+## ENMIENDA 2026-06-16 (fechada, SIN mirar resultados) — Generador de población = PIPELINE CANÓNICO `regime_walk_forward`, NO el extractor/α legacy. → T3.1-ter
+
+**Disparador**: el `ERROR 'structural_score'` del smoke NO era un drift a reparar — era **el pipeline avisando que α invoca un componente OBSOLETO fuera de producción**. Verificado primary-source en CONTEXTO (regla Ricardo: revisar contexto antes de reparar):
+- **§13.2 L2272 [OBSERVACION][ACTIVO] 2026-04-17**: *"extractor_gemas.py NO está en pipeline de producción. master.py NO lo invoca. El pipeline canónico (§1.2) son 4 pasos sin extractor_gemas. Los JSONs en producción vienen de `regime_walk_forward`, no de extractor_gemas."* **Disparador explícito del item**: *"si alguien propone reactivar el flujo lab_historico + extractor_gemas"* — exactamente lo que α (`walk_forward_experiment.py`) hace.
+- **§13.2 L2224** (auditoría Capa 3): *"extractor_gemas.py confirmado como legacy NO en pipeline."*
+- **L4253 §12 L38 Caso 1 (24ª)**: el **"perfil de extremos" (= D4) ya fue REFUTADO** por depender de `is_gem`/`extractor_gemas` legacy + datos inexistentes. **Caso 2 (26ª-A)**: `walk_forward_experiment.py` (`--opt-size`/`--fwd-size`, multi-anchor) es legacy pre-Frame 2/3; el actual `regime_walk_forward.py` usa `--train-ratio` single-split per-clúster.
+- **§1.2 pipeline canónico**: Paso 1 download → Paso 2 `train_regime_model` (GMM) → Paso 3 `lab_lite_zonas_v5e` → **Paso 4 `regime_walk_forward.py` → `regime_wf/SYMBOL_specialist_configs.json`** (los specialists DESPLEGADOS, CON clusters).
+
+**ESCENARIO A confirmado**: el extractor (y α sobre él) es VESTIGIAL. Medir con α mediría un sistema OBSOLETO → veredicto D3/D4 irrelevante al sistema real. Por fidelidad al sistema que OPERA, se corrige el GENERADOR de población:
+
+| | ANTES (pre-registro consolidado, α) | ENMENDADO (canónico) |
+|---|---|---|
+| Generador | `walk_forward_experiment.py` + `extractor_gemas` (legacy, régimen-AGNÓSTICO, multi-anchor opt/fwd) | **`regime_walk_forward.py` AS-OF** (canónico, CLUSTER-aware, `--train-ratio`), truncado al ancla = **harness E2-full ya validado** (anti-leakage bidireccional) = el **β originalmente recomendado** |
+| D3 MATCH/MISMATCH | requería instrumentar régimen-awareness | **NATIVO** (regime_walk_forward es cluster-based; `cross_cluster_pf` ya computa pf por clúster). Instrumentación INNECESARIA. Forward intocado vía as-of |
+| D4 firma de fracaso | sobre población α/extractor | firma a-priori = campos del pipeline canónico (`trades_tr`, `maxdd_worst`, `pnl_tr`, `plateau_ratio`, `flag_sospechoso_outlier` — todos en el schema) sobre los **`regime_wf/SYM_cluster_N_specialists.csv` (~2000/clúster)**; LABEL de fracaso = pf<1 sobre **holdout intocado as-of**. SIN extractor. (D4 se re-funda sobre campos canónicos — el refute previo era por dep. del extractor legacy.) |
+| D2/D5 | población α | campos canónicos, secundario |
+| Coste | ~2-3.5 días (smoke α) — **NO transfiere: midió el pipeline OBSOLETO** | ≈ **E2-full as-of** (~5-8h/celda deep, menos truncado) — ancla de coste real |
+
+**Lo que NO cambia (pre-registro de hipótesis/zonas INTACTO)**: D3 (Δ MATCH/MISMATCH, 3 zonas), D4 (firma a-priori EXCLUSIÓN, 3 zonas AUC), D2/D5 secundario, m=2, holdout sagrado (subset 13 + frescura doble-garantía VÁLIDOS — independientes del generador), smoke-no-veredicto. **Solo cambia QUÉ código genera la población, para que mida el sistema real.**
+
+**Consecuencias operativas**: (1) `structural_score` NO se repara (legacy, no se toca). (2) `--max-anchors` añadido a `walk_forward_experiment.py` queda INERTE (no se usa). (3) **D4 honest caveat**: su N útil = configs de los CSV per-clúster evaluados sobre holdout intocado (decente con top-2000/clúster × cells); si resultara sub-potente, se reporta como no-concluyente (igual que en el screen). (4) Re-confirmar coste vía E2-full (~5-8h/celda) en lugar del smoke α.
+
+## RESOLUCIÓN T3.1-ter — PENDIENTE (Ricardo, ANTES de generar datos)
+0. **Aprobar esta ENMIENDA de generador** (población Nivel 3 = `regime_walk_forward` canónico AS-OF, NO α/extractor legacy). Es corrección de fidelidad al sistema real.
+
+## RESOLUCIÓN T3.1-bis — (SUPERSEDED por la enmienda en lo relativo al generador α; subset/frescura siguen válidos)
+1. ~~Aprobar el presupuesto recalibrado α~~ → recalibrar sobre coste E2-full as-of (~5-8h/celda).
 2. **Aprobar el pase de ingeniería previo** (reparar drift extractor + instrumentar régimen — sin GPU, test-only) y el **refinamiento de población** (extractor top-30 con fracasos, NO eval-all-train).
 3. Tras ambos OK → run completo de los 13 → T3.2 veredicto D3+D4 (+D2/D5).
 - `--max-anchors` añadido a `walk_forward_experiment.py` (default sin límite, output-neutral). **NO run completo sin estos OK.**
