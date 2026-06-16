@@ -1,6 +1,10 @@
-# Nivel 3 — Confirmación de D3 (régimen/contexto) — DISEÑO + PRE-REGISTRO
+# Nivel 3 — Confirmación de D3 + D4 (+ D2/D5) — DISEÑO + PRE-REGISTRO CONSOLIDADO
 
-**Fecha**: 2026-06-16 · **Estado**: 🟡 **DISEÑO + PRE-REGISTRO — PENDIENTE T3.1 (Ricardo) + elección α/β. NO ejecutar GPU hasta aprobación.** Mismo patrón que funcionó 2× (Campaña Edge Real, Estudio de Capacidad): diseñar+pre-registrar → Tier 3 → ejecutar.
+**Fecha**: 2026-06-16 · **Estado**: 🟡 **PRE-REGISTRO CONSOLIDADO — PENDIENTE T3.1 (Ricardo): aprobación final + presupuesto GPU ANTES de lanzar. NO ejecutar GPU en este pase.** Dataset = **α (población-completa)** APROBADO por Ricardo (habilita D3+D4+D2/D5 en un cómputo vs β solo-D3 + regen futura cara). Mismo patrón que funcionó 2× (Campaña Edge Real, Estudio de Capacidad): diseñar+pre-registrar → Tier 3 → ejecutar.
+
+> **DISTINCIÓN CARDINAL (la lección de la sesión, explícita y gobernante)**: mirar el pasado para **TESTEAR una regla estructural fijada de antemano** sobre holdout intocado = VÁLIDO (D3, D4). Mirar el pasado para **DESTILAR qué config/firma habría ganado y construir una regla que la elija** = INGENIERÍA INVERSA = sobreajuste garantizado (E1 lo probó: sobre ruido puro SIEMPRE existe un "ganador"). El script `walk_forward_experiment.py` se titula "ingeniería inversa" — uso LEGADO; aquí solo **genera el dataset emparejado**; las reglas D3/D4 se **fijan ANTES** y se testean sobre tramos FRESCOS. Prohibido derivar la firma de los perdedores del holdout; obligado fijarla a priori y luego medir.
+
+**Sección original (B.1–B.4)** = lógica del aislador D3, preservada abajo. **La VERSIÓN CONSOLIDADA al final supersede la recomendación α/β** (α elegido) y añade D4 con rigor completo + D2/D5 secundario + m de multiplicidad + presupuesto.
 
 **Contexto**: el Estudio de Capacidad (`VEREDICTO_ESTUDIO_CAPACIDAD.md`) cerró que la re-selección por el eje del **rendimiento pasado** está muerta o es mecánica, y que **D3 (régimen/contexto, ε²=0.574) es la única señal viva, limpia, no mecánica — y es el eje exacto de Frame 3**. Pero D3 es **CANDIDATA**: medida sobre N1 (en-selección, sesgos a favor) y con una **explicación alternativa viva** que debe aislarse antes de justificar la construcción de Frame 3.
 
@@ -89,3 +93,70 @@ El test MATCH/MISMATCH ES el aislador. Sin un Δ>0 robusto, NO se declara confir
 3. **Confirmar anclas/símbolos** (reservadas frescas vs re-análisis de E2-full quemadas).
 
 **Umbrales se CONGELAN al aprobar. NO GPU hasta T3.1.** Tras ejecución (pase posterior): T3.2 = veredicto de confirmación/refutación D3.
+
+---
+---
+
+# VERSIÓN CONSOLIDADA — D3 (primario) + D4 (primario) + D2/D5 (secundario) sobre α — 2026-06-16
+
+*(Supersede la recomendación α/β: Ricardo eligió α. D3 confirmado tal cual + D4 con rigor completo + D2/D5 como oportunidad barata del mismo dataset.)*
+
+## 1. Dataset α — qué es, qué habilita, qué hay que INSTRUMENTAR
+
+**α = regenerar el walk-forward población-COMPLETA** (`walk_forward_experiment.py`, borrado Caveat #13). Estructura verificada primary-source: 45 símbolos (`DEFAULT_SYMBOLS`), ventanas `opt=5000 / ext=2000 / fwd=2000 / step=2000 / warmup=500`, anclajes rodando desde lo más reciente hacia atrás (`compute_anchor_points` L253 — deep-history → ~35 anclajes, alinea con "36 anchors"), forward dividido en h1/h2 (dispersión nativa), etiquetado `alpha_good/bad ±2.0`, `pf_good 1.2 / pf_bad 0.8`. **Población COMPLETA con FRACASOS** (no el top-100 que los borraba) + forward FUERA de la ventana de selección por anclaje (untouched per-anchor).
+
+**Habilita en UN cómputo**: D3 (régimen-conditionality), D4 (firma de fracaso, ahora hay fracasos), D2/D5 limpios (estabilidad/dispersión train-only sobre población completa).
+
+**INSTRUMENTACIÓN REQUERIDA (harness test-only, NO toca `live/*` ni la lógica del kernel)** — porque `walk_forward_experiment.py` es **régimen-AGNÓSTICO** (descubre gems vía lab_lite sin split por régimen):
+1. Clasificar el régimen de cada barra con la GMM as-of (entrenada ≤ `opt_end` del anclaje — point-in-time, sin leakage).
+2. Selección PER-RÉGIMEN sobre la ventana opt (specialist por clúster, como producción).
+3. Evaluar cada specialist sobre la ventana fwd (intocada), **split por el régimen concurrente** → produce MATCH/MISMATCH (D3) + el forward con fracasos (D4) + dispersión h1/h2 (D5).
+El harness se verifica output-neutral respecto al kernel (solo controla entrada/clasificación/split), igual que el harness E2.
+
+## 2. Anclas FRESCAS (holdout sagrado — el primario no reusa holdouts quemados)
+
+Quemados: **E2-full** = BTC/SOL/LINK/LTC × [2025-10-01, 2026-05-17); **E2-lite** = 20 símbolos desplegados × [2026-05-17, ahora).
+- **PRIMARIO = anclajes cuya ventana fwd NO intersecta ningún holdout quemado** (regla precisa, N-eficiente): conserva todo fwd pre-2025-10-01 para los 45 símbolos + post-2025-10 para los 41 no-E2-full (salvo su ventana live). Regla simple alternativa = fwd entera < 2025-10-01 (universalmente fresca) si Ricardo prefiere máxima limpieza sobre N.
+- **SECUNDARIO/robustez** = anclajes que intersectan holdouts quemados → reportados APARTE, nunca en el veredicto primario.
+- Confirmación de frescura codificada por anclaje (timestamp de fwd vs windows quemadas), análoga al gate E2.
+
+## 3. D3 — PRIMARIO (test MATCH/MISMATCH, ya aprobado A.1)
+Sin cambios respecto a B.1–B.3. Δ = PF_match − PF_mismatch sobre fwd intocado per-anchor, CI95 bootstrap por-símbolo. 3 zonas: **CONFIRMADA** (Δ CI inf>0 ∧ PF_match net CI inf>1.0 ∧ cartera condicional>agnóstica) / **MATADA** (Δ≤0 o PF_match sup<1.0) / **NO CONCLUYENTE** (más anclas/símbolos). Aísla H_real vs H_artefacto (relleno por clúster).
+
+## 4. D4 — PRIMARIO (firma de fracaso como REGLA DE EXCLUSIÓN, rigor completo)
+
+**B.1 Hipótesis falsable (fijada ANTES de ver resultados)**: existe una **firma de fracaso —definida SOLO sobre la ventana de selección— que predice qué configs FALLAN forward, estable a través de tiempo/regímenes**. La regla **EXCLUYE** configs con la firma; NO selecciona ganadoras (caracterizar el fracaso, hipótesis Ricardo).
+
+**B.2 ANTI-INGENIERÍA-INVERSA (cardinal)**: la firma se define **a priori** desde campos estructurales nombrados, NUNCA buscándola sobre los fracasos del holdout. **Firma candidata CONGELADA** (campos de la ventana de selección, todos pre-nombrados):
+  - `trades_tr` extremo (overtrading; umbral pre-fijado: > p90 within-celda **o** absoluto >150);
+  - `maxdd_tr` extremo (drawdown selección);
+  - `pnl_tr` outlier alto (sobreajuste; |z|>2 within-celda);
+  - `flag_sospechoso_outlier` (flag propio del pipeline);
+  - baja robustez param-espacio (`plateau_ratio` < 0.2).
+  - **Composite primario** = z-score equal-weight de estos 5 campos (sin libertad de pesos post-hoc); "tiene firma" = composite en el cuartil superior (cutoff pre-fijado).
+
+**B.3 Test sobre holdout intocado** (mismos tramos FRESCOS de D3): ¿las configs con firma fallan forward (`pf_fwd<1` o `alpha<alpha_bad`) con AUC/separación significativa vs las que no? AUC del composite, CI95 bootstrap por-símbolo. Univariante por campo = secundario/diagnóstico (reportado, no decisor).
+
+**B.4 — 3 zonas (congeladas)**: **PREDICTIVA** (AUC CI95 inf > 0.5 → regla de exclusión viable; cuantificar cuántas configs excluiría y el lift) / **NO PREDICTIVA** (AUC CI95 incluye/≤0.5 → moneda al aire, D4 cerrada) / **NO CONCLUYENTE** (CI cruza 0.5 con AUC material → más datos).
+
+## 5. D2/D5 — SECUNDARIO (oportunidad del mismo dataset, NO foco, NO decisor)
+- **D2 limpio**: `pf_tr`-train estabilidad cross-anclaje + cross-régimen (recomputada train-only, sin la contaminación `pf_fwd/pf_tr`).
+- **D5 limpio**: dispersión real entre los 5 tramos fwd (y h1 vs h2) como predictor.
+- ρ + CI bootstrap por-símbolo, **reportados como exploratorios** — el screen los dejó débiles/mecánicos; α los limpia barato porque el dataset se genera igual. **NO entran en la multiplicidad ni en ningún veredicto estructural.**
+
+## 6. Multiplicidad — m FIJADO ANTES de computar
+**m = 2 tests PRIMARIOS decisores**: D3 (Δ conditionality; PF_match>1 es condición de la MISMA hipótesis, no test aparte) + D4 (composite firma-fracaso AUC). **Corrección: Bonferroni α = 0.025 por test + FDR-BH q=0.10 de referencia**; "señal" exige además CI95 bootstrap por-símbolo excluyendo el nulo (0 para Δ, 0.5 para AUC). D2/D5 + univariantes D4 = secundarios, NO cuentan para m, reportados con tamaño de efecto. Si Ricardo decide elevar D2/D5 a decisores → m=4 (recalcular antes de computar).
+
+## 7. Presupuesto GPU (C.2 — dimensionado, con disciplina de safety-factor)
+α regenera población-completa multi-anclaje: **el cómputo más grande del proyecto** ("177M obs" precedente). D3+D4+D2/D5 salen del MISMO dataset (coste ≈ generar la población, NO ×4).
+- **Proyección** (sin smoke, por tanto con 5–10× incertidumbre mandatoria — `feedback_compute_estimates_frame3`): 45 sym × ~20–35 anclajes × selección per-régimen ≈ **orden de varios días a ~2 semanas GPU** secuencial estricto (#14). **Subset representativo fresco (12–15 símbolos cross-categoría, anclajes pre-2025-10)** ≈ **~1–3 días** y basta para el test con bootstrap por-símbolo (no se necesitan los 45 para potencia).
+- **Riesgo de DISCO (Caveat #13/#3)**: parts dirs ~200–300 GB/run precedente E1 → auto-cleanup por símbolo/anclaje OBLIGATORIO en el harness (patrón `shutil.rmtree _parts_*` ya validado).
+- **EJECUCIÓN PASO 0 = SMOKE de calibración** (2 símbolos, pocos anclajes) ANTES del run completo → recalibra horas + disco reales → reconfirmar presupuesto. El smoke es GPU → pertenece al pase de ejecución (T3.2), NO a este.
+
+## 8. RESOLUCIÓN T3.1 CONSOLIDADA — PENDIENTE (Ricardo)
+1. **Aprobar el pre-registro consolidado** (D3 primario + D4 primario rigor completo + D2/D5 secundario, m=2, zonas congeladas, firma de fracaso congelada a priori).
+2. **Confirmar subset de símbolos** (45 completo ~días-semanas vs subset fresco 12–15 ~1–3 días — recomendado el subset, expandible si NO CONCLUYENTE).
+3. **Confirmar regla de frescura** (intersección precisa N-eficiente — recomendada — vs fwd<2025-10 máxima limpieza).
+4. **Aprobar el presupuesto** sabiendo que la ejecución empieza por un smoke de calibración que lo reconfirma.
+
+**Umbrales/firma/zonas se CONGELAN al aprobar. NO GPU hasta T3.1.** Ejecución (pase siguiente): smoke → reconfirmar presupuesto → run → T3.2 veredicto D3 (CONFIRMADA/MATADA/NO CONCLUYENTE) + D4 (firma predictiva/no) + D2/D5.
