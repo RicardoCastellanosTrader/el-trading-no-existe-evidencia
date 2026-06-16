@@ -1,0 +1,132 @@
+{
+  "n1_configs": 13500,
+  "n_util": 13500,
+  "bonferroni": 0.01,
+  "repro_rho_0047": 0.04654199894412182,
+  "rho_pf_tr_fwd_b2": -0.05448887159965545,
+  "rho_pf_comb_fwd_b2": 0.2626080191169524,
+  "n1_fail_rate": 0.0,
+  "clean_panel": {
+    "pf_tr": {
+      "label": "PF train puro (D1 limpio)",
+      "est": 0.2971632041525592,
+      "lo": 0.24321048062685638,
+      "hi": 0.3519647303304931,
+      "p": 0.0,
+      "n": 13500
+    },
+    "plateau_ratio": {
+      "label": "Robustez param-espacio (D2/D5 limpio)",
+      "est": 0.13401940863825948,
+      "lo": 0.060228325122365624,
+      "hi": 0.21022761507852253,
+      "p": 0.0002,
+      "n": 5859
+    },
+    "trades_tr": {
+      "label": "N\u00ba trades train",
+      "est": -0.59146965022674,
+      "lo": -0.6460600382024786,
+      "hi": -0.536988484876516,
+      "p": 0.0,
+      "n": 13500
+    },
+    "pnl_tr": {
+      "label": "PnL train",
+      "est": -0.22206351458383133,
+      "lo": -0.28341342423070043,
+      "hi": -0.15935430555256053,
+      "p": 0.0,
+      "n": 13500
+    },
+    "maxdd_worst": {
+      "label": "Drawdown peor (semi-limpio)",
+      "est": -0.2678296702679329,
+      "lo": -0.32306526527540336,
+      "hi": -0.2117775767078883,
+      "p": 0.0,
+      "n": 13500
+    }
+  },
+  "d4_explor_bloque2c": {
+    "auc_pf_tr_to_fail": 0.5725446428571429,
+    "auc_trades_tr_to_fail": 0.4302455357142857,
+    "n": 60,
+    "n_fail": 32
+  },
+  "results": {
+    "D2": {
+      "name": "Estab. cross-r\u00e9gimen (pf_robustness)",
+      "stat": "rho",
+      "est": 0.39267512583342196,
+      "lo": 0.3051975362257833,
+      "hi": 0.47218743491501886,
+      "p": 0.0,
+      "veredicto": "SE\u00d1AL",
+      "fdr": true,
+      "material": true
+    },
+    "D5": {
+      "name": "Dispersi\u00f3n (ci_width)",
+      "stat": "rho",
+      "est": 0.2344531729531162,
+      "lo": 0.09734992378503807,
+      "hi": 0.37007360507615283,
+      "p": 0.0004,
+      "veredicto": "SE\u00d1AL",
+      "fdr": true,
+      "material": true
+    },
+    "D6": {
+      "name": "Score compuesto (specialist_score)",
+      "stat": "rho",
+      "est": 0.054319559823520845,
+      "lo": -0.010311012476061168,
+      "hi": 0.11669049904517348,
+      "p": 0.0922,
+      "veredicto": "MUERTA",
+      "fdr": true,
+      "material": false
+    },
+    "D4": {
+      "name": "Perfil de fracaso \u2014 NO EVALUABLE N1 (0.00% fracasos: filtrados por selecci\u00f3n)",
+      "stat": "AUC",
+      "est": NaN,
+      "lo": NaN,
+      "hi": NaN,
+      "p": NaN,
+      "null": 0.5,
+      "inadmissible": true,
+      "veredicto": "NO EVALUABLE"
+    },
+    "D3": {
+      "name": "Contexto/r\u00e9gimen (\u03b5\u00b2 cl\u00faster)",
+      "stat": "eps2",
+      "est": 0.5739554685031691,
+      "lo": 0.5095912293203976,
+      "hi": 0.6303336166687177,
+      "p": 0.0,
+      "null": "perm",
+      "veredicto": "SE\u00d1AL",
+      "fdr": true,
+      "material": 1.0
+    },
+    "D1": {
+      "name": "PF hist\u00f3rico (pf_combined, bloque2c N=60)",
+      "stat": "rho",
+      "est": 0.2626080191169524,
+      "lo": 0.007366961692512771,
+      "hi": 0.5162997147413529,
+      "p": 0.043,
+      "veredicto": "SE\u00d1AL",
+      "fdr": true,
+      "material": true
+    },
+    "D4_explor_bloque2c": {
+      "auc_pf_tr_to_fail": 0.5725446428571429,
+      "auc_trades_tr_to_fail": 0.4302455357142857,
+      "n": 60,
+      "n_fail": 32
+    }
+  }
+}
