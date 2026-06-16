@@ -265,8 +265,39 @@ Corrió el pipeline GPU end-to-end (1 anclaje completo antes de abortar por bug,
 
 **Consecuencias operativas**: (1) `structural_score` NO se repara (legacy, no se toca). (2) `--max-anchors` añadido a `walk_forward_experiment.py` queda INERTE (no se usa). (3) **D4 honest caveat**: su N útil = configs de los CSV per-clúster evaluados sobre holdout intocado (decente con top-2000/clúster × cells); si resultara sub-potente, se reporta como no-concluyente (igual que en el screen). (4) Re-confirmar coste vía E2-full (~5-8h/celda) en lugar del smoke α.
 
-## RESOLUCIÓN T3.1-ter — PENDIENTE (Ricardo, ANTES de generar datos)
-0. **Aprobar esta ENMIENDA de generador** (población Nivel 3 = `regime_walk_forward` canónico AS-OF, NO α/extractor legacy). Es corrección de fidelidad al sistema real.
+## DISEÑO DEL RUN AS-OF CANÓNICO (T3.1-quater, 2026-06-16) — enmienda aprobada T3.1-ter
+
+Generador = **pipeline canónico `regime_walk_forward` AS-OF**, reusando el harness E2-full ya validado (`asof_run.py` selección + `asof_eval.py` replay, anti-leakage `leakage_gate.assert_holdout` bidireccional). Por (símbolo del subset 13, ancla fresca):
+
+### A.1 — Selección as-of canónica (reuso directo, GPU)
+`asof_run.py`: trunca `binance_deep` ≤ ancla → Paso 2 GMM as-of + Paso 3 lab_lite + **Paso 4 `regime_walk_forward`** en sandbox → specialists por clúster (como-deployed) + `regime_wf/SYM_cluster_N_specialists.csv` (top-~2000/clúster). Forward intocado = post-ancla. **Cero código nuevo** (es E2-full tal cual, distinto símbolo/ancla).
+
+### A.2 — D3 MATCH/MISMATCH (una extensión de MEDICIÓN al replay, honesto)
+**Hecho primary-source**: `asof_eval.py` es orchestrator-fiel — `select_active_configs` activa el specialist del régimen ACTUAL → todo trade es MATCH por construcción (registra `k=r["cluster"]`). El **MISMATCH no se produce naturalmente**. La "capacidad cluster-nativa" (`cross_cluster_pf`) es del split EN-selección, NO del holdout intocado.
+→ **Extensión de medición** (NO de selección): replay de cada specialist-de-clúster-c **régimen-AGNÓSTICO** sobre TODO el holdout, tagueando cada trade por el régimen concurrente. Reusa `classify_regimes` + `generate_signals` INTACTOS (definición de régimen del bot: GMM as-of, Hurst/Z_ATR/ER, hysteresis 0.75) — solo cambia el LOOP (config fijo agnóstico vs orchestrator-switching). **Riesgo de sesgo-por-implementación mínimo** (es medición pura, sin nueva lógica de selección/régimen).
+- `PF_match(c)` = PF de trades de c con régimen==c; `PF_mismatch(c)` = régimen≠c; **Δ=PF_match−PF_mismatch**.
+- **Gate de fidelidad de la extensión (B.1 análogo)**: el replay agnóstico restringido a régimen==c DEBE reproducir los trades MATCH del `asof_eval` orchestrator (mismas entradas/salidas). Si no → la extensión introdujo algo, T3.3.
+- 3 zonas congeladas (intactas): CONFIRMADA (Δ CI inf>0 ∧ PF_match net>1.0 ∧ condicional>agnóstico) / MATADA / NO CONCLUYENTE.
+
+### A.3 — D4 firma de fracaso (campos canónicos, label = holdout intocado)
+Firma composite **congelada a priori** (d95d667): `trades_tr` extremo + `maxdd_worst` + `pnl_tr` outlier + `flag_sospechoso_outlier` + `plateau_ratio<0.2` — **todos en el schema canónico** (`specialist_configs.json` + `SYM_cluster_N_specialists.csv`). **Label de fracaso** = replay de top-K/clúster sobre holdout intocado (régimen-matched, deployment-style), pf<1. SIN extractor. AUC, 3 zonas (PREDICTIVA/NO/NO CONCLUYENTE). **Caveat honesto**: el N de fracasos depende de K y de cuántos specialists como-deployed fallan; si sub-potente → NO CONCLUYENTE, no forzar (el refute previo de D4 era por dep. del extractor legacy — ahora se re-funda sobre campos canónicos).
+
+### A.4 — D2/D5 secundario sobre la misma población canónica (no decisores).
+
+## B — PRESUPUESTO RECALIBRADO (ancla E2-full, NO el smoke α obsoleto)
+- **Ancla de coste real**: E2-full midió `regime_walk_forward` as-of = **~5-8h/celda** GPU (deep; menos en símbolos cortos truncados). El smoke α (7min/anclaje) NO transfiere (pipeline obsoleto).
+- **#celdas**: as-of usa POCAS anclas/símbolo con holdout largo (E2-full usó 2). **Recomendado: 1 ancla fresca/símbolo → 13 celdas** (holdout ~12 meses c/u, fin ≤2026-05-08), bootstrap por-símbolo sobre 13 unidades. **~13 × ~5h ≈ ~65h ≈ ~3 días** secuencial-estricto #14. Expandible a 2 anclas (26 celdas, ~5.5-9 días) si NO CONCLUYENTE.
+- Replay D3/D4 = CPU (barato; D4 top-K × holdout añade CPU, manejable).
+- **B.2 re-smoke**: SÍ recomendado — **1 celda canónica as-of** (un símbolo del subset, p.ej. medio corto) confirma coste real sobre ESTE subset + valida la extensión de medición D3/D4 end-to-end. El smoke previo fue sobre el pipeline equivocado.
+- **B.3 VRAM/TDR**: ⚠️ el kernel canónico `regime_walk_forward` es el del RECICLAJE — **el que tuvo TDR (Caveats #17-19)**, mitigado por chunking v18 + driver 596.02. NO es el perfil holgado del smoke α. **Vigilancia TDR aplica aquí**; reusar chunking v18.
+
+## RESOLUCIÓN T3.1-ter — APROBADA (Ricardo 2026-06-16, commit f987614)
+ENMIENDA de generador aprobada: población Nivel 3 = `regime_walk_forward` canónico AS-OF, NO α/extractor legacy.
+
+## RESOLUCIÓN T3.1-quater — PENDIENTE (Ricardo, ANTES de generar datos)
+1. **Aprobar el diseño as-of canónico** (A.1 reuso E2-full + A.2 extensión de medición D3 con gate de fidelidad + A.3 D4 campos canónicos + A.4 D2/D5).
+2. **Aprobar el presupuesto** (~3 días / 13 celdas 1-ancla recomendado; expandible) + **re-smoke 1 celda canónica** primero.
+3. **Confirmar vigilancia TDR** (kernel reciclaje, chunking v18/driver 596.02).
 
 ## RESOLUCIÓN T3.1-bis — (SUPERSEDED por la enmienda en lo relativo al generador α; subset/frescura siguen válidos)
 1. ~~Aprobar el presupuesto recalibrado α~~ → recalibrar sobre coste E2-full as-of (~5-8h/celda).
