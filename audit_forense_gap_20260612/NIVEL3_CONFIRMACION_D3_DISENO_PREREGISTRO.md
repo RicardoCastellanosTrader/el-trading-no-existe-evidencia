@@ -294,7 +294,29 @@ Firma composite **congelada a priori** (d95d667): `trades_tr` extremo + `maxdd_w
 ## RESOLUCIÓN T3.1-ter — APROBADA (Ricardo 2026-06-16, commit f987614)
 ENMIENDA de generador aprobada: población Nivel 3 = `regime_walk_forward` canónico AS-OF, NO α/extractor legacy.
 
-## RESOLUCIÓN T3.1-quater — PENDIENTE (Ricardo, ANTES de generar datos)
+## T3.1-quinquies — RE-SMOKE CANÓNICO EJECUTADO (SOL@2026-02-01) — 2026-06-16
+
+Celda E2-full canónica (`asof_run` phase1+2 + extensión D3/D4). **NO se miró veredicto** (Δ/AUC).
+
+**(1) Coste real CANÓNICO**: phase 2 (`regime_walk_forward` as-of, 47.974 barras) = **5h 55m** (~8100 barras/h). El smoke α (7min/anclaje) NO transfería — pipeline obsoleto. Proyección **13 celdas (1 ancla/símbolo) ≈ ~75-80h ≈ ~3-3.5 días** secuencial-estricto. Extensión D3/D4 (CPU, 4 replays) = ~17min/celda.
+
+**(2) VRAM/disco/TDR**: **VRAM peak 834 MiB / 8 GB** → holgadísimo, **cero TDR** (chunking v18, kernel del reciclaje). **Disco: ~222 GB transiente de parts/celda** (auto-limpiado Caveat #13; sandbox final 2.7 MB). Disco libre **677 GB >> 222 GB** → OK secuencial. **Leakage gate PASS**.
+
+**(3) GATE DE FIDELIDAD: ✅ PASS** (tras diagnóstico disciplinado):
+- **C0 poblado (N=44): Jaccard 1.000, reproducción PERFECTA** → prueba fuerte de que el wiring forzado-config es orchestrator-fiel (si estuviera roto, C0 divergiría).
+- C1 tiny-N (orch 4 / agn 3): 1 discordancia (entrada 2026-05-11 21:00). **Diagnóstico cardinal**: en bars régimen==c, orchestrator(régimen=c) y forzado-c usan el config **IDÉNTICO por construcción** → NO puede ser selección divergente; es **state path-dependence** (estado acarreado del periodo MISMATCH, §12.30) manifestándose como entrada ausente. **selección-divergente total = 0**.
+- C2: N=0. **Jaccard clúster poblado = 1.000; selección-divergente = 0 → PASS.**
+- **Corrección honesta**: el clasificador ±3h inicial dio FAIL falso-positivo (no distinguía entrada-ausente-por-estado de señal-distinta). Discriminante refinado = **identidad de config en la barra** (en régimen==c idéntico por construcción → toda discordancia = path-dependence). Clasificador corregido en `asof_d3d4_extension.py`.
+
+**(4) D4 feasibility (NO verdict)**: 48 trades orchestrator, **36 perdedores** (proxy fracaso) + ~3000 filas en `SOLUSDT_cluster_N_specialists.csv` con los campos de la firma a-priori → **D4 evaluable** (fracasos amplios; la AUC sale del run completo).
+
+**Caveats honestos**: (a) C1 tiny-N (3-4) → la medición MISMATCH per-clúster es frágil en clústeres poco poblados; el pooled sobre 13 celdas mitiga pero se reportará por-clúster. (b) El gate PASS se sostiene en C0 (poblado); el discriminante config-identidad hace el gate robusto para el run completo.
+
+### RESOLUCIÓN T3.1-quinquies — PENDIENTE (Ricardo, ANTES del run completo)
+1. **Aprobar el run completo** (13 celdas, 1 ancla fresca/símbolo, ~3-3.5 días GPU secuencial, disco OK, VRAM/TDR-safe, gate de fidelidad PASS).
+2. Confirmar **1 ancla/símbolo** (recomendado, expandible a 2 si NO CONCLUYENTE) + las **anclas frescas concretas** por símbolo del subset 13.
+
+## RESOLUCIÓN T3.1-quater — APROBADA (Ricardo 2026-06-16)
 1. **Aprobar el diseño as-of canónico** (A.1 reuso E2-full + A.2 extensión de medición D3 con gate de fidelidad + A.3 D4 campos canónicos + A.4 D2/D5).
 2. **Aprobar el presupuesto** (~3 días / 13 celdas 1-ancla recomendado; expandible) + **re-smoke 1 celda canónica** primero.
 3. **Confirmar vigilancia TDR** (kernel reciclaje, chunking v18/driver 596.02).
