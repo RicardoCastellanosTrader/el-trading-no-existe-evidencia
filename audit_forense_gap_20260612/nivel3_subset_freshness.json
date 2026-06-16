@@ -1,0 +1,998 @@
+[
+ {
+  "sym": "ETH",
+  "n": 76349,
+  "first": "2017-08-17",
+  "last": "2026-05-08",
+  "cat": "amplio",
+  "deployed": true,
+  "counts": [
+   23863,
+   24148,
+   27339
+  ],
+  "names": {
+   "0": "neutral/low-vol/choppy",
+   "1": "neutral/norm-vol/choppy",
+   "2": "neutral/norm-vol"
+  },
+  "anchors": 34,
+  "fresh": 34,
+  "minfrac": 0.3166954213669542
+ },
+ {
+  "sym": "BNB",
+  "n": 74412,
+  "first": "2017-11-06",
+  "last": "2026-05-08",
+  "cat": "amplio",
+  "deployed": true,
+  "counts": [
+   30497,
+   20214,
+   22702
+  ],
+  "names": {
+   "0": "neutral/norm-vol/choppy",
+   "1": "neutral/high-vol/choppy",
+   "2": "neutral/low-vol/choppy"
+  },
+  "anchors": 33,
+  "fresh": 33,
+  "minfrac": 0.2753463283069756
+ },
+ {
+  "sym": "BTC",
+  "n": 76349,
+  "first": "2017-08-17",
+  "last": "2026-05-08",
+  "cat": "amplio",
+  "deployed": true,
+  "counts": [
+   21514,
+   17640,
+   36196
+  ],
+  "names": {
+   "0": "neutral/low-vol",
+   "1": "neutral/high-vol",
+   "2": "neutral/norm-vol/choppy"
+  },
+  "anchors": 34,
+  "fresh": 31,
+  "minfrac": 0.23410749834107497
+ },
+ {
+  "sym": "XRP",
+  "n": 70145,
+  "first": "2018-05-04",
+  "last": "2026-05-08",
+  "cat": "amplio",
+  "deployed": true,
+  "counts": [
+   20539,
+   17164,
+   31443
+  ],
+  "names": {
+   "0": "neutral/norm-vol/choppy",
+   "1": "neutral/high-vol/choppy",
+   "2": "neutral/norm-vol/choppy"
+  },
+  "anchors": 31,
+  "fresh": 31,
+  "minfrac": 0.24822838631301883
+ },
+ {
+  "sym": "ADA",
+  "n": 71397,
+  "first": "2018-04-17",
+  "last": "2026-06-12",
+  "cat": "amplio",
+  "deployed": true,
+  "counts": [
+   17981,
+   29661,
+   22756
+  ],
+  "names": {
+   "0": "neutral/high-vol",
+   "1": "neutral/low-vol/choppy",
+   "2": "neutral/norm-vol/choppy"
+  },
+  "anchors": 31,
+  "fresh": 30,
+  "minfrac": 0.25541918804511493
+ },
+ {
+  "sym": "ETC",
+  "n": 69924,
+  "first": "2018-06-12",
+  "last": "2026-06-07",
+  "cat": "amplio",
+  "deployed": true,
+  "counts": [
+   16698,
+   18967,
+   33260
+  ],
+  "names": {
+   "0": "neutral/high-vol/choppy",
+   "1": "neutral/low-vol",
+   "2": "neutral/norm-vol/choppy"
+  },
+  "anchors": 31,
+  "fresh": 30,
+  "minfrac": 0.2422633297062024
+ },
+ {
+  "sym": "LTC",
+  "n": 74213,
+  "first": "2017-12-13",
+  "last": "2026-06-06",
+  "cat": "amplio",
+  "deployed": true,
+  "counts": [
+   24688,
+   21600,
+   26926
+  ],
+  "names": {
+   "0": "neutral/high-vol",
+   "1": "neutral/norm-vol/choppy",
+   "2": "neutral/low-vol/choppy"
+  },
+  "anchors": 33,
+  "fresh": 30,
+  "minfrac": 0.295025541563089
+ },
+ {
+  "sym": "TRX",
+  "n": 69230,
+  "first": "2018-06-11",
+  "last": "2026-05-08",
+  "cat": "amplio",
+  "deployed": true,
+  "counts": [
+   19096,
+   33240,
+   15895
+  ],
+  "names": {
+   "0": "neutral/norm-vol",
+   "1": "neutral/norm-vol/choppy",
+   "2": "neutral/high-vol/choppy"
+  },
+  "anchors": 30,
+  "fresh": 30,
+  "minfrac": 0.23295862584455745
+ },
+ {
+  "sym": "XLM",
+  "n": 70195,
+  "first": "2018-05-31",
+  "last": "2026-06-06",
+  "cat": "amplio",
+  "deployed": true,
+  "counts": [
+   20261,
+   18590,
+   30345
+  ],
+  "names": {
+   "0": "neutral/low-vol/choppy",
+   "1": "neutral/high-vol/choppy",
+   "2": "neutral/norm-vol/choppy"
+  },
+  "anchors": 31,
+  "fresh": 30,
+  "minfrac": 0.2686571478120123
+ },
+ {
+  "sym": "VET",
+  "n": 68918,
+  "first": "2018-07-25",
+  "last": "2026-06-07",
+  "cat": "amplio",
+  "deployed": true,
+  "counts": [
+   22582,
+   21635,
+   23702
+  ],
+  "names": {
+   "0": "neutral/norm-vol/choppy",
+   "1": "neutral/high-vol/choppy",
+   "2": "neutral/low-vol/choppy"
+  },
+  "anchors": 30,
+  "fresh": 29,
+  "minfrac": 0.31854120349239534
+ },
+ {
+  "sym": "ATOM",
+  "n": 61543,
+  "first": "2019-04-29",
+  "last": "2026-05-08",
+  "cat": "amplio",
+  "deployed": false,
+  "counts": [
+   17243,
+   18651,
+   24650
+  ],
+  "names": {
+   "0": "neutral/norm-vol/choppy",
+   "1": "neutral/high-vol/choppy",
+   "2": "neutral/low-vol/choppy"
+  },
+  "anchors": 27,
+  "fresh": 27,
+  "minfrac": 0.28480113636363635
+ },
+ {
+  "sym": "FET",
+  "n": 63698,
+  "first": "2019-02-28",
+  "last": "2026-06-07",
+  "cat": "medio",
+  "deployed": true,
+  "counts": [
+   28002,
+   19947,
+   14750
+  ],
+  "names": {
+   "0": "neutral/low-vol/choppy",
+   "1": "neutral/norm-vol/choppy",
+   "2": "neutral/high-vol"
+  },
+  "anchors": 28,
+  "fresh": 27,
+  "minfrac": 0.23525096094036588
+ },
+ {
+  "sym": "THETA",
+  "n": 61999,
+  "first": "2019-04-10",
+  "last": "2026-05-08",
+  "cat": "amplio",
+  "deployed": false,
+  "counts": [
+   26053,
+   18459,
+   16488
+  ],
+  "names": {
+   "0": "neutral/high-vol/choppy",
+   "1": "neutral/low-vol/choppy",
+   "2": "neutral/norm-vol/choppy"
+  },
+  "anchors": 27,
+  "fresh": 27,
+  "minfrac": 0.27029508196721314
+ },
+ {
+  "sym": "ALGO",
+  "n": 60261,
+  "first": "2019-06-22",
+  "last": "2026-05-08",
+  "cat": "amplio",
+  "deployed": false,
+  "counts": [
+   16971,
+   20066,
+   22225
+  ],
+  "names": {
+   "0": "neutral/norm-vol/choppy",
+   "1": "neutral/high-vol/choppy",
+   "2": "neutral/low-vol/choppy"
+  },
+  "anchors": 26,
+  "fresh": 26,
+  "minfrac": 0.2863723802774122
+ },
+ {
+  "sym": "DOGE",
+  "n": 60465,
+  "first": "2019-07-05",
+  "last": "2026-05-30",
+  "cat": "amplio",
+  "deployed": true,
+  "counts": [
+   16637,
+   17075,
+   25754
+  ],
+  "names": {
+   "0": "neutral/low-vol/choppy",
+   "1": "neutral/high-vol/choppy",
+   "2": "neutral/norm-vol/choppy"
+  },
+  "anchors": 26,
+  "fresh": 25,
+  "minfrac": 0.27977331584434806
+ },
+ {
+  "sym": "HBAR",
+  "n": 57889,
+  "first": "2019-09-29",
+  "last": "2026-05-08",
+  "cat": "amplio",
+  "deployed": false,
+  "counts": [
+   16259,
+   15858,
+   24773
+  ],
+  "names": {
+   "0": "neutral/norm-vol/choppy",
+   "1": "neutral/low-vol/choppy",
+   "2": "neutral/high-vol/choppy"
+  },
+  "anchors": 25,
+  "fresh": 25,
+  "minfrac": 0.27874846194410263
+ },
+ {
+  "sym": "LINK",
+  "n": 64557,
+  "first": "2019-01-16",
+  "last": "2026-05-31",
+  "cat": "amplio",
+  "deployed": true,
+  "counts": [
+   20404,
+   24693,
+   18461
+  ],
+  "names": {
+   "0": "neutral/norm-vol",
+   "1": "neutral/low-vol/choppy",
+   "2": "neutral/norm-vol/choppy"
+  },
+  "anchors": 28,
+  "fresh": 25,
+  "minfrac": 0.29045910821611753
+ },
+ {
+  "sym": "STX",
+  "n": 57265,
+  "first": "2019-10-25",
+  "last": "2026-05-08",
+  "cat": "medio",
+  "deployed": false,
+  "counts": [
+   24903,
+   15417,
+   15946
+  ],
+  "names": {
+   "0": "neutral/low-vol",
+   "1": "neutral/norm-vol/choppy",
+   "2": "neutral/high-vol/choppy"
+  },
+  "anchors": 24,
+  "fresh": 24,
+  "minfrac": 0.2740020616358014
+ },
+ {
+  "sym": "BCH",
+  "n": 56993,
+  "first": "2019-11-28",
+  "last": "2026-05-31",
+  "cat": "amplio",
+  "deployed": true,
+  "counts": [
+   17259,
+   19610,
+   19125
+  ],
+  "names": {
+   "0": "neutral/low-vol/choppy",
+   "1": "neutral/norm-vol/choppy",
+   "2": "neutral/high-vol"
+  },
+  "anchors": 24,
+  "fresh": 23,
+  "minfrac": 0.3082294531556953
+ },
+ {
+  "sym": "DOT",
+  "n": 50110,
+  "first": "2020-08-18",
+  "last": "2026-05-08",
+  "cat": "amplio",
+  "deployed": false,
+  "counts": [
+   17655,
+   14265,
+   17191
+  ],
+  "names": {
+   "0": "neutral/low-vol/choppy",
+   "1": "neutral/norm-vol/choppy",
+   "2": "neutral/high-vol/choppy"
+  },
+  "anchors": 21,
+  "fresh": 21,
+  "minfrac": 0.29046445806438476
+ },
+ {
+  "sym": "MANA",
+  "n": 50411,
+  "first": "2020-08-06",
+  "last": "2026-05-08",
+  "cat": "amplio",
+  "deployed": false,
+  "counts": [
+   16551,
+   19147,
+   13714
+  ],
+  "names": {
+   "0": "neutral/low-vol/choppy",
+   "1": "neutral/norm-vol/choppy",
+   "2": "neutral/high-vol/choppy"
+  },
+  "anchors": 21,
+  "fresh": 21,
+  "minfrac": 0.2775439164575407
+ },
+ {
+  "sym": "SAND",
+  "n": 50216,
+  "first": "2020-08-14",
+  "last": "2026-05-08",
+  "cat": "amplio",
+  "deployed": false,
+  "counts": [
+   23085,
+   11797,
+   14335
+  ],
+  "names": {
+   "0": "neutral/norm-vol/choppy",
+   "1": "neutral/high-vol/choppy",
+   "2": "neutral/low-vol/choppy"
+  },
+  "anchors": 21,
+  "fresh": 21,
+  "minfrac": 0.23969360180425464
+ },
+ {
+  "sym": "AAVE",
+  "n": 48738,
+  "first": "2020-10-15",
+  "last": "2026-05-08",
+  "cat": "amplio",
+  "deployed": false,
+  "counts": [
+   11180,
+   25064,
+   11495
+  ],
+  "names": {
+   "0": "neutral/low-vol/choppy",
+   "1": "neutral/norm-vol/choppy",
+   "2": "neutral/high-vol"
+  },
+  "anchors": 20,
+  "fresh": 20,
+  "minfrac": 0.23419007520056975
+ },
+ {
+  "sym": "AVAX",
+  "n": 49287,
+  "first": "2020-09-22",
+  "last": "2026-05-08",
+  "cat": "amplio",
+  "deployed": false,
+  "counts": [
+   14041,
+   15044,
+   19203
+  ],
+  "names": {
+   "0": "neutral/norm-vol",
+   "1": "neutral/norm-vol/choppy",
+   "2": "neutral/low-vol/choppy"
+  },
+  "anchors": 20,
+  "fresh": 20,
+  "minfrac": 0.29077617627567925
+ },
+ {
+  "sym": "FIL",
+  "n": 48724,
+  "first": "2020-10-15",
+  "last": "2026-05-08",
+  "cat": "amplio",
+  "deployed": false,
+  "counts": [
+   17768,
+   13042,
+   16915
+  ],
+  "names": {
+   "0": "neutral/low-vol/choppy",
+   "1": "neutral/norm-vol/choppy",
+   "2": "neutral/high-vol"
+  },
+  "anchors": 20,
+  "fresh": 20,
+  "minfrac": 0.2732739654269251
+ },
+ {
+  "sym": "INJ",
+  "n": 48593,
+  "first": "2020-10-21",
+  "last": "2026-05-08",
+  "cat": "medio",
+  "deployed": false,
+  "counts": [
+   12162,
+   14629,
+   20803
+  ],
+  "names": {
+   "0": "neutral/norm-vol/choppy",
+   "1": "neutral/norm-vol",
+   "2": "neutral/low-vol/choppy"
+  },
+  "anchors": 20,
+  "fresh": 20,
+  "minfrac": 0.2555364121527924
+ },
+ {
+  "sym": "NEAR",
+  "n": 48760,
+  "first": "2020-10-14",
+  "last": "2026-05-08",
+  "cat": "amplio",
+  "deployed": false,
+  "counts": [
+   16222,
+   14720,
+   16819
+  ],
+  "names": {
+   "0": "neutral/low-vol/choppy",
+   "1": "neutral/norm-vol",
+   "2": "neutral/norm-vol/choppy"
+  },
+  "anchors": 20,
+  "fresh": 20,
+  "minfrac": 0.30820125206758653
+ },
+ {
+  "sym": "UNI",
+  "n": 49410,
+  "first": "2020-09-17",
+  "last": "2026-05-08",
+  "cat": "amplio",
+  "deployed": false,
+  "counts": [
+   18681,
+   16953,
+   12777
+  ],
+  "names": {
+   "0": "neutral/high-vol/choppy",
+   "1": "neutral/low-vol/choppy",
+   "2": "neutral/norm-vol"
+  },
+  "anchors": 20,
+  "fresh": 20,
+  "minfrac": 0.2639276197558406
+ },
+ {
+  "sym": "GRT",
+  "n": 47210,
+  "first": "2020-12-17",
+  "last": "2026-05-08",
+  "cat": "amplio",
+  "deployed": false,
+  "counts": [
+   13350,
+   13229,
+   19632
+  ],
+  "names": {
+   "0": "neutral/low-vol/choppy",
+   "1": "neutral/low-vol",
+   "2": "neutral/high-vol/choppy"
+  },
+  "anchors": 19,
+  "fresh": 19,
+  "minfrac": 0.28627383090606134
+ },
+ {
+  "sym": "ICP",
+  "n": 43761,
+  "first": "2021-05-11",
+  "last": "2026-05-08",
+  "cat": "amplio",
+  "deployed": false,
+  "counts": [
+   11874,
+   15336,
+   15552
+  ],
+  "names": {
+   "0": "neutral/low-vol/choppy",
+   "1": "neutral/high-vol/choppy",
+   "2": "neutral/norm-vol/choppy"
+  },
+  "anchors": 18,
+  "fresh": 18,
+  "minfrac": 0.27767644170057526
+ },
+ {
+  "sym": "SHIB",
+  "n": 43775,
+  "first": "2021-05-10",
+  "last": "2026-05-08",
+  "cat": "amplio",
+  "deployed": false,
+  "counts": [
+   14968,
+   20123,
+   7685
+  ],
+  "names": {
+   "0": "neutral/high-vol/choppy",
+   "1": "neutral/low-vol/choppy",
+   "2": "neutral/norm-vol/choppy"
+  },
+  "anchors": 18,
+  "fresh": 18,
+  "minfrac": 0.17965681690667665
+ },
+ {
+  "sym": "SOL",
+  "n": 50816,
+  "first": "2020-08-11",
+  "last": "2026-05-30",
+  "cat": "amplio",
+  "deployed": true,
+  "counts": [
+   17805,
+   10731,
+   21281
+  ],
+  "names": {
+   "0": "neutral/low-vol/choppy",
+   "1": "neutral/high-vol/choppy",
+   "2": "neutral/norm-vol/choppy"
+  },
+  "anchors": 21,
+  "fresh": 18,
+  "minfrac": 0.21540839472469236
+ },
+ {
+  "sym": "QNT",
+  "n": 41860,
+  "first": "2021-07-29",
+  "last": "2026-05-08",
+  "cat": "amplio",
+  "deployed": false,
+  "counts": [
+   12309,
+   13517,
+   15035
+  ],
+  "names": {
+   "0": "neutral/norm-vol/choppy",
+   "1": "neutral/low-vol/choppy",
+   "2": "neutral/high-vol/choppy"
+  },
+  "anchors": 17,
+  "fresh": 17,
+  "minfrac": 0.3012407919532072
+ },
+ {
+  "sym": "IMX",
+  "n": 37902,
+  "first": "2022-01-10",
+  "last": "2026-05-08",
+  "cat": "medio",
+  "deployed": false,
+  "counts": [
+   14197,
+   12106,
+   10600
+  ],
+  "names": {
+   "0": "neutral/low-vol/choppy",
+   "1": "neutral/norm-vol",
+   "2": "neutral/norm-vol/choppy"
+  },
+  "anchors": 15,
+  "fresh": 15,
+  "minfrac": 0.28723951982223667
+ },
+ {
+  "sym": "OP",
+  "n": 34496,
+  "first": "2022-06-01",
+  "last": "2026-05-08",
+  "cat": "medio",
+  "deployed": false,
+  "counts": [
+   10050,
+   9358,
+   14089
+  ],
+  "names": {
+   "0": "neutral/high-vol/choppy",
+   "1": "neutral/low-vol/choppy",
+   "2": "neutral/norm-vol"
+  },
+  "anchors": 13,
+  "fresh": 13,
+  "minfrac": 0.27936830163895277
+ },
+ {
+  "sym": "APT",
+  "n": 31143,
+  "first": "2022-10-19",
+  "last": "2026-05-08",
+  "cat": "medio",
+  "deployed": false,
+  "counts": [
+   10248,
+   6221,
+   13675
+  ],
+  "names": {
+   "0": "neutral/norm-vol",
+   "1": "neutral/norm-vol/choppy",
+   "2": "neutral/low-vol/choppy"
+  },
+  "anchors": 11,
+  "fresh": 11,
+  "minfrac": 0.20637606157112526
+ },
+ {
+  "sym": "ARB",
+  "n": 27409,
+  "first": "2023-03-23",
+  "last": "2026-05-08",
+  "cat": "medio",
+  "deployed": false,
+  "counts": [
+   6670,
+   13299,
+   6441
+  ],
+  "names": {
+   "0": "neutral/norm-vol",
+   "1": "neutral/low-vol/choppy",
+   "2": "neutral/high-vol/choppy"
+  },
+  "anchors": 9,
+  "fresh": 9,
+  "minfrac": 0.24388489208633093
+ },
+ {
+  "sym": "SUI",
+  "n": 26429,
+  "first": "2023-05-03",
+  "last": "2026-05-08",
+  "cat": "medio",
+  "deployed": false,
+  "counts": [
+   8431,
+   10025,
+   6974
+  ],
+  "names": {
+   "0": "neutral/norm-vol",
+   "1": "neutral/low-vol/choppy",
+   "2": "neutral/norm-vol/choppy"
+  },
+  "anchors": 9,
+  "fresh": 9,
+  "minfrac": 0.2742430200550531
+ },
+ {
+  "sym": "PEPE",
+  "n": 25299,
+  "first": "2023-05-05",
+  "last": "2026-03-24",
+  "cat": "amplio",
+  "deployed": false,
+  "counts": [
+   11259,
+   9221,
+   3820
+  ],
+  "names": {},
+  "anchors": 8,
+  "fresh": 8,
+  "minfrac": 0.15720164609053497
+ },
+ {
+  "sym": "WLD",
+  "n": 24464,
+  "first": "2023-07-24",
+  "last": "2026-05-08",
+  "cat": "medio",
+  "deployed": false,
+  "counts": [
+   9497,
+   6410,
+   7558
+  ],
+  "names": {
+   "0": "neutral/low-vol/choppy",
+   "1": "neutral/high-vol/choppy",
+   "2": "neutral/norm-vol/choppy"
+  },
+  "anchors": 8,
+  "fresh": 8,
+  "minfrac": 0.27317281056893244
+ },
+ {
+  "sym": "SEI",
+  "n": 24201,
+  "first": "2023-08-15",
+  "last": "2026-05-19",
+  "cat": "medio",
+  "deployed": true,
+  "counts": [
+   5876,
+   10690,
+   6636
+  ],
+  "names": {
+   "0": "neutral/high-vol/choppy",
+   "1": "neutral/low-vol/choppy",
+   "2": "neutral/norm-vol"
+  },
+  "anchors": 8,
+  "fresh": 7,
+  "minfrac": 0.2532540298250151
+ },
+ {
+  "sym": "BONK",
+  "n": 19933,
+  "first": "2023-12-15",
+  "last": "2026-03-24",
+  "cat": "amplio",
+  "deployed": false,
+  "counts": [
+   4470,
+   8432,
+   6032
+  ],
+  "names": {},
+  "anchors": 6,
+  "fresh": 6,
+  "minfrac": 0.23608323650575683
+ },
+ {
+  "sym": "ENA",
+  "n": 18393,
+  "first": "2024-04-02",
+  "last": "2026-05-08",
+  "cat": "medio",
+  "deployed": false,
+  "counts": [
+   5221,
+   3482,
+   8691
+  ],
+  "names": {
+   "0": "neutral/low-vol/choppy",
+   "1": "neutral/high-vol/choppy",
+   "2": "neutral/low-vol"
+  },
+  "anchors": 5,
+  "fresh": 5,
+  "minfrac": 0.2001839714844199
+ },
+ {
+  "sym": "TAO",
+  "n": 18444,
+  "first": "2024-04-11",
+  "last": "2026-05-19",
+  "cat": "medio",
+  "deployed": true,
+  "counts": [
+   5700,
+   6607,
+   5138
+  ],
+  "names": {
+   "0": "neutral/norm-vol",
+   "1": "neutral/low-vol/choppy",
+   "2": "neutral/high-vol/choppy"
+  },
+  "anchors": 5,
+  "fresh": 4,
+  "minfrac": 0.2945256520492978
+ },
+ {
+  "sym": "RENDER",
+  "n": 15895,
+  "first": "2024-07-26",
+  "last": "2026-05-19",
+  "cat": "extr.bajo",
+  "deployed": true,
+  "counts": [
+   4455,
+   3267,
+   7174
+  ],
+  "names": {
+   "0": "neutral/norm-vol",
+   "1": "neutral/norm-vol/choppy",
+   "2": "neutral/low-vol/choppy"
+  },
+  "anchors": 4,
+  "fresh": 3,
+  "minfrac": 0.21932062298603652
+ },
+ {
+  "sym": "TON",
+  "n": 14243,
+  "first": "2024-08-08",
+  "last": "2026-03-24",
+  "cat": "amplio",
+  "deployed": false,
+  "counts": [
+   3140,
+   4030,
+   6074
+  ],
+  "names": {},
+  "anchors": 3,
+  "fresh": 3,
+  "minfrac": 0.23708849290244638
+ },
+ {
+  "sym": "POL",
+  "n": 14720,
+  "first": "2024-09-13",
+  "last": "2026-05-19",
+  "cat": "extr.bajo",
+  "deployed": true,
+  "counts": [
+   3303,
+   4520,
+   5898
+  ],
+  "names": {
+   "0": "neutral/high-vol/choppy",
+   "1": "neutral/low-vol/choppy",
+   "2": "neutral/norm-vol/choppy"
+  },
+  "anchors": 3,
+  "fresh": 2,
+  "minfrac": 0.2407258946140952
+ },
+ {
+  "sym": "ONDO",
+  "n": 9668,
+  "first": "2025-04-11",
+  "last": "2026-05-19",
+  "cat": "extr.bajo",
+  "deployed": true,
+  "counts": [
+   3470,
+   3913,
+   1286
+  ],
+  "names": {
+   "0": "neutral/norm-vol",
+   "1": "neutral/low-vol/choppy",
+   "2": "neutral/high-vol/choppy"
+  },
+  "anchors": 1,
+  "fresh": 0,
+  "minfrac": 0.14834467643326796
+ }
+]

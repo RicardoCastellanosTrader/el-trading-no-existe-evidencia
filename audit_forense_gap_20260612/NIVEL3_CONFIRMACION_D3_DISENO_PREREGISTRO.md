@@ -160,3 +160,60 @@ Sin cambios respecto a B.1–B.3. Δ = PF_match − PF_mismatch sobre fwd intoca
 4. **Aprobar el presupuesto** sabiendo que la ejecución empieza por un smoke de calibración que lo reconfirma.
 
 **Umbrales/firma/zonas se CONGELAN al aprobar. NO GPU hasta T3.1.** Ejecución (pase siguiente): smoke → reconfirmar presupuesto → run → T3.2 veredicto D3 (CONFIRMADA/MATADA/NO CONCLUYENTE) + D4 (firma predictiva/no) + D2/D5.
+
+---
+---
+
+# PREPARACIÓN T3.1-bis — Subset + Frescura (decisiones 2 y 3) + Protocolo de smoke — 2026-06-16
+
+*(Read-only ejecutado: `nivel3_subset_freshness.py` + `nivel3_subset_freshness.json`. APROBADO subset 12-15 + frescura exacta + smoke-primero por Ricardo.)*
+
+## Decisión 2 — SUBSET (13 símbolos) con cobertura de régimen VERIFICADA
+
+| sym | cat | anclajes FRESCOS | minClu% | clusters (tipos de régimen) |
+|---|---|---|---|---|
+| ETH | amplio | 34 | 31.7 | low/norm-vol × choppy/efficient |
+| BNB | amplio | 33 | 27.5 | norm/high/low-vol choppy |
+| XRP | amplio | 31 | 24.8 | norm/high-vol choppy |
+| ATOM | amplio | 27 | 28.5 | norm/high/low-vol choppy |
+| THETA | amplio | 27 | 27.0 | high/low/norm-vol choppy |
+| ALGO | amplio | 26 | 28.6 | norm/high/low-vol choppy |
+| DOT | amplio | 21 | 29.0 | low/norm/high-vol choppy |
+| AVAX | amplio | 20 | 29.1 | norm-vol efficient + choppy + low-vol |
+| FET | medio | 27 | 23.5 | low/norm-vol choppy + high-vol efficient |
+| STX | medio | 24 | 27.4 | low-vol efficient + norm/high-vol choppy |
+| INJ | medio | 20 | 25.6 | norm-vol choppy/efficient + low-vol |
+| IMX | medio | 15 | 28.7 | low-vol choppy + norm-vol efficient/choppy |
+| OP | medio | 13 | 27.9 | high/low-vol choppy + norm-vol efficient |
+
+- **Cobertura de régimen verificada**: cada símbolo tiene **3 clústeres poblados** (minClu% 23.5–31.7%, sin celdas vacías → MATCH/MISMATCH de D3 tendrá N por celda). Colectivamente cubren los arquetipos low/norm/high-vol × choppy/efficient. **Bootstrap por-símbolo sobre 13 símbolos**.
+- **Cross-categoría**: 8 amplio + 5 medio. **extr.bajo (ONDO/POL/RENDER) NO representable** en α: 0/2/3 anclajes frescos (historia <1.8y) — limitación de cobertura honesta, censada (DIAG: extr.bajo = 3 sym/7% cartera).
+- **318 anclaje-evaluaciones** totales (Σ frescos) × ~30 gems × 3 clústeres forward → miles de observaciones config×régimen para los tests.
+
+## Decisión 3 — FRESCURA EXACTA (holdout sagrado, verificable)
+
+Holdouts quemados: **E2-full** = {BTC, SOL, LINK, LTC} × [2025-10-01, 2026-05-17); **E2-lite** = 20 desplegados × [2026-05-17, 2026-06-16).
+
+**El subset es fresco por DOBLE garantía exacta y verificable**:
+1. **Ningún símbolo del subset es E2-full** (BTC/SOL/LINK/LTC excluidos a propósito) → la exclusión [2025-10-01, 2026-05-17) NO aplica a ningún símbolo elegido.
+2. **`data_cache` de los 13 termina ≤ 2026-05-08** (último reciclaje) **< 2026-05-17 (inicio E2-lite)** → ninguna ventana forward puede tocar la ventana live E2-lite (no existe en los datos).
+→ **0 intersección con holdouts quemados, por construcción.** (`nivel3_subset_freshness.py:fresh_anchors` codifica el cálculo exacto barra-a-barra; para el subset, fresh==total en los no-E2-full.)
+
+## Protocolo de SMOKE (calibración de RECURSOS — NO se mira veredicto D3/D4)
+
+- **2 símbolos que acotan el coste**: **ETH** (76.349 barras / 34 anclajes = techo) + **OP** (34.496 / 13 = piso).
+- **Modo `--eval-all-train`** (población-completa = el modo con fracasos para D4 y el de mayor disco/`_parts_all_train_*`).
+- **Acotado**: `--max-anchors 2-3` por símbolo + auto-cleanup `_parts_*` por anclaje (Caveat #13) + monitor de disco y VRAM (8 GB).
+- **Mide**: wall-time/anclaje + GB-parts/anclaje → extrapola a 13 sym × Σanclajes. **Prohibido inspeccionar el MATCH/MISMATCH o el AUC de los 2 símbolos** (sesgaría; el veredicto sale SOLO del run completo de 13).
+
+## ⚠️ HALLAZGO DE ENTORNO — el smoke NO puede ejecutarse fielmente en esta sesión
+
+- `numba.cuda.is_available() = False` en este entorno (aunque `cuda.detect()` ve la **RTX 5070 Laptop, cc12.0, [SUPPORTED]**; el linkage del runtime CUDA que usó el reciclaje productivo NO está expuesto aquí). El kernel lab usa `numba.jit/prange` (CPU) + `_cuda_sim` (acelerador GPU opcional, =None sin CUDA).
+- Correr α **CPU-only aquí daría tiempos MIS-calibrados** (el GPU es el componente a medir) → viola el propósito del smoke (§12 L38). Además los runs GPU locales son frágiles (TDR 0x116, Caveats #17-19, VRAM 8 GB).
+- **Decisión honesta**: NO se ejecuta un smoke con números falsos. El smoke debe correr en el **entorno GPU probado del reciclaje** (driver 596.02, chunking v18).
+
+## RESOLUCIÓN T3.1-bis — PENDIENTE (Ricardo)
+1. **Confirmar subset 13 + frescura** (arriba) — o ajustar símbolos.
+2. **Ejecutar el smoke (ETH+OP, eval-all-train, max-anchors≈2-3) en el host GPU del reciclaje** → recalibrar horas/disco reales.
+3. **Aprobar el presupuesto recalibrado** → entonces run completo de los 13 → T3.2 veredicto.
+- Hasta tener números reales del smoke, el presupuesto sigue siendo PROYECCIÓN (subset 13 ~1–3 días GPU, 5-10× incertidumbre, disco ~200-300 GB/run-completo con cleanup). **NO run completo sin T3.1-bis.**
