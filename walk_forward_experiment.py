@@ -773,6 +773,11 @@ def process_symbol(symbol, config, output_dir, lab, extractor, lite, presets_dir
         print(f"  [SKIP] Sin puntos de anclaje posibles")
         return None
 
+    _max_anch = config.get("max_anchors")
+    if _max_anch:
+        anchors = anchors[:int(_max_anch)]
+        print(f"  [SMOKE] max_anchors={_max_anch} -> usando {len(anchors)} anclajes (calibración de recursos)")
+
     print(f"  Puntos de anclaje: {len(anchors)}")
     for a in anchors:
         print(f"    anchor_{a['anchor_idx']}: ext[{a['ext_start']}:{a['ext_end']}] "
@@ -2843,6 +2848,8 @@ Ejemplos:
                        help='Desactivar cache local de datos')
     parser.add_argument('--eval-all-train', action='store_true',
                        help='Evaluar en forward TODAS las configs que pasan train (Step 3b)')
+    parser.add_argument('--max-anchors', type=int, default=None,
+                       help='Limitar nº de anclajes por símbolo (calibración/smoke; default sin límite)')
 
     return parser.parse_args()
 
@@ -2863,6 +2870,8 @@ def build_config(args):
         config["step"] = args.step
     if args.extractor_top is not None:
         config["extractor_top_n"] = args.extractor_top
+    if getattr(args, "max_anchors", None) is not None:
+        config["max_anchors"] = args.max_anchors
     if args.commission is not None:
         config["commission"] = args.commission
     config["eval_all_train"] = args.eval_all_train

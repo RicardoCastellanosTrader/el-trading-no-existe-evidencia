@@ -217,3 +217,34 @@ Holdouts quemados: **E2-full** = {BTC, SOL, LINK, LTC} × [2025-10-01, 2026-05-1
 2. **Ejecutar el smoke (ETH+OP, eval-all-train, max-anchors≈2-3) en el host GPU del reciclaje** → recalibrar horas/disco reales.
 3. **Aprobar el presupuesto recalibrado** → entonces run completo de los 13 → T3.2 veredicto.
 - Hasta tener números reales del smoke, el presupuesto sigue siendo PROYECCIÓN (subset 13 ~1–3 días GPU, 5-10× incertidumbre, disco ~200-300 GB/run-completo con cleanup). **NO run completo sin T3.1-bis.**
+
+---
+---
+
+# T3.1-bis — Entorno GPU RESUELTO + smoke ejecutado (calibración de recursos) — 2026-06-16
+
+## A — Entorno GPU RESUELTO (primary-source)
+El `numba.cuda.is_available()=False` inicial era de ESTA sesión sin los paths CUDA inicializados — NO un problema de hardware. **`lab_cuda._setup_cuda_paths()`** configura NVVM/cudart desde pip `nvidia-cuda-*-cu12` ANTES de importar `numba.cuda`. Tras `import lab_cuda` + `CUDASimulatorOptimized()`: **`gpu_available=True`, `numba.cuda.is_available()=True`, RTX 5070 Laptop cc12.0 SUPPORTED**. El cómputo usa `sys.executable` (Python 3.14 de esta sesión) — el mismo entorno del reciclaje. Ricardo tenía razón: el entorno existe, solo faltaba la activación de paths.
+
+## B — Smoke ejecutado (OP/USDT, default mode, max-anchors 3) — RECURSOS, no veredicto
+Corrió el pipeline GPU end-to-end (1 anclaje completo antes de abortar por bug, ver C). **Números reales de calibración**:
+- **CPU precalc indicadores: 299 s/anclaje** (pool paralelo) = **el cuello de botella dominante**.
+- **GPU search: ~126 s/anclaje** (20 variantes × 22.000 configs × ~6.3 s). VRAM **peak 1.34 GB / 8 GB → SIN riesgo TDR** (≠ kernel reciclaje; este perfil es holgado).
+- **Por-anclaje ≈ ~7 min** (régimen-agnóstico, default mode). Ventanas opt/ext/fwd FIJAS → **coste por-anclaje ≈ constante cross-símbolo**; solo escala el nº de anclajes.
+- **Disco: negligible en default mode** (checkpoints pequeños, sin `_parts_all_train`). **REFINAMIENTO**: el run usa población = **gemas del extractor (top-30, validación-buena, forward-MIXTO con fracasos)** — NO `--eval-all-train` (que añade validación-fracasos irrelevantes a D4 — que es sobre validación-PASA que falla forward — y dispara disco a ~200-300 GB). Esto elimina el riesgo de disco. *Confirmar este refinamiento en T3.1-bis.*
+- **No miré MATCH/MISMATCH ni AUC** (cumplido el cardinal: solo recursos).
+
+## C — BLOQUEADOR: drift de código en α (ingeniería previa al run completo, sin GPU)
+`ERROR en OP/USDT: 'structural_score'` en extracción de gemas. **`extractor_gemas.py` espera un campo que el output actual del lab ya no emite** (el experimento es legado, no corre desde que se generó el dataset; el lab evolucionó). Antes del run completo hace falta un **pase de ingeniería (sin GPU, harness test-only, NO toca live/brain/portfolio/kernel)**:
+1. **Reparar el drift** `extractor_gemas.py` ↔ schema del lab actual (alinear `structural_score` y posibles campos adyacentes).
+2. **Instrumentar régimen-awareness** (para D3 MATCH/MISMATCH): clasificar régimen as-of + selección per-clúster sobre opt + split forward por régimen. (Coste GPU añadido ~×1.3-1.6 sobre el por-anclaje agnóstico; CPU precalc se comparte.)
+
+## D — PRESUPUESTO RECALIBRADO (base empírica, ya no 5-10× ciego)
+- 13 símbolos × **318 anclajes frescos** (Σ tabla) × ~7 min (agnóstico) ≈ **~37 h**; con instrumentación régimen ~×1.4 ≈ **~50-55 h compute** + overhead per-símbolo (config-gen 20.9M + warmup) ~1-2 h.
+- **Wall-clock secuencial-estricto #14 ≈ ~2-3.5 días GPU.** VRAM holgada (peak 1.3 GB). Disco negligible (default mode). Safety-factor ahora **~1.5-2× empírico** (cubre instrumentación + varianza), no 5-10× ciego.
+
+## RESOLUCIÓN T3.1-bis — PENDIENTE (Ricardo)
+1. **Aprobar el presupuesto recalibrado** (~2-3.5 días GPU, VRAM/disco seguros).
+2. **Aprobar el pase de ingeniería previo** (reparar drift extractor + instrumentar régimen — sin GPU, test-only) y el **refinamiento de población** (extractor top-30 con fracasos, NO eval-all-train).
+3. Tras ambos OK → run completo de los 13 → T3.2 veredicto D3+D4 (+D2/D5).
+- `--max-anchors` añadido a `walk_forward_experiment.py` (default sin límite, output-neutral). **NO run completo sin estos OK.**
