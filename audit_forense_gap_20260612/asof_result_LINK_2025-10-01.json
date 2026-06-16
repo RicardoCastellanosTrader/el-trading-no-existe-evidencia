@@ -1,0 +1,11 @@
+{
+ "symbol": "LINK",
+ "anchor": "2025-10-01",
+ "holdout_end": "2026-02-01",
+ "n_trades": 14,
+ "pf_net": 0.3937,
+ "sum_pp": -7.52,
+ "leakage_ok": true,
+ "leakage_errs": [],
+ "pre_anchor_bars": 58730
+}

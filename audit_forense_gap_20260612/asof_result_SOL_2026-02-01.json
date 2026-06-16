@@ -1,0 +1,11 @@
+{
+ "symbol": "SOL",
+ "anchor": "2026-02-01",
+ "holdout_end": "2026-05-17",
+ "n_trades": 48,
+ "pf_net": 0.4515,
+ "sum_pp": -16.51,
+ "leakage_ok": true,
+ "leakage_errs": [],
+ "pre_anchor_bars": 47974
+}

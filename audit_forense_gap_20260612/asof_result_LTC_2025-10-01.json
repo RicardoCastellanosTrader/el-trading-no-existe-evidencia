@@ -1,0 +1,11 @@
+{
+ "symbol": "LTC",
+ "anchor": "2025-10-01",
+ "holdout_end": "2026-02-01",
+ "n_trades": 0,
+ "pf_net": null,
+ "sum_pp": 0,
+ "leakage_ok": true,
+ "leakage_errs": [],
+ "pre_anchor_bars": 68251
+}
