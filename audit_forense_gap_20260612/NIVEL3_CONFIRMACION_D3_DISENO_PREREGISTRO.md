@@ -312,7 +312,20 @@ Celda E2-full canónica (`asof_run` phase1+2 + extensión D3/D4). **NO se miró 
 
 **Caveats honestos**: (a) C1 tiny-N (3-4) → la medición MISMATCH per-clúster es frágil en clústeres poco poblados; el pooled sobre 13 celdas mitiga pero se reportará por-clúster. (b) El gate PASS se sostiene en C0 (poblado); el discriminante config-identidad hace el gate robusto para el run completo.
 
-### RESOLUCIÓN T3.1-quinquies — PENDIENTE (Ricardo, ANTES del run completo)
+## MINI-GATE DE FUENTE (data_cache) + RUN COMPLETO LANZADO — 2026-06-16
+
+**Anclas APROBADAS**: común **2025-05-01**, holdout **CAPADO a 2026-05-16** (excluye E2-lite [2026-05-17,now) — `data_cache` fue actualizado: FET llega a 2026-06-07; el cap preserva frescura para los 4 deployed del subset). Cobertura re-confirmada con cap: **13/13 símbolos 0/3 frágiles** (min N_est ≥23). Resuelve caveat (a) (el tiny-N del re-smoke era el holdout corto de SOL).
+
+**MINI-GATE DE FUENTE: ✅ PASS** (data_cache ≡ binance_deep, verificado no asumido — §12 L38):
+- **Selección (pre-ancla) BYTE-IDÉNTICA** (0 diffs) → as-of selection desde data_cache provablemente idéntica.
+- Holdout: **47/48 trades orchestrator IDÉNTICOS** cross-fuente; 1 trade timing-offset 5h (mismo side) atribuible a 6 revised candles (0.005% celdas, ≤1.66%) = benigno, NO divergencia estructural.
+- **Gate de fidelidad sobre data_cache: C0 poblado Jaccard 1.000, selección-divergente=0** (config-idéntico por construcción en régimen==c). El "NO CONCLUYENTE" del overall-mean = artefacto C1 tiny-N del holdout corto, resuelto por holdouts 12m del run.
+- Harness adaptado a data_cache (`asof_run --source data_cache` + extensión `--source` + HOLDOUT_END 2025-05-01→2026-05-16 + leakage assert). Selección byte-idéntica → sin re-correr GPU del mini-gate.
+
+**RUN COMPLETO LANZADO**: `nivel3_full_run_driver.sh` — 13 celdas secuencial-estricto #14, ancla 2025-05-01, fuente data_cache, chunk v18, resume-safe, auto-cleanup (~222GB transiente/celda, 677 libres), monitor VRAM. ETA ~3.2-3.4 días (~78h GPU + ~3.7h ext). NO mira veredicto (extensión sella trades + reporta gate/feasibility/recursos; el veredicto Δ/AUC se agrega aparte en T3.2 de los 13 sealed jsons).
+
+### RESOLUCIÓN T3.1-quinquies — RESUELTA (run lanzado tras mini-gate PASS)
+### (histórico) PENDIENTE previo:
 1. **Aprobar el run completo** (13 celdas, 1 ancla fresca/símbolo, ~3-3.5 días GPU secuencial, disco OK, VRAM/TDR-safe, gate de fidelidad PASS).
 2. Confirmar **1 ancla/símbolo** (recomendado, expandible a 2 si NO CONCLUYENTE) + las **anclas frescas concretas** por símbolo del subset 13.
 

@@ -23,12 +23,19 @@ def sandbox_dir(symbol, anchor):
     return AUDIT / "asof_sandbox" / f"{symbol}_{anchor}"
 
 
-def prep_truncated(symbol, anchor):
-    """Trunca binance_data ≤ ancla → sandbox/data_cache; registra nº barras pre-ancla (ajuste #1)."""
+def prep_truncated(symbol, anchor, source="binance_deep"):
+    """Trunca ≤ ancla → sandbox/data_cache; registra nº barras pre-ancla (ajuste #1).
+    source='binance_deep' (E2-full, 5 sym) o 'data_cache' (canónico 45 sym, validado byte-idéntico
+    en ventana de selección vs binance_deep — mini-gate de fuente 2026-06-16 PASS)."""
     A = pd.Timestamp(anchor, tz="UTC")
-    src = AUDIT / "binance_deep" / f"{symbol}USDT_1h_binance.parquet"
-    df = pd.read_parquet(src)
-    df["ts"] = pd.to_datetime(df["timestamp"], utc=True)
+    if source == "data_cache":
+        src = ROOT / "data_cache" / f"{symbol}USDT_1h.parquet"
+        df = pd.read_parquet(src)
+        df["ts"] = pd.to_datetime(df["timestamp_ms"], unit="ms", utc=True)
+    else:
+        src = AUDIT / "binance_deep" / f"{symbol}USDT_1h_binance.parquet"
+        df = pd.read_parquet(src)
+        df["ts"] = pd.to_datetime(df["timestamp"], utc=True)
     df = df[df["ts"] < A].copy()
     n = len(df)
     out = df[["ts", "open", "high", "low", "close", "volume"]].copy()
@@ -53,13 +60,14 @@ def main():
     ap.add_argument("--anchor", required=True)  # YYYY-MM-DD
     ap.add_argument("--phase", type=int, choices=[1, 2], required=True)
     ap.add_argument("--chunk-size", type=int, default=1_000_000)
+    ap.add_argument("--source", default="binance_deep", choices=["binance_deep", "data_cache"])
     args = ap.parse_args()
     try:
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     except AttributeError:
         pass
 
-    n, sb = prep_truncated(args.symbol, args.anchor)
+    n, sb = prep_truncated(args.symbol, args.anchor, source=args.source)
     print(f"[asof {args.symbol}@{args.anchor}] prehistoria={n} barras -> sandbox {sb}", flush=True)
 
     import master

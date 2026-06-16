@@ -31,7 +31,9 @@ from live.brain_engine import (load_models, classify_regimes, apply_btc_override
                                select_active_configs, generate_signals)
 
 MIN_CONF = 0.60; FEE = 0.10
-HOLDOUT_END = {"2025-10-01": "2026-02-01", "2026-02-01": "2026-05-17"}
+# 2025-05-01 → 2026-05-16: holdout ~12.5m del run completo Nivel 3, CAPADO a 2026-05-16 para
+# EXCLUIR la ventana E2-lite quemada [2026-05-17,now) (frescura, símbolos deployed del subset).
+HOLDOUT_END = {"2025-10-01": "2026-02-01", "2026-02-01": "2026-05-17", "2025-05-01": "2026-05-16"}
 
 def pf(p):
     gp=sum(x for x in p if x>0); gl=-sum(x for x in p if x<0)
@@ -41,7 +43,18 @@ def load_brain(symbol, anchor):
     sb = AUDIT/"asof_sandbox"/f"{symbol}_{anchor}"
     return load_models(str(sb/"regime_models"), str(sb/"regime_wf"), symbols=[f"{symbol}/USDT"]), sb
 
-def replay(symbol, anchor, force_cluster=None):
+def load_holdout_bars(symbol, source):
+    """Carga barras del holdout. source='binance_deep' (E2-full) o 'data_cache' (canónico 45 sym).
+    Mapea ambos a una columna 'timestamp' tz-aware UTC para el replay."""
+    if source == "data_cache":
+        df = pd.read_parquet(ROOT/"data_cache"/f"{symbol}USDT_1h.parquet")
+        df["timestamp"] = pd.to_datetime(df["timestamp_ms"], unit="ms", utc=True)
+    else:
+        df = pd.read_parquet(AUDIT/"binance_deep"/f"{symbol}USDT_1h_binance.parquet")
+        df["timestamp"] = pd.to_datetime(df["timestamp"], utc=True)
+    return df.reset_index(drop=True)
+
+def replay(symbol, anchor, force_cluster=None, source="binance_deep"):
     """Replay del holdout. force_cluster=None → orchestrator; =c → fuerza specialist de clúster c.
     Reusa classify_regimes + generate_signals INTACTOS. Devuelve lista de trades con
     entry_regime (régimen concurrente) y home (force_cluster o el activo)."""
@@ -49,8 +62,7 @@ def replay(symbol, anchor, force_cluster=None):
     symf = f"{symbol}/USDT"
     if symf not in brain.specialist_configs:
         return None
-    df = pd.read_parquet(AUDIT/"binance_deep"/f"{symbol}USDT_1h_binance.parquet")
-    df["timestamp"] = pd.to_datetime(df["timestamp"], utc=True); bars = df.reset_index(drop=True)
+    bars = load_holdout_bars(symbol, source)
     A = pd.Timestamp(anchor, tz="UTC"); END = pd.Timestamp(HOLDOUT_END[anchor], tz="UTC")
 
     def window_for(T):
@@ -103,6 +115,7 @@ def replay(symbol, anchor, force_cluster=None):
 
 def main():
     ap=argparse.ArgumentParser(); ap.add_argument("--symbol",required=True); ap.add_argument("--anchor",required=True)
+    ap.add_argument("--source",default="binance_deep",choices=["binance_deep","data_cache"])
     a=ap.parse_args()
     try: sys.stdout.reconfigure(encoding="utf-8",errors="replace")
     except AttributeError: pass
@@ -110,12 +123,19 @@ def main():
     brain,sb=load_brain(a.symbol,a.anchor); symf=f"{a.symbol}/USDT"
     n_clusters=brain.specialist_configs[symf]["n_clusters"] if symf in brain.specialist_configs else 3
 
+    print(f"[fuente datos holdout = {a.source}]")
     # (1) orchestrator (MATCH baseline)
-    orch=replay(a.symbol,a.anchor,force_cluster=None)
+    orch=replay(a.symbol,a.anchor,force_cluster=None,source=a.source)
     if orch is None: print("SIN specialist as-of — celda vacía"); return
     orch=[t for t in orch if t["reason"]!="open_at_end"]
+    # LEAKAGE ASSERT (holdout sagrado): toda entrada dentro de [ancla, END) — END capa E2-lite.
+    A=pd.Timestamp(a.anchor,tz="UTC"); END=pd.Timestamp(HOLDOUT_END[a.anchor],tz="UTC")
+    bad=[t["entry_T"] for t in orch if not (A<=pd.Timestamp(t["entry_T"])<END)]
+    if bad:
+        print(f"[LEAKAGE FAIL] {len(bad)} entradas fuera de [{A.date()},{END.date()}): {bad[:3]} — STOP T3.3"); return
+    print(f"[leakage] OK: {len(orch)} entradas dentro de [{A.date()},{END.date()})")
     # (2) agnóstico por clúster
-    agn={c:[t for t in (replay(a.symbol,a.anchor,force_cluster=c) or []) if t["reason"]!="open_at_end"]
+    agn={c:[t for t in (replay(a.symbol,a.anchor,force_cluster=c,source=a.source) or []) if t["reason"]!="open_at_end"]
          for c in range(n_clusters)}
 
     # GATE DE FIDELIDAD: agnóstico-c|régimen==c ≡ orchestrator|k==c
@@ -186,7 +206,7 @@ def main():
 
     # sellar trades para el run de verdict (NO se inspeccionan en smoke)
     json.dump({"orch":orch,"agn":{str(k):v for k,v in agn.items()}},
-              open(AUDIT/f"nivel3_resmoke_trades_{a.symbol}_{a.anchor}.json","w"),default=str)
+              open(AUDIT/f"nivel3_resmoke_trades_{a.symbol}_{a.anchor}_{a.source}.json","w"),default=str)
     print(f"\n[recursos] extensión CPU wall={time.time()-t0:.1f}s")
     print(f"[GATE] {GATE}  (Jaccard medio={overall:.3f}, divergentes={total_div})")
     print("[smoke] NO se reporta Δ/PF_match/PF_mismatch/AUC (veredicto = run completo 13 celdas, T3.2)")
