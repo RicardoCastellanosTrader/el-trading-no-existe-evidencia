@@ -53,3 +53,13 @@ env/
 # GMM HEAD baselines restaurados (regenerables con git show HEAD:)
 analysis_scripts/*/_gmm_head_baseline/
 hmm_reference_env/
+
+# Artefactos TRANSITORIOS del experimento as-of Nivel 3 (regenerables, GBs/celda).
+# Barrera estructural: durante el run de 13 celdas hay múltiples commits; un
+# `git add -A` descuidado no debe poder stagear los parts (~222GB/celda).
+# NO afecta a lo que SÍ se versiona: sellados nivel3_resmoke_trades_*.json,
+# docs/veredicto *.md, harness *.py/*.sh (viven en el audit dir, no en sandbox),
+# ni a data_cache/ (canónico, 57 parquets trackeados — NO se ignora).
+asof_sandbox/
+_parts_*/
+audit_forense_gap_20260612/binance_deep/
