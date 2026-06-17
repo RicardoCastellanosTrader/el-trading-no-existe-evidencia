@@ -10,11 +10,18 @@ ANCHOR=2025-05-01
 SYMS="ETH BNB XRP ATOM THETA ALGO DOT AVAX FET STX INJ IMX OP"
 LOG=$AD/nivel3_full_run.log
 MONLOG=$AD/nivel3_fullrun_vram_1s.log
+LOCK=$AD/nivel3_run.lock
+# Single-instance guard (sequential-strict #14): si otro driver está vivo, abortar.
+# Evita que la auto-reanudación tras reboot lance un segundo driver en paralelo.
+if [ -f "$LOCK" ] && kill -0 "$(cat "$LOCK" 2>/dev/null)" 2>/dev/null; then
+  echo "[ABORT] otro driver vivo PID=$(cat "$LOCK") — sequential-strict #14" | tee -a $LOG; exit 1
+fi
+echo $$ > "$LOCK"
 # Monitor VRAM 1s+fsync atado al ciclo de vida del RUN (arranca con el run, trap EXIT lo mata).
 # Fix tras TDR 2026-06-16: el monitor previo muestreaba cada 5 min y bufferizaba -> ceguera del crash.
 python -u $AD/vram_monitor.py --log $MONLOG --interval 1 &
 MONPID=$!
-trap "kill $MONPID 2>/dev/null" EXIT
+trap "kill $MONPID 2>/dev/null; rm -f $LOCK" EXIT
 echo "==== NIVEL3 RUN COMPLETO START $(date -u) ancla=$ANCHOR fuente=data_cache monPID=$MONPID ====" | tee -a $LOG
 for S in $SYMS; do
   SEAL=$AD/nivel3_resmoke_trades_${S}_${ANCHOR}_data_cache.json
