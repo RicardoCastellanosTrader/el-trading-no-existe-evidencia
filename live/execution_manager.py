@@ -1,9 +1,14 @@
 """
-execution_manager.py — Ejecución de órdenes en BingX.
+execution_manager.py — Ejecución de órdenes en Kraken Futures (PF_ linear).
 
-Recibe allocaciones del portfolio_manager y las ejecuta en BingX vía ccxt.
-Gestiona bracket orders (entry + stop vinculado), trailing stops, cierres,
-y cancelación de órdenes obsoletas. Único módulo que ESCRIBE en el exchange.
+Recibe allocaciones del portfolio_manager y las ejecuta en Kraken Futures vía
+ccxt. Gestiona bracket orders (entry + stop reduce-only vinculado), cierres
+con flush S2-lite (protección 1% de Kraken), y cancelación de órdenes
+obsoletas. Único módulo que ESCRIBE en el exchange.
+
+Migración BingX→Kraken Futures (Etapa 1): stops = `stp` reduce-only stop-market
+(stopLossPrice + triggerSignal='mark', sin limitPrice); market = `mkt` = IOC con
+protección 1% → cierres con verify-and-retry (S2-lite _flush_residual).
 """
 
 import asyncio
@@ -19,9 +24,9 @@ import ccxt.async_support as ccxt_async
 import ccxt as ccxt_sync
 
 from live.data_feed import (
-    _create_bingx_exchange,
-    to_bingx_symbol,
-    from_bingx_symbol,
+    _create_kraken_exchange,
+    to_kraken_symbol,
+    from_kraken_symbol,
     get_open_positions,
     get_open_orders,
     get_balance,
@@ -144,13 +149,14 @@ async def _get_position_funding(
     symbol: str,
     entry_timestamp_ms: int | None,
     position_size_usdt: float,
-    exchange: ccxt_async.bingx,
+    exchange: ccxt_async.krakenfutures,
 ) -> float:
     """
     Obtiene el funding total pagado/recibido durante la vida de una posición.
 
     Intenta fetch_funding_history primero. Si no disponible, estima con el
-    funding rate actual × size × períodos de 8h transcurridos.
+    funding rate actual × size × períodos de 1h transcurridos (Kraken PF_ =
+    funding HORARIO, acumulación continua — NO el 8h de BingX).
 
     Returns:
         funding total en USDT (negativo = pagado, positivo = recibido)
@@ -173,11 +179,11 @@ async def _get_position_funding(
             if rate != 0:
                 import time as _time
                 elapsed_ms = int(_time.time() * 1000) - entry_timestamp_ms
-                periods_8h = max(1, elapsed_ms // (8 * 3600 * 1000))
-                estimated = rate * position_size_usdt * periods_8h
+                periods_1h = max(1, elapsed_ms // (3600 * 1000))
+                estimated = rate * position_size_usdt * periods_1h
                 logger.debug(
                     f"Funding {symbol}: estimado {estimated:.4f} USDT "
-                    f"({rate:.6f} × {position_size_usdt:.0f} × {periods_8h} períodos)"
+                    f"({rate:.6f} × {position_size_usdt:.0f} × {periods_1h} períodos 1h)"
                 )
                 return round(estimated, 4)
         except Exception as e:
@@ -190,12 +196,14 @@ async def _get_position_funding(
 # 5. set_leverage
 # ---------------------------------------------------------------------------
 
-async def set_leverage(symbol: str, leverage: int, exchange: ccxt_async.bingx) -> bool:
+async def set_leverage(symbol: str, leverage: int, exchange: ccxt_async.krakenfutures) -> bool:
     """
-    Configura leverage para el símbolo en BingX.
-    Se llama antes de abrir posición.
+    Configura el leverage máximo para el símbolo en Kraken Futures.
+    Se llama antes de abrir posición. (BingX usaba params={'side':'BOTH'}
+    hedge-mode; Kraken PF_ no lo necesita — setLeverage fija el máximo por
+    instrumento. Producción usa 1x universal.)
     """
-    bingx_sym = to_bingx_symbol(symbol)
+    kraken_sym = to_kraken_symbol(symbol)
 
     if DRY_RUN:
         logger.info(f"[DRY_RUN] set_leverage {symbol} -> {leverage}x")
@@ -203,7 +211,7 @@ async def set_leverage(symbol: str, leverage: int, exchange: ccxt_async.bingx) -
 
     try:
         async def _do():
-            return await exchange.set_leverage(leverage, bingx_sym, params={'side': 'BOTH'})
+            return await exchange.set_leverage(leverage, kraken_sym)
         await _retry_async(_do, f"set_leverage {symbol} {leverage}x")
         logger.info(f"[EXEC] Leverage {symbol} -> {leverage}x")
         return True
@@ -216,12 +224,12 @@ async def set_leverage(symbol: str, leverage: int, exchange: ccxt_async.bingx) -
 # 6. cancel_order
 # ---------------------------------------------------------------------------
 
-async def cancel_order(order_id: str, symbol: str, exchange: ccxt_async.bingx) -> bool:
+async def cancel_order(order_id: str, symbol: str, exchange: ccxt_async.krakenfutures) -> bool:
     """
     Cancela una orden pendiente. Retry hasta MAX_RETRIES veces.
     Returns True si se canceló o ya no existía.
     """
-    bingx_sym = to_bingx_symbol(symbol)
+    kraken_sym = to_kraken_symbol(symbol)
 
     if DRY_RUN:
         logger.info(f"[DRY_RUN] cancel_order {symbol} id={order_id}")
@@ -229,7 +237,7 @@ async def cancel_order(order_id: str, symbol: str, exchange: ccxt_async.bingx) -
 
     try:
         async def _do():
-            return await exchange.cancel_order(order_id, bingx_sym)
+            return await exchange.cancel_order(order_id, kraken_sym)
         await _retry_async(_do, f"cancel_order {symbol} {order_id}")
         logger.info(f"[EXEC] Orden cancelada: {symbol} id={order_id}")
         return True
@@ -242,13 +250,77 @@ async def cancel_order(order_id: str, symbol: str, exchange: ccxt_async.bingx) -
 
 
 # ---------------------------------------------------------------------------
+# S2-lite — flush de residual (protección 1% de Kraken `mkt`)
+# ---------------------------------------------------------------------------
+
+async def _flush_residual(
+    symbol: str,
+    exchange: ccxt_async.krakenfutures,
+    max_attempts: int = 3,
+) -> bool:
+    """S2-lite (migración Kraken): la orden `mkt` de Kraken es IOC con
+    protección de precio del 1% → en un gap >1% puede llenar PARCIAL y cancelar
+    el resto, dejando un RESIDUAL de posición abierta tras un cierre/stop
+    reduce-only. Este flush re-consulta la posición y, si queda residual en la
+    misma dirección, re-emite reduce-only market para aplanarlo (verify-and-retry).
+
+    Defensa en profundidad: el cierre primario debería bastar; el flush cubre el
+    caso 1%-muerde. Es seguro en AMBAS ramas (si el stop está exento del 1%, el
+    flush no encuentra residual y es no-op). OBJETIVO PAPER (Etapa 4): confirmar
+    empíricamente si la protección 1% afecta a stops/cierres disparados
+    (UNCONFIRMED en doc). No-op en DRY_RUN (no hay fills reales).
+    """
+    if DRY_RUN:
+        return True
+    kraken_sym = to_kraken_symbol(symbol)
+    for attempt in range(max_attempts):
+        try:
+            positions = await get_open_positions(exchange=exchange)
+        except Exception as e:
+            logger.warning(f"[S2_FLUSH] {symbol}: no se pudo verificar posición: {e}")
+            return False
+        pos = positions.get(symbol)
+        residual = float(pos.get("size", 0.0)) if pos else 0.0
+        side = pos.get("side", "") if pos else ""
+        if residual <= 0 or side not in ("long", "short"):
+            return True  # plano — nada que aplanar
+        flush_side = "sell" if side == "long" else "buy"
+        logger.warning(
+            f"[S2_FLUSH] {symbol}: residual {residual} {side} tras cierre "
+            f"(¿protección 1% parcial?) — re-aplanando intento {attempt+1}/{max_attempts}"
+        )
+        try:
+            await exchange.create_order(
+                kraken_sym, "market", flush_side, residual,
+                params={"reduceOnly": True},
+            )
+        except Exception as e:
+            logger.error(f"[S2_FLUSH] {symbol}: flush falló: {e}")
+        await asyncio.sleep(ORDER_DELAY)
+    # Verificación final
+    try:
+        positions = await get_open_positions(exchange=exchange)
+        pos = positions.get(symbol)
+        if pos and float(pos.get("size", 0.0)) > 0:
+            logger.critical(
+                f"[S2_FLUSH] {symbol}: residual PERSISTE tras {max_attempts} "
+                f"intentos — red de seguridad reconcile (emergency_stop) / "
+                f"INTERVENCIÓN MANUAL."
+            )
+            return False
+    except Exception:
+        pass
+    return True
+
+
+# ---------------------------------------------------------------------------
 # 2. close_position
 # ---------------------------------------------------------------------------
 
 async def close_position(
     symbol: str,
     position: dict,
-    exchange: ccxt_async.bingx,
+    exchange: ccxt_async.krakenfutures,
 ) -> dict:
     """
     Cierra una posición abierta con Market contraria + cancela stop vinculado.
@@ -256,7 +328,7 @@ async def close_position(
     side = position.get("side", "")
     size = position.get("size", 0.0)
     stop_order_id = position.get("stop_order_id")
-    bingx_sym = to_bingx_symbol(symbol)
+    kraken_sym = to_kraken_symbol(symbol)
 
     close_side = "sell" if side == "long" else "buy"
 
@@ -270,8 +342,8 @@ async def close_position(
         # Obtener precio actual del exchange para calcular PnL real
         close_price = 0.0
         try:
-            bingx_sym_ticker = to_bingx_symbol(symbol)
-            ticker = await exchange.fetch_ticker(bingx_sym_ticker)
+            kraken_sym_ticker = to_kraken_symbol(symbol)
+            ticker = await exchange.fetch_ticker(kraken_sym_ticker)
             close_price = float(ticker.get("last", 0) or 0)
         except Exception as e:
             logger.warning(f"[DRY_RUN] No se pudo obtener precio de cierre para {symbol}: {e}")
@@ -329,7 +401,7 @@ async def close_position(
     try:
         async def _do():
             return await exchange.create_order(
-                bingx_sym, "market", close_side, size,
+                kraken_sym, "market", close_side, size,
                 params={"reduceOnly": True},
             )
         close_order = await _retry_async(_do, f"close {side} {symbol}")
@@ -340,9 +412,20 @@ async def close_position(
             "error": str(e),
         }
     except Exception as e:
-        # Fallback: capturar error 101290 "Reduce Only" si la verificacion
-        # previa no lo detecto (race condition entre fetch y orden)
-        if "101290" in str(e) or "Reduce Only" in str(e):
+        # Fallback: capturar el error reduce-only / "no hay posición que reducir"
+        # si la verificacion previa no lo detecto (race condition entre fetch y
+        # orden). BingX usaba el código 101290; Kraken devuelve mensajes del
+        # tipo "would not reduce" / "reduceOnly" / "no open position" — se
+        # detecta genéricamente case-insensitive.
+        _emsg = str(e).lower()
+        if (
+            "101290" in _emsg
+            or "reduce only" in _emsg
+            or "reduceonly" in _emsg
+            or "would not reduce" in _emsg
+            or "no open position" in _emsg
+            or "would increase" in _emsg
+        ):
             logger.warning(
                 f"[EXEC] CLOSE {symbol}: Reduce Only error -- "
                 f"posicion cerrada por SL trigger o proceso concurrente"
@@ -360,6 +443,10 @@ async def close_position(
         f"[EXEC] {_now_str()} CLOSE {side.upper()} {symbol} {size} @ market, "
         f"fill={fill_price}, latency={latency:.0f}ms"
     )
+
+    # S2-lite: la `mkt` de Kraken (IOC 1% price-protection) puede llenar parcial
+    # en un gap >1% dejando residual. Verificar y re-aplanar si hace falta.
+    await _flush_residual(symbol, exchange)
 
     # Cancelar stop vinculado
     stop_cancelled = None
@@ -388,7 +475,7 @@ async def close_position(
 async def open_position(
     symbol: str,
     allocation: dict,
-    exchange: ccxt_async.bingx,
+    exchange: ccxt_async.krakenfutures,
 ) -> dict:
     """
     Abre posición con bracket: configura leverage -> Market entry -> Stop Market SL.
@@ -399,7 +486,7 @@ async def open_position(
     size = allocation.get("size_contracts", 0.0)
     leverage = allocation.get("leverage", 1)
     sl_price = allocation.get("sl_price", 0.0)
-    bingx_sym = to_bingx_symbol(symbol)
+    kraken_sym = to_kraken_symbol(symbol)
 
     entry_side = "buy" if action == "LONG" else "sell"
     stop_side = "sell" if action == "LONG" else "buy"
@@ -408,7 +495,7 @@ async def open_position(
         entry_price = allocation.get("entry_price", 0.0)
         if not entry_price:
             try:
-                ticker = await exchange.fetch_ticker(bingx_sym)
+                ticker = await exchange.fetch_ticker(kraken_sym)
                 entry_price = float(ticker.get("last", 0) or 0)
             except Exception as e:
                 logger.warning(f"[DRY_RUN] fetch_ticker failed for {symbol}: {e}")
@@ -445,13 +532,22 @@ async def open_position(
 
     await asyncio.sleep(ORDER_DELAY)
 
+    # Precisión EXCHANGE-VÁLIDA definitiva del tamaño (Kraken amount step por
+    # símbolo). portfolio_manager ya redondea al step; esto lo garantiza contra
+    # el mercado real cargado. Guarded por si el exchange es un mock sin el método.
+    try:
+        if hasattr(exchange, "amount_to_precision"):
+            size = float(exchange.amount_to_precision(kraken_sym, size))
+    except Exception as e:
+        logger.warning(f"[EXEC] amount_to_precision {symbol} falló: {e} — size sin ajustar")
+
     # Paso 2: Orden Market de entrada
     t0 = _ts_ms()
     entry_order = None
     try:
         async def _do_entry():
             return await exchange.create_order(
-                bingx_sym, "market", entry_side, size,
+                kraken_sym, "market", entry_side, size,
             )
         entry_order = await _retry_async(_do_entry, f"open {action} {symbol}")
     except (ExecutionError, OrderRejected) as e:
@@ -465,7 +561,7 @@ async def open_position(
     entry_id = entry_order.get("id", "")
 
     # v2.3.7 (fix E5): abortar si fill_price invalido. Sin esto,
-    # stop_price_bingx = 0 * (1 - SL/100) = 0, BingX rechaza con
+    # stop_price_kraken = 0 * (1 - SL/100) = 0, BingX rechaza con
     # mensaje oscuro.
     if fill_price <= 0:
         logger.critical(
@@ -496,34 +592,38 @@ async def open_position(
             f"filled={filled_size} < requested={size}. Stop dimensionado a filled."
         )
 
-    # Compute BingX stop at emergency level (5%) — triggers intrabar on touch.
-    # Brain's 3% SL is checked by software each hour against close.
+    # Stop server-side de emergencia (5% del fill) — triggers intrabar on touch.
+    # El SL 3% del brain se chequea por software cada hora on-close.
     if action == "LONG":
-        stop_price_bingx = fill_price * (1 - SL_EMERGENCY_PCT / 100)
+        stop_price_kraken = fill_price * (1 - SL_EMERGENCY_PCT / 100)
     else:
-        stop_price_bingx = fill_price * (1 + SL_EMERGENCY_PCT / 100)
+        stop_price_kraken = fill_price * (1 + SL_EMERGENCY_PCT / 100)
 
     logger.info(
         f"[EXEC] {_now_str()} OPEN {action} {symbol} {filled_size} @ market, "
-        f"SL_brain={sl_price} SL_bingx={stop_price_bingx:.6g} "
+        f"SL_brain={sl_price} SL_kraken={stop_price_kraken:.6g} "
         f"[lev={leverage}x, size={allocation.get('size_usdt', 0):.0f} USDT]"
     )
 
     await asyncio.sleep(ORDER_DELAY)
 
-    # Paso 3: Stop Market vinculado (emergency level, 5% from fill_price)
+    # Paso 3: Stop reduce-only vinculado (S2-lite). Kraken `stp` stop-market:
+    # type='market' + stopLossPrice (sin limitPrice = dispara market), forzando
+    # reduceOnly + triggerSignal='mark' (referencia de liquidación, resiste
+    # mechas). El residual de una protección 1% parcial lo aplana el flush S2-lite
+    # del close / la red emergency_stop del reconcile.
     stop_order = None
     try:
         async def _do_stop():
             return await exchange.create_order(
-                bingx_sym, "market", stop_side, filled_size,
+                kraken_sym, "market", stop_side, filled_size,
                 params={
-                    "stopPrice": stop_price_bingx,
+                    "stopLossPrice": stop_price_kraken,
                     "reduceOnly": True,
-                    "triggerType": "MARK_PRICE",
+                    "triggerSignal": "mark",
                 },
             )
-        stop_order = await _retry_async(_do_stop, f"stop {symbol} @ {stop_price_bingx}")
+        stop_order = await _retry_async(_do_stop, f"stop {symbol} @ {stop_price_kraken}")
     except (ExecutionError, OrderRejected) as e:
         # ATOMICIDAD: stop falló, cerrar posición inmediatamente
         logger.critical(
@@ -534,10 +634,12 @@ async def open_position(
             async def _do_emergency_close():
                 # v2.3.8 (fix B7): emergency close sobre filled real.
                 return await exchange.create_order(
-                    bingx_sym, "market", stop_side, filled_size,
+                    kraken_sym, "market", stop_side, filled_size,
                     params={"reduceOnly": True},
                 )
             await _retry_async(_do_emergency_close, f"emergency close {symbol}")
+            # S2-lite: aplanar residual si la 1% protection llenó parcial.
+            await _flush_residual(symbol, exchange)
             logger.critical(f"[EXEC] Posición {symbol} cerrada de emergencia (stop no colocado)")
         except Exception as e2:
             logger.critical(
@@ -562,7 +664,7 @@ async def open_position(
         "side": "long" if action == "LONG" else "short",
         "entry_price": fill_price, "size": filled_size,
         "entry_order_id": entry_id, "stop_order_id": stop_id,
-        "sl_price": stop_price_bingx,
+        "sl_price": stop_price_kraken,
         "entry_timestamp_ms": int(time.time() * 1000),
     }
 
@@ -575,7 +677,7 @@ async def _place_emergency_stop(
     symbol: str,
     position: dict,
     sl_price: float,
-    exchange: ccxt_async.bingx,
+    exchange: ccxt_async.krakenfutures,
 ) -> dict:
     """
     v2.4.1: coloca stop_market de emergencia cuando reconcile_state
@@ -637,15 +739,17 @@ async def _place_emergency_stop(
         }
 
     stop_side = "sell" if side == "long" else "buy"
-    bingx_sym = to_bingx_symbol(symbol)
+    kraken_sym = to_kraken_symbol(symbol)
 
     async def _do_stop():
+        # Kraken `stp` reduce-only stop-market (S2-lite): stopLossPrice sin
+        # limitPrice = dispara market; triggerSignal='mark'.
         return await exchange.create_order(
-            bingx_sym, "market", stop_side, size,
+            kraken_sym, "market", stop_side, size,
             params={
-                "stopPrice": sl_price,
+                "stopLossPrice": sl_price,
                 "reduceOnly": True,
-                "triggerType": "MARK_PRICE",
+                "triggerSignal": "mark",
             },
         )
 
@@ -686,7 +790,7 @@ async def update_trailing_stop(
     position: dict,
     new_sl_price: float,
     current_orders: list,
-    exchange: ccxt_async.bingx,
+    exchange: ccxt_async.krakenfutures,
 ) -> dict:
     """
     v2.4.0: no-op. Restaura Fidelidad 2 del TS (§13.2 HALLAZGO 2026-04-20).
@@ -724,7 +828,7 @@ async def update_trailing_stop(
     """
     logger.info(
         f"[TS_NOOP_V240] {symbol}: brain state.sl_level={new_sl_price:.6f}. "
-        f"BingX stop permanece al 5% emergency del entry. "
+        f"Kraken stop permanece al 5% emergency del entry. "
         f"Cierre por TS on-close via close_position()."
     )
     return {
@@ -883,7 +987,7 @@ async def execute_cycle(
     allocations: dict,
     current_positions: dict,
     current_orders: list,
-    exchange: ccxt_async.bingx | None = None,
+    exchange: ccxt_async.krakenfutures | None = None,
 ) -> ExecutionReport:
     """
     Procesa todas las allocaciones de un ciclo:
@@ -892,7 +996,7 @@ async def execute_cycle(
     """
     own_exchange = exchange is None
     if own_exchange:
-        exchange = _create_bingx_exchange()
+        exchange = _create_kraken_exchange()
 
     report = ExecutionReport(timestamp=_now_str())
     actions = reconcile_state(allocations, current_positions, current_orders)
@@ -1229,13 +1333,13 @@ async def _test_dry_run():
 
 
 async def _test_connection():
-    """Test de conexión real a BingX (solo lectura)."""
+    """Test de conexión real a Kraken Futures (solo lectura)."""
     print("=" * 60)
-    print("EXECUTION MANAGER — Test conexión BingX")
+    print("EXECUTION MANAGER — Test conexión Kraken Futures")
     print("=" * 60)
 
     try:
-        exchange = _create_bingx_exchange()
+        exchange = _create_kraken_exchange()
     except RuntimeError as e:
         print(f"Error: {e}")
         return

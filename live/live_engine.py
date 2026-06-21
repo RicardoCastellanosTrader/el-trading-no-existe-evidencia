@@ -20,12 +20,13 @@ from pathlib import Path
 import ccxt.async_support as ccxt_async
 
 from live.data_feed import (
-    _create_bingx_exchange,
+    _create_kraken_exchange,
     download_all_ohlcv,
     get_open_positions,
     get_open_orders,
     get_recent_closed_fill,
     get_balance,
+    validate_symbol_map,
     MASTER_SYMBOLS,
 )
 from live.brain_engine import (
@@ -193,7 +194,7 @@ class LiveEngine:
         self.config = config or EngineConfig()
         self.brain: BrainState | None = None
         self.portfolio_config: PortfolioConfig | None = None
-        self.exchange: ccxt_async.bingx | None = None
+        self.exchange: ccxt_async.krakenfutures | None = None
         # v2.4.3: cacheado desde exchange.load_markets() en start().
         # Alimenta pre-check symbol-aware en portfolio_manager.
         self.markets_info: dict = {}
@@ -239,22 +240,32 @@ class LiveEngine:
 
         # 1. Conexión al exchange
         try:
-            self.exchange = _create_bingx_exchange()
+            self.exchange = _create_kraken_exchange()
             bal = await get_balance(exchange=self.exchange)
-            logger.info(f"[ENGINE] Conexion BingX OK. Balance: {bal['total']:.2f} USDT")
+            logger.info(
+                f"[ENGINE] Conexion Kraken Futures OK. Balance: "
+                f"{bal['total']:.2f} {bal.get('currency', 'USD')}"
+            )
             self._balance_24h_ago = bal["total"]
-            # v2.4.3: cargar markets para pre-check symbol-aware de min_order
+            # cargar markets para pre-check symbol-aware de min_order + precisión
             # en portfolio. load_markets es idempotente; ccxt cachea tras la
             # primera llamada. markets_info alimenta compute_min_order_usdt_for
-            # que reemplaza la constante 5 USDT por thresholds reales por
-            # simbolo (limits.cost.min, amount.min x price, precision x price).
+            # y el redondeo al amount-step por símbolo.
             try:
                 await self.exchange.load_markets()
                 self.markets_info = self.exchange.markets or {}
                 logger.info(
-                    f"[ENGINE] Markets BingX cargados: "
+                    f"[ENGINE] Markets Kraken Futures cargados: "
                     f"{len(self.markets_info)} simbolos."
                 )
+                # §12 L38: validar fail-loud que los 20 símbolos mapeados
+                # existen como PF_ en el exchange (no asumir el mapeo).
+                missing = validate_symbol_map(self.exchange)
+                if missing:
+                    logger.critical(
+                        f"[ENGINE] Símbolos Kraken NO encontrados en markets: "
+                        f"{missing} — revisar SYMBOL_MAP / disponibilidad PF_."
+                    )
             except Exception as me:
                 logger.warning(
                     f"[ENGINE] load_markets fallo: {me}. "
@@ -262,7 +273,7 @@ class LiveEngine:
                 )
                 self.markets_info = {}
         except Exception as e:
-            logger.critical(f"[ENGINE] Fallo de conexion a BingX: {e}")
+            logger.critical(f"[ENGINE] Fallo de conexion a Kraken Futures: {e}")
             raise
 
         # 2. Cargar modelos GMM + specialist configs
@@ -1069,9 +1080,10 @@ class LiveEngine:
             except Exception as e:
                 logger.warning(f"[ORPHAN_CLOSE] {sym}: fill recovery falló: {e}")
 
-            # v2.7.2 SANITY GATE runtime — DOBLE gate ortogonal (defensa-en-profundidad).
-            # La causa raíz del 25× se corrige en data_feed.get_recent_closed_fill
-            # (usa info.volume/info.amount BingX, NO los campos ccxt mal-mapeados).
+            # SANITY GATE runtime — DOBLE gate ortogonal (defensa-en-profundidad).
+            # Migración Kraken: el fill-parser ahora usa campos ccxt-UNIFIED
+            # (Kraken PF_ linear contractSize=1, sin hazard 25× de BingX). El
+            # doble gate se MANTIENE como salvaguarda (el 25× en forma nueva).
             # Gate1 (auto-consistencia cost≈price×amount): cubre fills malformados.
             # Gate2 (vs posición TRACKEADA): cubre fills internamente consistentes pero
             #   a ESCALA equivocada — exactamente el bug DOGE (4150×0.07862=326 ES

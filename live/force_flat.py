@@ -5,7 +5,7 @@ Usage:
     python -m live.force_flat              # Dry-run: list state, NO execution.
     python -m live.force_flat --confirm    # Execute: close all positions + cancel all orders.
 
-Reuses live.data_feed (_create_bingx_exchange, get_open_positions, get_open_orders)
+Reuses live.data_feed (_create_kraken_exchange, get_open_positions, get_open_orders)
 and live.execution_manager (close_position, cancel_order, DRY_RUN module flag).
 
 Designed para correr antes de deployment batch nuevos JSONs especialistas
@@ -29,7 +29,7 @@ if _project_root not in sys.path:
 
 from live import execution_manager
 from live.data_feed import (
-    _create_bingx_exchange,
+    _create_kraken_exchange,
     get_open_orders,
     get_open_positions,
 )
@@ -128,7 +128,7 @@ async def force_flat(exchange) -> int:
 
 
 async def main_async(confirm: bool) -> int:
-    exchange = _create_bingx_exchange()
+    exchange = _create_kraken_exchange()
     try:
         if confirm:
             execution_manager.DRY_RUN = False

@@ -17,7 +17,31 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from live.data_feed import to_kraken_symbol
+
 logger = logging.getLogger("live.portfolio_manager")
+
+
+def _round_amount_to_step(qty: float, market: dict | None) -> float:
+    """Redondea `qty` (unidades base) al step de cantidad del mercado Kraken.
+
+    Kraken Futures PF_ expone la precisión como contractValueTradePrecision →
+    ccxt lo mapea a market['precision']['amount'] como TICK SIZE (step), p.ej.
+    BTC 0.0001, ETH 0.001, DOGE/TRX/XLM/VET 1 (unidades enteras). Reemplaza el
+    redondeo por tramo de precio hardcodeado de BingX (que daba DOGE fraccionario).
+    La precisión EXCHANGE-VÁLIDA definitiva se aplica además en execution_manager
+    vía exchange.amount_to_precision antes de create_order.
+    """
+    if not market or not isinstance(market, dict):
+        return qty
+    step = (market.get("precision") or {}).get("amount")
+    try:
+        step = float(step)
+    except (TypeError, ValueError):
+        return qty
+    if step <= 0:
+        return qty
+    return round(round(qty / step) * step, 12)
 
 # ---------------------------------------------------------------------------
 # PortfolioConfig
@@ -302,13 +326,13 @@ def compute_min_order_usdt_for(
         return DEFAULT_MIN
     if not isinstance(price, (int, float)) or price <= 0:
         return DEFAULT_MIN
-    # v2.4.3-hotfix: resolver formato symbol master ("ETH/USDT") vs
-    # formato ccxt BingX swap ("ETH/USDT:USDT"). markets_info usa el
-    # formato ccxt. Probar ambos.
+    # Resolver formato symbol master ("ETH/USDT") vs formato ccxt Kraken
+    # Futures PF_ ("ETH/USD:USD"). markets_info usa el formato ccxt. Probar ambos.
+    kr_sym = to_kraken_symbol(symbol)
     if symbol in markets_info:
         m = markets_info[symbol]
-    elif ":USDT" not in symbol and f"{symbol}:USDT" in markets_info:
-        m = markets_info[f"{symbol}:USDT"]
+    elif kr_sym in markets_info:
+        m = markets_info[kr_sym]
     else:
         return DEFAULT_MIN
     limits = m.get("limits", {}) if isinstance(m, dict) else {}
@@ -612,12 +636,20 @@ def allocate_positions(
             }
             continue
 
-        # Calcular tamaño en contratos
+        # Tamaño en unidades base (Kraken PF_ contractSize=1 → size=usd/price).
         price = info["entry_price"]
         size_contracts = size_usdt / price if price > 0 else 0.0
 
-        # Redondeo a precisión razonable
-        if price >= 10000:
+        # Redondear al step de cantidad del mercado Kraken (precisión real por
+        # símbolo; reemplaza el redondeo por tramo de precio de BingX, que daba
+        # DOGE/TRX/XLM/VET fraccionarios — precision-0 = unidades enteras).
+        # Fallback al tramo legacy si markets_info no trae el mercado.
+        _mkt = None
+        if markets_info:
+            _mkt = markets_info.get(to_kraken_symbol(sym)) or markets_info.get(sym)
+        if _mkt:
+            size_contracts = _round_amount_to_step(size_contracts, _mkt)
+        elif price >= 10000:
             size_contracts = round(size_contracts, 5)  # BTC
         elif price >= 100:
             size_contracts = round(size_contracts, 4)  # ETH, SOL

@@ -22,10 +22,10 @@ _root = _here.parent
 if str(_root) not in sys.path:
     sys.path.insert(0, str(_root))
 
-# Setear creds dummy para que _create_bingx_exchange (parcheado) no falle
+# Setear creds dummy para que _create_kraken_exchange (parcheado) no falle
 # si por algun motivo se llamara a la version real durante import.
-os.environ.setdefault("BINGX_API_KEY", "TEST_KEY")
-os.environ.setdefault("BINGX_API_SECRET", "TEST_SECRET")
+os.environ.setdefault("KRAKEN_API_KEY", "TEST_KEY")
+os.environ.setdefault("KRAKEN_API_SECRET", "TEST_SECRET")
 
 from live import force_flat as ff  # noqa: E402
 
@@ -82,7 +82,7 @@ class _Stub:
 def _install_stub(stub: _Stub):
     """Patch module-level imports en live.force_flat con stub y _FakeExchange."""
     fake_exchange = _FakeExchange()
-    ff._create_bingx_exchange = lambda: fake_exchange
+    ff._create_kraken_exchange = lambda: fake_exchange
     ff.get_open_positions = stub.get_open_positions
     ff.get_open_orders = stub.get_open_orders
     ff.close_position = stub.close_position

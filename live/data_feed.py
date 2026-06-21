@@ -1,8 +1,14 @@
 """
-data_feed.py — Módulo de datos en tiempo real (BingX)
+data_feed.py — Módulo de datos en tiempo real (Kraken Futures)
 
-Única misión: obtener datos OHLCV limpios de BingX y estado de cuenta/posiciones.
+Única misión: obtener datos OHLCV limpios de Kraken Futures y estado de cuenta/posiciones.
 Es el único módulo que habla con el exchange. Todos los demás reciben DataFrames ya procesados.
+
+Migración BingX→Kraken Futures (Etapa 1, fase PAPER demo-futures.kraken.com):
+producto = PF_ linear (USD-margined, multi-collateral, contractSize=1, size en
+unidades base). Símbolo ccxt unificado = 'BASE/USD:USD' (ccxt normaliza XBT→BTC).
+Demo vs live se controla con env KRAKEN_DEMO (set_sandbox_mode). Ver
+project_kraken_migration_viability_audit + reporte T3.1-Et1.
 """
 
 import os
@@ -27,8 +33,11 @@ logger = logging.getLogger("data_feed")
 def _sanitize_error(error: Exception) -> str:
     """Elimina parámetros sensibles (signature, timestamp, apiKey) de mensajes de error ccxt."""
     msg = str(error)
-    # Eliminar parámetros sensibles de URLs en el mensaje
-    msg = re.sub(r'(signature|apiKey|timestamp|secretKey)=[^&\s\'")\]]+', r'\1=***', msg)
+    # Eliminar parámetros sensibles de URLs en el mensaje (Kraken usa Nonce/Authent)
+    msg = re.sub(
+        r'(signature|apiKey|timestamp|secretKey|nonce|Authent|APIKey)=[^&\s\'")\]]+',
+        r'\1=***', msg,
+    )
     return msg
 
 
@@ -64,19 +73,23 @@ async def _retry_async(coro_factory, name: str, max_retries: int = 3,
 # ---------------------------------------------------------------------------
 # Configuración
 # ---------------------------------------------------------------------------
-BINGX_API_KEY = os.environ.get("BINGX_API_KEY")
-BINGX_API_SECRET = os.environ.get("BINGX_API_SECRET")
+KRAKEN_API_KEY = os.environ.get("KRAKEN_API_KEY")
+KRAKEN_API_SECRET = os.environ.get("KRAKEN_API_SECRET")
+# Demo (paper) vs live: demo-futures.kraken.com requiere claves DEMO separadas.
+# La clave la crea Ricardo en el momento del despliegue (Etapa 3) y la pega
+# directo en la instancia como env var — NUNCA en chat/local.
+KRAKEN_DEMO = os.environ.get("KRAKEN_DEMO", "").strip().lower() in ("1", "true", "yes", "on")
 
 # Intentar leer de credentials.json si no hay env vars
 _creds_path = Path(__file__).parent.parent / "credentials.json"
-if not BINGX_API_KEY and _creds_path.exists():
+if not KRAKEN_API_KEY and _creds_path.exists():
     with open(_creds_path) as f:
         _creds = json.load(f)
-    BINGX_API_KEY = _creds.get("BINGX_API_KEY", "")
-    BINGX_API_SECRET = _creds.get("BINGX_API_SECRET", "")
+    KRAKEN_API_KEY = _creds.get("KRAKEN_API_KEY", "")
+    KRAKEN_API_SECRET = _creds.get("KRAKEN_API_SECRET", "")
 
 OHLCV_LIMIT = 1500          # velas 1h (~62 días), suficiente para Z_ATR(1000) + warmup
-BINGX_MAX_CANDLES = 1440    # máximo por petición en BingX kline API
+KRAKEN_MAX_CANDLES = 1000   # máximo conservador por petición (charts/v1 ~1000 recientes)
 TIMEFRAME = "1h"
 MAX_RETRIES = 3
 RETRY_DELAY = 0.5           # segundos
@@ -93,20 +106,49 @@ from master import CONFIG as _MASTER_CONFIG
 MASTER_SYMBOLS = _MASTER_CONFIG['symbols']
 
 # ---------------------------------------------------------------------------
-# Mapping de símbolos: master.py format <-> BingX ccxt format
+# Mapping de símbolos: master.py format <-> Kraken Futures ccxt format
 # ---------------------------------------------------------------------------
-SYMBOL_MAP = {s: f"{s}:USDT" for s in MASTER_SYMBOLS}
+# Verificado primary-source (ccxt krakenfutures.fetch_markets + instruments
+# endpoint): el perp PF_ linear se expone como símbolo unificado 'BASE/USD:USD'
+# (USD-quoted, USD-settled, linear=true). ccxt normaliza XBT→BTC vía
+# commonCurrencies, y POL/RENDER coinciden con el master, así que la regla es
+# determinista: 'X/USDT' (master) → 'X/USD:USD' (Kraken ccxt). Se valida
+# fail-loud contra exchange.markets en el arranque (validate_symbol_map).
+
+
+def to_kraken_symbol(master_symbol: str) -> str:
+    """Convierte 'BTC/USDT' (master.py) a 'BTC/USD:USD' (Kraken Futures PF_ linear ccxt)."""
+    base = master_symbol.split("/")[0]
+    return f"{base}/USD:USD"
+
+
+def from_kraken_symbol(kraken_symbol: str) -> str:
+    """Convierte 'BTC/USD:USD' (Kraken ccxt) a 'BTC/USDT' (formato master.py)."""
+    base = kraken_symbol.split("/")[0]
+    return f"{base}/USDT"
+
+
+SYMBOL_MAP = {s: to_kraken_symbol(s) for s in MASTER_SYMBOLS}
 SYMBOL_MAP_INV = {v: k for k, v in SYMBOL_MAP.items()}
 
 
-def to_bingx_symbol(master_symbol: str) -> str:
-    """Convierte 'BTC/USDT' (formato master.py) a 'BTC/USDT:USDT' (formato BingX ccxt futures)."""
-    return SYMBOL_MAP.get(master_symbol, f"{master_symbol}:USDT")
+def validate_symbol_map(exchange) -> list[str]:
+    """Verifica fail-loud que cada símbolo Kraken mapeado existe en
+    exchange.markets (tras load_markets). Retorna lista de símbolos master
+    NO encontrados (vacía = todo OK). Llamado por live_engine post-load_markets.
 
-
-def from_bingx_symbol(bingx_symbol: str) -> str:
-    """Convierte 'BTC/USDT:USDT' (formato BingX ccxt) a 'BTC/USDT' (formato master.py)."""
-    return SYMBOL_MAP_INV.get(bingx_symbol, bingx_symbol.replace(":USDT", ""))
+    §12 L38: no se asume que el mapeo determinista 'X/USD:USD' resuelve a un
+    mercado real — se mide contra el exchange. Un símbolo ausente (delisted,
+    base distinta) se reporta, no se traga silenciosamente.
+    """
+    markets = getattr(exchange, "markets", None) or {}
+    if not markets:
+        return []  # markets no cargados (mock/test) — sin validación posible
+    missing = []
+    for master, kraken_sym in SYMBOL_MAP.items():
+        if kraken_sym not in markets:
+            missing.append(master)
+    return missing
 
 
 # ---------------------------------------------------------------------------
@@ -119,22 +161,28 @@ def _create_aiohttp_session() -> aiohttp.ClientSession:
     return aiohttp.ClientSession(connector=connector)
 
 
-def _create_bingx_exchange(api_key=None, api_secret=None) -> ccxt_async.bingx:
-    key = api_key or BINGX_API_KEY
-    secret = api_secret or BINGX_API_SECRET
+def _create_kraken_exchange(api_key=None, api_secret=None) -> ccxt_async.krakenfutures:
+    key = api_key or KRAKEN_API_KEY
+    secret = api_secret or KRAKEN_API_SECRET
     if not key or not secret:
         raise RuntimeError(
-            "Credenciales BingX no encontradas. "
-            "Setear BINGX_API_KEY/BINGX_API_SECRET como env vars o en credentials.json"
+            "Credenciales Kraken Futures no encontradas. "
+            "Setear KRAKEN_API_KEY/KRAKEN_API_SECRET como env vars o en credentials.json"
         )
-    return ccxt_async.bingx({
+    ex = ccxt_async.krakenfutures({
         "apiKey": key,
         "secret": secret,
-        "enableRateLimit": False,
+        # Kraken tolera nonces fuera de orden solo "brevemente" → mantener
+        # rate-limit ON para serializar y evitar bursts que desordenen el nonce.
+        "enableRateLimit": True,
         "timeout": REQUEST_TIMEOUT,
-        "options": {"defaultType": "swap"},
         "session": _create_aiohttp_session(),
     })
+    if KRAKEN_DEMO:
+        # demo-futures.kraken.com — sandbox oficial (paper). Idéntico a prod
+        # salvo la base URL. Requiere claves DEMO separadas (no las de prod).
+        ex.set_sandbox_mode(True)
+    return ex
 
 
 # ---------------------------------------------------------------------------
@@ -143,7 +191,7 @@ def _create_bingx_exchange(api_key=None, api_secret=None) -> ccxt_async.bingx:
 async def download_all_ohlcv(
     symbols: list | None = None,
     limit: int = OHLCV_LIMIT,
-    exchange: ccxt_async.bingx | None = None,
+    exchange: ccxt_async.krakenfutures | None = None,
 ) -> dict[str, pd.DataFrame | None]:
     """
     Descarga OHLCV de BingX Futures para todos los símbolos en paralelo.
@@ -160,106 +208,59 @@ async def download_all_ohlcv(
     symbols = symbols or MASTER_SYMBOLS
     own_exchange = exchange is None
     if own_exchange:
-        exchange = _create_bingx_exchange()
+        exchange = _create_kraken_exchange()
 
     t0 = time.perf_counter()
 
+    async def _fetch_paged(kraken_sym: str) -> list:
+        """Descarga `limit` velas 1h de Kraken charts/v1. Para limit grande,
+        pagina hacia atrás con `since` (Kraken ~KRAKEN_MAX_CANDLES por petición).
+        Retorna lista ccxt [[ts,o,h,l,c,v],...] ascendente, últimas `limit`."""
+        if limit <= KRAKEN_MAX_CANDLES:
+            return await exchange.fetch_ohlcv(kraken_sym, TIMEFRAME, limit=limit)
+        now_ms = int(time.time() * 1000)
+        cursor = now_ms - limit * 3_600_000  # 1h por vela
+        collected: dict[int, list] = {}
+        while len(collected) < limit:
+            page = await exchange.fetch_ohlcv(
+                kraken_sym, TIMEFRAME, since=cursor, limit=KRAKEN_MAX_CANDLES
+            )
+            if not page:
+                break
+            for row in page:
+                collected[int(row[0])] = row
+            last_ts = int(page[-1][0])
+            if last_ts < cursor:  # sin progreso → cortar
+                break
+            cursor = last_ts + 3_600_000
+            if cursor >= now_ms:
+                break
+        rows = [collected[k] for k in sorted(collected)]
+        return rows[-limit:]
+
     async def _fetch_one(sym: str) -> tuple[str, pd.DataFrame | None]:
-        bingx_sym = to_bingx_symbol(sym)
+        kraken_sym = to_kraken_symbol(sym)
         for attempt in range(1, MAX_RETRIES + 1):
             try:
-                if limit <= BINGX_MAX_CANDLES:
-                    ohlcv = await exchange.fetch_ohlcv(bingx_sym, TIMEFRAME, limit=limit)
-                else:
-                    # Paginación: BingX max 1440 por petición
-                    now_ms = int(time.time() * 1000)
-                    since_ms = now_ms - limit * 3_600_000  # 1h por vela
-                    ohlcv_1 = await exchange.fetch_ohlcv(
-                        bingx_sym, TIMEFRAME, since=since_ms, limit=BINGX_MAX_CANDLES
+                ohlcv = await _fetch_paged(kraken_sym)
+                # Lista vacia sin excepcion dejaba el simbolo con DataFrame
+                # vacio silenciosamente y brain saltaba evaluacion. Levantar
+                # explicitamente activa el retry del outer for attempt.
+                if not ohlcv:
+                    raise ValueError(
+                        f"fetch_ohlcv retorno lista vacia para {kraken_sym}"
                     )
-                    # v2.3.8 (fix B5): lista vacia sin excepcion dejaba el
-                    # simbolo con DataFrame vacio silenciosamente y brain
-                    # saltaba evaluacion. Levantar explicitamente activa el
-                    # retry del outer for attempt.
-                    if not ohlcv_1:
-                        raise ValueError(
-                            f"fetch_ohlcv retorno lista vacia para {bingx_sym} "
-                            f"(pagina 1 con since={since_ms})"
-                        )
-                    last_ts = ohlcv_1[-1][0] + 1
-                    ohlcv_2 = await exchange.fetch_ohlcv(
-                        bingx_sym, TIMEFRAME, since=last_ts, limit=limit - len(ohlcv_1)
-                    )
-                    ohlcv = ohlcv_1 + ohlcv_2
                 df = pd.DataFrame(ohlcv, columns=["timestamp", "open", "high", "low", "close", "volume"])
                 df["timestamp"] = pd.to_datetime(df["timestamp"], unit="ms", utc=True)
-
-                # v2.3.11: garantizar que iloc[-1] sea el bar forming (hora t en
-                # curso) para restaurar Fidelidad 2. BingX paginated con `since`
-                # incluye el forming INCONSISTENTEMENTE (a veces como iloc[-1],
-                # a veces no, dependiendo de timing/cache). Fetch adicional sin
-                # `since` (limit=2) retorna [cerrada, forming] deterministicamente.
-                # 3 casos tras comparar forming_ts vs iloc[-1].ts del paginated:
-                #   (a) diff = +1h: paginated trae hasta t-1, falta forming →
-                #       apendemos. Caso critico que este fix resuelve.
-                #   (b) diff = 0:   paginated ya trae forming como iloc[-1] →
-                #       no hacer nada. Caso normal durante cycles del bot
-                #       (logs SIGNALS_RAW confirman "t"=cycle_hour historicamente).
-                #   (c) otros:      inconsistencia real (race transicion xx:00:00,
-                #       gap de datos, etc.) → warn y df sin forming.
-                # Fallback robusto: cualquier excepcion del fetch → warn y df
-                # sin forming (modo lag solo ese simbolo ese ciclo, no bloquea).
-                try:
-                    forming_ohlcv = await exchange.fetch_ohlcv(
-                        bingx_sym, TIMEFRAME, limit=2
-                    )
-                    if forming_ohlcv and len(forming_ohlcv) >= 1:
-                        forming_row = forming_ohlcv[-1]
-                        forming_ts = int(forming_row[0])
-                        last_paginated_ms = int(
-                            df["timestamp"].iloc[-1].timestamp() * 1000
-                        )
-                        diff_ms = forming_ts - last_paginated_ms
-                        if diff_ms == 3_600_000:
-                            # (a) Paginated sin forming — apendemos.
-                            forming_df = pd.DataFrame([{
-                                "timestamp": pd.Timestamp(
-                                    forming_ts, unit="ms", tz="UTC"
-                                ),
-                                "open": forming_row[1],
-                                "high": forming_row[2],
-                                "low": forming_row[3],
-                                "close": forming_row[4],
-                                "volume": forming_row[5],
-                            }])
-                            df = pd.concat(
-                                [df, forming_df], ignore_index=True
-                            )
-                        elif diff_ms == 0:
-                            # (b) Paginated ya trae forming — no hacer nada.
-                            # Update OHLC del ultimo bar con el snapshot mas
-                            # reciente del forming fetch (puede haber avanzado
-                            # unos segundos de datos entre ambos fetches).
-                            df.iloc[-1, df.columns.get_loc("open")] = forming_row[1]
-                            df.iloc[-1, df.columns.get_loc("high")] = forming_row[2]
-                            df.iloc[-1, df.columns.get_loc("low")] = forming_row[3]
-                            df.iloc[-1, df.columns.get_loc("close")] = forming_row[4]
-                            df.iloc[-1, df.columns.get_loc("volume")] = forming_row[5]
-                        else:
-                            # (c) Inconsistencia real — warn.
-                            logger.warning(
-                                f"{sym}: forming ts inconsistente "
-                                f"(last_pag={last_paginated_ms} ms, "
-                                f"forming={forming_ts} ms, "
-                                f"diff={diff_ms / 3_600_000:.2f}h). "
-                                f"df sin modificar."
-                            )
-                except Exception as e:
-                    logger.warning(
-                        f"{sym}: forming fetch fallo "
-                        f"({_sanitize_error(e)}). df sin modificar."
-                    )
-
+                df = (
+                    df.drop_duplicates(subset=["timestamp"])
+                    .sort_values("timestamp")
+                    .reset_index(drop=True)
+                )
+                # NOTA fidelidad (objetivo Etapa 4 paper): el hack forming-bar
+                # de BingX se eliminó. charts/v1 de Kraken devuelve la vela en
+                # curso como último elemento — verificar empíricamente en demo
+                # que iloc[-1] es el bar forming (convención del brain on-close).
                 return sym, df
             except Exception as e:
                 logger.warning(f"{sym}: retry {attempt}/{MAX_RETRIES}, error: {_sanitize_error(e)}")
@@ -286,7 +287,7 @@ async def download_all_ohlcv(
 # 2. get_open_positions
 # ---------------------------------------------------------------------------
 async def get_open_positions(
-    exchange: ccxt_async.bingx | None = None,
+    exchange: ccxt_async.krakenfutures | None = None,
 ) -> dict[str, dict]:
     """
     Consulta posiciones abiertas en BingX Futures.
@@ -303,7 +304,7 @@ async def get_open_positions(
     """
     own_exchange = exchange is None
     if own_exchange:
-        exchange = _create_bingx_exchange()
+        exchange = _create_kraken_exchange()
 
     t0 = time.perf_counter()
     try:
@@ -313,7 +314,7 @@ async def get_open_positions(
             name="fetch_positions",
         )
     except ccxt_sync.AuthenticationError:
-        logger.critical("Credenciales BingX inválidas — deteniendo.")
+        logger.critical("Credenciales Kraken Futures inválidas — deteniendo.")
         if own_exchange:
             await exchange.close()
         raise
@@ -328,7 +329,7 @@ async def get_open_positions(
         size = float(pos.get("contracts", 0) or 0)
         if size == 0:
             continue
-        master_sym = from_bingx_symbol(pos["symbol"])
+        master_sym = from_kraken_symbol(pos["symbol"])
         side = pos.get("side", "").lower()
         entry_px = float(pos.get("entryPrice", 0) or 0)
         # BingX via ccxt a veces provee "notional" directo (valor USDT de
@@ -382,7 +383,7 @@ async def get_open_positions(
 # ---------------------------------------------------------------------------
 async def get_open_orders(
     symbol: str | None = None,
-    exchange: ccxt_async.bingx | None = None,
+    exchange: ccxt_async.krakenfutures | None = None,
 ) -> list[dict]:
     """
     Consulta órdenes abiertas (stops pendientes, límites, etc.).
@@ -396,13 +397,13 @@ async def get_open_orders(
     """
     own_exchange = exchange is None
     if own_exchange:
-        exchange = _create_bingx_exchange()
+        exchange = _create_kraken_exchange()
 
-    bingx_sym = to_bingx_symbol(symbol) if symbol else None
+    kraken_sym = to_kraken_symbol(symbol) if symbol else None
     try:
         # v2.3.8 (fix B4): retry con backoff para hiccups transitorios.
         raw_orders = await _retry_async(
-            lambda: exchange.fetch_open_orders(bingx_sym),
+            lambda: exchange.fetch_open_orders(kraken_sym),
             name="fetch_open_orders",
         )
     except Exception as e:
@@ -413,19 +414,28 @@ async def get_open_orders(
 
     result = []
     for o in raw_orders:
-        # BingX trigger orders (TRIGGER_MARKET) arrive as type="market"
-        # with a stopPrice. Normalize to "stop_market" so reconcile_state
-        # and update_trailing_stop recognize them as stop orders.
+        # Kraken Futures stop orders (orderType='stp'/'take_profit') llegan vía
+        # ccxt con triggerPrice/stopLossPrice/stopPrice y/o info.orderType.
+        # Normalizar a "stop_market" para que reconcile_state los reconozca
+        # como stops (el SL server-side reduce-only que coloca open_position).
         order_type = o.get("type", "")
-        if o.get("stopPrice") and order_type in ("market", "limit"):
+        info = o.get("info", {}) or {}
+        raw_ot = str(info.get("orderType", "")).lower()
+        trigger_px = (
+            o.get("triggerPrice")
+            or o.get("stopLossPrice")
+            or o.get("stopPrice")
+            or info.get("stopPrice")
+        )
+        if trigger_px or raw_ot in ("stp", "take_profit", "stop"):
             order_type = "stop_market"
         result.append({
             "id": o["id"],
-            "symbol": from_bingx_symbol(o["symbol"]),
+            "symbol": from_kraken_symbol(o["symbol"]),
             "type": order_type,
             "side": o.get("side", ""),
-            "price": float(o.get("stopPrice") or o.get("price") or 0),
-            "amount": float(o.get("amount", 0) or 0),
+            "price": float(trigger_px or o.get("price") or 0),
+            "amount": float(o.get("amount", 0) or o.get("remaining", 0) or 0),
         })
 
     if own_exchange:
@@ -440,7 +450,7 @@ async def get_open_orders(
 async def get_recent_closed_fill(
     symbol: str,
     since_ms: int | None = None,
-    exchange: ccxt_async.bingx | None = None,
+    exchange: ccxt_async.krakenfutures | None = None,
 ) -> dict | None:
     """Recupera el fill REAL del cierre exchange-side (SL trigger / liquidación /
     cierre manual) de un símbolo, vía fetch_my_trades. v2.7.1 — alimenta ORPHAN_CLOSE
@@ -458,15 +468,15 @@ async def get_recent_closed_fill(
     """
     own_exchange = exchange is None
     if own_exchange:
-        exchange = _create_bingx_exchange()
+        exchange = _create_kraken_exchange()
 
-    bingx_sym = to_bingx_symbol(symbol)
+    kraken_sym = to_kraken_symbol(symbol)
     if since_ms is None:
         since_ms = int(time.time() * 1000) - 3_600_000  # última hora
 
     try:
         trades = await _retry_async(
-            lambda: exchange.fetch_my_trades(bingx_sym, since=since_ms, limit=50),
+            lambda: exchange.fetch_my_trades(kraken_sym, since=since_ms, limit=50),
             name="fetch_my_trades",
         )
     except Exception as e:
@@ -487,43 +497,32 @@ async def get_recent_closed_fill(
     # El trade de cierre es el más reciente (mayor timestamp).
     last = max(trades, key=lambda t: t.get("timestamp", 0) or 0)
 
-    # v2.7.2 fill-size fix: ccxt mapea MAL los campos de BingX (pone amount=base*N,
-    # cost=price*amount_erróneo → inflado ~25×). Los valores CORRECTOS están en el
-    # `info` crudo de BingX: info.volume = cantidad base (DOGE), info.amount = coste
-    # quote (USDT), info.commission = fee. Preferir info crudo; fallback a ccxt.
-    info = last.get("info", {}) or {}
+    # Kraken Futures (migración): a diferencia de BingX, ccxt mapea BIEN los
+    # campos de un fill PF_ linear (contractSize=1) — NO hay hazard "25×".
+    # Verificado primary-source (ccxt krakenfutures.parseTrade): para mercado
+    # linear, `amount` = size base y `cost = stringMul(amount, price)` en USD.
+    # El raw fill de Kraken (/fills) trae size/price pero NO volume/amount/
+    # commission (los keys de BingX) → se usa la ruta ccxt-unified limpia.
+    price = float(last.get("price", 0) or 0)
+    base_amount = float(last.get("amount", 0) or 0)        # size base (PF_ contractSize=1)
+    quote_cost = float(last.get("cost", 0) or 0)           # USD = price × size (ccxt-computed)
+    if quote_cost <= 0 and price > 0 and base_amount > 0:
+        quote_cost = price * base_amount                    # gate ortogonal: cost ≈ price×amount
 
-    def _f(*keys):
-        for k in keys:
-            v = info.get(k)
-            if v not in (None, ""):
-                try:
-                    return float(v)
-                except (TypeError, ValueError):
-                    pass
-        return None
-
-    base_amount = _f("volume")              # DOGE base units
-    quote_cost = _f("amount")               # USDT notional (BingX semántica)
-    raw_commission = _f("commission")       # negativo en BingX (fee pagado)
-    fee_cost = abs(raw_commission) if raw_commission is not None else 0.0
-
-    # Fallback a campos ccxt SOLO si el info crudo no trae los valores.
-    if base_amount is None:
-        base_amount = float(last.get("amount", 0) or 0)
-    if quote_cost is None:
-        # ccxt cost; si parece inconsistente se filtrará por el sanity gate del caller.
-        quote_cost = float(last.get("cost", 0) or 0)
-    if fee_cost == 0.0:
-        fee = last.get("fee") or {}
-        if isinstance(fee, dict):
-            fee_cost = abs(float(fee.get("cost", 0) or 0))
+    # Fee: el /fills de Kraken NO trae fee; ccxt SINTETIZA fee.cost = rate×cost
+    # (estimación con la tasa estática del mercado, NO el fee real cobrado).
+    # Se usa como estimación; el fee real vive en un endpoint account-log
+    # separado (refinamiento futuro / objetivo de fidelidad Etapa 4 paper).
+    fee_cost = 0.0
+    fee = last.get("fee") or {}
+    if isinstance(fee, dict):
+        fee_cost = abs(float(fee.get("cost", 0) or 0))
 
     return {
-        "price": float(last.get("price", 0) or 0),
-        "amount": base_amount,          # base units (DOGE) — info.volume corregido
-        "cost": quote_cost,             # USDT notional — info.amount corregido (NO ccxt inflado)
-        "fee_usdt": fee_cost,
+        "price": price,
+        "amount": base_amount,          # base units (ccxt size — PF_ linear contractSize=1)
+        "cost": quote_cost,             # USD notional (ccxt price×amount; gate cost≈price×amount)
+        "fee_usdt": fee_cost,           # ESTIMACIÓN ccxt (rate×cost); fee real = account-log
         "timestamp_ms": int(last.get("timestamp", 0) or 0),
         "side": last.get("side", ""),
     }
@@ -533,7 +532,7 @@ async def get_recent_closed_fill(
 # 4. get_balance
 # ---------------------------------------------------------------------------
 async def get_balance(
-    exchange: ccxt_async.bingx | None = None,
+    exchange: ccxt_async.krakenfutures | None = None,
 ) -> dict:
     """
     Returns:
@@ -541,7 +540,7 @@ async def get_balance(
     """
     own_exchange = exchange is None
     if own_exchange:
-        exchange = _create_bingx_exchange()
+        exchange = _create_kraken_exchange()
 
     try:
         # v2.3.8 (fix B4): retry con backoff para hiccups transitorios.
@@ -550,7 +549,7 @@ async def get_balance(
             name="fetch_balance",
         )
     except ccxt_sync.AuthenticationError:
-        logger.critical("Credenciales BingX inválidas — deteniendo.")
+        logger.critical("Credenciales Kraken Futures inválidas — deteniendo.")
         if own_exchange:
             await exchange.close()
         raise
@@ -560,18 +559,31 @@ async def get_balance(
             await exchange.close()
         raise
 
-    usdt = bal.get("USDT", {})
+    # Kraken Futures PF_ = multi-collateral USD-margined. El colateral puede
+    # ser USD/USDT/USDC (con haircut). Se prefiere el wallet USD (moneda de
+    # settle); fallback a USDT/USDC. OBJETIVO PAPER (Etapa 4): confirmar contra
+    # demo qué moneda/estructura devuelve ccxt fetch_balance (free/total) — la
+    # cuenta demo se fondea en USD y el sizing usa 'free' como capital operable.
+    wallet, currency = {}, "USD"
+    for ccy in ("USD", "USDT", "USDC"):
+        w = bal.get(ccy) or {}
+        if isinstance(w, dict) and (float(w.get("total", 0) or 0) > 0):
+            wallet, currency = w, ccy
+            break
     result = {
-        "total": float(usdt.get("total", 0) or 0),
-        "free": float(usdt.get("free", 0) or 0),
-        "used": float(usdt.get("used", 0) or 0),
-        "currency": "USDT",
+        "total": float(wallet.get("total", 0) or 0),
+        "free": float(wallet.get("free", 0) or 0),
+        "used": float(wallet.get("used", 0) or 0),
+        "currency": currency,
     }
 
     if own_exchange:
         await exchange.close()
 
-    logger.info(f"Balance USDT — total: {result['total']:.2f}, libre: {result['free']:.2f}")
+    logger.info(
+        f"Balance {result['currency']} — total: {result['total']:.2f}, "
+        f"libre: {result['free']:.2f}"
+    )
     return result
 
 
@@ -581,26 +593,29 @@ async def get_balance(
 
 async def get_funding_rate(
     symbol: str,
-    exchange: ccxt_async.bingx | None = None,
+    exchange: ccxt_async.krakenfutures | None = None,
 ) -> dict:
     """
     Consulta el funding rate actual de un símbolo.
 
     Returns:
         {'symbol': symbol, 'rate': 0.0001, 'next_funding_time': datetime|None,
-         'interval': '8h'}
+         'interval': '1h'}
+
+    Kraken Futures PF_ multi-collateral: funding HORARIO (cap ±0.5%/h,
+    fundingRateCoefficient=8), acumulación continua — NO el 8h de BingX.
     """
     own_exchange = exchange is None
     if own_exchange:
-        exchange = _create_bingx_exchange()
+        exchange = _create_kraken_exchange()
 
-    bingx_sym = to_bingx_symbol(symbol)
+    kraken_sym = to_kraken_symbol(symbol)
     result = {
-        "symbol": symbol, "rate": 0.0, "next_funding_time": None, "interval": "8h",
+        "symbol": symbol, "rate": 0.0, "next_funding_time": None, "interval": "1h",
     }
 
     try:
-        fr = await exchange.fetch_funding_rate(bingx_sym)
+        fr = await exchange.fetch_funding_rate(kraken_sym)
         result["rate"] = float(fr.get("fundingRate", 0) or 0)
         next_ts = fr.get("fundingTimestamp") or fr.get("nextFundingTimestamp")
         if next_ts:
@@ -618,7 +633,7 @@ async def get_funding_history(
     symbol: str,
     since: int | None = None,
     limit: int = 10,
-    exchange: ccxt_async.bingx | None = None,
+    exchange: ccxt_async.krakenfutures | None = None,
 ) -> list[dict]:
     """
     Consulta el historial de funding cobrado/pagado por una posición.
@@ -635,14 +650,14 @@ async def get_funding_history(
     """
     own_exchange = exchange is None
     if own_exchange:
-        exchange = _create_bingx_exchange()
+        exchange = _create_kraken_exchange()
 
-    bingx_sym = to_bingx_symbol(symbol)
+    kraken_sym = to_kraken_symbol(symbol)
     results = []
 
     try:
         # ccxt unified: fetchFundingHistory (income type = FUNDING_FEE)
-        raw = await exchange.fetch_funding_history(bingx_sym, since=since, limit=limit)
+        raw = await exchange.fetch_funding_history(kraken_sym, since=since, limit=limit)
         for entry in raw:
             results.append({
                 "timestamp": pd.Timestamp(entry.get("timestamp", 0), unit="ms", tz="UTC"),
@@ -670,21 +685,21 @@ async def cross_exchange_fidelity_test(
     n_bars: int = 1000,
 ) -> pd.DataFrame:
     """
-    Descarga n_bars de Binance y BingX para cada símbolo.
-    Compara close prices bar a bar.
+    Descarga n_bars de Binance (spot) y Kraken Futures para cada símbolo y
+    compara close prices bar a bar. Mide la brecha de fidelidad sim(Binance)
+    vs venue de ejecución (Kraken) — la motivación de la migración.
 
     Returns:
         DataFrame: symbol, mean_diff_pct, max_diff_pct, median_diff_pct,
-                   n_bars_compared, n_missing_bingx, n_missing_binance
+                   n_bars_compared, n_missing_kraken, n_missing_binance
     """
     symbols = symbols or MASTER_SYMBOLS
     logger.info(f"Fidelity test: {len(symbols)} símbolos, {n_bars} barras cada uno")
 
     # Crear exchanges (solo datos públicos — sin API keys)
-    bingx = ccxt_async.bingx({
+    kraken = ccxt_async.krakenfutures({
         "enableRateLimit": True,
         "timeout": REQUEST_TIMEOUT,
-        "options": {"defaultType": "swap"},
         "session": _create_aiohttp_session(),
     })
     binance = ccxt_async.binance({
@@ -694,13 +709,13 @@ async def cross_exchange_fidelity_test(
     })
 
     # Pre-cargar mercados una sola vez (evita race condition de load_markets paralelos)
-    print("  Cargando mercados BingX...")
+    print("  Cargando mercados Kraken Futures...")
     try:
-        await bingx.load_markets()
-        print(f"    BingX: {len(bingx.markets)} mercados")
+        await kraken.load_markets()
+        print(f"    Kraken: {len(kraken.markets)} mercados")
     except Exception as e:
-        logger.error(f"  BingX load_markets falló: {_sanitize_error(e)}")
-        await bingx.close()
+        logger.error(f"  Kraken load_markets falló: {_sanitize_error(e)}")
+        await kraken.close()
         await binance.close()
         return pd.DataFrame()
 
@@ -710,23 +725,23 @@ async def cross_exchange_fidelity_test(
         print(f"    Binance: {len(binance.markets)} mercados")
     except Exception as e:
         logger.error(f"  Binance load_markets falló: {_sanitize_error(e)}")
-        await bingx.close()
+        await kraken.close()
         await binance.close()
         return pd.DataFrame()
 
     async def _fetch_pair(sym: str) -> dict:
-        bingx_sym = to_bingx_symbol(sym)
+        kraken_sym = to_kraken_symbol(sym)
         binance_sym = sym  # Binance spot usa 'BTC/USDT' directamente
 
-        bingx_data, binance_data = None, None
+        kraken_data, binance_data = None, None
 
-        # BingX
+        # Kraken Futures
         for attempt in range(1, MAX_RETRIES + 1):
             try:
-                bingx_data = await bingx.fetch_ohlcv(bingx_sym, TIMEFRAME, limit=n_bars)
+                kraken_data = await kraken.fetch_ohlcv(kraken_sym, TIMEFRAME, limit=n_bars)
                 break
             except Exception as e:
-                logger.warning(f"Fidelity BingX {sym}: retry {attempt}/{MAX_RETRIES}: {_sanitize_error(e)}")
+                logger.warning(f"Fidelity Kraken {sym}: retry {attempt}/{MAX_RETRIES}: {_sanitize_error(e)}")
                 if attempt < MAX_RETRIES:
                     await asyncio.sleep(RETRY_DELAY)
 
@@ -740,23 +755,23 @@ async def cross_exchange_fidelity_test(
                 if attempt < MAX_RETRIES:
                     await asyncio.sleep(RETRY_DELAY)
 
-        if bingx_data is None or binance_data is None:
+        if kraken_data is None or binance_data is None:
             return {
                 "symbol": sym,
                 "mean_diff_pct": None,
                 "max_diff_pct": None,
                 "median_diff_pct": None,
                 "n_bars_compared": 0,
-                "n_missing_bingx": n_bars if bingx_data is None else 0,
+                "n_missing_kraken": n_bars if kraken_data is None else 0,
                 "n_missing_binance": n_bars if binance_data is None else 0,
             }
 
         # Convertir a DataFrames y alinear por timestamp
-        df_bingx = pd.DataFrame(bingx_data, columns=["ts", "o", "h", "l", "c", "v"]).set_index("ts")
+        df_kraken = pd.DataFrame(kraken_data, columns=["ts", "o", "h", "l", "c", "v"]).set_index("ts")
         df_binance = pd.DataFrame(binance_data, columns=["ts", "o", "h", "l", "c", "v"]).set_index("ts")
 
-        merged = df_bingx[["c"]].join(df_binance[["c"]], lsuffix="_bingx", rsuffix="_binance", how="outer")
-        n_missing_bingx = int(merged["c_bingx"].isna().sum())
+        merged = df_kraken[["c"]].join(df_binance[["c"]], lsuffix="_kraken", rsuffix="_binance", how="outer")
+        n_missing_kraken = int(merged["c_kraken"].isna().sum())
         n_missing_binance = int(merged["c_binance"].isna().sum())
 
         both = merged.dropna()
@@ -764,10 +779,10 @@ async def cross_exchange_fidelity_test(
             return {
                 "symbol": sym, "mean_diff_pct": None, "max_diff_pct": None,
                 "median_diff_pct": None, "n_bars_compared": 0,
-                "n_missing_bingx": n_missing_bingx, "n_missing_binance": n_missing_binance,
+                "n_missing_kraken": n_missing_kraken, "n_missing_binance": n_missing_binance,
             }
 
-        diff_pct = ((both["c_bingx"] - both["c_binance"]).abs() / both["c_binance"] * 100)
+        diff_pct = ((both["c_kraken"] - both["c_binance"]).abs() / both["c_binance"] * 100)
 
         return {
             "symbol": sym,
@@ -775,11 +790,11 @@ async def cross_exchange_fidelity_test(
             "max_diff_pct": round(diff_pct.max(), 6),
             "median_diff_pct": round(diff_pct.median(), 6),
             "n_bars_compared": len(both),
-            "n_missing_bingx": n_missing_bingx,
+            "n_missing_kraken": n_missing_kraken,
             "n_missing_binance": n_missing_binance,
         }
 
-    # Ejecutar en paralelo (con semáforo para no saturar Binance rate limit)
+    # Ejecutar en paralelo (con semáforo para no saturar el rate limit)
     sem = asyncio.Semaphore(10)
 
     async def _guarded(sym):
@@ -791,12 +806,12 @@ async def cross_exchange_fidelity_test(
     elapsed = time.perf_counter() - t0
 
     # Cerrar exchanges y sus sesiones aiohttp
-    bingx_session = bingx.session
+    kraken_session = kraken.session
     binance_session = binance.session
-    await bingx.close()
+    await kraken.close()
     await binance.close()
-    if bingx_session and not bingx_session.closed:
-        await bingx_session.close()
+    if kraken_session and not kraken_session.closed:
+        await kraken_session.close()
     if binance_session and not binance_session.closed:
         await binance_session.close()
 
@@ -817,13 +832,13 @@ async def cross_exchange_fidelity_test(
                 f"(threshold={threshold}%)"
             )
 
-        total_bars = row["n_bars_compared"] + row["n_missing_bingx"] + row["n_missing_binance"]
+        total_bars = row["n_bars_compared"] + row["n_missing_kraken"] + row["n_missing_binance"]
         if total_bars > 0:
-            missing_pct = (row["n_missing_bingx"] + row["n_missing_binance"]) / total_bars * 100
+            missing_pct = (row["n_missing_kraken"] + row["n_missing_binance"]) / total_bars * 100
             if missing_pct > 1.0:
                 logger.warning(
                     f"  {row['symbol']}: {missing_pct:.1f}% barras faltantes "
-                    f"(bingx={row['n_missing_bingx']}, binance={row['n_missing_binance']})"
+                    f"(kraken={row['n_missing_kraken']}, binance={row['n_missing_binance']})"
                 )
 
     return df
@@ -838,7 +853,7 @@ async def _run_quick_test():
     print("=" * 60)
 
     # 1. Descargar OHLCV
-    exchange = _create_bingx_exchange()
+    exchange = _create_kraken_exchange()
 
     print(f"\n[1] Descargando {len(MASTER_SYMBOLS)} símbolos ({OHLCV_LIMIT} velas 1h)...")
     data = await download_all_ohlcv(exchange=exchange)
@@ -902,9 +917,9 @@ async def _run_fidelity_test():
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Data Feed — BingX OHLCV + Account")
+    parser = argparse.ArgumentParser(description="Data Feed — Kraken Futures OHLCV + Account")
     parser.add_argument("--fidelity-test", action="store_true",
-                        help="Ejecutar test de fidelidad cross-exchange (Binance vs BingX)")
+                        help="Ejecutar test de fidelidad cross-exchange (Binance vs Kraken)")
     args = parser.parse_args()
 
     logging.basicConfig(
