@@ -29,6 +29,7 @@ from live.data_feed import (
     validate_symbol_map,
     MASTER_SYMBOLS,
 )
+from live.clock_sync import assert_clock_synced_for_trading
 from live.brain_engine import (
     BrainState,
     load_models,
@@ -275,6 +276,17 @@ class LiveEngine:
         except Exception as e:
             logger.critical(f"[ENGINE] Fallo de conexion a Kraken Futures: {e}")
             raise
+
+        # 1b. GATE DE SYNC HORARIA — Kraken usa nonce=system-time-ms y tolera
+        # nonces fuera de orden solo brevemente. Verificar sincronización NTP
+        # ANTES de la primera orden. Con órdenes reales (no DRY_RUN), reloj
+        # desincronizado ABORTA el arranque (instalado-pero-no-sincronizado da
+        # el mismo rechazo de timestamp). En DRY_RUN/sim avisa y continúa.
+        if not assert_clock_synced_for_trading(self.config.dry_run):
+            raise RuntimeError(
+                "[ENGINE] Reloj NO sincronizado (NTP) — arranque abortado antes "
+                "de operar. Verificar chrony/timesyncd en la instancia."
+            )
 
         # 2. Cargar modelos GMM + specialist configs
         models_dir = str(_project_root / self.config.regime_models_dir)
