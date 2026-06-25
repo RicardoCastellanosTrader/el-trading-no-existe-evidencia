@@ -241,6 +241,113 @@ def test_flush_residual_noop_cuando_plano():
     print("  [OK] _flush_residual: no-op cuando ya está plano (seguro si 1% no muerde)")
 
 
+def test_flush_residual_persiste_devuelve_false():
+    # Residual NUNCA se aplana (la protección 1% muerde en cada reintento) →
+    # tras max_attempts + verificación final debe devolver False (red de
+    # seguridad reconcile / intervención manual). Rama crítica antes sin cubrir.
+    async def _stuck_positions(exchange=None):
+        return {"ETH/USDT": {"side": "long", "size": 0.4, "entry_price": 100.0}}
+
+    ex = _ExecExchange()
+    _saved_dry, _saved_gp = em.DRY_RUN, em.get_open_positions
+    em.DRY_RUN = False
+    em.get_open_positions = _stuck_positions
+    try:
+        ok = _run(em._flush_residual("ETH/USDT", ex, max_attempts=3))
+    finally:
+        em.DRY_RUN, em.get_open_positions = _saved_dry, _saved_gp
+
+    assert ok is False, "residual persistente debe devolver False (escala a reconcile)"
+    assert len(ex.created) == 3, ("debe reintentar exactamente max_attempts", ex.created)
+    for c in ex.created:
+        assert c["params"].get("reduceOnly") is True
+    print("  [OK] _flush_residual: residual persistente -> False tras max_attempts")
+
+
+# ---------------------------------------------------------------------------
+# 6. get_balance multi-collateral + observabilidad all-zero
+# ---------------------------------------------------------------------------
+
+class _BalanceExchange:
+    def __init__(self, balance):
+        self._balance = balance
+
+    async def fetch_balance(self):
+        return self._balance
+
+    async def close(self):
+        pass
+
+
+def test_get_balance_prefiere_usd():
+    # USD presente -> se prefiere sobre USDT/USDC (moneda de settle PF_).
+    bal = {
+        "USD": {"total": 5000.0, "free": 4000.0, "used": 1000.0},
+        "USDT": {"total": 999.0, "free": 999.0, "used": 0.0},
+        "info": {}, "free": {}, "used": {}, "total": {},
+    }
+    res = _run(df.get_balance(exchange=_BalanceExchange(bal)))
+    assert res["currency"] == "USD", res
+    assert abs(res["total"] - 5000.0) < 1e-9 and abs(res["free"] - 4000.0) < 1e-9, res
+    print("  [OK] get_balance: prefiere wallet USD (settle PF_)")
+
+
+def test_get_balance_fallback_usdt_si_usd_cero():
+    # USD a 0 -> cae a USDT (haircut colateral) sin fallar.
+    bal = {
+        "USD": {"total": 0.0, "free": 0.0, "used": 0.0},
+        "USDT": {"total": 3000.0, "free": 2500.0, "used": 500.0},
+    }
+    res = _run(df.get_balance(exchange=_BalanceExchange(bal)))
+    assert res["currency"] == "USDT", res
+    assert abs(res["free"] - 2500.0) < 1e-9, res
+    print("  [OK] get_balance: fallback USDT cuando USD=0")
+
+
+def test_get_balance_all_zero_no_crash():
+    # Estructura inesperada (multi-collateral anidado distinto) -> wallets 0;
+    # debe devolver ceros con currency default sin lanzar (observabilidad warn).
+    bal = {"FOO": {"total": 10.0, "free": 10.0}}     # ni USD/USDT/USDC
+    res = _run(df.get_balance(exchange=_BalanceExchange(bal)))
+    assert res["total"] == 0.0 and res["free"] == 0.0, res
+    assert res["currency"] == "USD", res
+    print("  [OK] get_balance: all-zero devuelve ceros sin crash (warn observabilidad)")
+
+
+# ---------------------------------------------------------------------------
+# 7. get_open_orders: normaliza stops Kraken (stp/trigger) -> stop_market
+# ---------------------------------------------------------------------------
+
+class _OrdersExchange:
+    def __init__(self, orders):
+        self._orders = orders
+
+    async def fetch_open_orders(self, symbol=None):
+        return self._orders
+
+    async def close(self):
+        pass
+
+
+def test_get_open_orders_normaliza_stop_kraken():
+    # Un `stp` Kraken (orderType='stp' + stopLossPrice) debe normalizarse a
+    # 'stop_market' para que reconcile_state lo reconozca como SL server-side.
+    orders = [
+        {"id": "s1", "symbol": "ETH/USD:USD", "type": "market", "side": "sell",
+         "price": 0, "amount": 0.5, "stopLossPrice": 95.0,
+         "info": {"orderType": "stp"}},
+        {"id": "l1", "symbol": "BTC/USD:USD", "type": "limit", "side": "buy",
+         "price": 60000.0, "amount": 0.01, "info": {"orderType": "lmt"}},
+    ]
+    res = _run(df.get_open_orders(exchange=_OrdersExchange(orders)))
+    by_id = {o["id"]: o for o in res}
+    assert by_id["s1"]["type"] == "stop_market", by_id["s1"]
+    assert by_id["s1"]["symbol"] == "ETH/USDT", by_id["s1"]      # mapeado de vuelta
+    assert abs(by_id["s1"]["price"] - 95.0) < 1e-9, by_id["s1"]  # trigger px
+    assert by_id["l1"]["type"] == "limit", by_id["l1"]           # límite intacto
+    print("  [OK] get_open_orders: stp/trigger Kraken -> stop_market (reconcile-aware)")
+
+
 if __name__ == "__main__":
     tests = [
         test_to_kraken_symbol_rule,
@@ -252,6 +359,11 @@ if __name__ == "__main__":
         test_open_position_stop_params_s2lite,
         test_flush_residual_reaplana,
         test_flush_residual_noop_cuando_plano,
+        test_flush_residual_persiste_devuelve_false,
+        test_get_balance_prefiere_usd,
+        test_get_balance_fallback_usdt_si_usd_cero,
+        test_get_balance_all_zero_no_crash,
+        test_get_open_orders_normaliza_stop_kraken,
     ]
     print("=" * 60)
     print("Running tests/test_kraken_migration.py")

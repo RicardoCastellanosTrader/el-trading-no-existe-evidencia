@@ -577,6 +577,21 @@ async def get_balance(
         "currency": currency,
     }
 
+    # Observabilidad multi-collateral (OBJETIVO PAPER Etapa 4, UNCONFIRMED): si ccxt
+    # anida el balance bajo otra estructura/clave en Kraken demo, los wallets
+    # USD/USDT/USDC saldrían a 0 y el sizing no abriría NADA en silencio. No cambia
+    # lógica (sigue devolviendo 0); solo vuelca las monedas presentes para diagnóstico
+    # rápido en el primer ciclo de paper.
+    if result["total"] == 0 and result["free"] == 0:
+        _ccys = [
+            k for k in bal.keys()
+            if k not in ("info", "free", "used", "total", "timestamp", "datetime")
+        ]
+        logger.warning(
+            "[BALANCE] colateral USD/USDT/USDC = 0. ¿Estructura multi-collateral "
+            f"distinta en Kraken? Monedas con entrada en fetch_balance: {_ccys}"
+        )
+
     if own_exchange:
         await exchange.close()
 
