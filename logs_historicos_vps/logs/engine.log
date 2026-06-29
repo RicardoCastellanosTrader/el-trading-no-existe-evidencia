@@ -1,0 +1,66 @@
+Arrancando en modo LIVE con 45 simbolos
+Bucle continuo
+
+20:19:25 live.live_engine [ENGINE] Arrancando en modo LIVE con 45 simbolos
+20:19:26 data_feed Balance USDT — total: 0.00, libre: 0.00
+20:19:26 live.live_engine [ENGINE] Conexion BingX OK. Balance: 0.00 USDT
+20:19:26 live.live_engine [ENGINE] Markets BingX cargados: 3033 simbolos.
+20:19:29 brain_engine SUI/USDT: modelo GMM no encontrado (/home/trader/combolab/regime_models/SUI_regime.joblib)
+20:19:29 brain_engine SUI/USDT: specialist_configs no encontrado (/home/trader/combolab/regime_wf/SUIUSDT_specialist_configs.json)
+20:19:29 brain_engine AVAX/USDT: modelo GMM no encontrado (/home/trader/combolab/regime_models/AVAX_regime.joblib)
+20:19:29 brain_engine AVAX/USDT: specialist_configs no encontrado (/home/trader/combolab/regime_wf/AVAXUSDT_specialist_configs.json)
+20:19:29 brain_engine HBAR/USDT: modelo GMM no encontrado (/home/trader/combolab/regime_models/HBAR_regime.joblib)
+20:19:29 brain_engine HBAR/USDT: specialist_configs no encontrado (/home/trader/combolab/regime_wf/HBARUSDT_specialist_configs.json)
+20:19:29 brain_engine SHIB/USDT: modelo GMM no encontrado (/home/trader/combolab/regime_models/SHIB_regime.joblib)
+20:19:29 brain_engine SHIB/USDT: specialist_configs no encontrado (/home/trader/combolab/regime_wf/SHIBUSDT_specialist_configs.json)
+20:19:29 brain_engine DOT/USDT: modelo GMM no encontrado (/home/trader/combolab/regime_models/DOT_regime.joblib)
+20:19:29 brain_engine DOT/USDT: specialist_configs no encontrado (/home/trader/combolab/regime_wf/DOTUSDT_specialist_configs.json)
+20:19:29 brain_engine UNI/USDT: modelo GMM no encontrado (/home/trader/combolab/regime_models/UNI_regime.joblib)
+20:19:29 brain_engine UNI/USDT: specialist_configs no encontrado (/home/trader/combolab/regime_wf/UNIUSDT_specialist_configs.json)
+20:19:29 brain_engine AAVE/USDT: modelo GMM no encontrado (/home/trader/combolab/regime_models/AAVE_regime.joblib)
+20:19:29 brain_engine AAVE/USDT: specialist_configs no encontrado (/home/trader/combolab/regime_wf/AAVEUSDT_specialist_configs.json)
+20:19:29 brain_engine NEAR/USDT: modelo GMM no encontrado (/home/trader/combolab/regime_models/NEAR_regime.joblib)
+20:19:29 brain_engine NEAR/USDT: specialist_configs no encontrado (/home/trader/combolab/regime_wf/NEARUSDT_specialist_configs.json)
+20:19:29 brain_engine ICP/USDT: modelo GMM no encontrado (/home/trader/combolab/regime_models/ICP_regime.joblib)
+20:19:29 brain_engine ICP/USDT: specialist_configs no encontrado (/home/trader/combolab/regime_wf/ICPUSDT_specialist_configs.json)
+20:19:29 brain_engine ENA/USDT: modelo GMM no encontrado (/home/trader/combolab/regime_models/ENA_regime.joblib)
+20:19:29 brain_engine ENA/USDT: specialist_configs no encontrado (/home/trader/combolab/regime_wf/ENAUSDT_specialist_configs.json)
+20:19:29 brain_engine WLD/USDT: modelo GMM no encontrado (/home/trader/combolab/regime_models/WLD_regime.joblib)
+20:19:29 brain_engine WLD/USDT: specialist_configs no encontrado (/home/trader/combolab/regime_wf/WLDUSDT_specialist_configs.json)
+20:19:29 brain_engine APT/USDT: modelo GMM no encontrado (/home/trader/combolab/regime_models/APT_regime.joblib)
+20:19:29 brain_engine APT/USDT: specialist_configs no encontrado (/home/trader/combolab/regime_wf/APTUSDT_specialist_configs.json)
+20:19:29 brain_engine ATOM/USDT: modelo GMM no encontrado (/home/trader/combolab/regime_models/ATOM_regime.joblib)
+20:19:29 brain_engine ATOM/USDT: specialist_configs no encontrado (/home/trader/combolab/regime_wf/ATOMUSDT_specialist_configs.json)
+20:19:29 brain_engine ALGO/USDT: modelo GMM no encontrado (/home/trader/combolab/regime_models/ALGO_regime.joblib)
+20:19:29 brain_engine ALGO/USDT: specialist_configs no encontrado (/home/trader/combolab/regime_wf/ALGOUSDT_specialist_configs.json)
+20:19:29 brain_engine ARB/USDT: modelo GMM no encontrado (/home/trader/combolab/regime_models/ARB_regime.joblib)
+20:19:29 brain_engine ARB/USDT: specialist_configs no encontrado (/home/trader/combolab/regime_wf/ARBUSDT_specialist_configs.json)
+20:19:29 brain_engine FIL/USDT: modelo GMM no encontrado (/home/trader/combolab/regime_models/FIL_regime.joblib)
+20:19:29 brain_engine FIL/USDT: specialist_configs no encontrado (/home/trader/combolab/regime_wf/FILUSDT_specialist_configs.json)
+20:19:29 brain_engine QNT/USDT: modelo GMM no encontrado (/home/trader/combolab/regime_models/QNT_regime.joblib)
+20:19:29 brain_engine QNT/USDT: specialist_configs no encontrado (/home/trader/combolab/regime_wf/QNTUSDT_specialist_configs.json)
+20:19:29 brain_engine OP/USDT: modelo GMM no encontrado (/home/trader/combolab/regime_models/OP_regime.joblib)
+20:19:29 brain_engine OP/USDT: specialist_configs no encontrado (/home/trader/combolab/regime_wf/OPUSDT_specialist_configs.json)
+20:19:29 brain_engine IMX/USDT: modelo GMM no encontrado (/home/trader/combolab/regime_models/IMX_regime.joblib)
+20:19:29 brain_engine IMX/USDT: specialist_configs no encontrado (/home/trader/combolab/regime_wf/IMXUSDT_specialist_configs.json)
+20:19:29 brain_engine INJ/USDT: modelo GMM no encontrado (/home/trader/combolab/regime_models/INJ_regime.joblib)
+20:19:29 brain_engine INJ/USDT: specialist_configs no encontrado (/home/trader/combolab/regime_wf/INJUSDT_specialist_configs.json)
+20:19:29 brain_engine STX/USDT: modelo GMM no encontrado (/home/trader/combolab/regime_models/STX_regime.joblib)
+20:19:29 brain_engine STX/USDT: specialist_configs no encontrado (/home/trader/combolab/regime_wf/STXUSDT_specialist_configs.json)
+20:19:29 brain_engine SAND/USDT: modelo GMM no encontrado (/home/trader/combolab/regime_models/SAND_regime.joblib)
+20:19:29 brain_engine SAND/USDT: specialist_configs no encontrado (/home/trader/combolab/regime_wf/SANDUSDT_specialist_configs.json)
+20:19:29 brain_engine MANA/USDT: modelo GMM no encontrado (/home/trader/combolab/regime_models/MANA_regime.joblib)
+20:19:29 brain_engine MANA/USDT: specialist_configs no encontrado (/home/trader/combolab/regime_wf/MANAUSDT_specialist_configs.json)
+20:19:29 brain_engine GRT/USDT: modelo GMM no encontrado (/home/trader/combolab/regime_models/GRT_regime.joblib)
+20:19:29 brain_engine GRT/USDT: specialist_configs no encontrado (/home/trader/combolab/regime_wf/GRTUSDT_specialist_configs.json)
+20:19:29 brain_engine THETA/USDT: modelo GMM no encontrado (/home/trader/combolab/regime_models/THETA_regime.joblib)
+20:19:29 brain_engine THETA/USDT: specialist_configs no encontrado (/home/trader/combolab/regime_wf/THETAUSDT_specialist_configs.json)
+20:19:29 brain_engine Modelos cargados: 20 GMM, 20 specialist_configs (45 símbolos) en 2.81s
+20:19:29 live.live_engine [ENGINE] Modelos cargados: 20 GMM, 20 specialist configs
+20:19:29 live.portfolio_manager [PORTFOLIO] Leverage map: 18 símbolos calculados
+20:19:29 live.live_engine [ENGINE] Portfolio config: 18 leverage entries, 45 sectores
+20:19:29 live.live_engine [ENGINE] State file tiene 203.4h, ignorando (max 2h para recovery)
+20:19:29 data_feed Sin posiciones abiertas (0.10s)
+20:19:29 live.live_engine [ENGINE] 0 posiciones sincronizadas desde exchange
+20:19:29 live.live_engine [ENGINE] v2.8.1 arrancado 2026-06-29 20:19:29 UTC. 45 simbolos, 20 con specialists, LIVE, balance=0 USDT (4.1s)
+20:19:29 live.live_engine [ALERT] [START] v2.8.1 arrancado 2026-06-29 20:19:29 UTC. 45 simbolos, 20 con specialists, LIVE, balance=0 USDT (4.1s)
