@@ -1,0 +1,31 @@
+{
+  "2023-2024": {
+    "name": "EW_full",
+    "n": 1461,
+    "ret_total_pct": 356.55,
+    "sharpe": 1.443,
+    "sortino": 1.938,
+    "maxdd_pct": -59.45,
+    "peor_dd_dur_dias": 256.0
+  },
+  "2023": {
+    "name": "EW_2023",
+    "n": 729,
+    "ret_total_pct": 175.6,
+    "sharpe": 2.012,
+    "sortino": 2.893,
+    "maxdd_pct": -41.18,
+    "peor_dd_dur_dias": 228.0
+  },
+  "2024": {
+    "name": "EW_2024",
+    "n": 732,
+    "ret_total_pct": 65.66,
+    "sharpe": 1.037,
+    "sortino": 1.371,
+    "maxdd_pct": -59.45,
+    "peor_dd_dur_dias": 256.0
+  },
+  "n_listed_min": 35,
+  "n_listed_max": 45
+}

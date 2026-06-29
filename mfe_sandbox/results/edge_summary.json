@@ -1,0 +1,669 @@
+{
+  "reports": {
+    "BTCUSDT": {
+      "sym": "BTCUSDT",
+      "gb": 12.2,
+      "n_cascadas": 1391,
+      "n_control": 13910,
+      "conteo_bucket": {
+        "neg": 121,
+        "mid": 1232,
+        "hi": 38,
+        "na": 0
+      },
+      "por_horizonte": {
+        "1m": {
+          "surv_cascada": {
+            "neg": {
+              "n": 121,
+              "surv": 0.1405,
+              "worst_mae": -0.0101
+            },
+            "mid": {
+              "n": 1232,
+              "surv": 0.1315,
+              "worst_mae": -0.0441
+            },
+            "hi": {
+              "n": 38,
+              "surv": 0.1053,
+              "worst_mae": -0.0363
+            },
+            "na": {
+              "n": 0,
+              "surv": null,
+              "worst_mae": null
+            },
+            "GLOBAL": {
+              "n": 1391,
+              "surv": 0.1316
+            }
+          },
+          "surv_control": {
+            "neg": {
+              "n": 1318,
+              "surv": 0.0068,
+              "worst_mae": -0.0054
+            },
+            "mid": {
+              "n": 12442,
+              "surv": 0.0055,
+              "worst_mae": -0.0278
+            },
+            "hi": {
+              "n": 150,
+              "surv": 0.02,
+              "worst_mae": -0.0102
+            },
+            "na": {
+              "n": 0,
+              "surv": null,
+              "worst_mae": null
+            },
+            "GLOBAL": {
+              "n": 13910,
+              "surv": 0.0058
+            }
+          },
+          "gap_point": {
+            "neg": 0.1337,
+            "mid": 0.126,
+            "hi": 0.0853
+          },
+          "gap_ci_cluster8h": {
+            "gap_por_bucket": {
+              "neg": [
+                0.069,
+                0.1318,
+                0.2019
+              ],
+              "mid": [
+                0.1074,
+                0.1259,
+                0.1453
+              ],
+              "hi": [
+                -0.0149,
+                0.0801,
+                0.184
+              ]
+            },
+            "hi_minus_neg": [
+              -0.1679,
+              -0.0518,
+              0.0678
+            ],
+            "mid_minus_neg": [
+              -0.0782,
+              -0.006,
+              0.0604
+            ]
+          }
+        },
+        "3m": {
+          "surv_cascada": {
+            "neg": {
+              "n": 121,
+              "surv": 0.1901,
+              "worst_mae": -0.0111
+            },
+            "mid": {
+              "n": 1232,
+              "surv": 0.2354,
+              "worst_mae": -0.1003
+            },
+            "hi": {
+              "n": 38,
+              "surv": 0.2632,
+              "worst_mae": -0.0363
+            },
+            "na": {
+              "n": 0,
+              "surv": null,
+              "worst_mae": null
+            },
+            "GLOBAL": {
+              "n": 1391,
+              "surv": 0.2322
+            }
+          },
+          "surv_control": {
+            "neg": {
+              "n": 1318,
+              "surv": 0.0235,
+              "worst_mae": -0.0075
+            },
+            "mid": {
+              "n": 12442,
+              "surv": 0.0324,
+              "worst_mae": -0.0278
+            },
+            "hi": {
+              "n": 150,
+              "surv": 0.0533,
+              "worst_mae": -0.0103
+            },
+            "na": {
+              "n": 0,
+              "surv": null,
+              "worst_mae": null
+            },
+            "GLOBAL": {
+              "n": 13910,
+              "surv": 0.0318
+            }
+          },
+          "gap_point": {
+            "neg": 0.1666,
+            "mid": 0.203,
+            "hi": 0.2099
+          },
+          "gap_ci_cluster8h": {
+            "gap_por_bucket": {
+              "neg": [
+                0.0953,
+                0.1655,
+                0.2397
+              ],
+              "mid": [
+                0.1786,
+                0.2028,
+                0.2279
+              ],
+              "hi": [
+                0.0768,
+                0.2082,
+                0.3522
+              ]
+            },
+            "hi_minus_neg": [
+              -0.109,
+              0.0441,
+              0.2045
+            ],
+            "mid_minus_neg": [
+              -0.0408,
+              0.0375,
+              0.1128
+            ]
+          }
+        },
+        "5m": {
+          "surv_cascada": {
+            "neg": {
+              "n": 121,
+              "surv": 0.2893,
+              "worst_mae": -0.0145
+            },
+            "mid": {
+              "n": 1232,
+              "surv": 0.2687,
+              "worst_mae": -0.1003
+            },
+            "hi": {
+              "n": 38,
+              "surv": 0.2105,
+              "worst_mae": -0.0363
+            },
+            "na": {
+              "n": 0,
+              "surv": null,
+              "worst_mae": null
+            },
+            "GLOBAL": {
+              "n": 1391,
+              "surv": 0.2689
+            }
+          },
+          "surv_control": {
+            "neg": {
+              "n": 1318,
+              "surv": 0.041,
+              "worst_mae": -0.013
+            },
+            "mid": {
+              "n": 12442,
+              "surv": 0.0547,
+              "worst_mae": -0.0328
+            },
+            "hi": {
+              "n": 150,
+              "surv": 0.1333,
+              "worst_mae": -0.0109
+            },
+            "na": {
+              "n": 0,
+              "surv": null,
+              "worst_mae": null
+            },
+            "GLOBAL": {
+              "n": 13910,
+              "surv": 0.0542
+            }
+          },
+          "gap_point": {
+            "neg": 0.2483,
+            "mid": 0.214,
+            "hi": 0.0772
+          },
+          "gap_ci_cluster8h": {
+            "gap_por_bucket": {
+              "neg": [
+                0.1616,
+                0.2471,
+                0.3372
+              ],
+              "mid": [
+                0.1897,
+                0.214,
+                0.2392
+              ],
+              "hi": [
+                -0.0714,
+                0.071,
+                0.2066
+              ]
+            },
+            "hi_minus_neg": [
+              -0.3466,
+              -0.1762,
+              -0.016
+            ],
+            "mid_minus_neg": [
+              -0.1264,
+              -0.0336,
+              0.0571
+            ]
+          }
+        }
+      }
+    },
+    "ETHUSDT": {
+      "sym": "ETHUSDT",
+      "gb": 10.6,
+      "n_cascadas": 1835,
+      "n_control": 18350,
+      "conteo_bucket": {
+        "neg": 133,
+        "mid": 1662,
+        "hi": 40,
+        "na": 0
+      },
+      "por_horizonte": {
+        "1m": {
+          "surv_cascada": {
+            "neg": {
+              "n": 133,
+              "surv": 0.1278,
+              "worst_mae": -0.0301
+            },
+            "mid": {
+              "n": 1662,
+              "surv": 0.1492,
+              "worst_mae": -0.0701
+            },
+            "hi": {
+              "n": 40,
+              "surv": 0.3,
+              "worst_mae": -0.0372
+            },
+            "na": {
+              "n": 0,
+              "surv": null,
+              "worst_mae": null
+            },
+            "GLOBAL": {
+              "n": 1835,
+              "surv": 0.151
+            }
+          },
+          "surv_control": {
+            "neg": {
+              "n": 1232,
+              "surv": 0.0114,
+              "worst_mae": -0.0111
+            },
+            "mid": {
+              "n": 16869,
+              "surv": 0.0087,
+              "worst_mae": -0.0271
+            },
+            "hi": {
+              "n": 249,
+              "surv": 0.0482,
+              "worst_mae": -0.0065
+            },
+            "na": {
+              "n": 0,
+              "surv": null,
+              "worst_mae": null
+            },
+            "GLOBAL": {
+              "n": 18350,
+              "surv": 0.0094
+            }
+          },
+          "gap_point": {
+            "neg": 0.1164,
+            "mid": 0.1405,
+            "hi": 0.2518
+          },
+          "gap_ci_cluster8h": {
+            "gap_por_bucket": {
+              "neg": [
+                0.0644,
+                0.1154,
+                0.1705
+              ],
+              "mid": [
+                0.1237,
+                0.1404,
+                0.1575
+              ],
+              "hi": [
+                0.1274,
+                0.2512,
+                0.4222
+              ]
+            },
+            "hi_minus_neg": [
+              0.0001,
+              0.1366,
+              0.3132
+            ],
+            "mid_minus_neg": [
+              -0.0332,
+              0.025,
+              0.0781
+            ]
+          }
+        },
+        "3m": {
+          "surv_cascada": {
+            "neg": {
+              "n": 133,
+              "surv": 0.188,
+              "worst_mae": -0.0782
+            },
+            "mid": {
+              "n": 1662,
+              "surv": 0.2347,
+              "worst_mae": -0.0876
+            },
+            "hi": {
+              "n": 40,
+              "surv": 0.275,
+              "worst_mae": -0.052
+            },
+            "na": {
+              "n": 0,
+              "surv": null,
+              "worst_mae": null
+            },
+            "GLOBAL": {
+              "n": 1835,
+              "surv": 0.2322
+            }
+          },
+          "surv_control": {
+            "neg": {
+              "n": 1232,
+              "surv": 0.039,
+              "worst_mae": -0.0146
+            },
+            "mid": {
+              "n": 16869,
+              "surv": 0.0365,
+              "worst_mae": -0.0353
+            },
+            "hi": {
+              "n": 249,
+              "surv": 0.0924,
+              "worst_mae": -0.0092
+            },
+            "na": {
+              "n": 0,
+              "surv": null,
+              "worst_mae": null
+            },
+            "GLOBAL": {
+              "n": 18350,
+              "surv": 0.0374
+            }
+          },
+          "gap_point": {
+            "neg": 0.149,
+            "mid": 0.1982,
+            "hi": 0.1826
+          },
+          "gap_ci_cluster8h": {
+            "gap_por_bucket": {
+              "neg": [
+                0.0875,
+                0.1487,
+                0.2158
+              ],
+              "mid": [
+                0.1782,
+                0.1981,
+                0.219
+              ],
+              "hi": [
+                0.0448,
+                0.1831,
+                0.3848
+              ]
+            },
+            "hi_minus_neg": [
+              -0.1203,
+              0.0339,
+              0.2452
+            ],
+            "mid_minus_neg": [
+              -0.0213,
+              0.0495,
+              0.1139
+            ]
+          }
+        },
+        "5m": {
+          "surv_cascada": {
+            "neg": {
+              "n": 133,
+              "surv": 0.2632,
+              "worst_mae": -0.1465
+            },
+            "mid": {
+              "n": 1662,
+              "surv": 0.2786,
+              "worst_mae": -0.0876
+            },
+            "hi": {
+              "n": 40,
+              "surv": 0.3,
+              "worst_mae": -0.052
+            },
+            "na": {
+              "n": 0,
+              "surv": null,
+              "worst_mae": null
+            },
+            "GLOBAL": {
+              "n": 1835,
+              "surv": 0.2779
+            }
+          },
+          "surv_control": {
+            "neg": {
+              "n": 1232,
+              "surv": 0.056,
+              "worst_mae": -0.0202
+            },
+            "mid": {
+              "n": 16869,
+              "surv": 0.0658,
+              "worst_mae": -0.0353
+            },
+            "hi": {
+              "n": 249,
+              "surv": 0.1285,
+              "worst_mae": -0.0095
+            },
+            "na": {
+              "n": 0,
+              "surv": null,
+              "worst_mae": null
+            },
+            "GLOBAL": {
+              "n": 18350,
+              "surv": 0.066
+            }
+          },
+          "gap_point": {
+            "neg": 0.2072,
+            "mid": 0.2128,
+            "hi": 0.1715
+          },
+          "gap_ci_cluster8h": {
+            "gap_por_bucket": {
+              "neg": [
+                0.1279,
+                0.2058,
+                0.2911
+              ],
+              "mid": [
+                0.1904,
+                0.2125,
+                0.2349
+              ],
+              "hi": [
+                0.0031,
+                0.1679,
+                0.3351
+              ]
+            },
+            "hi_minus_neg": [
+              -0.2237,
+              -0.0388,
+              0.1475
+            ],
+            "mid_minus_neg": [
+              -0.0816,
+              0.0064,
+              0.0868
+            ]
+          }
+        }
+      }
+    }
+  },
+  "verdict": {
+    "por_simbolo": {
+      "BTCUSDT": {
+        "test_operativo": "primario",
+        "N": {
+          "neg": 121,
+          "mid": 1232,
+          "hi": 38
+        },
+        "por_horizonte": {
+          "1m": {
+            "gap_point": {
+              "neg": 0.1337,
+              "mid": 0.126,
+              "hi": 0.0853
+            },
+            "contraste_ci": [
+              -0.1679,
+              -0.0518,
+              0.0678
+            ],
+            "ci_excluye_0_por_arriba": false,
+            "monotono": false
+          },
+          "3m": {
+            "gap_point": {
+              "neg": 0.1666,
+              "mid": 0.203,
+              "hi": 0.2099
+            },
+            "contraste_ci": [
+              -0.109,
+              0.0441,
+              0.2045
+            ],
+            "ci_excluye_0_por_arriba": false,
+            "monotono": true
+          },
+          "5m": {
+            "gap_point": {
+              "neg": 0.2483,
+              "mid": 0.214,
+              "hi": 0.0772
+            },
+            "contraste_ci": [
+              -0.3466,
+              -0.1762,
+              -0.016
+            ],
+            "ci_excluye_0_por_arriba": false,
+            "monotono": false
+          }
+        }
+      },
+      "ETHUSDT": {
+        "test_operativo": "primario",
+        "N": {
+          "neg": 133,
+          "mid": 1662,
+          "hi": 40
+        },
+        "por_horizonte": {
+          "1m": {
+            "gap_point": {
+              "neg": 0.1164,
+              "mid": 0.1405,
+              "hi": 0.2518
+            },
+            "contraste_ci": [
+              0.0001,
+              0.1366,
+              0.3132
+            ],
+            "ci_excluye_0_por_arriba": true,
+            "monotono": true
+          },
+          "3m": {
+            "gap_point": {
+              "neg": 0.149,
+              "mid": 0.1982,
+              "hi": 0.1826
+            },
+            "contraste_ci": [
+              -0.1203,
+              0.0339,
+              0.2452
+            ],
+            "ci_excluye_0_por_arriba": false,
+            "monotono": false
+          },
+          "5m": {
+            "gap_point": {
+              "neg": 0.2072,
+              "mid": 0.2128,
+              "hi": 0.1715
+            },
+            "contraste_ci": [
+              -0.2237,
+              -0.0388,
+              0.1475
+            ],
+            "ci_excluye_0_por_arriba": false,
+            "monotono": false
+          }
+        }
+      }
+    }
+  },
+  "horas": 1.53
+}

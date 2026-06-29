@@ -1,0 +1,44 @@
+{
+  "fase": "0_mecanica",
+  "AVISO": "DIA EXTREMO = MEJOR CASO. PROHIBIDO concluir edge. Solo valida la tuberia.",
+  "params": {
+    "symbol": "BTCUSDT",
+    "date": "2024-08-05",
+    "market": "futures-um",
+    "drop_pct": 0.003,
+    "vol_z": 3.0,
+    "cooldown": 300
+  },
+  "resumen": {
+    "n_events": 11,
+    "por_horizonte": {
+      "1min": {
+        "n": 11,
+        "rebote_medio_ret": -0.00119,
+        "rebote_mediano_ret": 4e-05,
+        "rebote_max_mfe": 0.00339,
+        "rebote_medio_mfe": 0.00165,
+        "caida_max_adicional_mae": -0.01954,
+        "pct_ret_positivo": 0.5455
+      },
+      "3min": {
+        "n": 11,
+        "rebote_medio_ret": 1e-05,
+        "rebote_mediano_ret": 0.00098,
+        "rebote_max_mfe": 0.01255,
+        "rebote_medio_mfe": 0.00416,
+        "caida_max_adicional_mae": -0.01954,
+        "pct_ret_positivo": 0.5455
+      },
+      "5min": {
+        "n": 11,
+        "rebote_medio_ret": -0.00398,
+        "rebote_mediano_ret": 1e-05,
+        "rebote_max_mfe": 0.01271,
+        "rebote_medio_mfe": 0.00496,
+        "caida_max_adicional_mae": -0.04962,
+        "pct_ret_positivo": 0.5455
+      }
+    }
+  }
+}

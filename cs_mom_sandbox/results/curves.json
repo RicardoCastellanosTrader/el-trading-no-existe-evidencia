@@ -1,0 +1,101 @@
+{
+  "bench_sharpe": 1.443,
+  "base": {
+    "params": {
+      "n_bars": 28,
+      "rebal_bars": 10
+    },
+    "A": {
+      "full": {
+        "name": "full",
+        "n": 1462,
+        "ret_total_pct": 194.91,
+        "sharpe": 1.163,
+        "sortino": 1.606,
+        "maxdd_pct": -53.89,
+        "peor_dd_dur_dias": 269.5
+      },
+      "2023": {
+        "name": "2023",
+        "n": 730,
+        "ret_total_pct": 55.8,
+        "sharpe": 1.081,
+        "sortino": 1.547,
+        "maxdd_pct": -33.27,
+        "peor_dd_dur_dias": 269.5
+      },
+      "2024": {
+        "name": "2024",
+        "n": 732,
+        "ret_total_pct": 89.28,
+        "sharpe": 1.244,
+        "sortino": 1.715,
+        "maxdd_pct": -53.89,
+        "peor_dd_dur_dias": 252.0
+      }
+    },
+    "B": {
+      "full": {
+        "name": "full",
+        "n": 1462,
+        "ret_total_pct": -78.57,
+        "sharpe": -0.832,
+        "sortino": -1.154,
+        "maxdd_pct": -85.61,
+        "peor_dd_dur_dias": 571.0
+      },
+      "2023": {
+        "name": "2023",
+        "n": 730,
+        "ret_total_pct": -51.17,
+        "sharpe": -1.139,
+        "sortino": -1.562,
+        "maxdd_pct": -58.75,
+        "peor_dd_dur_dias": 205.0
+      },
+      "2024": {
+        "name": "2024",
+        "n": 732,
+        "ret_total_pct": -56.1,
+        "sharpe": -0.659,
+        "sortino": -0.944,
+        "maxdd_pct": -73.88,
+        "peor_dd_dur_dias": 194.5
+      }
+    },
+    "C": {
+      "full": {
+        "name": "full",
+        "n": 1462,
+        "ret_total_pct": 29.56,
+        "sharpe": 0.541,
+        "sortino": 0.701,
+        "maxdd_pct": -27.39,
+        "peor_dd_dur_dias": 264.5
+      },
+      "2023": {
+        "name": "2023",
+        "n": 730,
+        "ret_total_pct": -3.66,
+        "sharpe": 0.028,
+        "sortino": 0.038,
+        "maxdd_pct": -19.11,
+        "peor_dd_dur_dias": 264.5
+      },
+      "2024": {
+        "name": "2024",
+        "n": 732,
+        "ret_total_pct": 34.48,
+        "sharpe": 0.929,
+        "sortino": 1.176,
+        "maxdd_pct": -27.39,
+        "peor_dd_dur_dias": 233.0
+      }
+    },
+    "turnover_medio_por_rebal": 1.657,
+    "beta_C_vs_EW": -0.043,
+    "beta_C_vs_BTC": -0.041,
+    "book_long_medio": 10.9,
+    "book_short_medio": 9.7
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "mes": "2024-03",
+  "params": {
+    "year": 2024,
+    "month": 3,
+    "symbols": [
+      "BTCUSDT",
+      "ETHUSDT"
+    ],
+    "drop_pct": 0.003,
+    "vol_z": 3.0,
+    "keep_raw": false
+  },
+  "por_simbolo": {
+    "BTCUSDT": {
+      "n_cascadas": 84,
+      "conteo_por_bucket": {
+        "neg": 0,
+        "mid": 65,
+        "hi": 19,
+        "na": 0
+      },
+      "bucket_hi_marzo": 19,
+      "bucket_hi_proyeccion_2anios": 32.9,
+      "coste": {
+        "gb_descargados": 0.85,
+        "gb_por_dia": 0.027,
+        "seg_descarga": 117.0,
+        "seg_parseo": 36.8,
+        "seg_por_dia": 5.0
+      },
+      "wait_s_mediano": 15
+    },
+    "ETHUSDT": {
+      "n_cascadas": 116,
+      "conteo_por_bucket": {
+        "neg": 0,
+        "mid": 102,
+        "hi": 14,
+        "na": 0
+      },
+      "bucket_hi_marzo": 14,
+      "bucket_hi_proyeccion_2anios": 28.0,
+      "coste": {
+        "gb_descargados": 0.72,
+        "gb_por_dia": 0.023,
+        "seg_descarga": 111.9,
+        "seg_parseo": 30.5,
+        "seg_por_dia": 4.6
+      },
+      "wait_s_mediano": 15
+    }
+  },
+  "proyeccion_run_2anios": {
+    "dias_x_simbolo": 731,
+    "celdas": 1462,
+    "GB_transfer_total_aprox": 36.6,
+    "horas_wall_aprox_sin_supervivencia": 1.9,
+    "nota": "supervivencia+control 10x anaden coste extra (raw 3s slippage); recalibrar. Factor 5-10x."
+  }
+}
