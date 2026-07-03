@@ -1,0 +1,75 @@
+{
+  "params": {
+    "lags_h": [
+      1,
+      2,
+      4,
+      8,
+      12
+    ],
+    "block": 24,
+    "nboot": 1000,
+    "q_fdr": 0.1,
+    "mag_min": 0.03,
+    "ventana": "2017-08-17->2026-05-08",
+    "n_alts": 43
+  },
+  "por_lag": {
+    "k=1h": {
+      "mean_corr": -0.0161,
+      "CI": [
+        -0.0254,
+        -0.0066
+      ],
+      "p_boot": 0.002,
+      "excede_mag_min": false,
+      "fdr_significativo": true,
+      "SENAL": false
+    },
+    "k=2h": {
+      "mean_corr": -0.0187,
+      "CI": [
+        -0.0269,
+        -0.0109
+      ],
+      "p_boot": 0.0,
+      "excede_mag_min": false,
+      "fdr_significativo": true,
+      "SENAL": false
+    },
+    "k=4h": {
+      "mean_corr": -0.0006,
+      "CI": [
+        -0.0098,
+        0.0079
+      ],
+      "p_boot": 0.914,
+      "excede_mag_min": false,
+      "fdr_significativo": false,
+      "SENAL": false
+    },
+    "k=8h": {
+      "mean_corr": 0.0018,
+      "CI": [
+        -0.0062,
+        0.0108
+      ],
+      "p_boot": 0.684,
+      "excede_mag_min": false,
+      "fdr_significativo": false,
+      "SENAL": false
+    },
+    "k=12h": {
+      "mean_corr": 0.0004,
+      "CI": [
+        -0.0082,
+        0.0078
+      ],
+      "p_boot": 0.888,
+      "excede_mag_min": false,
+      "fdr_significativo": false,
+      "SENAL": false
+    }
+  },
+  "VEREDICTO": "CERRADO (sin predictibilidad tradeable)"
+}

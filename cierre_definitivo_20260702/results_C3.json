@@ -1,0 +1,27 @@
+{
+  "config_primaria": [
+    0.05,
+    0.75,
+    10
+  ],
+  "deepest": {
+    "n_sym": 45,
+    "pf_all_median": 0.8002,
+    "pf_fwd_median": 0.7387,
+    "pf_all_mean": 0.8042
+  },
+  "shallowest": {
+    "n_sym": 45,
+    "pf_all_median": 0.8109,
+    "pf_fwd_median": 0.7294,
+    "pf_all_mean": 0.796
+  },
+  "random": {
+    "n_sym": 45,
+    "pf_all_median": 0.8099,
+    "pf_fwd_median": 0.7371,
+    "pf_all_mean": 0.8057
+  },
+  "placebo_floor_pf_all_median": 0.9891,
+  "VEREDICTO": "REGLA CAUSAL SIN SE\u00d1AL (deepest ~ shallowest ~ random -> geometria de banda, no profundidad-liquidez)"
+}

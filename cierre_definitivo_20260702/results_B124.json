@@ -1,0 +1,85 @@
+{
+  "B1": {
+    "name": "B1_funding_carry",
+    "sharpe_full": -0.053,
+    "sharpe_CI": [
+      -1.282,
+      1.261
+    ],
+    "ci_excluye_0": false,
+    "ci_excluye_1": false,
+    "beta_EW": -0.067,
+    "beta_BTC": -0.07,
+    "neutral": true,
+    "maxdd_pct": -65.47,
+    "prot": false,
+    "sharpe_2023": -0.201,
+    "sharpe_2024": 0.094,
+    "sobrevive_ambos": false,
+    "sharpe>=1": false,
+    "turnover": 1.689,
+    "book_LS": [
+      10.3,
+      9.7
+    ],
+    "A_full_sharpe": 1.141,
+    "B_full_sharpe": -1.026,
+    "VEREDICTO": "NO DIGNA",
+    "spearman_medio_rank_funding_vs_momentum": 0.022,
+    "corr_serie_C_carry_vs_C_momentum": -0.116
+  },
+  "B2": {
+    "name": "B2_reversal_corto",
+    "sharpe_full": -0.121,
+    "sharpe_CI": [
+      -1.541,
+      1.277
+    ],
+    "ci_excluye_0": false,
+    "ci_excluye_1": false,
+    "beta_EW": 0.055,
+    "beta_BTC": 0.079,
+    "neutral": true,
+    "maxdd_pct": -58.4,
+    "prot": false,
+    "sharpe_2023": -0.47,
+    "sharpe_2024": 0.156,
+    "sobrevive_ambos": false,
+    "sharpe>=1": false,
+    "turnover": 2.903,
+    "book_LS": [
+      10.3,
+      8.9
+    ],
+    "A_full_sharpe": 0.93,
+    "B_full_sharpe": -1.03,
+    "VEREDICTO": "NO DIGNA"
+  },
+  "B4": {
+    "name": "B4_low_vol_bab",
+    "sharpe_full": -0.633,
+    "sharpe_CI": [
+      -1.924,
+      0.717
+    ],
+    "ci_excluye_0": false,
+    "ci_excluye_1": false,
+    "beta_EW": -0.494,
+    "beta_BTC": -0.528,
+    "neutral": false,
+    "maxdd_pct": -74.96,
+    "prot": false,
+    "sharpe_2023": -0.886,
+    "sharpe_2024": -0.429,
+    "sobrevive_ambos": false,
+    "sharpe>=1": false,
+    "turnover": 0.747,
+    "book_LS": [
+      11.0,
+      10.3
+    ],
+    "A_full_sharpe": 1.18,
+    "B_full_sharpe": -1.076,
+    "VEREDICTO": "NO DIGNA"
+  }
+}

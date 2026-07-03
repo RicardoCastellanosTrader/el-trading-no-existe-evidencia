@@ -1,0 +1,25 @@
+{
+  "params": {
+    "lookback_OI": 6,
+    "ventana": "2023-2024",
+    "direccion": "fragilidad(-dOI)"
+  },
+  "B7b_cross_sectional": {
+    "sharpe_full": -0.419,
+    "CI": [
+      -1.846,
+      1.083
+    ],
+    "beta_EW": -0.001,
+    "beta_BTC": 0.05,
+    "neutral": true,
+    "maxdd_pct": -46.12,
+    "sharpe_2023": -0.001,
+    "sharpe_2024": -0.727,
+    "A_long": 0.934,
+    "B_short": -1.119,
+    "turnover": 2.823,
+    "n_sym_OI": 45,
+    "VEREDICTO": "NO DIGNA"
+  }
+}

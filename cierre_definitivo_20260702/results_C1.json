@@ -1,0 +1,12 @@
+{
+  "n_configs": 243,
+  "n_symbols": 27,
+  "spearman_pf_tr_vs_pf_fwd": 0.5984,
+  "CI95_symbol_clustered": [
+    0.451,
+    0.713
+  ],
+  "incluye_+0.297_enslice": false,
+  "incluye_0": false,
+  "caveat": "data_cache mismos bars que seleccion, split cronologico 67/33 (!= episodios prod) -> robustez-al-split, no fully OOS"
+}

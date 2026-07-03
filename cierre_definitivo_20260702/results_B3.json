@@ -1,0 +1,55 @@
+{
+  "params": {
+    "L": 56,
+    "rebal": 5,
+    "window": "2017-08-17->2026-06-12",
+    "n_dias": 3222
+  },
+  "TSMOM_full": {
+    "sharpe": 0.7490219500518827,
+    "maxdd_pct": -84.99,
+    "ret_total_pct": 1011.0
+  },
+  "EW_bh_full": {
+    "sharpe": 0.778858760982573,
+    "maxdd_pct": -87.57,
+    "ret_total_pct": 1196.8
+  },
+  "TSMOM_sharpe_CI": [
+    0.131,
+    1.403
+  ],
+  "TSMOM_turnover_medio": 0.618,
+  "TSMOM_2022": {
+    "sharpe": -1.037424501555732
+  },
+  "EW_2022": {
+    "sharpe": -1.2455753352693848
+  },
+  "TSMOM_2023": {
+    "sharpe": 2.331322398246946
+  },
+  "EW_2023": {
+    "sharpe": 2.1103948687608813
+  },
+  "TSMOM_2024": {
+    "sharpe": 1.2446455071769746
+  },
+  "EW_2024": {
+    "sharpe": 1.0067371223844985
+  },
+  "TSMOM_2025": {
+    "sharpe": -1.3644924743731024
+  },
+  "EW_2025": {
+    "sharpe": -0.7646902481036476
+  },
+  "criterios": {
+    "sharpe>=1": false,
+    "bate_EW_sharpe": false,
+    "mejor_maxDD": true,
+    "CI_excluye_0": true
+  },
+  "VEREDICTO": "NO DIGNA",
+  "sharpe_diff_TSMOM_menos_EW": -0.03
+}

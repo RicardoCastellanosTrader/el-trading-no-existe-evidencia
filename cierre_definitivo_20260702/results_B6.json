@@ -1,0 +1,389 @@
+{
+  "params": {
+    "block": 24,
+    "nboot": 2000,
+    "q_fdr": 0.1,
+    "mag_min_bps": 10.0,
+    "ventana": "2017-08-17->2026-06-12",
+    "n_buckets": 37
+  },
+  "buckets": {
+    "hour_00": {
+      "mean_bps": 0.371,
+      "CI_bps": [
+        -3.532,
+        4.067
+      ],
+      "p": 0.845,
+      "fdr_sig": false,
+      "tradeable": false
+    },
+    "hour_01": {
+      "mean_bps": -2.366,
+      "CI_bps": [
+        -6.125,
+        1.264
+      ],
+      "p": 0.217,
+      "fdr_sig": false,
+      "tradeable": false
+    },
+    "hour_02": {
+      "mean_bps": -1.022,
+      "CI_bps": [
+        -4.254,
+        2.384
+      ],
+      "p": 0.563,
+      "fdr_sig": false,
+      "tradeable": false
+    },
+    "hour_03": {
+      "mean_bps": -2.46,
+      "CI_bps": [
+        -5.701,
+        0.554
+      ],
+      "p": 0.102,
+      "fdr_sig": false,
+      "tradeable": false
+    },
+    "hour_04": {
+      "mean_bps": 0.992,
+      "CI_bps": [
+        -1.943,
+        3.842
+      ],
+      "p": 0.527,
+      "fdr_sig": false,
+      "tradeable": false
+    },
+    "hour_05": {
+      "mean_bps": 2.204,
+      "CI_bps": [
+        -1.015,
+        5.145
+      ],
+      "p": 0.162,
+      "fdr_sig": false,
+      "tradeable": false
+    },
+    "hour_06": {
+      "mean_bps": 2.317,
+      "CI_bps": [
+        -0.694,
+        5.217
+      ],
+      "p": 0.136,
+      "fdr_sig": false,
+      "tradeable": false
+    },
+    "hour_07": {
+      "mean_bps": 2.154,
+      "CI_bps": [
+        -0.894,
+        5.423
+      ],
+      "p": 0.181,
+      "fdr_sig": false,
+      "tradeable": false
+    },
+    "hour_08": {
+      "mean_bps": -0.209,
+      "CI_bps": [
+        -3.472,
+        3.053
+      ],
+      "p": 0.922,
+      "fdr_sig": false,
+      "tradeable": false
+    },
+    "hour_09": {
+      "mean_bps": -1.366,
+      "CI_bps": [
+        -4.668,
+        1.706
+      ],
+      "p": 0.337,
+      "fdr_sig": false,
+      "tradeable": false
+    },
+    "hour_10": {
+      "mean_bps": 0.029,
+      "CI_bps": [
+        -3.121,
+        3.208
+      ],
+      "p": 0.964,
+      "fdr_sig": false,
+      "tradeable": false
+    },
+    "hour_11": {
+      "mean_bps": 1.627,
+      "CI_bps": [
+        -1.409,
+        4.8
+      ],
+      "p": 0.304,
+      "fdr_sig": false,
+      "tradeable": false
+    },
+    "hour_12": {
+      "mean_bps": 1.151,
+      "CI_bps": [
+        -2.76,
+        4.932
+      ],
+      "p": 0.573,
+      "fdr_sig": false,
+      "tradeable": false
+    },
+    "hour_13": {
+      "mean_bps": 1.388,
+      "CI_bps": [
+        -2.543,
+        5.366
+      ],
+      "p": 0.51,
+      "fdr_sig": false,
+      "tradeable": false
+    },
+    "hour_14": {
+      "mean_bps": -2.629,
+      "CI_bps": [
+        -7.069,
+        1.526
+      ],
+      "p": 0.197,
+      "fdr_sig": false,
+      "tradeable": false
+    },
+    "hour_15": {
+      "mean_bps": 2.383,
+      "CI_bps": [
+        -1.383,
+        6.257
+      ],
+      "p": 0.242,
+      "fdr_sig": false,
+      "tradeable": false
+    },
+    "hour_16": {
+      "mean_bps": 1.303,
+      "CI_bps": [
+        -2.482,
+        5.052
+      ],
+      "p": 0.506,
+      "fdr_sig": false,
+      "tradeable": false
+    },
+    "hour_17": {
+      "mean_bps": 0.228,
+      "CI_bps": [
+        -3.088,
+        3.518
+      ],
+      "p": 0.889,
+      "fdr_sig": false,
+      "tradeable": false
+    },
+    "hour_18": {
+      "mean_bps": 0.383,
+      "CI_bps": [
+        -2.859,
+        3.332
+      ],
+      "p": 0.812,
+      "fdr_sig": false,
+      "tradeable": false
+    },
+    "hour_19": {
+      "mean_bps": 0.892,
+      "CI_bps": [
+        -2.365,
+        4.203
+      ],
+      "p": 0.59,
+      "fdr_sig": false,
+      "tradeable": false
+    },
+    "hour_20": {
+      "mean_bps": 0.62,
+      "CI_bps": [
+        -2.65,
+        3.911
+      ],
+      "p": 0.751,
+      "fdr_sig": false,
+      "tradeable": false
+    },
+    "hour_21": {
+      "mean_bps": 5.371,
+      "CI_bps": [
+        1.95,
+        8.791
+      ],
+      "p": 0.002,
+      "fdr_sig": true,
+      "tradeable": false
+    },
+    "hour_22": {
+      "mean_bps": 5.97,
+      "CI_bps": [
+        2.815,
+        9.275
+      ],
+      "p": 0.0,
+      "fdr_sig": true,
+      "tradeable": false
+    },
+    "hour_23": {
+      "mean_bps": 1.07,
+      "CI_bps": [
+        -2.236,
+        4.241
+      ],
+      "p": 0.54,
+      "fdr_sig": false,
+      "tradeable": false
+    },
+    "dow_0": {
+      "mean_bps": 0.53,
+      "CI_bps": [
+        -1.35,
+        2.299
+      ],
+      "p": 0.575,
+      "fdr_sig": false,
+      "tradeable": false
+    },
+    "dow_1": {
+      "mean_bps": 0.266,
+      "CI_bps": [
+        -1.482,
+        1.879
+      ],
+      "p": 0.758,
+      "fdr_sig": false,
+      "tradeable": false
+    },
+    "dow_2": {
+      "mean_bps": 1.308,
+      "CI_bps": [
+        -0.5,
+        3.013
+      ],
+      "p": 0.175,
+      "fdr_sig": false,
+      "tradeable": false
+    },
+    "dow_3": {
+      "mean_bps": -1.044,
+      "CI_bps": [
+        -2.993,
+        0.79
+      ],
+      "p": 0.253,
+      "fdr_sig": false,
+      "tradeable": false
+    },
+    "dow_4": {
+      "mean_bps": 2.932,
+      "CI_bps": [
+        1.048,
+        4.749
+      ],
+      "p": 0.004,
+      "fdr_sig": true,
+      "tradeable": false
+    },
+    "dow_5": {
+      "mean_bps": 2.156,
+      "CI_bps": [
+        0.821,
+        3.444
+      ],
+      "p": 0.0,
+      "fdr_sig": true,
+      "tradeable": false
+    },
+    "dow_6": {
+      "mean_bps": -0.197,
+      "CI_bps": [
+        -1.744,
+        1.202
+      ],
+      "p": 0.792,
+      "fdr_sig": false,
+      "tradeable": false
+    },
+    "fund_00": {
+      "mean_bps": 0.371,
+      "CI_bps": [
+        -3.532,
+        4.067
+      ],
+      "p": 0.845,
+      "fdr_sig": false,
+      "tradeable": false
+    },
+    "fund_08": {
+      "mean_bps": -0.209,
+      "CI_bps": [
+        -3.472,
+        3.053
+      ],
+      "p": 0.922,
+      "fdr_sig": false,
+      "tradeable": false
+    },
+    "fund_16": {
+      "mean_bps": 1.303,
+      "CI_bps": [
+        -2.482,
+        5.052
+      ],
+      "p": 0.506,
+      "fdr_sig": false,
+      "tradeable": false
+    },
+    "prefund_23": {
+      "mean_bps": 1.07,
+      "CI_bps": [
+        -2.236,
+        4.241
+      ],
+      "p": 0.54,
+      "fdr_sig": false,
+      "tradeable": false
+    },
+    "prefund_07": {
+      "mean_bps": 2.154,
+      "CI_bps": [
+        -0.894,
+        5.423
+      ],
+      "p": 0.181,
+      "fdr_sig": false,
+      "tradeable": false
+    },
+    "prefund_15": {
+      "mean_bps": 2.383,
+      "CI_bps": [
+        -1.383,
+        6.257
+      ],
+      "p": 0.242,
+      "fdr_sig": false,
+      "tradeable": false
+    }
+  },
+  "fdr_significativos": [
+    "hour_21",
+    "hour_22",
+    "dow_4",
+    "dow_5"
+  ],
+  "VEREDICTO": "EFECTO REAL NO TRADEABLE (solo timing ejecucion): hour_21,hour_22,dow_4,dow_5"
+}

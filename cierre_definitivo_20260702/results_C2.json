@@ -1,0 +1,104 @@
+{
+  "metrica": "PF neto (fee 0.10pp RT)",
+  "leg_a_placebo_wrong_match": {
+    "delta_pooled_obs": 0.0863,
+    "null_perm_media": 0.0037,
+    "null_perm_p95_abs": 0.2361,
+    "p_permutacion": 0.4735,
+    "interpretacion": "si p_perm alto -> el emparejamiento real NO es mas especifico que el aleatorio (sin especificidad = confirma NO CONFIRMADO)"
+  },
+  "leg_b_condicional_vs_agnostica": {
+    "pf_condicional_MATCH": 0.9828,
+    "n_cond": 1674,
+    "pf_agnostica_TODOS": 0.9308,
+    "n_agn": 4219,
+    "gate_regimen_ayuda": false,
+    "interpretacion": "condicional>agnostica Y >1.0 -> el gate de regimen anade valor; si no -> no ayuda"
+  },
+  "por_celda": {
+    "ALGO": {
+      "pf_match": 1.2699868653392832,
+      "n_match": 118,
+      "pf_mismatch": 0.8512626092414176,
+      "n_mismatch": 106,
+      "delta": 0.41872425609786557
+    },
+    "ATOM": {
+      "pf_match": 1.702551473421454,
+      "n_match": 117,
+      "pf_mismatch": 0.8218926786308524,
+      "n_mismatch": 222,
+      "delta": 0.8806587947906016
+    },
+    "AVAX": {
+      "pf_match": 1.2999988597990968,
+      "n_match": 128,
+      "pf_mismatch": 0.6150604764107623,
+      "n_mismatch": 428,
+      "delta": 0.6849383833883345
+    },
+    "DOT": {
+      "pf_match": 1.2562497248643618,
+      "n_match": 183,
+      "pf_mismatch": 0.9402527061724928,
+      "n_mismatch": 260,
+      "delta": 0.315997018691869
+    },
+    "ETH": {
+      "pf_match": 0.9691433298862461,
+      "n_match": 139,
+      "pf_mismatch": 0.8475753611680769,
+      "n_mismatch": 62,
+      "delta": 0.12156796871816922
+    },
+    "FET": {
+      "pf_match": 0.9440902683601763,
+      "n_match": 115,
+      "pf_mismatch": 0.979180812377885,
+      "n_mismatch": 47,
+      "delta": -0.035090544017708725
+    },
+    "IMX": {
+      "pf_match": 0.7688252541958038,
+      "n_match": 186,
+      "pf_mismatch": 0.7879484213620523,
+      "n_mismatch": 183,
+      "delta": -0.01912316716624851
+    },
+    "INJ": {
+      "pf_match": 0.9997851331372807,
+      "n_match": 95,
+      "pf_mismatch": 1.0500874038172123,
+      "n_mismatch": 106,
+      "delta": -0.05030227067993165
+    },
+    "OP": {
+      "pf_match": 0.9869435795537057,
+      "n_match": 179,
+      "pf_mismatch": 1.0882237553681628,
+      "n_mismatch": 496,
+      "delta": -0.10128017581445714
+    },
+    "STX": {
+      "pf_match": 1.0209187639764619,
+      "n_match": 90,
+      "pf_mismatch": 0.94921800520471,
+      "n_mismatch": 93,
+      "delta": 0.07170075877175186
+    },
+    "THETA": {
+      "pf_match": 0.4783047169133346,
+      "n_match": 137,
+      "pf_mismatch": 0.9543072434396036,
+      "n_mismatch": 501,
+      "delta": -0.476002526526269
+    },
+    "XRP": {
+      "pf_match": 0.759756289550606,
+      "n_match": 187,
+      "pf_mismatch": 0.479395880232939,
+      "n_mismatch": 41,
+      "delta": 0.28036040931766704
+    }
+  }
+}
