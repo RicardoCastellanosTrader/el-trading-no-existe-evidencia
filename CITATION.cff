@@ -1,13 +1,14 @@
-# DOI: pending (Zenodo snapshot on release — this is a pre-release working paper)
 cff-version: 1.2.0
 message: "If you use this work, please cite it as below."
 title: "El Escudo: anatomía de una búsqueda exhaustiva de edge retail en cripto (2018-2026) / The anatomy of an exhaustive retail edge search in crypto"
 authors:
-  - family-names: "Castellanos"
+  - family-names: "Castellanos Macias"
     given-names: "Ricardo"
     affiliation: "Independent researcher"
-version: "0.1.0-prerelease"
-date-released: "2026-07-06"
+doi: 10.5281/zenodo.21229492
+repository-code: "https://github.com/RicardoCastellanosTrader/el-trading-no-existe-evidencia"
+version: "1.0.0"
+date-released: "2026-07-07"
 license: MIT
 keywords:
   - backtest overfitting

@@ -1,10 +1,10 @@
 # Anatomía de un resultado nulo: estudio de caso pre-registrado y auditado adversarialmente del trading sistemático retail en perpetuos cripto (2018–2026)
 
-**Ricardo Castellanos**
+**Ricardo Castellanos Macias**
 Investigador independiente
 
-*Working paper — BORRADOR. No enviado todavía. Versión: 2026-07-06.*
-*Código, pre-registros, resultados y scripts de regeneración: [URL del repositorio TBD] · Snapshot archivado: [DOI Zenodo TBD].*
+*Working paper — v1.0.0, 2026-07-07.*
+*Código, pre-registros, resultados y scripts de regeneración: https://github.com/RicardoCastellanosTrader/el-trading-no-existe-evidencia · Snapshot archivado: DOI [10.5281/zenodo.21229492](https://doi.org/10.5281/zenodo.21229492).*
 
 ---
 
@@ -138,11 +138,11 @@ Nada de esto es una afirmación sobre hedge funds, market makers o cualquiera co
 
 ## 8. Disponibilidad de datos y código
 
-El repositorio completo — pre-registros, código de los experimentos, resultados, la tabla de respaldo de afirmaciones (cada número público → artefacto primario), el arnés de validación (gates anti-look-ahead, placebos GBM, bootstrap por clusters, replay as-of), el log de 736 ejecuciones con dinero real y el historial de desarrollo completo (223 commits, filtrado de PII) — está disponible en [URL TBD], archivado con DOI [TBD]. Los datos crudos de mercado son regenerables desde data.binance.vision mediante los scripts incluidos y manifiestos SHA-256. Una guía del lector, *Cómo auditar este trabajo*, mapea cada número cardinal a su ruta de recomputación.
+El repositorio completo — pre-registros, código de los experimentos, resultados, la tabla de respaldo de afirmaciones (cada número público → artefacto primario), el arnés de validación (gates anti-look-ahead, placebos GBM, bootstrap por clusters, replay as-of), el log de 736 ejecuciones con dinero real y el historial de desarrollo completo (223 commits, filtrado de PII) — está disponible en https://github.com/RicardoCastellanosTrader/el-trading-no-existe-evidencia, archivado con DOI 10.5281/zenodo.21229492. Los datos crudos de mercado son regenerables desde data.binance.vision mediante los scripts incluidos y manifiestos SHA-256. Una guía del lector, *Cómo auditar este trabajo*, mapea cada número cardinal a su ruta de recomputación.
 
 ## Agradecimientos
 
-Este proyecto se realizó con asistencia extensiva de IA — Claude y Claude Code (Anthropic), operando como agentes dirigidos: la implementación y ejecución técnica de todo el código, experimentos e infraestructura; el protocolo de auditoría adversarial de 39 agentes; la curación del repositorio público; y la asistencia en la redacción de este manuscrito a partir de la tabla de afirmaciones verificadas (`afirmaciones_respaldo.md`). Todo ello bajo dirección, revisión y aprobación del autor. Las preguntas de investigación, las decisiones de diseño, la aprobación de cada pre-registro, la firma de cada veredicto y la responsabilidad plena de todas las afirmaciones publicadas — incluidos todos los errores — son del autor. Conforme a los criterios estándar de autoría académica (ICMJE, COPE), las herramientas de IA no cumplen criterios de autoría; el autor único es Ricardo Castellanos. Esta declaración forma parte del método, no es una nota al margen: el proyecto documenta, entre otras cosas, un caso de investigación empírica dirigida por un no-programador mediante agentes de IA. Declaración completa: `DECLARACION_ASISTENCIA_IA.md`.
+Este proyecto se realizó con asistencia extensiva de IA — Claude y Claude Code (Anthropic), operando como agentes dirigidos: la implementación y ejecución técnica de todo el código, experimentos e infraestructura; el protocolo de auditoría adversarial de 39 agentes; la curación del repositorio público; y la asistencia en la redacción de este manuscrito a partir de la tabla de afirmaciones verificadas (`afirmaciones_respaldo.md`). Todo ello bajo dirección, revisión y aprobación del autor. Las preguntas de investigación, las decisiones de diseño, la aprobación de cada pre-registro, la firma de cada veredicto y la responsabilidad plena de todas las afirmaciones publicadas — incluidos todos los errores — son del autor. Conforme a los criterios estándar de autoría académica (ICMJE, COPE), las herramientas de IA no cumplen criterios de autoría; el autor único es Ricardo Castellanos Macias. Esta declaración forma parte del método, no es una nota al margen: el proyecto documenta, entre otras cosas, un caso de investigación empírica dirigida por un no-programador mediante agentes de IA. Declaración completa: `DECLARACION_ASISTENCIA_IA.md`.
 
 ## Referencias
 

@@ -1,10 +1,10 @@
 # Anatomy of a Null Result: A Pre-Registered, Adversarially Audited Case Study of Retail Systematic Trading in Crypto Perpetuals (2018–2026)
 
-**Ricardo Castellanos**
+**Ricardo Castellanos Macias**
 Independent researcher
 
-*Working paper — DRAFT. Not yet submitted. Version: 2026-07-06.*
-*Code, pre-registrations, results, and regeneration scripts: [repository URL TBD] · Archived snapshot: [Zenodo DOI TBD].*
+*Working paper — v1.0.0, 2026-07-07.*
+*Code, pre-registrations, results, and regeneration scripts: https://github.com/RicardoCastellanosTrader/el-trading-no-existe-evidencia · Archived snapshot: DOI [10.5281/zenodo.21229492](https://doi.org/10.5281/zenodo.21229492).*
 
 ---
 
@@ -138,11 +138,11 @@ None of this is a claim about hedge funds, market makers, or anyone with fee tie
 
 ## 8. Data and code availability
 
-The complete repository — pre-registrations, experiment code, results, the claims-backing table (every public number → primary artifact), the validation harness (anti-look-ahead gates, GBM placebos, cluster bootstrap, as-of replay), the 736-fill real-money log, and the full development history (223 commits, PII-filtered) — is available at [URL TBD], archived with DOI [TBD]. Raw market data are regenerable from data.binance.vision via the included scripts and SHA-256 manifests. A reader's guide, *How to audit this work*, maps each headline number to its recomputation path.
+The complete repository — pre-registrations, experiment code, results, the claims-backing table (every public number → primary artifact), the validation harness (anti-look-ahead gates, GBM placebos, cluster bootstrap, as-of replay), the 736-fill real-money log, and the full development history (223 commits, PII-filtered) — is available at https://github.com/RicardoCastellanosTrader/el-trading-no-existe-evidencia, archived with DOI 10.5281/zenodo.21229492. Raw market data are regenerable from data.binance.vision via the included scripts and SHA-256 manifests. A reader's guide, *How to audit this work*, maps each headline number to its recomputation path.
 
 ## Acknowledgments
 
-This project was carried out with extensive AI assistance — Claude and Claude Code (Anthropic), operating as directed agents: the technical implementation and execution of all code, experiments and infrastructure; the 39-agent adversarial audit protocol; the curation of the public repository; and assistance in drafting this manuscript from the table of verified claims (`afirmaciones_respaldo.md`). All of it under the author's direction, review and approval. The research questions, the design decisions, the approval of every pre-registration, the sign-off of every verdict, and full responsibility for every published claim — including all errors — are the author's. Under standard academic authorship criteria (ICMJE, COPE), AI tools do not qualify for authorship; the sole author is Ricardo Castellanos. This statement is part of the method, not a footnote: the project documents, among other things, a case of empirical research directed by a non-programmer through AI agents. Full statement: `AI_ASSISTANCE.md`.
+This project was carried out with extensive AI assistance — Claude and Claude Code (Anthropic), operating as directed agents: the technical implementation and execution of all code, experiments and infrastructure; the 39-agent adversarial audit protocol; the curation of the public repository; and assistance in drafting this manuscript from the table of verified claims (`afirmaciones_respaldo.md`). All of it under the author's direction, review and approval. The research questions, the design decisions, the approval of every pre-registration, the sign-off of every verdict, and full responsibility for every published claim — including all errors — are the author's. Under standard academic authorship criteria (ICMJE, COPE), AI tools do not qualify for authorship; the sole author is Ricardo Castellanos Macias. This statement is part of the method, not a footnote: the project documents, among other things, a case of empirical research directed by a non-programmer through AI agents. Full statement: `AI_ASSISTANCE.md`.
 
 ## References
 

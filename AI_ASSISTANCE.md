@@ -23,4 +23,4 @@ All of it **under the author's direction, review and approval**, task by task.
 
 ## Normative note
 
-Under standard academic authorship criteria (**ICMJE, COPE**), AI tools do not qualify for authorship: they cannot take responsibility for the work nor approve its final version. The sole author of this work is **Ricardo Castellanos**, who assumes that responsibility in full.
+Under standard academic authorship criteria (**ICMJE, COPE**), AI tools do not qualify for authorship: they cannot take responsibility for the work nor approve its final version. The sole author of this work is **Ricardo Castellanos Macias**, who assumes that responsibility in full.

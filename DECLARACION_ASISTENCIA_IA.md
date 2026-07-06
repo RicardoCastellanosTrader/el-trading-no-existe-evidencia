@@ -23,4 +23,4 @@ Todo ello **bajo dirección, revisión y aprobación del autor**, tarea a tarea.
 
 ## Nota normativa
 
-Conforme a los criterios estándar de autoría académica (**ICMJE, COPE**), las herramientas de IA no cumplen los criterios de autoría: no pueden asumir responsabilidad sobre el trabajo ni aprobar su versión final. El autor único de este trabajo es **Ricardo Castellanos**, que asume dicha responsabilidad en su totalidad.
+Conforme a los criterios estándar de autoría académica (**ICMJE, COPE**), las herramientas de IA no cumplen los criterios de autoría: no pueden asumir responsabilidad sobre el trabajo ni aprobar su versión final. El autor único de este trabajo es **Ricardo Castellanos Macias**, que asume dicha responsabilidad en su totalidad.
