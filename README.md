@@ -1,6 +1,6 @@
-# El Escudo — anatomía de una búsqueda exhaustiva de edge retail en cripto (2018–2026)
+# El Escudo — anatomía de una búsqueda pre-registrada y auditada adversarialmente de edge retail en cripto (2018–2026)
 
-*El Escudo — the anatomy of an exhaustive retail edge search in crypto (2018–2026). English version below.*
+*El Escudo — the anatomy of a pre-registered, adversarially audited retail edge search in crypto (2018–2026). English version below.*
 
 ---
 
@@ -12,7 +12,7 @@ Este repositorio documenta, con artefactos abiertos, la conclusión de un proyec
 
 ### La conclusión (formulación congelada)
 
-> Estudio de caso pre-registrado y auditado adversarialmente (18 familias de experimentos, un espacio de 20,9 millones de configuraciones (~10¹⁰ evaluaciones acumuladas), perps Binance top-45, 2018–2026, costes taker): (1) transferencia fuera de muestra ≈ nula de la selección por rendimiento pasado (ρ −0,05 independiente vs +0,60 in-sample); (2) ninguna señal genuina superó el listón honesto: magnitud inferior a costes (cascadas ≈ +1 pb; estacionalidad < 10 pb) o por debajo del benchmark trivial (Curva C 0,541 < EW 1,443; carry pata larga ≈ beta). Consistente con la literatura (Bailey–López de Prado, backtest overfitting; Barber–Odean/Chague, pérdidas retail; disclosures ESMA), a la que aporta la anatomía mecanística desde dentro con artefactos abiertos.
+> Estudio de caso pre-registrado y auditado adversarialmente (18 familias de experimentos, un espacio de 20,9 millones de configuraciones (~6,5×10⁸ evaluaciones por símbolo-pasada), perps Binance top-45, 2018–2026, costes taker): (1) transferencia fuera de muestra ≈ nula de la selección por rendimiento pasado (ρ −0,05 independiente vs +0,60 in-sample); (2) ninguna señal genuina superó el listón honesto: magnitud inferior a costes (cascadas ≈ +1 pb; estacionalidad < 10 pb) o por debajo del benchmark trivial (Curva C 0,541 < EW 1,443; carry pata larga ≈ beta). Consistente con la literatura (Bailey–López de Prado, backtest overfitting; Barber–Odean/Chague, pérdidas retail; disclosures ESMA), a la que aporta la anatomía mecanística desde dentro con artefactos abiertos.
 
 **Posicionamiento:** esto es una **réplica/anatomía independiente de resultados establecidos**, no una "primera demostración" de nada. La literatura ya sabía que los backtests sobreajustan y que el retail pierde; lo que este repositorio aporta es el mecanismo medido desde dentro, con el instrumental y los datos a la vista.
 
@@ -77,7 +77,7 @@ La guía completa, hallazgo por hallazgo, está en [`COMO_AUDITAR_ESTO.md`](COMO
 
 - **Estado: working paper v1.0.0.** Snapshot archivado en Zenodo: DOI [10.5281/zenodo.21229492](https://doi.org/10.5281/zenodo.21229492).
 - **Código:** licencia MIT ([`LICENSE`](LICENSE)). **Textos, figuras y paper:** CC BY 4.0 ([`LICENSE-docs`](LICENSE-docs)).
-- Este repositorio es un clon del repo de trabajo original con el historial completo (223 commits) **filtrado de identificadores personales** con `git filter-repo`; los placeholders `IP_*_REDACTADA`, `AWS_ACCOUNT_REDACTADO`, `INSTANCE_ID_*` son deliberados. Detalles y mapeo de hashes: [`COMO_AUDITAR_ESTO.md`](COMO_AUDITAR_ESTO.md) §sanitización.
+- Este repositorio publica la **rama principal completa** (218 commits) del clon del repo de trabajo original, **filtrado de identificadores personales** con `git filter-repo`; el árbol de trabajo multi-rama (34 ramas, 223 commits) se conserva filtrado fuera del remoto público y su estado original está anclado por el sello OpenTimestamps ([`prerregistros/ots/`](prerregistros/ots/)). Los placeholders `IP_*_REDACTADA`, `AWS_ACCOUNT_REDACTADO`, `INSTANCE_ID_*` son deliberados. Detalles y mapeo de hashes: [`COMO_AUDITAR_ESTO.md`](COMO_AUDITAR_ESTO.md) §sanitización.
 
 ---
 
@@ -89,7 +89,7 @@ This repository documents, with open artifacts, the conclusion of an algorithmic
 
 ### The conclusion (frozen formulation)
 
-> A pre-registered, adversarially audited case study (18 experiment families, a search space of 20.9 million configurations (~10¹⁰ accumulated evaluations), Binance top-45 perpetuals, 2018–2026, taker costs): (1) out-of-sample transfer of past-performance selection ≈ nil (ρ −0.05 on independent data vs +0.60 in-sample); (2) no genuine signal cleared the honest bar: magnitudes below costs (cascades ≈ +1 bp; hourly seasonality < 10 bps) or below the trivial benchmark (Curve C 0.541 < EW 1.443; carry long leg ≈ beta). Consistent with the literature (Bailey–López de Prado on backtest overfitting; Barber–Odean/Chague on retail losses; ESMA disclosures), to which it contributes the mechanistic anatomy from the inside, with open artifacts.
+> A pre-registered, adversarially audited case study (18 experiment families, a search space of 20.9 million configurations (~6.5×10⁸ evaluations per symbol-pass), Binance top-45 perpetuals, 2018–2026, taker costs): (1) out-of-sample transfer of past-performance selection ≈ nil (ρ −0.05 on independent data vs +0.60 in-sample); (2) no genuine signal cleared the honest bar: magnitudes below costs (cascades ≈ +1 bp; hourly seasonality < 10 bps) or below the trivial benchmark (Curve C 0.541 < EW 1.443; carry long leg ≈ beta). Consistent with the literature (Bailey–López de Prado on backtest overfitting; Barber–Odean/Chague on retail losses; ESMA disclosures), to which it contributes the mechanistic anatomy from the inside, with open artifacts.
 
 **Positioning:** this is an **independent replication/anatomy of established results** — never a "first demonstration". The literature already knew backtests overfit and retail loses; what this repository adds is the mechanism, measured from the inside, with the instruments and data in the open.
 
@@ -117,4 +117,4 @@ See the Spanish section above — the commands and expected outputs are identica
 
 - **Status: working paper v1.0.0.** Archived snapshot on Zenodo: DOI [10.5281/zenodo.21229492](https://doi.org/10.5281/zenodo.21229492).
 - **Code:** MIT ([`LICENSE`](LICENSE)). **Texts, figures, paper:** CC BY 4.0 ([`LICENSE-docs`](LICENSE-docs)).
-- This repository is a clone of the original working repo with the complete history (223 commits) **filtered of personal identifiers** using `git filter-repo`; the placeholders `IP_*_REDACTADA`, `AWS_ACCOUNT_REDACTADO`, `INSTANCE_ID_*` are deliberate. Details and hash mapping: [`HOW_TO_AUDIT.md`](HOW_TO_AUDIT.md) §sanitization.
+- This repository publishes the **complete main branch** (218 commits) of the original working repo, cloned and **filtered of personal identifiers** using `git filter-repo`; the multi-branch working tree (34 branches, 223 commits) is preserved filtered outside the public remote, and its original state is anchored by the OpenTimestamps seal ([`prerregistros/ots/`](prerregistros/ots/)). The placeholders `IP_*_REDACTADA`, `AWS_ACCOUNT_REDACTADO`, `INSTANCE_ID_*` are deliberate. Details and hash mapping: [`HOW_TO_AUDIT.md`](HOW_TO_AUDIT.md) §sanitization.
