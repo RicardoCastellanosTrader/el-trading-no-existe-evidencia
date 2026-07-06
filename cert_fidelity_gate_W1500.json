@@ -1,0 +1,74 @@
+[
+  {
+    "sym": "BTC/USDT",
+    "match_rate": 100.0,
+    "matched": 250,
+    "n_brain": 250,
+    "n_kernel": 250,
+    "certified": true
+  },
+  {
+    "sym": "ETH/USDT",
+    "match_rate": 99.3,
+    "matched": 142,
+    "n_brain": 143,
+    "n_kernel": 142,
+    "certified": true
+  },
+  {
+    "sym": "BNB/USDT",
+    "match_rate": 99.21,
+    "matched": 125,
+    "n_brain": 125,
+    "n_kernel": 126,
+    "certified": true
+  },
+  {
+    "sym": "SEI/USDT",
+    "match_rate": 99.44,
+    "matched": 176,
+    "n_brain": 176,
+    "n_kernel": 177,
+    "certified": true
+  },
+  {
+    "sym": "POL/USDT",
+    "match_rate": 99.49,
+    "matched": 195,
+    "n_brain": 195,
+    "n_kernel": 196,
+    "certified": true
+  },
+  {
+    "sym": "ONDO/USDT",
+    "match_rate": 100.0,
+    "matched": 498,
+    "n_brain": 498,
+    "n_kernel": 498,
+    "certified": true
+  },
+  {
+    "sym": "TRX/USDT",
+    "match_rate": 98.24,
+    "matched": 167,
+    "n_brain": 170,
+    "n_kernel": 168,
+    "certified": true
+  },
+  {
+    "sym": "XRP/USDT",
+    "match_rate": 99.32,
+    "matched": 147,
+    "n_brain": 148,
+    "n_kernel": 148,
+    "certified": true
+  },
+  {
+    "sym": "RENDER/USDT",
+    "match_rate": 100.0,
+    "matched": 487,
+    "n_brain": 487,
+    "n_kernel": 487,
+    "certified": true
+  }
+]

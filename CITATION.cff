@@ -1,0 +1,26 @@
+# DOI: pending (Zenodo snapshot on release — this is a pre-release working paper)
+cff-version: 1.2.0
+message: "If you use this work, please cite it as below."
+title: "El Escudo: anatomía de una búsqueda exhaustiva de edge retail en cripto (2018-2026) / The anatomy of an exhaustive retail edge search in crypto"
+authors:
+  - family-names: "Castellanos"
+    given-names: "Ricardo"
+    affiliation: "Independent researcher"
+version: "0.1.0-prerelease"
+date-released: "2026-07-06"
+license: MIT
+keywords:
+  - backtest overfitting
+  - retail trading
+  - cryptocurrency
+  - pre-registration
+  - reproducibility
+  - out-of-sample transfer
+abstract: >-
+  Pre-registered, adversarially audited case study (18 experiment families,
+  a 20.9-million-configuration search space, ~10^10 accumulated evaluations,
+  Binance top-45 perpetuals, 2018-2026, taker costs): out-of-sample transfer
+  of past-performance selection is approximately nil (rho -0.05 independent
+  vs +0.60 in-sample), and no genuine signal cleared the honest bar
+  (magnitudes below costs or below the trivial benchmark). Open artifacts,
+  regeneration scripts and real-money execution logs included.

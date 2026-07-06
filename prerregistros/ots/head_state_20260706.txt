@@ -1,0 +1,40 @@
+EL ESCUDO — Sello temporal OpenTimestamps
+Fecha de generación: 2026-07-06T14:16:07Z
+Repositorio: combolab (local, sin remoto)
+HEAD: fa72edcf1eb751da616ae921581593dc49d631e3 (rama atribucion-componentes)
+
+== Puntas de todas las ramas ==
+fa72edcf1eb751da616ae921581593dc49d631e3 atribucion-componentes 2026-07-03 09:38:49 +0200
+8552b95eea1f51a610832d40239c0e9a41eca7b4 feature-a05-mr-docstring-cleanup 2026-04-22 17:34:50 +0200
+347639a9b8b8dd6e3a0d162774c32fb2ae7aca1d feature-a12-ma-dedup 2026-04-22 16:26:51 +0200
+5a7135bc58e6a23be81a463878f25e5f4a106500 feature-a14-a15-wf-polish 2026-04-22 16:40:30 +0200
+963431ce9c23f5b6a40f15c68a0fe6562ca51ae8 feature-automation-orchestrator 2026-05-10 12:54:12 +0200
+963431ce9c23f5b6a40f15c68a0fe6562ca51ae8 feature-gpu-cleanup-v17 2026-05-10 12:54:12 +0200
+61fb450fd9c7994df75eafe12b8c502e51d7e09a feature-gpu-cleanup-v18-reformulated 2026-05-19 17:18:52 +0200
+570d14f5c78ed7ac073c12b64b78be003c444fd1 feature-lab-lite-window-audit 2026-06-21 01:50:57 +0200
+a618651884aa5064c5722354db3d839132b57406 feature-m2-fix-pffwd-cilow-ranking 2026-04-26 01:36:01 +0200
+ca911be642603bfb34eb25cbbf7cdcee02a39b6c feature-multi-testing-correction-pre-reciclaje 2026-04-26 16:43:24 +0200
+ee4ce698c4853eda4cf64e4ecdf7ecaae3b7b907 feature-w3-bootstrap-pf-fwd 2026-04-22 15:30:29 +0200
+e5759404591cd34978ead540069bf11e352be544 feature-zbtc-v1-pre-reciclaje 2026-04-26 13:22:52 +0200
+b97d1c7979b77fe7f414d083f790774ec0f49741 feature/a34-timing-borderline 2026-04-21 22:36:46 +0200
+f107d6db1a91f08610cacbdf30362476429c1d04 feature/a35-a38-defensivos 2026-04-21 22:17:36 +0200
+1ed426960095a6eff1444e7c2be321d1c264ca99 feature/a36-log-rotation 2026-04-21 22:02:59 +0200
+16aa6d3a47aca55ec64e8c572df5db6ee862958d fidelity-2-review 2026-04-20 11:32:56 +0200
+bc673c802b2570560fe1def0f4451d136ac5fcee fix-entry-timestamp-ms-v2.4.5 2026-04-22 11:44:35 +0200
+5bb4f959df03ee34e5ad60b854f9e3cafca25540 fix-size-usdt-data-feed 2026-04-21 20:14:07 +0200
+ebf4298421c9d9795431b42e3be4569d42033f0c hotfix/funding-display-health-scope 2026-05-19 10:10:23 +0200
+b4607ceeb0d26f9c3f872265e00964273e63d23d main 2026-05-10 11:02:32 +0200
+fb31ee17d60e1d7079fa7f8255efd664d9060cfa migracion-kraken 2026-06-25 18:06:08 +0200
+d3993a95520fa545ad27efe759157e74ed8a8996 sesion-0-frame3-metodologica-fundamental 2026-04-28 16:30:50 +0200
+9d3f156b5a04d0b437e728c2638bc7d53e2c12ae sesion-1-frame-3a1-2-ablation-matrix-background-launch 2026-04-28 21:30:51 +0200
+71777a971c720c629840c58aed181f631eac6f8a sesion-2-5-frame2-r1-dsr-rigurosa-opcion-gamma 2026-04-28 14:48:55 +0200
+da61a11e6630e206321d5de3e340c4c0a6cb2e4b sesion-2-frame3a-redesign-methodology 2026-04-29 15:21:35 +0200
+7cfdcb1af44550e1cf31e656d743a90e832804b3 sesion-2-frame3a-smoke-ondo-comparative-n6-n8 2026-04-29 20:07:55 +0200
+db3edc8e7f12faffb1ec25e4064067167da6c611 sesion-2a-frame2-r3-path-gamma-tf 2026-04-28 00:24:53 +0200
+d575de4769a805f2aa27492275a10a03d894cbb5 sesion-2b-frame2-r3-path-gamma-mr 2026-04-28 13:36:07 +0200
+d130cce059e96b3ed7884ca11eae15590afce88e sesion-3-5-frame2-r4-dry-run-cross-3 2026-04-28 15:53:36 +0200
+3fe0245b216274a668f50c5846aade2b89a27f91 sesion-3a-frame2-r4-bloque-2c-granular-cross-strategy 2026-04-28 15:28:57 +0200
+806cdee9fed4eaa77d52e2ed07e2c5461f088068 sesion-4-5-frame2-gate-c-rigorous-fail-frame-3-trigger 2026-04-28 16:16:52 +0200
+aa002421d1ff3ec921ae2489ca8d0b42fe220de6 v2.4.0-fidelity2-ts 2026-04-20 18:10:21 +0200
+7b5a36262d0affb5eb859059c651b57f868d0761 v2.4.1-emergency-stop-fix 2026-04-20 22:20:33 +0200
+e308189da73c34cad7963a5e5a0901131597289e v2.4.2-silent-reconcile+precheck 2026-04-21 12:14:08 +0200

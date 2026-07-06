@@ -1,0 +1,25 @@
+Licencia de los textos, figuras y paper / License for texts, figures and paper
+==============================================================================
+
+Los textos, figuras, documentos de pre-registro, veredictos, el diario de
+laboratorio (CONTEXTO_PROYECTO_TRADING.md) y el working paper de este
+repositorio se publican bajo la licencia Creative Commons Attribution 4.0
+International (CC BY 4.0).
+
+The texts, figures, pre-registration documents, verdicts, the lab diary
+(CONTEXTO_PROYECTO_TRADING.md) and the working paper in this repository are
+released under the Creative Commons Attribution 4.0 International license
+(CC BY 4.0).
+
+Atribución / Attribution: Ricardo Castellanos
+
+Texto completo de la licencia / Full license text:
+https://creativecommons.org/licenses/by/4.0/
+
+El CÓDIGO de este repositorio se licencia por separado bajo MIT (ver LICENSE).
+The CODE in this repository is licensed separately under MIT (see LICENSE).
+
+Los datos de mercado no se redistribuyen como obra propia: se regeneran desde
+fuentes públicas (data.binance.vision); ver datos/REGENERAR.md.
+Market data is not redistributed as own work: it regenerates from public
+sources (data.binance.vision); see datos/REGENERAR.md.

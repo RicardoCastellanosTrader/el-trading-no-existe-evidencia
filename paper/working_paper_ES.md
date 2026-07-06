@@ -1,0 +1,161 @@
+# Anatomía de un resultado nulo: estudio de caso pre-registrado y auditado adversarialmente del trading sistemático retail en perpetuos cripto (2018–2026)
+
+**Ricardo Castellanos**
+Investigador independiente
+
+*Working paper — BORRADOR. No enviado todavía. Versión: 2026-07-06.*
+*Código, pre-registros, resultados y scripts de regeneración: [URL del repositorio TBD] · Snapshot archivado: [DOI Zenodo TBD].*
+
+---
+
+## Resumen
+
+Este es un estudio de caso pre-registrado y auditado adversarialmente sobre lo que un trader retail técnicamente competente puede extraer realmente de los futuros perpetuos de criptomonedas. A lo largo de 18 familias de experimentos evalué un espacio de estrategias de 20.891.648 configuraciones × 31 presets (~6,5×10⁸ evaluaciones por símbolo-pasada en GPU; del orden de 10¹⁰ acumuladas), sobre perpetuos USDT de Binance (top-45 por liquidez), 2018–2026, a costes taker, incluyendo diez semanas de ejecución con dinero real y fidelidad simulación-directo certificada. Dos resultados. **(1) La transferencia fuera de muestra de la selección por rendimiento pasado es aproximadamente nula:** la correlación entre rendimiento pasado y forward es +0,598 [0,451, 0,713] medida sobre los mismos datos que produjeron la selección, y −0,054 [−0,305, +0,389] sobre datos independientes. La ventaja aparente del sistema optimizado (profit factor 3,317 in-sample) colapsa a 0,917 — bajo breakeven — cuando los parámetros se fijan a priori. **(2) Ninguna señal genuina detectada superó un listón honesto:** su magnitud es inferior a los costes retail (gap de supervivencia post-cascada ≈ +1 pb bruto por operación; estacionalidad horaria < 10 pb) o inferior a un benchmark trivial (momentum neutral Sharpe 0,541 frente a 1,443 del comprar-y-mantener equiponderado; la pata larga del carry ≈ beta de mercado). Estos hallazgos replican la literatura establecida sobre backtest overfitting y pérdidas del trading retail; la aportación es la anatomía mecanística desde dentro de una operación, con artefactos abiertos. Las limitaciones — supervivencia asumida como techo, ~3 clusters efectivos de evidencia y no 18 independientes, dominio acotado, pre-registro criptográficamente verificable solo en 3 de 18 familias — se declaran de entrada.
+
+---
+
+## 1. Introducción
+
+Que la mayoría de los traders retail pierde dinero no es un hallazgo nuevo. Los reguladores lo publican como advertencia estandarizada (el 74–89% de las cuentas retail de CFD pierden dinero, según los avisos exigidos por ESMA) y el registro académico es consistente entre mercados y décadas (Barber y Odean, 2000; Barber et al., 2014; Chague et al., 2020). Que los backtests sobrestiman sistemáticamente el rendimiento futuro tampoco es nuevo: tiene teoría formal (Bailey, Borwein, López de Prado y Zhu, 2014; Bailey y López de Prado, 2014) y una literatura de testing múltiple (White, 2000; Hansen, 2005; Harvey, Liu y Zhu, 2016).
+
+Este trabajo no pretende demostrar ninguno de los dos resultados por primera vez. Es una **réplica y una anatomía**: el relato documentado, desde dentro de una única operación retail, de *cómo exactamente* se manifiestan ambos resultados cuando el operador es lo bastante competente para construir el aparato industrial completo — un kernel de backtesting en GPU, un pipeline walk-forward por régimen, un bot de producción con fidelidad de ejecución certificada — y lo bastante honesto para instrumentar su propia búsqueda con pre-registros, controles placebo, holdouts intocados y una auditoría adversarial de sus propios veredictos.
+
+Tres cosas distinguen este estudio del registro existente:
+
+1. **La vista desde dentro, con dinero real.** El objeto del estudio es el sistema de trading del propio autor, desplegado en vivo en un VPS con capital real. La brecha entre simulación y realidad no se asume; se midió (fidelidad a nivel de señal del 98,24–100% en la certificación final) y el resultado con dinero real (736 ejecuciones en diez semanas) se reporta al céntimo.
+2. **Artefactos abiertos.** Cada experimento se publica con su pre-registro, código, resultados y veredicto. Los datos crudos de mercado no se redistribuyen, pero son exactamente regenerables desde una fuente pública (data.binance.vision) con manifiestos de checksums. Un lector con el repositorio puede recomputar cada número de este artículo.
+3. **La anatomía mecanística del sobreajuste.** Más allá de confirmar *que* la selección no transfiere, los experimentos aíslan *dónde se acuña la ilusión*: la maquinaria de búsqueda certifica configuraciones "notables" sobre puro ruido browniano geométrico al mismo ritmo que sobre datos reales (floor de ruido con profit factor 2,35 frente a 2,32 en los picks de producción); el mismo ranking que correlaciona +0,598 con el forward sobre sus propios datos correlaciona −0,054 sobre datos independientes; y un componente despojado de optimización (parámetros lógicos fijados a priori) rinde de forma indistinguible de un placebo de paseo aleatorio.
+
+El artículo se organiza alrededor de una disciplina simple: la conclusión se congeló antes de escribir, cada número público traza a un artefacto primario a través de una tabla de respaldo de afirmaciones publicada con el repositorio, y la sección de limitaciones está escrita para ser la sección más fuerte del artículo.
+
+## 2. Trabajo relacionado
+
+**Backtest overfitting.** Bailey, Borwein, López de Prado y Zhu (2014) formalizaron la probabilidad de sobreajuste de backtest y mostraron que los ensayos no reportados vuelven casi irrelevante el rendimiento in-sample; Bailey y López de Prado (2014) propusieron el deflated Sharpe ratio como corrección. Harvey, Liu y Zhu (2016) documentaron el problema de testing múltiple a la escala de la propia literatura de factores. White (2000) y Hansen (2005) aportaron la maquinaria clásica de reality check contra el data snooping. Este estudio es, en efecto, el experimento de campo de un solo operador de exactamente el fenómeno que esa literatura modela: una búsqueda sobre ~2×10⁷ configuraciones con los ensayos contados, no ocultados.
+
+**Resultados del trading retail.** Barber y Odean (2000) establecieron que operar es peligroso para la riqueza del retail; Barber, Lee, Liu y Odean (2014) mostraron que la habilidad persistente en day trading es rara en un registro completo de mercado; Chague, De-Losso y Giovannetti (2020) encontraron que esencialmente ningún day trader brasileño sostiene un salario en el tiempo. Las disclosures de intervención de producto de ESMA institucionalizaron la tasa base. El presente estudio añade el mecanismo desde dentro: no solo que el operador no ganó, sino la descomposición auditada de *por qué el sistema debía ganar y no lo hizo*.
+
+**Las anomalías testeadas.** Donde los experimentos tocan anomalías documentadas, las anclas son las estándar: momentum cross-sectional (Jegadeesh y Titman, 1993), momentum de series temporales (Moskowitz, Ooi y Pedersen, 2012), betting-against-beta (Frazzini y Pedersen, 2014) y carry (Koijen et al., 2018). La pregunta aquí es más estrecha que la suya: no si la anomalía existe en datos académicos, sino si un operador retail a costes taker en este venue puede comérsela.
+
+## 3. El sistema bajo test
+
+El objeto de estudio es una operación sistemática retail completa, construida a lo largo de unos dos años:
+
+- **Familia de estrategias ("SmartDiv").** Variantes de seguimiento de tendencia y reversión a la media sobre velas de 1h, definidas por un espacio de configuración de 26 bits (20.891.648 configuraciones válidas) cruzado con 31 presets de parámetros.
+- **Maquinaria de búsqueda.** Un kernel de backtesting en GPU (~10⁶ configuraciones/segundo) alimentando un pipeline walk-forward por régimen: clustering no supervisado de regímenes de mercado (mezclas gaussianas sobre features de volatilidad/eficiencia), selección de especialistas por régimen y ventanas de evaluación fuera de muestra. Una pasada completa de reciclaje de la cartera de 45 símbolos evalúa ≈ 6,5×10⁸ combinaciones configuración×preset por símbolo; las evaluaciones acumuladas del proyecto son del orden de 10¹⁰. El estado final de producción retuvo 138.000 configuraciones con métricas walk-forward completas.
+- **Producción.** Un motor en vivo (v2.8.1) ejecutando sobre perpetuos USDT de Binance vía VPS, con circuit breakers, control de correlación EWMA y volatility targeting. Capital real (~296 USDT — deliberadamente pequeño; el objetivo era la medición, no el ingreso).
+- **Instrumentación de fidelidad.** La afirmación "el backtest es lo que realmente operó" no se asumió. Una auditoría temprana casó 10 de 11 trades reales contra un replay stateless del kernel (91%, CI [62%, 98%] — N pequeño, y así se reporta). La evidencia posterior, más fuerte, es una certificación señal-a-señal entre el cerebro de producción y el kernel de laboratorio sobre ventanas de 1.500 velas: **98,24–100% de coincidencia por símbolo** (p. ej., 100% sobre 250 señales en BTC; 100% sobre 498 en ONDO). Un run de shadow-equivalence de dos versiones completas del stack sobre las mismas velas coincidió en el 99,46% de 6.470 ciclos (documentado en el diario de laboratorio).
+
+Este trabajo de fidelidad es lo que hace *interpretable* el resultado nulo: cuando la cuenta real no gana, la explicación no puede esconderse en una brecha de implementación.
+
+## 4. Métodos: el arnés de honestidad
+
+El problema metodológico central de un auto-estudio es el autoengaño. El arnés construido contra él tiene siete componentes:
+
+1. **Pre-registro, con una taxonomía honesta.** Cada experimento congeló su hipótesis, su falsador y su métrica cardinal en un pre-registro escrito antes de leer resultados. Se declaran tres niveles de verificabilidad externa, y se publica el nivel de cada experimento: **Nivel A** (el commit del pre-registro precede verificablemente al commit de resultados en el historial git): 3 de 18 familias (la campaña de edge en vivo, el test condicional a régimen y el experimento de order blocks). **Nivel B** (documento de pre-registro escrito antes de los resultados pero commiteado junto a ellos): el estudio de capacidad de información, el estudio del componente de medias móviles y los dos sandboxes de microestructura/momentum. **Nivel C** (experimentos de la lista de cierre y retests commiteados en un único commit por lotes). Los timestamps de git son auto-declarados; el anclaje externo lo proporcionan una atestación OpenTimestamps del estado del repositorio (2026-07-06) y el snapshot con DOI. Una asimetría merece énfasis: **todos los veredictos de este estudio son negativos.** Un pre-registro fabricado sería un instrumento extraño para un autor interesado, cuyo incentivo apunta en la dirección opuesta — hacia encontrar edge.
+2. **Gates anti-look-ahead.** Todo generador de señales pasa un test de invariancia de prefijo: las señales computadas sobre un prefijo de los datos deben ser bit-idénticas a las de los mismos timestamps computadas sobre la serie completa.
+3. **Placebos puros.** Los experimentos a nivel de detector se contrastan contra placebos de movimiento browniano geométrico — no contra datos reales barajados, que preservan estructura explotable. El *floor* del placebo (lo que la métrica rinde sobre ruido sin estructura) sustituye al breakeven ingenuo de 1,0. Esta única disciplina invierte conclusiones: 15/45 símbolos "baten el breakeven" en el test de order blocks; 0/45 baten el floor de ruido con intervalos de confianza.
+4. **Controles simétricos y estratificados.** Los estudios de eventos (cascadas de liquidación) usan muestras de control emparejadas por volatilidad, después de que una auditoría adversarial mostrara que el gap sin emparejar estaba inflado ~3–4×.
+5. **Bootstrap por clusters.** Intervalos de confianza sobre el número que decide, agrupados por símbolo (y por bloques de 8 horas donde aplica el funding), nunca agregados ingenuamente entre series correlacionadas.
+6. **Benchmark primero.** Donde una estrategia compite con la exposición pasiva, el benchmark (comprar-y-mantener equiponderado, Sharpe 1,443) se computó y reportó *antes* de fijar el listón de la estrategia.
+7. **Holdouts intocados as-of.** Los replays de selección se ejecutan "as of" una fecha histórica con chequeos anti-fuga bidireccionales (el arnés E2); las ventanas de holdout consumidas por un experimento se registran en un libro mayor y nunca se reutilizan como frescas.
+
+Finalmente, los propios veredictos fueron auditados adversarialmente: una revisión multi-agente (39 instancias auditoras de IA independientes, ejecutada dos veces) recomputó los números cardinales desde los artefactos primarios e intentó voltear cada veredicto. Los siete veredictos principales sobrevivieron como "correctos con matices"; las nueve correcciones resultantes (p. ej., el gap de supervivencia de cascadas deflactado de +23 pp a ~+6–8 pp tras el emparejado por volatilidad; un bug de NaN en una correlación) están incorporadas a lo largo de este artículo y documentadas en el repositorio. Los transcripts de trabajo de la auditoría no se conservaron — solo el documento de correcciones; esto se lista como limitación.
+
+**La asistencia de IA como parte del método.** Toda la implementación y ejecución técnica — kernels GPU, pipeline de walk-forward, bot de producción, harness de validación, los propios experimentos y la auditoría adversarial de 39 agentes — la realizaron agentes de IA (Claude y Claude Code, Anthropic) bajo dirección, revisión y aprobación del autor, tarea a tarea. El autor no es programador; el arnés de honestidad descrito en esta sección se construyó precisamente para que esa delegación técnica no pudiera comprometer la validez de los resultados. Las preguntas de investigación, las decisiones de diseño, la aprobación de cada pre-registro, la firma de cada veredicto y la responsabilidad plena de todas las afirmaciones publicadas son del autor. Conforme a los criterios ICMJE/COPE, las herramientas de IA no cumplen criterios de autoría. Declaración completa: `DECLARACION_ASISTENCIA_IA.md` en el repositorio.
+
+## 5. Resultados
+
+Las 18 familias de experimentos se resumen en la Tabla 1. Siguiendo la auditoría adversarial (corrección A7), se presentan como **aproximadamente tres clusters efectivos de evidencia más sondas ortogonales de eje único** — no como 18 confirmaciones independientes. Los números de esta sección son estimaciones puntuales con intervalos bootstrap al 95% donde se computaron; cada número traza a un artefacto primario vía la tabla de respaldo del repositorio.
+
+### 5.1 Cluster I: el sistema optimizado y su maquinaria de selección
+
+**El sistema optimizado no tiene edge neto demostrado.** Replayado as-of sobre holdouts intocados, el profit factor del sistema completo de producción es **0,702 [0,439, 1,066]** (N = 163 trades); el holdout más reciente excluye 1,0 por arriba (cota superior del CI: 0,96).
+
+**La ilusión la acuña la búsqueda, no el mercado.** La misma maquinaria de selección, ejecutada sobre puro ruido GBM, certifica configuraciones "notables" con un floor esperado de profit factor de **2,35** — estadísticamente indistinguible del **2,32** que certificó sobre los picks reales de producción. El mes de producción realizó **0,640 [0,26, 1,31]**. La máquina fabrica la misma promesa sobre ruido sin estructura que sobre datos reales; la realidad después no paga ninguna de las dos.
+
+**El rendimiento pasado no selecciona el rendimiento futuro.** Rankeando configuraciones por cualquier dimensión del rendimiento pasado y correlacionando con el forward: dentro del mismo corte de datos, ρ = **+0,598 [0,451, 0,713]** (27 símbolos, 243 configuraciones). Sobre datos independientes: ρ = **−0,054 [−0,305, +0,389]** (9 símbolos, 60 configuraciones). El intervalo incluye el cero — la afirmación honesta es *transferencia aproximadamente nula*, no "colapso demostrado"; pero la brecha within/independiente de ~0,65 en correlación es la firma de una selección ajustándose a sus propios datos. Tres de las cuatro "dimensiones predictivas" candidatas del scoring del pipeline resultaron ser auto-correlaciones mecánicas del propio objetivo; la única candidata limpia (contexto de régimen, ε² = 0,574 en-selección) falló la confirmación sobre holdouts intocados: en las únicas celdas que ejercen genuinamente la hipótesis condicional a régimen (celdas de tres regímenes), el especialista rindió *peor* en su propio régimen (Δ = −0,535 y −0,094), y la cartera condicional neta 0,983 — por debajo de 1 — frente a 0,931 la agnóstica, con un placebo de emparejamiento erróneo en p = 0,47 (sin especificidad).
+
+**La optimización es toda la diferencia.** La misma familia de señales con parámetros fijados a priori por lógica ("lo que elegiría un manual") rinde una mediana de profit factor forward de **0,917** — bajo breakeven. Optimizada por activo: **3,317**. La brecha de 2,4 unidades *es* el sobreajuste, medido directamente.
+
+### 5.2 Cluster II: las creencias del propio operador, objetivadas
+
+**Los cruces de medias móviles no portan edge.** El componente de cruce aislado, a través de 14 tipos de media móvil con parámetros lógicos, da medianas de 0,917 (tendencia) y 0,742 (reversión) frente a floors de placebo GBM de 0,928 y 0,853. Cero de 14 tipos superan una mediana de 1. El resultado es "indistinguible del ruido *y* sub-breakeven" — el componente que más vende la industria es inerte.
+
+**El sistema discrecional del propio autor — el que le había dado dinero — también falla.** Su criterio de order blocks/liquidez se formalizó fielmente (verificado contra su propio ejemplo canónico de trade antes de cualquier barrido), se blindó contra look-ahead y se barrió sobre 45 símbolos: profit factor mediano **0,8002** frente a un floor de placebo GBM de **0,9891**. La señal real queda *por debajo* del ruido sin estructura (brecha −0,189, negativa en 7/7 variantes de configuración); **0/45 símbolos baten el floor con intervalos de confianza** (6/45 en estimación puntual — la distinción importa y se preserva). El matiz auditado: el signo es robusto (P(brecha ≥ 0) ≤ 3,2%), la magnitud no está estadísticamente ganada. Una ablación mató el núcleo causal: entrar en el bloque de liquidez *más profundo* (0,8002) es indistinguible del más superficial (0,8109) o de un bloque aleatorio (0,8099). La regla que cargaba la intuición no hace nada.
+
+### 5.3 Cluster III: las anomalías documentadas, a costes retail
+
+**Cascadas de liquidación: una señal microestructural real que los costes se comen.** La supervivencia post-cascada difiere genuinamente de los controles emparejados por volatilidad: **+13,2 pp** [11,1, 15,5] (BTC) y **+13,3 pp** [11,5, 15,3] (ETH). Neto de un falsador duro (peor precio en 3 s, stop del −2%, comisiones taker), la expectativa por operación es *negativa* con el intervalo excluyendo el cero (BTC 3 meses: −0,00039 [−0,00062, −0,00017]). La magnitud bruta corregida adversarialmente es del orden de **+1 punto básico por operación** — dos órdenes de magnitud por debajo del stack de costes.
+
+**Momentum cross-sectional: el resultado menos nulo, aún bajo el listón.** Con el benchmark congelado primero (comprar-y-mantener equiponderado, Sharpe **1,443**), una cartera long/short por quintiles a 12h al estilo Jegadeesh-Titman logró neutralidad de mercado genuina (β = −0,043 contra el índice, −0,041 contra BTC) y fue **la única estrategia neta-positiva de todo el estudio**: Sharpe **0,541**, +29,6% en dos años neto de costes de rotación, drawdown máximo −27,4% (frente a −59% del benchmark). Aun así falla el listón pre-registrado (1,94), falla la adecuación absoluta (0,541 < 1) y marcó 0,028 en 2023. El momentum solo-largo (1,163) ni siquiera bate el comprar-y-mantener; el solo-corto es tóxico (−0,83; funding más squeezes). Reportado con honestidad: el momentum cross-sectional cripto existe y cubre, pero no paga a un operador retail por el tiempo.
+
+**Los ejes restantes, cada uno con su propio instrumento, todos negativos.** Funding-carry: Sharpe neutral **−0,053** [−1,282, +1,261]; la pata larga sola es genuinamente positiva (+1,141, ortogonal al momentum, ρ = 0,022) pero inferior al comprar-y-mantener (1,443) — la pata larga del carry es beta alcista disfrazada, y la pata corta (−1,026) destruye la combinación neutral. Reversal de corto plazo: −0,121 con rotación 2,9. Momentum de series temporales diario sobre ocho años incluyendo el bear de 2022: 0,749 frente a 0,779 del comprar-y-mantener, con drawdown máximo del −85%. Low-volatility/BAB: −0,633, desenmascarado por un gate de beta corregido como short-beta encubierto (β = −0,494). Lead-lag BTC→alts: el único lag que sobrevive FDR (1–2 h) es *negativo* (−0,016) y muy por debajo del umbral de coste. Estacionalidad de reloj: cuatro buckets hora/día sobreviven FDR (horas UTC 21–22, viernes, sábado; 2017–2026) — un efecto real de como máximo **5,97 pb** [2,82, 9,28], por debajo del coste de ida y vuelta de ~10 pb; útil para timing de ejecución, inoperable como estrategia. Posicionamiento por open interest: −0,42, no sobrevive 2024.
+
+### 5.4 Tabla resumen
+
+| # | Familia (nombre popular) | Resultado cardinal | Veredicto |
+|---|---|---|---|
+| E01 | El sistema optimizado ("mi backtest gana") | PF 0,702 [0,439, 1,066]; floor de ruido 2,35 ≈ floor de producción 2,32; replay 0,640 | Sin edge neto |
+| E02 | Selección por rendimiento pasado ("elige a los mejores") | score→forward ρ +0,054, cruza el 0 | Muerta/mecánica |
+| E03 | Condicionamiento por régimen ("opera el régimen") | celdas 3-régimen Δ −0,535 / −0,094; neto < 1 | No confirmado |
+| E04 | Cruces de medias ("golden cross") | 0,917 vs. ruido 0,928; 0/14 tipos > 1 | Negativo |
+| E05 | Order blocks / SMC ("smart money") | 0,8002 vs. floor 0,9891; 0/45 con CI | Negativo, signo-robusto |
+| E06 | Cascadas de liquidación ("stop hunts") | gap de supervivencia real; neto −0,2%/trade; ≈ +1 pb bruto | Negativo bajo falsador |
+| E07 | Momentum cross-sectional | L/S Sharpe 0,541 neto-positivo < listón 1,94; EW 1,443 | Bajo el listón |
+| E08 | Funding carry | −0,053; pata larga +1,141 < EW 1,443 | No digna |
+| E09 | Reversal corto | −0,121, rotación 2,9 | No digna |
+| E10 | TSMOM diario | 0,749 < EW 0,779; maxDD −85% | No digna |
+| E11 | Low-vol / BAB | −0,633; β −0,494 (short-beta encubierto) | No digna |
+| E12 | Lead-lag BTC→alts | único lag significativo negativo (−0,016) | Cerrada |
+| E13 | Estacionalidad de reloj | máx 5,97 pb < 10 pb de coste | Real, inoperable |
+| E14 | Open interest | −0,42; muere en 2024 | No digna |
+| E15 | Squeeze de cascadas (retest, vol-matched) | diff neta con CI excluyendo 0, negativa | Muere |
+| E16 | Transferencia de la selección (retest) | ρ +0,598 within vs. −0,054 independiente | Firma de sobreajuste |
+| E17 | Placebo de régimen (retest) | wrong-match p = 0,47; condicional 0,983 < 1 | Refuerza E03 |
+| E18 | Ablación de order blocks (retest) | más profundo ≈ más superficial ≈ aleatorio | Regla causal inerte |
+
+### 5.5 Coda con dinero real
+
+En diez semanas de producción en vivo (13-04-2026 a 21-06-2026), el sistema ejecutó **736 fills** en 43 símbolos con fidelidad certificada. PnL bruto de precio: **+3,28 USDT**. Comisiones estimadas al 0,10% de ida y vuelta sobre 4.962 USDT de nocional: **−4,96 USDT**. Neto: **≈ −1,7 USDT** sobre ~296 USDT de capital. No perdí dramáticamente; no gané en absoluto. *Los costes se llevaron el PnL* — que es exactamente lo que el programa de medición predice para un sistema cuyo edge verdadero es indistinguible de cero.
+
+## 6. Limitaciones
+
+Esta sección es estructural; la credibilidad del estudio descansa en la precisión de sus propias fronteras.
+
+1. **Supervivencia como techo, por construcción.** El universo de 45 símbolos es la cima de la distribución de liquidez superviviente de 2026. Todo número positivo de este estudio (incluido el 0,541 del momentum y la pata larga del carry) es por tanto un *techo optimista*; los nulos están, en todo caso, infra-estimados. Esta dirección del sesgo es asimétrica a favor del estudio solo porque sus conclusiones son negativas.
+2. **~3 clusters efectivos de evidencia, no 18.** Las cinco primeras familias comparten kernel, datos y maquinaria de placebos; los retests (E15–E18) re-atacan deliberadamente veredictos anteriores. Contar "18 familias" describe cobertura experimental, no independencia. La estimación de la auditoría adversarial de ~3 clusters efectivos se adopta como canónica.
+3. **Un dominio acotado.** Un venue (perpetuos USDT de Binance), un universo (top-45), un periodo (2018–2026, con sub-periodos por experimento), un modelo de costes (taker, 0,10–0,20% de ida y vuelta). Nada de esto habla de rebates de maker, tiers institucionales, otros venues, opciones o spot. La conclusión queda acotada a: *un retail taker en este venue en este periodo*.
+4. **La verificabilidad del pre-registro es honesta pero parcial.** Solo 3 de 18 familias tienen prueba criptográfica (precedencia en git) de que el pre-registro precedió a los resultados; el resto descansa en evidencia documental, el diario de laboratorio y la asimetría de los veredictos negativos. El anclaje temporal externo comienza el 06-07-2026 (OpenTimestamps) — después del trabajo, sellando su estado, no su cronología.
+5. **La auditoría adversarial está documentada pero no es reproducible.** El documento de correcciones de la auditoría de 39 agentes se publica; los transcripts crudos no se conservaron. Un escéptico debe tratar la auditoría como un procedimiento interno documentado, no como evidencia reproducible — sus *correcciones*, sin embargo, son todas recomputables desde artefactos primarios, y todas ellas debilitaron las afirmaciones del estudio, no las reforzaron.
+6. **Muestras pequeñas donde la realidad es cara.** La auditoría temprana de fidelidad es N = 11 (por eso la evidencia señal-a-señal W1500 certificada es la que sostiene la afirmación de fidelidad); el periodo con dinero real es de diez semanas y ~296 USDT. La coda en vivo es consistente con las mediciones; no es prueba independiente.
+7. **Las estrategias cerradas por acceso quedan sin testear — y esa es la tesis.** Cinco familias se cerraron por acceso y no por veredicto: cash-and-carry delta-neutral (edge casi seguro real; irrelevante con 289 USDT), prima de riesgo de varianza en opciones (exige margen y acceso jurisdiccional), market-making (exige datos L2 y latencia), arbitraje cross-exchange (fragmentación de capital) y datos de flujos on-chain (costes de suscripción y riesgo de look-ahead del vendedor). Las dos puertas donde más plausiblemente existe edge se cerraron por capital y acceso, no por evidencia de ausencia. La conclusión del estudio no es, por tanto, "no existe edge", sino: **dentro de todo lo que un operador retail puede alcanzar realmente, nada superó un listón honesto. Lo único que no probé es dejar de ser retail.**
+
+## 7. Conclusión
+
+Un operador retail técnicamente competente construyó el aparato industrial completo — una búsqueda de 20,9 millones de configuraciones, selección walk-forward por régimen, un bot de producción con fidelidad de señal certificada del 98–100% — lo apuntó a los perpetuos cripto más líquidos con ocho años de datos, se instrumentó contra el autoengaño, invitó a una auditoría adversarial de sus propias conclusiones y puso dinero real detrás del resultado. El desenlace es un mapa de nulos con anatomía: la maquinaria de selección fabrica sus promesas sobre ruido exactamente igual que sobre datos; el rendimiento pasado no transfiere aproximadamente nada; el setup más confiable del propio operador queda por debajo del ruido sin estructura; y las señales que son reales (cascadas, estacionalidad, momentum, la pata larga del carry) tienen un tamaño inferior a los costes o inferior a un benchmark que cualquier tenedor pasivo obtiene gratis.
+
+Nada de esto es una afirmación sobre hedge funds, market makers o cualquiera con tiers de comisiones, colocation o balance — las puertas cerradas por acceso son exactamente donde plausiblemente vive el edge restante. Esa asimetría es el hallazgo. La ingeniería sobrevivió a todas las auditorías que se le lanzaron; el alfa no sobrevivió a la ingeniería.
+
+## 8. Disponibilidad de datos y código
+
+El repositorio completo — pre-registros, código de los experimentos, resultados, la tabla de respaldo de afirmaciones (cada número público → artefacto primario), el arnés de validación (gates anti-look-ahead, placebos GBM, bootstrap por clusters, replay as-of), el log de 736 ejecuciones con dinero real y el historial de desarrollo completo (223 commits, filtrado de PII) — está disponible en [URL TBD], archivado con DOI [TBD]. Los datos crudos de mercado son regenerables desde data.binance.vision mediante los scripts incluidos y manifiestos SHA-256. Una guía del lector, *Cómo auditar este trabajo*, mapea cada número cardinal a su ruta de recomputación.
+
+## Agradecimientos
+
+Este proyecto se realizó con asistencia extensiva de IA — Claude y Claude Code (Anthropic), operando como agentes dirigidos: la implementación y ejecución técnica de todo el código, experimentos e infraestructura; el protocolo de auditoría adversarial de 39 agentes; la curación del repositorio público; y la asistencia en la redacción de este manuscrito a partir de la tabla de afirmaciones verificadas (`afirmaciones_respaldo.md`). Todo ello bajo dirección, revisión y aprobación del autor. Las preguntas de investigación, las decisiones de diseño, la aprobación de cada pre-registro, la firma de cada veredicto y la responsabilidad plena de todas las afirmaciones publicadas — incluidos todos los errores — son del autor. Conforme a los criterios estándar de autoría académica (ICMJE, COPE), las herramientas de IA no cumplen criterios de autoría; el autor único es Ricardo Castellanos. Esta declaración forma parte del método, no es una nota al margen: el proyecto documenta, entre otras cosas, un caso de investigación empírica dirigida por un no-programador mediante agentes de IA. Declaración completa: `DECLARACION_ASISTENCIA_IA.md`.
+
+## Referencias
+
+- Bailey, D. H., Borwein, J. M., López de Prado, M., & Zhu, Q. J. (2014). Pseudo-mathematics and financial charlatanism: The effects of backtest overfitting on out-of-sample performance. *Notices of the American Mathematical Society*, 61(5), 458–471.
+- Bailey, D. H., & López de Prado, M. (2014). The deflated Sharpe ratio: Correcting for selection bias, backtest overfitting, and non-normality. *Journal of Portfolio Management*, 40(5), 94–107.
+- Barber, B. M., & Odean, T. (2000). Trading is hazardous to your wealth: The common stock investment performance of individual investors. *Journal of Finance*, 55(2), 773–806.
+- Barber, B. M., Lee, Y.-T., Liu, Y.-J., & Odean, T. (2014). The cross-section of speculator skill: Evidence from day trading. *Journal of Financial Markets*, 18, 1–24.
+- Chague, F., De-Losso, R., & Giovannetti, B. (2020). Day trading for a living? *SSRN Working Paper No. 3423101*. https://doi.org/10.2139/ssrn.3423101
+- European Securities and Markets Authority (ESMA). (2018). Decisions (EU) 2018/795 and 2018/796 of 22 May 2018 to temporarily prohibit binary options and restrict contracts for differences in the Union, pursuant to Article 40 of Regulation (EU) No 600/2014. *Official Journal of the European Union*, L 136.
+- Frazzini, A., & Pedersen, L. H. (2014). Betting against beta. *Journal of Financial Economics*, 111(1), 1–25.
+- Hansen, P. R. (2005). A test for superior predictive ability. *Journal of Business & Economic Statistics*, 23(4), 365–380.
+- Harvey, C. R., Liu, Y., & Zhu, H. (2016). …and the cross-section of expected returns. *Review of Financial Studies*, 29(1), 5–68.
+- Jegadeesh, N., & Titman, S. (1993). Returns to buying winners and selling losers: Implications for stock market efficiency. *Journal of Finance*, 48(1), 65–91.
+- Koijen, R. S. J., Moskowitz, T. J., Pedersen, L. H., & Vrugt, E. B. (2018). Carry. *Journal of Financial Economics*, 127(2), 197–225.
+- Moskowitz, T. J., Ooi, Y. H., & Pedersen, L. H. (2012). Time series momentum. *Journal of Financial Economics*, 104(2), 228–250.
+- White, H. (2000). A reality check for data snooping. *Econometrica*, 68(5), 1097–1126.
