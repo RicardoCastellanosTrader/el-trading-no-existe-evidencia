@@ -88,9 +88,16 @@ done
 ots verify ots/prerregistros_manifest_20260706.txt.ots -f ots/prerregistros_manifest_20260706.txt
 ```
 
-Si `ots verify` responde "pending attestation", ejecutar antes `ots upgrade <archivo>.ots` (la atestación en Bitcoin tarda unas horas desde el sellado; los recibos publicados se actualizarán tras la atestación).
+**Estado de la atestación:** ambos recibos publicados ya contienen la atestación definitiva en Bitcoin — **bloque 956927** (minado 2026-07-06 14:29:58 UTC), merkle root `86ba8b514a698069a7e0b05bc8ead67dc2aadb010185111049f4185ef1f8fe72`. `ots verify` completo requiere un nodo Bitcoin local; sin nodo, `ots info <archivo>.ots` muestra la `BitcoinBlockHeaderAttestation(956927)` y el merkle root puede cotejarse contra cualquier explorador público (p. ej. `https://blockstream.info/api/block-height/956927` → hash del bloque → `merkle_root`).
 
-Al publicar, el snapshot de Zenodo añadirá el **DOI** con timestamp de tercero sobre el conjunto completo.
+**Nota Windows (CRLF):** los sellos y los sha256 comprometen los **bytes exactos commiteados**. Este repo desactiva la conversión de fin de línea vía `.gitattributes` (`* -text`); si tu clon es anterior a ese archivo o fuerza `core.autocrlf=true`, el checkout reescribe LF→CRLF y `ots verify` dará un falso "File does not match original!". En ese caso extrae los bytes exactos antes de verificar:
+
+```bash
+git show HEAD:prerregistros/ots/prerregistros_manifest_20260706.txt > /tmp/manifest.txt
+ots verify ots/prerregistros_manifest_20260706.txt.ots -f /tmp/manifest.txt
+```
+
+El snapshot de Zenodo añade el **DOI** con timestamp de tercero sobre el conjunto completo: [10.5281/zenodo.21229492](https://doi.org/10.5281/zenodo.21229492).
 
 ## 5. `commit_map_filtrado.txt`
 

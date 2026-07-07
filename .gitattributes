@@ -1,0 +1,5 @@
+# Auditoría byte-exacta: sin conversión de fin de línea en el checkout.
+# Los sha256 del manifiesto y los sellos OpenTimestamps comprometen los bytes
+# exactos commiteados; un checkout en Windows con core.autocrlf=true los
+# reescribiría (LF→CRLF) y produciría un falso "File does not match original!".
+* -text
