@@ -33,6 +33,11 @@ Corrección de erratas, rutas y descripciones de la v1.0.0, más hechos que falt
 | (b) | El 1,94 (≈ EW + 0,5) es el listón de la curva A del CS-MOM (`cs_mom.py` L329), no el de la curva C. La curva C se juzga con sus criterios congelados (L332–335: \|β\| ≤ 0,15, Sharpe ≥ 1,00, maxDD > −25 %, Sharpe 2024 > 0) y falló Sharpe y drawdown; el veredicto no cambia. «Protocolo declarado en el propio doc» pasa a referirse al código. | `afirmaciones_respaldo.md` (afirmación 4); `experimentos/E07_cs_momentum/README.md` | `a39989e` |
 | (c) | Entran en la tabla, con artefacto: los 39 auditores (dos pasadas); la diferencia de precios entre exchanges (≈ 0,113 %, CONTEXTO §0.6.1); el funding realizado (≈ 0,0023 %/operación, FASE_A §A9); y la Sharpe deflactada implementada y probada en seco pero no aplicada a los veredictos (`regime_walk_forward.py`, `_R1_DSR_METHOD = 'none'`; ROADMAP). | `afirmaciones_respaldo.md`, «Hechos añadidos a la tabla» | `4a2117e` |
 
+### Dos líneas antes de publicar (ARCHIVO-1c, commit `8aa7f05`)
+
+- `README.md` (es/en): bajo el bloque «formulación congelada», la nota «Congelada el 2026-07-06; la v1.0.1 corrige en ella solo la descripción de los datos y el exchange (ver CHANGELOG), ninguna cifra.»
+- `auditoria_adversarial/README.md` (celda A8) y `cierre_definitivo_20260702/FASE_A_correcciones_documentales.md` (§A8): línea de remisión «(v1.0.1: el venue exacto por familia está en afirmaciones_respaldo.md, matiz A8; esta entrada se conserva como registro de la meta-auditoría.)». Nada más de esos archivos cambia.
+
 ### Versión
 
 - `CITATION.cff`: `version` 1.0.1, `date-released` 2026-10-13; en el abstract, «Binance top-45 perpetuals» pasa al reparto de §8(a). El título y el DOI no cambian.
