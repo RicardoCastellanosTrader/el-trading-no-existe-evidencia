@@ -111,7 +111,7 @@ Señales genuinas detectadas (todas verificadas):
 
 **Estado: 🟡 PARCIAL — cada pieza es real pero las tres necesitan su matiz exacto (incorporado a la redacción oficial §4).**
 
-**(a) El 91%:** auditoría v4 (kernel stateless vs BingX): **10/11 trades match = 91%**, CI ~[62%, 98%] → `audit_v5_2_report_20260427_1844_utf8.txt` L28-29 (+ CONTEXTO §2.5). **Matiz: N=11.** Evidencia posterior MÁS fuerte: certificación señal-a-señal brain↔kernel W1500 con match-rate **98.24-100% por símbolo** (p.ej. BTC 100% sobre 250 señales, ONDO 100% sobre 498) → `cert_fidelity_gate_W1500.json` (recomputado); shadow-equivalence VPS-stack↔HEAD-stack: acciones **99.46%** sobre 6.470 ciclos [documental, CONTEXTO L1690]. La redacción oficial lidera con la certificación 98-100% y declara el 91% con su N.
+**(a) El 91%:** auditoría v4 (kernel stateless vs BingX): **10/11 trades match = 91%**, CI ~[62%, 98%] → `audit_v5_2_report_20260426_1106_utf8.txt` L30 (+ CONTEXTO §2.5). *(v1.0.1: la ruta anterior, `…20260427_1844…`, no existe en el archivo; el script de esa auditoría v4, `audit_fidelity_v4.py`, tampoco está en el archivo público — solo existe copia local; en el archivo están `audit_fidelity_v5.py` y `audit_fidelity_v5_2.py`.)* **Matiz: N=11.** Evidencia posterior MÁS fuerte: certificación señal-a-señal brain↔kernel W1500 con match-rate **98.24-100% por símbolo** (p.ej. BTC 100% sobre 250 señales, ONDO 100% sobre 498) → `cert_fidelity_gate_W1500.json` (recomputado); shadow-equivalence VPS-stack↔HEAD-stack: acciones **99.46%** sobre 6.470 ciclos [documental, CONTEXTO L1690]. La redacción oficial lidera con la certificación 98-100% y declara el 91% con su N.
 
 **(b) Los 736 fills:** **736 filas** exactas, periodo **2026-04-13 → 2026-06-21**, 43 símbolos, 591 con size>0 → `logs_historicos_vps/trade_history/trade_history.csv` (recomputado).
 
@@ -189,3 +189,14 @@ Ejemplos VERIFICADOS del patrón (optimización/selección más intensa → forw
 6. **"91% de fidelidad"** → real pero N=11 y CI [62%,98%]; la evidencia fuerte es la certificación posterior 98-100% (W1500, N=125-498 por símbolo). Se citan ambas, liderando con la fuerte.
 7. **"Perdí igual"** → la pérdida neta es pequeña (−1.7 USDT estimada / −7..−9 USDT en balance), no sustancial: la formulación oficial es "no gané: el precio me dio ~+3 USDT y los costes se los llevaron".
 8. **"18 familias"** → correcto como conteo; como evidencia independiente son ~3 clusters + ejes ortogonales (A7). Declarado en portada.
+
+---
+
+## Correcciones v1.0.1 (2026-10-13)
+
+Erratas y desajustes de la v1.0.0 corregidos en esta versión. **Ninguna cifra, intervalo ni veredicto cambia**: entran matices, rutas corregidas, descripciones corregidas y hechos que faltaban. Cada corrección se aplicó con su artefacto primario delante; el texto de la REDACCIÓN OFICIAL de arriba es idéntico, carácter a carácter, al de la v1.0.0. La lista completa, con el commit de cada cambio, está en [`CHANGELOG.md`](CHANGELOG.md).
+
+| # | Qué cambia | Dónde |
+|---|---|---|
+| 1 | La fila del 91 % citaba `audit_v5_2_report_20260427_1844_utf8.txt` L28-29, un informe que no existe en el archivo. La cifra (v4 BingX: N=11, 10 matches, 91 %, CI ~[62 %, 98 %]) está en `audit_v5_2_report_20260426_1106_utf8.txt` L30. Se declara además que el script de la auditoría v4, `audit_fidelity_v4.py`, no está en el archivo público. | Afirmación 5(a) |
+
