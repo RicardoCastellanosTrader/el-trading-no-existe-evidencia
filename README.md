@@ -14,6 +14,8 @@ Este repositorio documenta, con artefactos abiertos, la conclusión de un proyec
 
 > Estudio de caso pre-registrado y auditado adversarialmente (18 familias de experimentos, un espacio de 20,9 millones de configuraciones (~6,5×10⁸ evaluaciones por símbolo-pasada), Binance top-45 — velas 1h del mercado al contado para la búsqueda principal y 11 de las 18 familias, perpetuos USDT-M para las otras 7, y ejecución real en perpetuos USDT-M de BingX — 2018–2026, costes taker): (1) transferencia fuera de muestra ≈ nula de la selección por rendimiento pasado (ρ −0,05 independiente vs +0,60 in-sample); (2) ninguna señal genuina superó el listón honesto: magnitud inferior a costes (cascadas ≈ +1 pb; estacionalidad < 10 pb) o por debajo del benchmark trivial (Curva C 0,541 < EW 1,443; carry pata larga ≈ beta). Consistente con la literatura (Bailey–López de Prado, backtest overfitting; Barber–Odean/Chague, pérdidas retail; disclosures ESMA), a la que aporta la anatomía mecanística desde dentro con artefactos abiertos.
 
+*Congelada el 2026-07-06; la v1.0.1 corrige en ella solo la descripción de los datos y el exchange (ver [`CHANGELOG.md`](CHANGELOG.md)), ninguna cifra.*
+
 **Posicionamiento:** esto es una **réplica/anatomía independiente de resultados establecidos**, no una "primera demostración" de nada. La literatura ya sabía que los backtests sobreajustan y que el retail pierde; lo que este repositorio aporta es el mecanismo medido desde dentro, con el instrumental y los datos a la vista.
 
 ### Limitaciones (léelas antes que nada)
@@ -91,6 +93,8 @@ This repository documents, with open artifacts, the conclusion of an algorithmic
 ### The conclusion (frozen formulation)
 
 > A pre-registered, adversarially audited case study (18 experiment families, a search space of 20.9 million configurations (~6.5×10⁸ evaluations per symbol-pass), Binance top-45 — spot 1h candles for the main search and 11 of the 18 families, USDT-M perpetuals for the other 7, and live execution on BingX USDT-M perpetuals — 2018–2026, taker costs): (1) out-of-sample transfer of past-performance selection ≈ nil (ρ −0.05 on independent data vs +0.60 in-sample); (2) no genuine signal cleared the honest bar: magnitudes below costs (cascades ≈ +1 bp; hourly seasonality < 10 bps) or below the trivial benchmark (Curve C 0.541 < EW 1.443; carry long leg ≈ beta). Consistent with the literature (Bailey–López de Prado on backtest overfitting; Barber–Odean/Chague on retail losses; ESMA disclosures), to which it contributes the mechanistic anatomy from the inside, with open artifacts.
+
+*Frozen on 2026-07-06; v1.0.1 corrects in it only the description of the data and the exchange (see [`CHANGELOG.md`](CHANGELOG.md)), no figure.*
 
 **Positioning:** this is an **independent replication/anatomy of established results** — never a "first demonstration". The literature already knew backtests overfit and retail loses; what this repository adds is the mechanism, measured from the inside, with the instruments and data in the open.
 

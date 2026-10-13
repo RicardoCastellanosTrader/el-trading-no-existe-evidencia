@@ -52,6 +52,7 @@
 ## A8 — Alcance del cierre
 - **Reformulado:** el cierre vale para **"esta clase de estrategias (familia SmartDiv + los ejes medidos), en perps Binance top-45, a 1h/12h/1s, en 2023-2026, a costes taker"** — NO es un negativo atemporal (ningún bear testeado; 2022 excluido en CS-MOM contra su pre-registro).
 - **Laguna declarada:** no se separó completamente "edge bruto nulo" vs "edge bruto < costes" (Exp#1 TF sin lectura pre-comisión; A1 bruto E2-full = 0.998 ≈ moneda al aire exacta).
+- (v1.0.1: el venue exacto por familia está en afirmaciones_respaldo.md, matiz A8; esta entrada se conserva como registro de la meta-auditoría.)
 
 ## A9 — Fee flat 0.10% RT contrastado con 736 fills reales (BingX, `logs_historicos_vps/`)
 **Hecho empírico (medido, no asumido):**
