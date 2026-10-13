@@ -206,4 +206,4 @@ Erratas y desajustes de la v1.0.0 corregidos en esta versión. **Ninguna cifra, 
 | 6 | `cs_mom_sandbox/CS_MOM_PREREGISTRO.md` conserva la cabecera «BORRADOR v0, PENDIENTE FREEZE». Una nota bajo el título, y otra en la guía de E07, dicen que lo congelado es el código (`cs_mom.py`, «CONGELADO 2026-06-29») y que es un pre-registro de Nivel B. | `cs_mom_sandbox/CS_MOM_PREREGISTRO.md`, `experimentos/E07_cs_momentum/README.md` |
 | 7 | **No es del archivo** (es del libro): no se toca nada. | — |
 | 8 | El neto estimado de −1,7 USDT no cobra comisión a 145 filas sin `size_usdt` y no suma la pérdida de 7 de ellas (registrada solo en `pnl_pct`). Se declara en 5(c) y en A9, y el −1,7 se presenta como la cota más generosa junto al balance documental (~296–298 → 288,71 USDT). La cifra no se recalcula ni se sustituye. | Afirmación 5(c); `auditoria_adversarial/README.md` (A9) |
-
+| 9 | La guía de E17 decía «prereg embebido» en el veredicto C2; ese veredicto (L3) dice que su pre-registro es el del Nivel 3 original (`NIVEL3_CONFIRMACION_D3_DISENO_PREREGISTRO.md` L61–L62). La guía lo dice ahora igual. | `experimentos/E17_nivel3_patas/README.md` |

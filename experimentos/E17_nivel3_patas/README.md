@@ -4,6 +4,7 @@
 
 ## Pre-registro — Nivel C (Lista de Cierre, commit único `65b99c81`, 2026-07-03)
 - Prereg embebido en `cierre_definitivo_20260702/C2_nivel3_patas_omitidas_VEREDICTO.md`. Ver [taxonomía](../../prerregistros/README.md).
+- *(v1.0.1)* Como dice ese mismo veredicto (L3), el pre-registro de C2 es el del Nivel 3 original, `audit_forense_gap_20260612/NIVEL3_CONFIRMACION_D3_DISENO_PREREGISTRO.md` (L61, cartera condicional-vs-agnóstica; L62, placebo wrong-match): dos patas pre-registradas allí que el run original nunca reportó. El documento del veredicto las recoge y las computa; no es un pre-registro nuevo.
 
 ## Código, datos, resultados
 - Runner: `cierre_definitivo_20260702/run_C2.py` sobre los trades sellados del run Nivel 3 (`audit_forense_gap_20260612/nivel3_resmoke_trades_*.json`); resultados: `results_C2.json`.
