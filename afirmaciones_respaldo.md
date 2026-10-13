@@ -115,7 +115,7 @@ Señales genuinas detectadas (todas verificadas):
 
 **(b) Los 736 fills:** **736 filas** exactas, periodo **2026-04-13 → 2026-06-21**, 43 símbolos, 591 con size>0 → `logs_historicos_vps/trade_history/trade_history.csv` (recomputado).
 
-**(c) "No gané":** PnL bruto registrado (mark-based, SIN comisión — A9): **+3.28 USDT** suma de pnl_usdt; notional total 4.962 USDT → comisión estimada 0.10% RT ≈ **−4.96 USDT** → neto estimado ≈ **−1.7 USDT**. Balance documental: capital ~296-298 USDT (CONTEXTO §13, múltiples entradas) → final **288.71 USDT** (CONTEXTO, cierre MiCA 2026-06-21) ≈ **−7 a −9 USDT (−2.4 a −3%)** en ~10 semanas. **Redacción oficial:** "tras 736 operaciones reales el precio me dio +3 USDT y las comisiones me quitaron ~5: exactamente lo que predice el veredicto — no gané: los costes se llevaron el PnL". 🔴 El capital inicial exacto no tiene artefacto primario localizado (no hay registro de depósito en el repo); usar "~296 USDT" como documental.
+**(c) "No gané":** PnL bruto registrado (mark-based, SIN comisión — A9): **+3.28 USDT** suma de pnl_usdt; notional total 4.962 USDT → comisión estimada 0.10% RT ≈ **−4.96 USDT** → neto estimado ≈ **−1.7 USDT**. Balance documental: capital ~296-298 USDT (CONTEXTO §13, múltiples entradas) → final **288.71 USDT** (CONTEXTO, cierre MiCA 2026-06-21) ≈ **−7 a −9 USDT (−2.4 a −3%)** en ~10 semanas. **Redacción oficial:** "tras 736 operaciones reales el precio me dio +3 USDT y las comisiones me quitaron ~5: exactamente lo que predice el veredicto — no gané: los costes se llevaron el PnL". **Funding realizado (`funding_paid`), filtro declarado (v1.0.1):** la suma depende del filtro: **+0,118 USDT sobre las 591 filas con `size_usdt > 0`** (filtro de la corrección A9, `cierre_definitivo_20260702/FASE_A_correcciones_documentales.md` §A9: es el que se usa, porque la comisión estimada y el ~0,0023 % por operación se calculan sobre esas mismas 591 filas con nominal), y **−0,0188 USDT sobre las 736 filas** (recomputado 2026-10-13 sobre el CSV). Ninguna de las dos cambia el neto. 🔴 El capital inicial exacto no tiene artefacto primario localizado (no hay registro de depósito en el repo); usar "~296 USDT" como documental.
 
 ---
 
@@ -199,4 +199,5 @@ Erratas y desajustes de la v1.0.0 corregidos en esta versión. **Ninguna cifra, 
 | # | Qué cambia | Dónde |
 |---|---|---|
 | 1 | La fila del 91 % citaba `audit_v5_2_report_20260427_1844_utf8.txt` L28-29, un informe que no existe en el archivo. La cifra (v4 BingX: N=11, 10 matches, 91 %, CI ~[62 %, 98 %]) está en `audit_v5_2_report_20260426_1106_utf8.txt` L30. Se declara además que el script de la auditoría v4, `audit_fidelity_v4.py`, no está en el archivo público. | Afirmación 5(a) |
+| 2 | La suma de `funding_paid` da −0,0188 USDT sobre 736 filas y +0,118 USDT sobre las 591 con tamaño. La tabla declara que usa el filtro de las 591 (el de A9, el mismo de la comisión) y por qué. | Afirmación 5(c) |
 
