@@ -200,7 +200,7 @@ Erratas y desajustes de la v1.0.0 corregidos en esta versión. **Ninguna cifra, 
 |---|---|---|
 | 1 | La fila del 91 % citaba `audit_v5_2_report_20260427_1844_utf8.txt` L28-29, un informe que no existe en el archivo. La cifra (v4 BingX: N=11, 10 matches, 91 %, CI ~[62 %, 98 %]) está en `audit_v5_2_report_20260426_1106_utf8.txt` L30. Se declara además que el script de la auditoría v4, `audit_fidelity_v4.py`, no está en el archivo público. | Afirmación 5(a) |
 | 2 | La suma de `funding_paid` da −0,0188 USDT sobre 736 filas y +0,118 USDT sobre las 591 con tamaño. La tabla declara que usa el filtro de las 591 (el de A9, el mismo de la comisión) y por qué. | Afirmación 5(c) |
-| 3 | **No aplica.** La tabla no cita la alarma del 26-IV (51,1 % = 48/94 en `audit_v5_2_report_20260426_1106_utf8.txt` L31, y 48,1 % con N=52 en el segmento desde la v2.4.5): no se añade. | — |
+| 3 | **No aplica.** La tabla no cita la alarma del 26-IV (51,1 % = 48/94 para todo el periodo posterior a la v2.3.11, `audit_v5_2_report_20260426_1106_utf8.txt` L31; 48,1 % con N=52 para el segmento desde la v2.4.5, L49): no se añade. | — |
 | 4 | TRX tiene dos cifras de fidelidad: 97,06 % (certificación Capa 1 del 30-V, documental, CONTEXTO) y 98,24 % (`cert_fidelity_gate_W1500.json`, recalculado). La tabla dice de qué medición sale cada una y que la del JSON es la que sostiene el 98,24–100 %. | Afirmación 5(a) |
 | 5 | **No aplica.** Ninguna fila cita el 7–9 % del forense A10 del 22-IV: no se añade. | — |
 | 7 | **No es del archivo** (es del libro): no se toca nada. | — |
