@@ -7,7 +7,7 @@
 - `cierre_definitivo_20260702/B3_tsmom_diario_PREREGISTRO.md`. Ver [taxonomía](../../prerregistros/README.md).
 
 ## Código, datos, resultados
-- Runner: `cierre_definitivo_20260702/run_B3.py` + `xs_harness.py`; datos diarios de data.binance.vision ([`REGENERAR.md`](../../datos/REGENERAR.md)); resultados: `results_B3.json`.
+- Runner: `cierre_definitivo_20260702/run_B3.py` + `xs_harness.py`; velas 1h de `data_cache/` (Binance al contado) agregadas a diario por el propio runner ([`REGENERAR.md`](../../datos/REGENERAR.md); *v1.0.1: la v1.0.0 decía «datos diarios de data.binance.vision»; `run_B3.py` lee `data_cache/*_1h.parquet`*); resultados: `results_B3.json`.
 
 ## Veredicto
 **NO DIGNA.** Sharpe **0.749 < EW 0.779** sobre 8 años que INCLUYEN el bear de 2022 (el escenario donde TSMOM debería brillar), con maxDD −85%. Seguir la tendencia rindió menos que mantener el índice equiponderado.

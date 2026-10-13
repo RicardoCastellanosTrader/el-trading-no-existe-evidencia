@@ -1,10 +1,10 @@
 # Datos: qué hay en el repo, qué no, y cómo regenerarlo todo
 
-Política del repo: **los datos crudos no se redistribuyen** (fuente pública: <https://data.binance.vision> y la API pública de klines de Binance); se publican los scripts de descarga y los manifiestos de verificación. Excepción declarada: `data_cache/` (82 MB de parquets de velas 1h) SÍ está incluido como conveniencia para reproducir los experimentos sin descarga previa — su manifiesto es [`MANIFEST.sha256`](MANIFEST.sha256).
+Política del repo: **los datos crudos no se redistribuyen** (fuentes públicas: la API pública de klines de Binance, mercado al contado, para las velas 1h; y <https://data.binance.vision>, perpetuos USDT-M, para los datos de 12h/tick/OI); se publican los scripts de descarga y los manifiestos de verificación. Excepción declarada: `data_cache/` (82 MB de parquets de velas 1h) SÍ está incluido como conveniencia para reproducir los experimentos sin descarga previa — su manifiesto es [`MANIFEST.sha256`](MANIFEST.sha256).
 
 ## 1. Velas 1h, 45 símbolos (`data_cache/*.parquet`) — INCLUIDO
-- **Usado por:** E01, E03, E04, E05, E18 y todo el pipeline de laboratorio.
-- **Regeneración:** `python download_full_history.py` (descarga) + `data_cache.py` (módulo de acceso/normalización). Fuente: klines públicos de Binance USDT-M.
+- **Usado por:** la búsqueda principal y todo el pipeline de laboratorio; E01, E03, E04, E05, E10 (`run_B3.py` agrega 1h → diario), E12, E13, E16 (más `binance_w3_data`, §4), E17 (sobre los trades sellados del run Nivel 3) y E18. E02 trabaja sobre los resultados del pipeline (`regime_wf/`) y `binance_w3_data`. *(v1.0.1: lista corregida contra la cabecera de cada runner.)*
+- **Regeneración:** `python download_full_history.py` (descarga) + `data_cache.py` (módulo de acceso/normalización). Fuente: velas 1h del **mercado al contado** de Binance (`ccxt.binance(...)` con el mercado por defecto; la caché empieza en 2017, antes de que existieran los perpetuos USDT-M de Binance). *(v1.0.1: la v1.0.0 decía «Binance USDT-M»; el código descarga contado.)*
 - **Verificación:** `sha256sum -c` contra `datos/MANIFEST.sha256` (48 parquets; sha256 + bytes + ruta).
 - Nota: `data_cache/stress_test/` contiene CSVs 1h de FTTUSDT (activo deslistado) usados para tests de robustez del feed.
 
@@ -14,7 +14,7 @@ Política del repo: **los datos crudos no se redistribuyen** (fuente pública: <
 - **Hallazgo de fuente primaria (declarado en el pre-registro de E06):** el stream `forceOrder` (liquidaciones) NO existe en el histórico público — solo en vivo. La firma de cascada se define por velocidad+volumen; es una limitación de diseño declarada, no un descuido.
 
 ## 3. Klines 12h + funding, universo point-in-time (~9 MB) — NO INCLUIDO
-- **Usado por:** E07 (CS-MOM) y E08–E14 (harness cross-sectional).
+- **Usado por:** E07 (CS-MOM), E08, E09 y E11 (harness cross-sectional sobre `cs_mom.build_panels`) y E14 (que añade las métricas OI). Son datos de **perpetuos USDT-M** (`futures/um`). *(v1.0.1: E10, E12 y E13 no usan estos datos sino las velas 1h al contado de §1.)*
 - **Regeneración:** `cs_mom_sandbox/cs_mom.py` descarga y construye el universo. Detalles point-in-time que importan para reproducir: universo 35→45 símbolos según fecha de listado, stitch de renombrados **MATIC→POL** y **RNDR→RENDER**, **SHIB = 1000SHIBUSDT**. El sesgo de supervivencia restante se asume y se declara como techo optimista en los veredictos.
 - E14 (open interest) usa además las métricas OI públicas de data.binance.vision (~150 MB, no incluidas; el runner `cierre_definitivo_20260702/run_B7.py` documenta la descarga).
 
