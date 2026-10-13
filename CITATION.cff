@@ -7,8 +7,8 @@ authors:
     affiliation: "Independent researcher"
 doi: 10.5281/zenodo.21229492
 repository-code: "https://github.com/RicardoCastellanosTrader/el-trading-no-existe-evidencia"
-version: "1.0.0"
-date-released: "2026-07-07"
+version: "1.0.1"
+date-released: "2026-10-13"
 license: MIT
 keywords:
   - backtest overfitting
@@ -20,7 +20,9 @@ keywords:
 abstract: >-
   Pre-registered, adversarially audited case study (18 experiment families,
   a 20.9-million-configuration search space, ~6.5x10^8 evaluations per symbol-pass,
-  Binance top-45 perpetuals, 2018-2026, taker costs): out-of-sample transfer
+  Binance top-45 - spot 1h candles for the main search and 11 of the 18 families,
+  USDT-M perpetuals for the other 7, live execution on BingX USDT-M perpetuals -,
+  2018-2026, taker costs): out-of-sample transfer
   of past-performance selection is approximately nil (rho -0.05 independent
   vs +0.60 in-sample), and no genuine signal cleared the honest bar
   (magnitudes below costs or below the trivial benchmark). Open artifacts,
