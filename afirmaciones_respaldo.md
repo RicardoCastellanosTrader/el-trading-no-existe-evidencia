@@ -203,5 +203,6 @@ Erratas y desajustes de la v1.0.0 corregidos en esta versión. **Ninguna cifra, 
 | 3 | **No aplica.** La tabla no cita la alarma del 26-IV (51,1 % = 48/94 para todo el periodo posterior a la v2.3.11, `audit_v5_2_report_20260426_1106_utf8.txt` L31; 48,1 % con N=52 para el segmento desde la v2.4.5, L49): no se añade. | — |
 | 4 | TRX tiene dos cifras de fidelidad: 97,06 % (certificación Capa 1 del 30-V, documental, CONTEXTO) y 98,24 % (`cert_fidelity_gate_W1500.json`, recalculado). La tabla dice de qué medición sale cada una y que la del JSON es la que sostiene el 98,24–100 %. | Afirmación 5(a) |
 | 5 | **No aplica.** Ninguna fila cita el 7–9 % del forense A10 del 22-IV: no se añade. | — |
+| 6 | `cs_mom_sandbox/CS_MOM_PREREGISTRO.md` conserva la cabecera «BORRADOR v0, PENDIENTE FREEZE». Una nota bajo el título, y otra en la guía de E07, dicen que lo congelado es el código (`cs_mom.py`, «CONGELADO 2026-06-29») y que es un pre-registro de Nivel B. | `cs_mom_sandbox/CS_MOM_PREREGISTRO.md`, `experimentos/E07_cs_momentum/README.md` |
 | 7 | **No es del archivo** (es del libro): no se toca nada. | — |
 

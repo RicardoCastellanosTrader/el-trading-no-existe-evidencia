@@ -4,7 +4,7 @@
 **Nombre popular:** "momentum — compra los más fuertes, vende los más débiles".
 
 ## Pre-registro — Nivel B (documental, commit conjunto) — con protocolo de listón honesto
-- `cs_mom_sandbox/CS_MOM_PREREGISTRO.md` (§10 = veredicto) — commit `3b57151f` (2026-06-29). **El benchmark EW (Sharpe 1.443) se computó y reportó ANTES de fijar el listón y antes de ver ninguna curva CS-MOM** (protocolo declarado en el propio doc). Listón pre-registrado: 1.94 (≈ EW + 0.5).
+- `cs_mom_sandbox/CS_MOM_PREREGISTRO.md` (§10 = veredicto) — commit `3b57151f` (2026-06-29). El `.md` conserva su cabecera de borrador («BORRADOR v0, PENDIENTE FREEZE»); lo congelado es el código, `cs_mom_sandbox/cs_mom.py` («CONGELADO 2026-06-29»), que es donde viven el protocolo y los criterios de veredicto. **El benchmark EW (Sharpe 1.443) se computó y reportó ANTES de fijar el listón y antes de ver ninguna curva CS-MOM** (protocolo declarado en el propio doc). Listón pre-registrado: 1.94 (≈ EW + 0.5).
 
 ## Código y datos
 - `cs_mom_sandbox/cs_mom.py` (universo point-in-time 35→45, stitch MATIC→POL / RNDR→RENDER, SHIB=1000SHIBUSDT; klines 12h + funding bilateral; corto pesimista; costes en rotación).
