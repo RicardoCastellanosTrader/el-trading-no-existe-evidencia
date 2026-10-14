@@ -4,6 +4,7 @@
 Independent researcher
 
 *Working paper — v1.0.0, 2026-07-07.*
+*Note (archive v1.0.2, 2026-10-14): this text is kept as the v1.0.0 working paper, unchanged; the corrections made after it (data and venue per family, the curve C bar, net-positive strategies) are in [`afirmaciones_respaldo.md`](../afirmaciones_respaldo.md) and [`CHANGELOG.md`](../CHANGELOG.md), which prevail.*
 *Code, pre-registrations, results, and regeneration scripts: https://github.com/RicardoCastellanosTrader/el-trading-no-existe-evidencia · Archived snapshot: DOI [10.5281/zenodo.21229492](https://doi.org/10.5281/zenodo.21229492).*
 
 ---

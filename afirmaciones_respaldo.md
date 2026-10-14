@@ -94,7 +94,7 @@ Números verificados:
 
 ## Afirmación 4 — "Las señales reales existen y todas quedaron por debajo del listón honesto"
 
-**Estado: 🟡 PARCIAL — cierta para las señales por-trade; la formulación literal "todas < comisiones" tiene UN contraejemplo (CS-MOM Curva C) y queda sustituida por la redacción oficial §3 de arriba.**
+**Estado: 🟡 PARCIAL — cierta para las señales por-trade; la formulación literal "todas < comisiones" tiene contraejemplos netos positivos tras costes (CS-MOM Curva C, la única market-neutral; y tres exposiciones largas por debajo de comprar y mantener: momentum solo largo, pata larga del carry y TSMOM diario) y queda sustituida por la redacción oficial §3 de arriba.**
 
 Señales genuinas detectadas (todas verificadas):
 
@@ -202,6 +202,7 @@ Alineación con el manuscrito del caso enviado a PLOS ONE. **Ninguna cifra, inte
 |---|---|---|
 | 1a | «El único retorno neto positivo tras costes del proyecto es CS-MOM Curva C» pasa a «la única estrategia market-neutral neta positiva tras costes»; el momentum solo largo (1,163), la pata larga del carry (+1,141) y el TSMOM diario (0,749) son positivos pero por debajo de comprar y mantener. | Afirmación 4 (barrido de contraejemplos); `HOW_TO_AUDIT.md` y `COMO_AUDITAR_ESTO.md` §2.6 |
 | 1b | Las guías de auditoría (§2.6) aplicaban el 1,94 a la curva C; ahora la juzgan por sus criterios congelados (`cs_mom.py` L332-335), como esta tabla (§8(b) de la v1.0.1). Los dos working papers v1.0.0 se conservan como documento fechado. | `HOW_TO_AUDIT.md`; `COMO_AUDITAR_ESTO.md` |
+| 1c | La línea «Estado» de la afirmación 4 decía «UN contraejemplo (CS-MOM Curva C)»; ahora nombra los contraejemplos netos positivos tras costes (la curva C, única market-neutral, y las tres exposiciones largas por debajo de comprar y mantener). Los dos working papers v1.0.0 llevan una nota de una línea bajo su sello de versión que remite a esta tabla y al CHANGELOG; su texto y su sello no cambian. | Afirmación 4 («Estado»); `paper/working_paper_ES.md`; `paper/working_paper_EN.md` |
 
 ## Correcciones v1.0.1 (2026-10-13)
 
