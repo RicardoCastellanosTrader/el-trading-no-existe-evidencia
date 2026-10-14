@@ -194,6 +194,15 @@ Ejemplos VERIFICADOS del patrón (optimización/selección más intensa → forw
 
 ---
 
+## Correcciones v1.0.2 (2026-10-14)
+
+Alineación con el manuscrito del caso enviado a PLOS ONE. **Ninguna cifra, intervalo ni veredicto cambia**; la REDACCIÓN OFICIAL de arriba sigue idéntica, carácter a carácter, a la de la v1.0.0. Detalle y commits en [`CHANGELOG.md`](CHANGELOG.md).
+
+| # | Qué cambia | Dónde |
+|---|---|---|
+| 1a | «El único retorno neto positivo tras costes del proyecto es CS-MOM Curva C» pasa a «la única estrategia market-neutral neta positiva tras costes»; el momentum solo largo (1,163), la pata larga del carry (+1,141) y el TSMOM diario (0,749) son positivos pero por debajo de comprar y mantener. | Afirmación 4 (barrido de contraejemplos); `HOW_TO_AUDIT.md` y `COMO_AUDITAR_ESTO.md` §2.6 |
+| 1b | Las guías de auditoría (§2.6) aplicaban el 1,94 a la curva C; ahora la juzgan por sus criterios congelados (`cs_mom.py` L332-335), como esta tabla (§8(b) de la v1.0.1). Los dos working papers v1.0.0 se conservan como documento fechado. | `HOW_TO_AUDIT.md`; `COMO_AUDITAR_ESTO.md` |
+
 ## Correcciones v1.0.1 (2026-10-13)
 
 Erratas y desajustes de la v1.0.0 corregidos en esta versión. **Ninguna cifra, intervalo ni veredicto cambia**: entran matices, rutas corregidas, descripciones corregidas y hechos que faltaban. Cada corrección se aplicó con su artefacto primario delante; el texto de la REDACCIÓN OFICIAL de arriba es idéntico, carácter a carácter, al de la v1.0.0. La lista completa, con el commit de cada cambio, está en [`CHANGELOG.md`](CHANGELOG.md).

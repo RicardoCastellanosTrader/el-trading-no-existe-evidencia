@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v1.0.2 — 2026-10-14
+
+Alinea el archivo con el manuscrito del caso enviado a PLOS ONE el 2026-10-13 (PONE-D-26-51403). **Ninguna cifra, intervalo ni veredicto cambia.** La REDACCIÓN OFICIAL de `afirmaciones_respaldo.md` es idéntica, carácter a carácter, a la de la v1.0.0. Solo cambian archivos `.md`, `CITATION.cff` y este `CHANGELOG.md` (ningún `.py`, `.json`, `.csv` ni parquet). Cada cambio se hizo con su artefacto primario delante.
+
+| Bloque | Cambio | Archivos | Commit |
+|---|---|---|---|
+| 1a | «El único retorno neto positivo tras costes del proyecto es CS-MOM Curva C» pasa a «la única estrategia market-neutral neta positiva tras costes del proyecto»: el momentum solo largo (curva A, Sharpe 1,163), la pata larga del carry (+1,141) y el TSMOM diario (0,749) son positivos pero quedan por debajo de comprar y mantener (EW 1,443; 0,779 el TSMOM diario). Mismo cambio en la guía de auditoría (es/en) §2.6. Cifras: las que ya estaban en la tabla (L7, B1, B3 y afirmación 4). | `afirmaciones_respaldo.md` (afirmación 4); `HOW_TO_AUDIT.md`; `COMO_AUDITAR_ESTO.md` | `447bfdf` |
+| 1b | La guía de auditoría (es/en) §2.6 seguía aplicando el 1,94 a la curva C. Ahora dice que la curva C falla sus criterios congelados (`cs_mom.py` L332-335: Sharpe ≥ 1,00, maxDD mejor que −25 %) y que el 1,94 (≈ EW + 0,5) es el listón de la curva A, como la tabla y la guía de E07 desde la v1.0.1. Barrido de «1.94»/«1,94» en todo el archivo: 34 apariciones en `.md`; fuera de las guías, solo los dos working papers v1.0.0 (`paper/working_paper_EN.md` y `_ES.md`, §5.3 y Tabla 1) lo aplican a la curva C, y se conservan sin tocar como documento fechado (como en la v1.0.1); el resto son la curva A (`cs_mom_sandbox/CS_MOM_PREREGISTRO.md`, `experimentos/E07_cs_momentum/README.md`, CONTEXTO), ratios corto/largo o factores de beneficio sin relación. | `HOW_TO_AUDIT.md`; `COMO_AUDITAR_ESTO.md` | `7f8517d` |
+| 2 | `CITATION.cff`: DOI de concepto 10.5281/zenodo.21229491 (resuelve a la última versión), versión 1.0.2, fecha 2026-10-14. README (es/en): v1.0.2 y DOI de concepto con la regla de cita (concepto + versión usada). Las menciones a 21229492 en `prerregistros/README.md` y en los dos working papers se conservan: son la cita de la v1.0.0 de entonces. | `CITATION.cff`; `README.md` | `3200128` |
+
 ## v1.0.1 — 2026-10-13
 
 Corrección de erratas, rutas y descripciones de la v1.0.0, más hechos que faltaban en la tabla de respaldo. **Ninguna cifra, intervalo ni veredicto cambia.** La REDACCIÓN OFICIAL de `afirmaciones_respaldo.md` es idéntica, carácter a carácter, a la de la v1.0.0. Solo cambian archivos `.md`, `CITATION.cff` y este `CHANGELOG.md` (ningún `.py`, `.json`, `.csv` ni parquet). Cada cambio se hizo con su artefacto primario delante; el detalle, por nota, está en la sección «Correcciones v1.0.1» de `afirmaciones_respaldo.md`.
