@@ -84,7 +84,7 @@ python -c "import json; d=json.load(open('cs_mom_sandbox/results/benchmark.json'
 ```bash
 python -c "import json; d=json.load(open('cs_mom_sandbox/results/curves.json')); print(d['bench_sharpe'], d['base']['C'])"
 ```
-**Debe salir:** bench 1.443; Curva C (L/S market-neutral real, β vs EW −0.043) Sharpe **0.541**, +29,6% en 2 años NETO de costes de rotación, maxDD −27%, 2023 ≈ 0.028. **Este es el único retorno neto-positivo del proyecto** — y queda bajo el listón pre-registrado (1.94) y bajo el índice pasivo. Se declara como contraejemplo explícito de cualquier "todas las señales < comisiones": ver `afirmaciones_respaldo.md` §4.
+**Debe salir:** bench 1.443; Curva C (L/S market-neutral real, β vs EW −0.043) Sharpe **0.541**, +29,6% en 2 años NETO de costes de rotación, maxDD −27%, 2023 ≈ 0.028. **Esta es la única estrategia market-neutral neta positiva tras costes del proyecto** (el momentum solo largo, 1,163; la pata larga del carry, +1,141; y el TSMOM diario, 0,749, son positivos pero quedan por debajo de comprar y mantener) — y queda bajo el listón pre-registrado (1.94) y bajo el índice pasivo. Se declara como contraejemplo explícito de cualquier "todas las señales < comisiones": ver `afirmaciones_respaldo.md` §4.
 
 ### 2.7 Cascadas de liquidación: la señal existe, el edge no (MFE / E06 + B8 / E15)
 

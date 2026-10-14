@@ -84,7 +84,7 @@ python -c "import json; d=json.load(open('cs_mom_sandbox/results/benchmark.json'
 ```bash
 python -c "import json; d=json.load(open('cs_mom_sandbox/results/curves.json')); print(d['bench_sharpe'], d['base']['C'])"
 ```
-**Expected:** bench 1.443; Curve C (real L/S market-neutral, β vs EW −0.043) Sharpe **0.541**, +29.6% over 2 years NET of rotation costs, maxDD −27%, 2023 ≈ 0.028. **This is the project's only net-positive return** — and it sits below the pre-registered bar (1.94) and below the passive index. It is declared as the explicit counterexample to any "all signals < commissions" phrasing: see `afirmaciones_respaldo.md` §4.
+**Expected:** bench 1.443; Curve C (real L/S market-neutral, β vs EW −0.043) Sharpe **0.541**, +29.6% over 2 years NET of rotation costs, maxDD −27%, 2023 ≈ 0.028. **This is the project's only market-neutral strategy net-positive after costs** (long-only momentum, 1.163; the carry long leg, +1.141; and daily TSMOM, 0.749, are positive but below buy-and-hold) — and it sits below the pre-registered bar (1.94) and below the passive index. It is declared as the explicit counterexample to any "all signals < commissions" phrasing: see `afirmaciones_respaldo.md` §4.
 
 ### 2.7 Liquidation cascades: the signal exists, the edge does not (MFE / E06 + B8 / E15)
 
