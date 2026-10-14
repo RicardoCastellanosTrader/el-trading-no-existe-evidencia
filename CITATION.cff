@@ -5,10 +5,10 @@ authors:
   - family-names: "Castellanos Macias"
     given-names: "Ricardo"
     affiliation: "Independent researcher"
-doi: 10.5281/zenodo.21229492
+doi: 10.5281/zenodo.21229491
 repository-code: "https://github.com/RicardoCastellanosTrader/el-trading-no-existe-evidencia"
-version: "1.0.1"
-date-released: "2026-10-13"
+version: "1.0.2"
+date-released: "2026-10-14"
 license: MIT
 keywords:
   - backtest overfitting
