@@ -13,8 +13,8 @@ Este directorio documenta las herramientas de validación que sostienen los vere
 **Lo usan:** E04, E05, E06, E18.
 
 ## 3. Placebos — la vara de medir contra el ruido
-**Rutas:** `audit_forense_gap_20260612/placebo_gen.py` + `placebo_manifest.json` (series GBM sintéticas, símbolos `PLB*`).
-**Qué garantizan:** todo pipeline de búsqueda se ejecuta TAMBIÉN sobre ruido puro con la misma maquinaria. Si el procedimiento "encuentra" lo mismo sobre GBM que sobre datos reales, lo encontrado es un artefacto del procedimiento (el hallazgo cardinal de E01: noise floor 2.35 ≈ floor de producción 2.32; el floor placebo 0.989 de E05). Regla de la Lista de Cierre: placebo = **GBM puro**, no block-shuffle (que preserva estructura explotable).
+**Rutas:** `audit_forense_gap_20260612/placebo_gen.py` + `placebo_manifest.json` (series sintéticas GBM y block-shuffles de 168 h de barras reales, símbolos `PLB*`).
+**Qué garantizan:** todo pipeline de búsqueda se ejecuta TAMBIÉN sobre ruido con la misma maquinaria. Si el procedimiento "encuentra" lo mismo sobre GBM que sobre datos reales, lo encontrado es un artefacto del procedimiento (el hallazgo cardinal de E01: noise floor 2.35 — mediana de 1 GBM y 2 block-shuffles; el GBM solo, 2.14 — ≈ floor de producción 2.32; el floor placebo 0.989 de E05, mediana de 3 GBM y 3 block-shuffles). Regla de la Lista de Cierre: placebo = **GBM**, no block-shuffle (que preserva estructura explotable); C3 (E18) no la cumplió: se comparó con el floor mixto de E05 (`cierre_definitivo_20260702/results_C3.json` L25).
 **Lo usan:** E01, E04, E05, E18 y todos los B vía harness común.
 
 ## 4. Harness cross-sectional B/C — cluster-bootstrap + gate beta

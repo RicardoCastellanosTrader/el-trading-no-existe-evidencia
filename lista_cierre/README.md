@@ -11,11 +11,11 @@ El proyecto no se abandonó: se **cerró por criterio de parada pre-acordado y c
 - **FASE C** — 3 retests de blindaje de los eslabones débiles detectados: C1 (potencia real del test de transferencia), C2 (patas omitidas de Nivel 3), C3 (ablación del order block) — E16–E18.
 - **FASE D** — el cierre.
 
-## Las reglas de la lista (congeladas antes de ejecutarla)
+## Las reglas de la lista (congeladas antes de ejecutarla — Nivel C: la lista, sus pre-registros y sus resultados entraron en un único commit, `65b99c81`, así que la precedencia no es verificable en git)
 
 1. Lista **congelada y finita** — se acordó ANTES de correr FASE B/C que ningún resultado generaría nuevos experimentos: un positivo modesto = hallazgo limitado-por-capital; un negativo = suma al mapa.
 2. Mini-pre-registro congelado ANTES de resultados; **métrica cardinal a priori, sin pivote** (la lección procesal de A5).
-3. El CI decide, no el punto-estimado; cluster-bootstrap cross-símbolo; placebo GBM puro.
+3. El CI decide, no el punto-estimado; cluster-bootstrap cross-símbolo; placebo GBM. *(v1.0.3: C3 se comparó con el floor mixto de E05 — 3 GBM + 3 block-shuffles —, no con un placebo GBM propio: `cierre_definitivo_20260702/results_C3.json` L25.)*
 4. Coste local $0, VPS parados, sandboxes aislados, producción intacta.
 
 **Al vaciarse la lista, el criterio de parada quedó cumplido y el proyecto CERRADO (2026-07-03).** Eso es lo que este repositorio documenta.

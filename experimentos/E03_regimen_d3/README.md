@@ -16,7 +16,7 @@
 - Trades del re-smoke por celda: `audit_forense_gap_20260612/nivel3_resmoke_trades_{SYM}_{ANCLA}*.json`.
 
 ## Veredicto
-**D3 NO CONFIRMADO.** Las 2 únicas celdas que ejercen de verdad el contraste (3 regímenes con trades) leanean **negativo**: THETA Δ = PF_match − PF_mismatch = **−0.535** (el specialist rinde PEOR en su propio régimen) y OP Δ = **−0.094**. La lectura L1 "confirmada" (solo celdas PASS) es un espejismo de baja varianza: p a nivel símbolo 0.011 pero **p a nivel trade 0.257** — no replica. El ε²=0.574 del Estudio (E02) era artefacto de relleno-independiente-por-clúster, no edge condicional forward.
+**D3 NO CONFIRMADO.** En neto, el Δ = PF_match − PF_mismatch agrupado es **+0.086**, indistinguible de un emparejamiento aleatorio (placebo wrong-match, p = 0.47), y la cartera régimen-condicional queda en **0.983 < 1** frente a 0.931 agnóstica (C2: `cierre_definitivo_20260702/C2_nivel3_patas_omitidas_VEREDICTO.md` L6-7, L11-12). *(v1.0.3: la versión anterior presentaba como veredicto que las 2 celdas de 3 regímenes «leanean negativo» — THETA Δ −0.535, OP Δ −0.094, en bruto —; la meta-auditoría (A6) retiró esa lectura como partición a posteriori, ver el matiz siguiente.)* La lectura L1 "confirmada" (solo celdas PASS) es un espejismo de baja varianza: p a nivel símbolo 0.011 pero **p a nivel trade 0.257** — no replica. El ε²=0.574 del Estudio (E02) era artefacto de relleno-independiente-por-clúster, no edge condicional forward.
 **Matiz (A6):** la lectura degradada correcta es "**no contradice la convergencia**" (el Δ punto-estimado es positivo en 3/3 lecturas agregadas, con partición selectiva); la decisión "no construir el Frame 3 de regímenes" se sostiene porque la deployabilidad neta es < 1 en cualquier lectura.
 
 ## Reproducir

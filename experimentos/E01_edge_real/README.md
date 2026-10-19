@@ -8,7 +8,7 @@
 
 ## Código
 - Harness as-of anti-leakage bidireccional: `audit_forense_gap_20260612/asof_run.py` (selección) + `asof_eval.py` (replay) + `asof_driver.sh`.
-- Placebos sintéticos GBM: `audit_forense_gap_20260612/placebo_gen.py` + `placebo_manifest.json` (símbolos `PLB*`).
+- Placebos sintéticos (GBM y block-shuffle de 168 h): `audit_forense_gap_20260612/placebo_gen.py` + `placebo_manifest.json` (símbolos `PLB*`).
 - Kernel bajo test: `lab_historico_numba_v8_3.py` (TF) + `mean_reversion_kernel.py` (MR); pipeline `regime_walk_forward.py`.
 
 ## Datos
@@ -19,8 +19,8 @@ Velas 1h de `data_cache/` (incluidas en el repo; regenerables — ver [`../../da
 - Per-celda: `audit_forense_gap_20260612/asof_result_{SYM}_{ANCLA}.json` + `asof_trades_{SYM}_{ANCLA}.csv` (BTC/SOL/LINK/LTC × 2025-10-01 / 2026-02-01).
 
 ## Veredicto
-**Sin edge neto demostrado.** PF neto real global (E2-full as-of): **0.702, CI95 [0.439, 1.066], N=163 trades**; E2-lite 0.737. La búsqueda acuña "floors" espectaculares sobre nada: noise floor E1 = **2.35 sobre placebos GBM puros** (9/9 clústeres "notables" sobre ruido), indistinguible del floor de producción 2.32.
-**Matiz (meta-auditoría A1):** el holdout más reciente es "no concluyente lean-negativo" (CI superior 0.96 < 1.0), no "ausencia demostrada" — el CI global cruza 1.
+**Sin edge neto demostrado.** PF neto real global (E2-full as-of): **0.702, CI95 [0.439, 1.066], N=163 trades**; E2-lite 0.737. La búsqueda acuña "floors" espectaculares sobre nada: noise floor E1 = **2.35 sobre placebos de ruido** — mediana de 1 GBM (2.14) y 2 block-shuffles de 168 h (3.03 y 2.35), `e1_noise_floor/RESULTADO_E1.md` L7-13; el GBM solo ya supera el umbral pre-registrado de 1.7 — (9/9 clústeres "notables" sobre ruido), cercano al floor de producción 2.32 (comparación descriptiva: no hay contraste entre las dos cifras).
+**Matiz (meta-auditoría A1):** el holdout más reciente es "no concluyente lean-negativo" (CI iid superior 0.96 < 1.0), no "ausencia demostrada": el bootstrap por celdas [0.452, 2.392] cruza 1.0 y la regla de 3 zonas pre-registrada se aplica al agregado, no a cada ancla (`FASE_A_correcciones_documentales.md` §A1) — el CI global cruza 1.
 
 ## Reproducir
 ```

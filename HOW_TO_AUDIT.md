@@ -84,7 +84,7 @@ python -c "import json; d=json.load(open('cs_mom_sandbox/results/benchmark.json'
 ```bash
 python -c "import json; d=json.load(open('cs_mom_sandbox/results/curves.json')); print(d['bench_sharpe'], d['base']['C'])"
 ```
-**Expected:** bench 1.443; Curve C (real L/S market-neutral, β vs EW −0.043) Sharpe **0.541**, +29.6% over 2 years NET of rotation costs, maxDD −27%, 2023 ≈ 0.028. **This is the project's only market-neutral strategy net-positive after costs** (long-only momentum, 1.163; the carry long leg, +1.141; and daily TSMOM, 0.749, are positive but below buy-and-hold) — and it fails its own frozen criteria (`cs_mom_sandbox/cs_mom.py` L332-335: Sharpe ≥ 1.00 and maxDD better than −25%; it printed 0.541 and −27.4%) and sits below the passive index (EW 1.443); the 1.94 bar (≈ EW + 0.5) is the long-only curve A's, not C's. It is declared as the explicit counterexample to any "all signals < commissions" phrasing: see `afirmaciones_respaldo.md` §4.
+**Expected:** bench 1.443; Curve C (real L/S market-neutral, β vs EW −0.043) Sharpe **0.541**, +29.6% over 2 years NET of rotation costs, maxDD −27%, 2023 ≈ 0.028. **This is the project's only market-neutral strategy net-positive after costs** (long-only momentum, 1.163; the carry long leg, +1.141; and daily TSMOM, 0.749, are positive but below buy-and-hold) — and it fails the criteria written in its code (Level B; `cs_mom_sandbox/cs_mom.py` L332-335: Sharpe ≥ 1.00 and maxDD better than −25%; it printed 0.541 and −27.4%) and sits below the passive index (EW 1.443); the 1.94 bar (≈ EW + 0.5) is the long-only curve A's, not C's. It is declared as the explicit counterexample to any "all signals < commissions" phrasing: see `afirmaciones_respaldo.md` §4.
 
 ### 2.7 Liquidation cascades: the signal exists, the edge does not (MFE / E06 + B8 / E15)
 
@@ -113,7 +113,7 @@ Explicit invitation — ordered by expected payoff for the critic:
 
 1. **Hunt for look-ahead.** The prefix-invariance gates are in `analysis_scripts/atribucion_componentes_20260626/exp2*smoke*.py`, the placebo generator in `audit_forense_gap_20260612/placebo_gen.py`, and the bidirectional anti-leakage as-of harness in `audit_forense_gap_20260612/asof_run.py` / `asof_eval.py`. If you find a leak that is asymmetric real/placebo, you have a potential flip.
 2. **Recompute the CIs.** All per-symbol cluster bootstrap for PHASE B/C is in `cierre_definitivo_20260702/xs_harness.py` + `run_B*.py` / `run_C*.py`. The CIs are the deciding numbers; point estimates are not.
-3. **Audit the thresholds.** Every bar (breakeven, 10 bps, EW+0.5, verdict zones) is frozen in its pre-registration. Check that no verdict pivoted metrics post-hoc — the single detected pivot (MFE, cardinal metric survival → net mean) is declared and recorded as a procedural deviation in A5.
+3. **Audit the thresholds.** Every bar (breakeven, 10 bps, EW+0.5, verdict zones) is set in its pre-registration or, for E07, in its code (the EW+0.5 lives in `cs_mom.py` L329); only Level A bars have git-verifiable precedence. Check that no verdict pivoted metrics post-hoc — the single detected pivot (MFE, cardinal metric survival → net mean) is declared and recorded as a procedural deviation in A5.
 4. **Search for the suppressed positive signal.** The meta-audit (39 agents ×2) tried: none found. The best candidate is CS-MOM Curve C and it is declared on the front page, not buried.
 5. **Reproduce from raw.** Data regenerates from public sources (data.binance.vision): `datos/REGENERAR.md` + sha256 manifests.
 
