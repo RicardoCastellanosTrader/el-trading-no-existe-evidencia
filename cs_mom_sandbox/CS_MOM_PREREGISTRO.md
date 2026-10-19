@@ -1,7 +1,5 @@
 # CS-MOM (Cross-Sectional Momentum, market-neutral) — Pre-registro (BORRADOR v0, PENDIENTE FREEZE)
 
-> **Nota v1.0.1 (2026-10-13).** Este documento conserva su cabecera de borrador («BORRADOR v0, PENDIENTE FREEZE») y no debe leerse como un pre-registro congelado. Lo congelado es el código: `cs_mom.py` («CONGELADO 2026-06-29», bloque `--- CONGELADO ---`, con el protocolo benchmark-primero y los criterios de veredicto de las curvas A y C). Es un pre-registro de **Nivel B** (documental, commit conjunto `3b57151f`, 2026-06-29): ver `../prerregistros/README.md`.
-
 **Estado:** BORRADOR para revisión + freeze de Ricardo. **NO ejecutar** hasta congelar las
 decisiones `[PENDIENTE FREEZE]`. Sandbox aislado `cs_mom_sandbox/`, producción intacta, $0.
 Listón recalibrado: "digno por coste-tiempo" (no "transformador").
