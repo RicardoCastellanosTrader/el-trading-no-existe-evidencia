@@ -13,12 +13,12 @@ La transparencia de los números ROJOS es parte del método: esta tabla existe p
 
 Estas son las formulaciones públicas canónicas. Todo texto público (paper, README, divulgación) usa EXCLUSIVAMENTE estas versiones; las cifras en ROJO quedan prohibidas.
 
-1. **Configuraciones**: "espacio de **20.891.648 configuraciones** válidas × 31 presets; ~**6,5×10⁸ evaluaciones** por símbolo-pasada; **138.000 configuraciones retenidas** con métricas walk-forward completas". Versión popular: "**decenas de millones de combinaciones**". ELIMINADO todo "~4M".
+1. **Configuraciones**: "espacio de **20.891.648 configuraciones** válidas, cruzado con los **28–32 presets** de cada símbolo; **138.000 configuraciones retenidas** con métricas walk-forward completas". Versión popular: "**decenas de millones de combinaciones**". ELIMINADO todo "~4M".
 2. **Brecha in/out**: "optimizado **3,317** vs lógico **0,917** (bajo breakeven)". ELIMINADO todo "3.3 vs 1.16". (El 1,164 del mejor-lógico puede citarse solo como robustez adicional, nunca como la cifra principal.)
 3. **Señales genuinas**: "**Ninguna señal genuina superó el listón honesto**: magnitud inferior a costes (cascadas ≈+1pb; estacionalidad <10pb) o por debajo del benchmark trivial (Curva C 0,541 < EW 1,443; carry pata larga ≈ beta)." Sustituye a "todas < comisiones".
 4. **Producción**: evidencia fuerte = **certificación W1500 (98,24-100% por símbolo)**; la auditoría 91% se declara siempre con su **N=11 (CI 62-98%)**; resultado real: **neto ≈ −1,7 USDT** — "no gané: los costes se llevaron el PnL".
-5. **"Cuanto mejor lo haces, peor"**: los 2 ejemplos ROJOS quedan sustituidos por los 4 verificados: (a) ρ +0,598 → −0,054 (C1); (b) floor esperado 2,32 → replay real 0,640; (c) noise floor 2,35 acuñado sobre GBM puro; (d) optimizado 3,32 vs lógico 0,92.
-6. **Transferencia fuera de muestra**: siempre "≈ nula / indistinguible de cero" (CI [−0,31,+0,39] incluye 0), nunca "colapso demostrado". "0/45" siempre con la coletilla "con intervalo de confianza" (en punto-estimado son 6/45).
+5. **"Cuanto mejor lo haces, peor"**: los 2 ejemplos ROJOS quedan sustituidos por los 4 verificados: (a) ρ +0,598 → −0,054 (C1); (b) floor esperado 2,32 → replay (PF bruto, antes de comisión) 0,640; (c) noise floor 2,35 acuñado sobre placebos de ruido (mediana de 1 GBM y 2 block-shuffles de 168 h; el GBM solo, 2,14, ya supera el umbral pre-registrado de 1,7); (d) optimizado 3,32 vs lógico 0,92.
+6. **Transferencia fuera de muestra**: siempre "≈ nula / indistinguible de cero" (CI [−0,31,+0,39] incluye 0 y también +0,30: test infrapotenciado, ni colapso ni transferencia demostrados), nunca "colapso demostrado". "0/45" siempre con la coletilla "con intervalo de confianza" (en punto-estimado son 6/45).
 7. **Pre-registros**: taxonomía A/B/C obligatoria (ver `prerregistros/README.md`): Nivel A verificable en git = E01/E03/E05; Nivel B documental; Nivel C commit único. Con declaración de asimetría: los veredictos son negativos → el sesgo auto-interesado iría en la dirección contraria. Anclaje público = OTS 2026-07-06 + DOI Zenodo al publicar.
 
 ---
@@ -30,10 +30,10 @@ Estas son las formulaciones públicas canónicas. Todo texto público (paper, RE
 | # | Familia | Nombre popular (lo que "vende la industria") | Qué cubre | Veredicto | Artefacto primario |
 |---|---------|----------------------------------------------|-----------|-----------|--------------------|
 | L1 | Campaña Edge Real (E1 placebos + E2 as-of) | "Mi sistema optimizado gana" (backtesting + walk-forward) | ¿El sistema completo optimizado tiene edge neto en holdout intocado? | Sin edge neto demostrado; mejor estimación **PF ~0.70–0.85** (E2-full global 0.702 [0.439,1.066] N=163; noise floor E1 **2.35** ≈ floor producción 2.32) | `audit_forense_gap_20260612/VEREDICTO_FASE1.md` L13,32,47 |
-| L2 | Estudio de Capacidad de Información | "Selecciona los mejores del pasado" (ranking por PF/score) | ¿Alguna dimensión del rendimiento pasado predice el forward? | Re-selección muerta/mecánica; `specialist_score`→fwd ρ **+0.054** [−0.010,+0.117]; canónico ρ(fwd_JSON,fwd_bin) **+0.0465** | `audit_forense_gap_20260612/estudio_capacidad_fase1_results.json` (D6, repro_rho_0047) |
+| L2 | Estudio de Capacidad de Información | "Selecciona los mejores del pasado" (ranking por PF/score) | ¿Alguna dimensión del rendimiento pasado predice el forward? | Re-selección muerta para re-rankear dentro de la shortlist y no concluyente sobre capacidad en rango completo (A2); `specialist_score`→fwd ρ **+0.054** [−0.010,+0.117]; canónico ρ(fwd_JSON,fwd_bin) **+0.0465** | `audit_forense_gap_20260612/estudio_capacidad_fase1_results.json` (D6, repro_rho_0047) |
 | L3 | Nivel 3 — D3 régimen | "Opera según el régimen de mercado" (market regimes) | ¿El régimen concurrente porta edge forward condicional? (MATCH/MISMATCH) | **NO CONFIRMADO**; en NETO PF_match pooled <1.0 | `audit_forense_gap_20260612/VEREDICTO_NIVEL3_D3.md` |
-| L4 | Exp#1 — cruce de medias | "Cruces de medias móviles" (golden cross, 14 tipos de MA) | Componente cruce-de-zona aislado, params lógicos vs ruido | TF **0.917** vs placebo **0.928**; MR **0.742** vs **0.853**; 0/14 tipos de MA con mediana>1 | `analysis_scripts/atribucion_componentes_20260626/results_*.csv` (recomputado) |
-| L5 | Exp#2 — order block | "Order blocks / SMC / acción del precio" (ICT, S/R, pools de liquidez) | La hipótesis causal real del autor, objetivada y verificada en su ejemplo | Real **0.800** vs floor placebo **0.989**; CI_low>floor **0/45** | `results_obv3_real.csv`+`results_obv3_placebo.csv` (recomputado) |
+| L4 | Exp#1 — cruce de medias | "Cruces de medias móviles" (golden cross, 14 tipos de MA) | Componente cruce-de-zona aislado, params lógicos vs ruido | TF **0.917** vs panel placebo **0.928** (GBM 0.909, block-shuffles 0.969: contra el GBM solo, el real queda ligeramente encima, A3); MR **0.742** vs **0.853** (panel de 3 GBM + 3 block-shuffles); 0/14 tipos de MA con mediana>1 | `analysis_scripts/atribucion_componentes_20260626/results_*.csv` (recomputado) |
+| L5 | Exp#2 — order block | "Order blocks / SMC / acción del precio" (ICT, S/R, pools de liquidez) | La hipótesis causal real del autor, objetivada y verificada en su ejemplo | Real **0.800** (pf_all de la serie completa; forward 0.739) vs floor placebo **0.989** (mediana de 3 GBM + 3 block-shuffles); CI_low>floor **0/45** | `results_obv3_real.csv`+`results_obv3_placebo.csv` (recomputado) |
 | L6 | MFE — cascadas de liquidación | "Liquidation cascades / stop hunts" (microestructura seg-min) | Exhaustión post-cascada, 2 años tick BTC+ETH | Señal de supervivencia real pero neto ≈ −0.2%/trade; bruto ≈ +1pb | `mfe_sandbox/results/edge_summary.json` + FASE_A §A5 |
 | L7 | CS-MOM | "Momentum" (Jegadeesh-Titman, el de mayor respaldo académico) | Momentum cross-sectional L/S market-neutral 12h | **NO DIGNO** — C neutral real Sharpe **0.541** < listón; A 1.163 < EW 1.443 | `cs_mom_sandbox/results/curves.json`+`benchmark.json` (recomputado) |
 | B1 | Funding-carry | "Cobra el funding" (carry) | Carry cross-sectional neutral | NO DIGNA — Sharpe **−0.053** [−1.282,+1.261]; pata larga **+1.141**, corta **−1.026** | `cierre_definitivo_20260702/results_B124.json` (recomputado) |
@@ -64,10 +64,10 @@ Números verificados:
 
 | Concepto | Número exacto | Artefacto primario |
 |---|---|---|
-| Espacio de configuraciones TF válidas (26 bits) | **20.891.648** | `lab_historico_numba_v8_3.py:1207-1217` (`decode_config`, bits 0-25) + log reciclaje: "📋 20,891,648 configs × 31 presets" (`reciclaje_ONDOUSDT_grupo2_phase2_gpu_20260519_123048.log` L45) |
+| Espacio de configuraciones TF válidas (26 bits) | **20.891.648** (= 2.048 sin divergencias + 20.889.600 con divergencias, por enumeración) | `lab_historico_numba_v8_3.py:1153-1205` (`generate_valid_configs`) y `:1207-1217` (`decode_config`, bits 0-25); el log de reciclaje que lo imprime («📋 20,891,648 configs × 31 presets», `reciclaje_ONDOUSDT_grupo2_phase2_gpu_20260519_123048.log` L45) **no está en el archivo** [documental] |
 | Evaluación GPU real de ese espacio | **~20,9M configs evaluadas por preset-pasada** (≈21-22 s a **~0,94-1,04M configs/s**, verificado en timing del log: 22.1s × 944.167/s ≈ 20,9M) | mismo log (líneas de timing por fase) |
-| Por símbolo-pasada de reciclaje | 20.891.648 × 31 presets ≈ **6,48×10⁸** evaluaciones | mismo log L45 |
-| Acumulado cartera (45 símbolos, 1 pasada reciclaje) | ≈ **2,9×10¹⁰** evaluaciones config×preset (orden de magnitud) | extrapolación aritmética de lo anterior; logs de reciclaje existen para los 20 símbolos reciclados + baseline v17 previo |
+| Por símbolo-pasada de reciclaje | 20.891.648 × 28–32 presets (los del símbolo); en la pasada de ONDO del log, 31 presets ≈ **6,48×10⁸** evaluaciones | `output/production/presets_*.csv` (28–32 por símbolo; ONDO, 31); log de ONDO [documental, no está en el archivo] |
+| Acumulado cartera (45 símbolos, 1 pasada reciclaje) | ≈ **2,9×10¹⁰** evaluaciones config×preset (orden de magnitud; extrapola los 31 presets de ONDO a los 45 símbolos) | extrapolación aritmética de lo anterior; logs de reciclaje existen para los 20 símbolos reciclados + baseline v17 previo |
 | Configuraciones retenidas con métricas walk-forward completas (producción final) | **138.000** filas (138 CSVs × 1.000: 45 sym × 3 clústeres, +ficheros extra) | `regime_wf/*_cluster_*_specialists.csv` (recomputado: 138 ficheros, 138.000 filas) |
 | Población N1 del Estudio de Capacidad | **13.500** (45×3×100) | `audit_forense_gap_20260612/estudio_capacidad_fase1_results.json` (`n1_configs: 13500`) |
 
@@ -86,7 +86,7 @@ Números verificados:
 
 **(b) Brecha lógico-vs-optimizado (Exp#1):**
 - Optimizado por activo: median opt_pf_fwd_global = **3.3167** → `results_optimized.csv` (recomputado, N=45).
-- Lógico (params fijos a priori, config primaria 10/55 H0): median pf_fwd = **0.9167** (N=630; sobre las 3.780 celdas todos-los-configs: 0.9266) → `results_tf_logical.csv` (recomputado).
+- Lógico (params lógicos fijados en su pre-registro, nivel B; config primaria 10/55 H0): median pf_fwd = **0.9167** (N=630; sobre las 3.780 celdas todos-los-configs: 0.9266) → `results_tf_logical.csv` (recomputado).
 - Lógico "mejor caso": median lógico EMA = 0.913; median lógico BEST (mejor config lógica por símbolo) = **1.164** → `ATRIBUCION_T3_2_RESULTADOS.md` §6.
 - **Redacción oficial: "optimizado 3,317 vs lógico 0,917 (bajo breakeven)".** El 1,164 del mejor-lógico solo como robustez adicional. **Caveat del propio artefacto:** el 3,3 está CONTAMINADO por selección — no es edge, es la medida del sobreajuste. Ese es precisamente el punto.
 
@@ -103,7 +103,7 @@ Señales genuinas detectadas (todas verificadas):
 | Gap de supervivencia post-cascada (MFE/B8) | surv_3m diff: BTC **+13.24pp** [11.1,15.5], ETH **+13.33pp** [11.5,15.3] (control vol-matched); neto **NEGATIVO** con CI excluyendo 0 (BTC −0.039pp [−0.062,−0.017]) | stack de costes por-trade lo mata; bruto ≈ **+1pb/trade** [documental FASE_A §A5, estimación de la meta-auditoría] | `results_B8.json` (recomputado); `FASE_A_correcciones_documentales.md` §A5 |
 | Estacionalidad horaria | hour_22 **+5.97 pb** [2.82,9.28], hour_21 +5.37 [1.95,8.79], vie +2.93, sáb +2.16 (FDR-BH, 2017-2026) | < **10 pb** de coste RT → no tradeable; valor solo como timing de ejecución | `results_B6.json` (recomputado) |
 | Carry de funding, pata larga | Sharpe **+1.141** (long-only del factor carry); genuino (ortogonal a momentum ρ=0.022) | no bate buy&hold EW **1.443** y el market-neutral se anula (C = −0.053) por el squeeze de la corta (−1.026) | `results_B124.json` + `benchmark.json` (recomputados) |
-| CS-MOM Curva C (L/S neutral) | Sharpe **0.541**, ret 2a **+29.56%** NETO de costes de rotación, β vs EW **−0.043**, β vs BTC **−0.041**, maxDD −27.4%, 2023: 0.028 | **ES NETO-POSITIVA tras costes** — pero no cumple sus criterios congelados: `cs_mom.py` L332-335 exige |β| ≤ 0,15 (vs EW y vs BTC), Sharpe ≥ 1,00, maxDD mejor que −25 % y Sharpe 2024 > 0; falló Sharpe (0,541) y drawdown (−27,4 %). *(v1.0.1: el 1,94 ≈ EW + 0,5 que citaba la v1.0.0 es el listón de la curva A, `cs_mom.py` L329, no el de la C.)* | `cs_mom_sandbox/results/curves.json` (recomputado); criterios: `cs_mom_sandbox/cs_mom.py` (bloque CONGELADO) |
+| CS-MOM Curva C (L/S neutral) | Sharpe **0.541**, ret 2a **+29.56%** NETO de costes de rotación, β vs EW **−0.043**, β vs BTC **−0.041**, maxDD −27.4%, 2023: 0.028 | **ES NETO-POSITIVA tras costes** — pero no cumple los criterios escritos en su código (nivel B: código, documento y resultados en un solo commit): `cs_mom.py` L332-335 exige |β| ≤ 0,15 (vs EW y vs BTC), Sharpe ≥ 1,00, maxDD mejor que −25 % y Sharpe 2024 > 0; falló Sharpe (0,541) y drawdown (−27,4 %). El límite de drawdown no es coherente en el registro: el documento (L118, L122 de sus bytes sellados) y un comentario del código (L334) dan un objetivo de −15 a −20 %, el test aplicó −25 %, y el −27,4 % falla los dos. *(v1.0.1: el 1,94 ≈ EW + 0,5 que citaba la v1.0.0 es el listón de la curva A, `cs_mom.py` L329, no el de la C.)* | `cs_mom_sandbox/results/curves.json` (recomputado); criterios: `cs_mom_sandbox/cs_mom.py` (bloque CONGELADO) |
 
 **Barrido de contraejemplos (todos los veredictos B1-B8, C1-C3, L1-L7 revisados):** ninguna señal por-trade supera su coste. La única estrategia market-neutral neta positiva tras costes del proyecto es **CS-MOM Curva C** (y con sesgo de supervivencia a favor declarado como techo); el momentum solo largo (curva A, Sharpe 1,163), la pata larga del carry (+1,141) y el TSMOM diario (0,749) son positivos pero quedan por debajo de comprar y mantener (EW 1,443 los dos primeros; 0,779 el TSMOM diario en su periodo de ocho años). Por eso la redacción oficial es: *"Ninguna señal genuina superó el listón honesto: magnitud inferior a costes o por debajo del benchmark trivial"* — la frase literal "TODAS menores que las comisiones" es falsable con `curves.json` en mano y NO se usa.
 
@@ -146,8 +146,8 @@ Ejemplos VERIFICADOS del patrón (optimización/selección más intensa → forw
 | Ejemplo | Números | Artefacto |
 |---|---|---|
 | La firma del sobreajuste (C1) | mismo ranking: ρ **+0.5984** sobre los mismos bars → **−0.0545** en datos independientes | `results_C1.json` + `estudio_capacidad_fase1_results.json` (recomputados) |
-| El floor de producción vs lo realizado | floor esperado de los picks desplegados **2.32** → replay correcto del mes real: PF **0.640** [0.26, 1.31] (techo del CI ≪ floor) | `audit_forense_gap_20260612/INFORME_AUDITORIA_FORENSE_GAP.md` (tabla atribución; replay A/B) |
-| La búsqueda acuña floors sobre RUIDO | noise floor E1 = **2.35** (3 placebos GBM, 9/9 clústeres "notables", pf_fwd hasta 633 sobre nada) ≈ floor producción 2.32 | `audit_forense_gap_20260612/VEREDICTO_FASE1.md` L13,43 |
+| El floor de producción vs lo realizado | floor esperado de los picks desplegados **2.32** (media ponderada por trades en vivo) → replay del mes real con emparejamiento correcto: PF **bruto** (antes de comisión) **0.640** [0.26, 1.31] (techo del CI ≪ floor) | `audit_forense_gap_20260612/INFORME_AUDITORIA_FORENSE_GAP.md` (tabla atribución; replay A/B) |
+| La búsqueda acuña floors sobre RUIDO | noise floor E1 = **2.35** (mediana de 3 placebos: 1 GBM, 2.14, y 2 block-shuffles de 168 h, 3.03 y 2.35; 9/9 clústeres "notables", pf_fwd hasta 633 sobre ruido) ≈ floor producción 2.32 (comparación descriptiva: no hay contraste) | `audit_forense_gap_20260612/VEREDICTO_FASE1.md` L13,43; `e1_noise_floor/RESULTADO_E1.md` L7-13 |
 | Optimizado deslumbra, lógico no | optimizado 3.32 vs lógico 0.92 (misma señal, mismos datos) — la diferencia ES el sobreajuste | `results_optimized.csv` + `results_tf_logical.csv` (recomputados) |
 | N pequeño selecciona ruido amplificado | ONDO C0 pf_fwd=**7.945** con N=17 → observado en real PF **1.08** | 🟡 [documental, CONTEXTO §13.4/W3 2026-04-23; el JSON original fue superseded por reciclajes] |
 
@@ -174,7 +174,7 @@ Ejemplos VERIFICADOS del patrón (optimización/selección más intensa → forw
 
 ## NÚMEROS EN ROJO (no usar públicamente)
 
-1. **"~4M configuraciones"** — no existe en ningún artefacto; sustituido por 20.891.648 (espacio) / ~6,5×10⁸ por símbolo-pasada / ~2,9×10¹⁰ acumulado (afirmación 2).
+1. **"~4M configuraciones"** — no existe en ningún artefacto; sustituido por 20.891.648 (espacio) × 28–32 presets por símbolo / ~2,9×10¹⁰ acumulado como orden de magnitud (afirmación 2).
 2. **"~89% de gemas descartadas por la meseta"** — no localizado.
 3. **"Corrección del TP: 1.30→0.86"** — no localizado.
 4. **Capital inicial exacto** — solo documental (~296-298 USDT); no hay artefacto de depósito en el repo.
@@ -193,6 +193,27 @@ Ejemplos VERIFICADOS del patrón (optimización/selección más intensa → forw
 8. **"18 familias"** → correcto como conteo; como evidencia independiente son ~3 clusters + ejes ortogonales (A7). Declarado en portada.
 
 ---
+
+## Correcciones v1.0.3 (preparada, sin publicar)
+
+Primera versión en que cambia la REDACCIÓN OFICIAL de arriba (§1, §5 y §6): contenía tres de las afirmaciones corregidas. Regla del programa: el canon primero; nada se borra en silencio. Cada fila guarda el texto anterior **literal** y su fuente. Las cifras e intervalos no cambian; cambia lo que se dice de ellos (qué placebos, qué mide cada cifra, qué puede probar cada pre-registro). Detalle y commits en [`CHANGELOG.md`](CHANGELOG.md).
+
+| # | Texto anterior (literal) | Fuente de la corrección |
+|---|---|---|
+| R1 | 1. **Configuraciones**: "espacio de **20.891.648 configuraciones** válidas × 31 presets; ~**6,5×10⁸ evaluaciones** por símbolo-pasada; **138.000 configuraciones retenidas** con métricas walk-forward completas". | `output/production/presets_*.csv` (48 archivos: 3×28, 4×29, 16×30, 13×31, 12×32); el «31» y el «~6,5×10⁸» salen de una pasada de ONDO cuyo log no está en el archivo (afirmación 2) |
+| R5 | (b) floor esperado 2,32 → replay real 0,640; (c) noise floor 2,35 acuñado sobre GBM puro; | `audit_forense_gap_20260612/e1_noise_floor/RESULTADO_E1.md` L7-15; `INFORME_AUDITORIA_FORENSE_GAP.md` L44-48; `fase1_compare.py` L95 |
+| R6 | 6. **Transferencia fuera de muestra**: siempre "≈ nula / indistinguible de cero" (CI [−0,31,+0,39] incluye 0), nunca "colapso demostrado". | `cierre_definitivo_20260702/C1_N2_potencia_VEREDICTO.md` L7-8, L16-23 |
+| L2 | \| Re-selección muerta/mecánica; `specialist_score`→fwd ρ **+0.054** [−0.010,+0.117]; | `cierre_definitivo_20260702/FASE_A_correcciones_documentales.md` §A2 (L15) |
+| L4 | \| TF **0.917** vs placebo **0.928**; MR **0.742** vs **0.853**; | `analysis_scripts/atribucion_componentes_20260626/ATRIBUCION_T3_2_RESULTADOS.md` L40-41, L54; `FASE_A…` §A3 |
+| L5 | \| Real **0.800** vs floor placebo **0.989**; CI_low>floor **0/45** \| | `ATRIBUCION_T3_2_EXP2V3_RESULTADOS.md` L6-7, L12 |
+| A2a | \| Espacio de configuraciones TF válidas (26 bits) \| **20.891.648** \| `lab_historico_numba_v8_3.py:1207-1217` (`decode_config`, bits 0-25) + log reciclaje: "📋 20,891,648 configs × 31 presets" (`reciclaje_ONDOUSDT_grupo2_phase2_gpu_20260519_123048.log` L45) \| | `lab_historico_numba_v8_3.py` L1153-1205; `git ls-files` (el log no está) |
+| A2b | \| Por símbolo-pasada de reciclaje \| 20.891.648 × 31 presets ≈ **6,48×10⁸** evaluaciones \| mismo log L45 \| | `output/production/presets_*.csv` |
+| A2c | \| Acumulado cartera (45 símbolos, 1 pasada reciclaje) \| ≈ **2,9×10¹⁰** evaluaciones config×preset (orden de magnitud) \| extrapolación aritmética de lo anterior; | ídem |
+| A3b | - Lógico (params fijos a priori, config primaria 10/55 H0): | `prerregistros/README.md` L43 |
+| A4 | **ES NETO-POSITIVA tras costes** — pero no cumple sus criterios congelados: `cs_mom.py` L332-335 exige \|β\| ≤ 0,15 (vs EW y vs BTC), Sharpe ≥ 1,00, maxDD mejor que −25 % y Sharpe 2024 > 0; falló Sharpe (0,541) y drawdown (−27,4 %). | `prerregistros/README.md` L38, L45; `cs_mom_sandbox/cs_mom.py` L334; `CS_MOM_PREREGISTRO.md` L118, L122 |
+| A7a | \| El floor de producción vs lo realizado \| floor esperado de los picks desplegados **2.32** → replay correcto del mes real: PF **0.640** [0.26, 1.31] (techo del CI ≪ floor) \| | `INFORME_AUDITORIA_FORENSE_GAP.md` L23, L44-48; `fase0_pf_live.py` L127-134; `fase1_compare.py` L95 |
+| A7b | \| noise floor E1 = **2.35** (3 placebos GBM, 9/9 clústeres "notables", pf_fwd hasta 633 sobre nada) ≈ floor producción 2.32 \| `audit_forense_gap_20260612/VEREDICTO_FASE1.md` L13,43 \| | `RESULTADO_E1.md` L7-13 |
+| ROJO1 | sustituido por 20.891.648 (espacio) / ~6,5×10⁸ por símbolo-pasada / ~2,9×10¹⁰ acumulado (afirmación 2). | ídem R1 |
 
 ## Correcciones v1.0.2 (2026-10-14)
 
