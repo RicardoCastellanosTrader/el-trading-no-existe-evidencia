@@ -105,7 +105,7 @@ Señales genuinas detectadas (todas verificadas):
 | Carry de funding, pata larga | Sharpe **+1.141** (long-only del factor carry); genuino (ortogonal a momentum ρ=0.022) | no bate buy&hold EW **1.443** y el market-neutral se anula (C = −0.053) por el squeeze de la corta (−1.026) | `results_B124.json` + `benchmark.json` (recomputados) |
 | CS-MOM Curva C (L/S neutral) | Sharpe **0.541**, ret 2a **+29.56%** NETO de costes de rotación, β vs EW **−0.043**, β vs BTC **−0.041**, maxDD −27.4%, 2023: 0.028 | **ES NETO-POSITIVA tras costes** — pero no cumple los criterios escritos en su código (nivel B: código, documento y resultados en un solo commit): `cs_mom.py` L332-335 exige |β| ≤ 0,15 (vs EW y vs BTC), Sharpe ≥ 1,00, maxDD mejor que −25 % y Sharpe 2024 > 0; falló Sharpe (0,541) y drawdown (−27,4 %). El límite de drawdown no es coherente en el registro: el documento (L118, L122 de sus bytes sellados) y un comentario del código (L334) dan un objetivo de −15 a −20 %, el test aplicó −25 %, y el −27,4 % falla los dos. *(v1.0.1: el 1,94 ≈ EW + 0,5 que citaba la v1.0.0 es el listón de la curva A, `cs_mom.py` L329, no el de la C.)* | `cs_mom_sandbox/results/curves.json` (recomputado); criterios: `cs_mom_sandbox/cs_mom.py` (bloque marcado CONGELADO; nivel B) |
 
-**Barrido de contraejemplos (todos los veredictos B1-B8, C1-C3, L1-L7 revisados; cifras: `cs_mom_sandbox/results/curves.json` y `benchmark.json`, `cierre_definitivo_20260702/results_B124.json` y `results_B3.json`):** ninguna señal por-trade supera su coste. La única estrategia market-neutral neta positiva tras costes del proyecto es **CS-MOM Curva C** (y con sesgo de supervivencia a favor declarado como techo); el momentum solo largo (curva A, Sharpe 1,163), la pata larga del carry (+1,141) y el TSMOM diario (0,749) son positivos pero quedan por debajo de comprar y mantener (EW 1,443 los dos primeros; 0,779 el TSMOM diario en su periodo de ocho años). Por eso la redacción oficial es: *"Ninguna señal genuina superó el listón honesto: magnitud inferior a costes o por debajo del benchmark trivial"* — la frase literal "TODAS menores que las comisiones" es falsable con `curves.json` en mano y NO se usa.
+**Barrido de contraejemplos (todos los veredictos B1-B8, C1-C3, L1-L7 revisados; cifras: `cs_mom_sandbox/results/curves.json` y `benchmark.json`, `cierre_definitivo_20260702/results_B124.json` y `results_B3.json`):** ninguna señal por-trade supera su coste. La única estrategia market-neutral neta positiva tras costes del proyecto es **CS-MOM Curva C** (y con sesgo de supervivencia a favor declarado como techo); el momentum solo largo (curva A, Sharpe 1,163), la pata larga del carry (+1,141) y el TSMOM diario (0,749) son positivos pero quedan por debajo de comprar y mantener (EW 1,443 los dos primeros; 0,779 el TSMOM diario en su periodo de ocho años). Por eso la redacción oficial es: *"Ninguna señal genuina superó el listón fijado para ella: magnitud inferior a costes o por debajo del benchmark trivial"* — la frase literal "TODAS menores que las comisiones" es falsable con `curves.json` en mano y NO se usa.
 
 ---
 
@@ -132,7 +132,7 @@ Exp#2 v3 (criterio REAL del autor, verificado en su ejemplo XRP antes del barrid
 - **0/45 símbolos con CI_low > floor** (y 0/45 con CI_low>1.0). **Matiz de redacción:** en punto-estimado 6/45 quedan sobre el floor; el "0/45" exacto es con el CI — no intercambiar.
 - Ablación C3: deepest 0.8002 ≈ shallowest 0.8109 ≈ random 0.8099 → la regla causal es INERTE.
 - Fuentes: `results_obv3_real.csv` + `results_obv3_placebo.csv` (recomputados), `ATRIBUCION_T3_2_EXP2V3_RESULTADOS.md`, `results_C3.json` (recomputado).
-- **Matiz A4 (meta-auditoría, obligatorio):** "negativa con **signo robusto** (P(brecha≥0)≤3.2%) pero **magnitud no ganada estadísticamente**" + la certificación no-look-ahead del smoke commiteado es irreproducible (aunque la inspección independiente no halló fuga, y una fuga sería simétrica real/placebo). Fuente: `FASE_A_correcciones_documentales.md` §A4.
+- **Matiz A4 (meta-auditoría, obligatorio):** "negativa con **signo robusto** (P(brecha≥0)≤3.2%) pero **magnitud no ganada estadísticamente**" + la certificación no-look-ahead del smoke commiteado es irreproducible (aunque la inspección del código por la auditoría no halló fuga, y una fuga sería simétrica real/placebo). Fuente: `FASE_A_correcciones_documentales.md` §A4.
 - **Matiz de identidad:** lo refutado es el criterio del autor **fielmente objetivado y verificado en su ejemplo exacto** — puede decirse "mi sistema, tal y como yo lo defino, objetivado" (la v1 estrecha ICT fue retractada y re-formalizada; es la v3 la que porta el veredicto).
 
 ---
@@ -194,7 +194,16 @@ Ejemplos VERIFICADOS del patrón (optimización/selección más intensa → forw
 
 ---
 
-## Correcciones v1.0.3 (preparada, sin publicar)
+## Correcciones v1.0.4 (2026-10-20)
+
+Propagación que faltaba en la v1.0.3: dos líneas de esta tabla conservaban texto que la v1.0.3 ya había corregido (REDACCIÓN OFICIAL §3; criterio de H1). La REDACCIÓN OFICIAL no cambia. Cada fila guarda el texto anterior **literal** y su fuente.
+
+| # | Texto anterior (literal) | Fuente de la corrección |
+|---|---|---|
+| A4e | Por eso la redacción oficial es: *"Ninguna señal genuina superó el listón honesto: magnitud inferior a costes o por debajo del benchmark trivial"* | REDACCIÓN OFICIAL §3 (R3, v1.0.3) |
+| A6a | (aunque la inspección independiente no halló fuga, y una fuga sería simétrica real/placebo) | «independiente» sin respaldo [V], con el mismo criterio que H1: la inspección la hizo la propia meta-auditoría (`cierre_definitivo_20260702/FASE_A_correcciones_documentales.md` L30) |
+
+## Correcciones v1.0.3 (2026-10-20)
 
 Primera versión en que cambia la REDACCIÓN OFICIAL de arriba (§1, §5 y §6): contenía tres de las afirmaciones corregidas. Regla del programa: el canon primero; nada se borra en silencio. Cada fila guarda el texto anterior **literal** y su fuente. Las cifras e intervalos no cambian; cambia lo que se dice de ellos (qué placebos, qué mide cada cifra, qué puede probar cada pre-registro). Detalle y commits en [`CHANGELOG.md`](CHANGELOG.md).
 

@@ -42,7 +42,7 @@ python -c "import pandas as pd; print(pd.read_csv('analysis_scripts/atribucion_c
 ```bash
 python -c "import pandas as pd; t=pd.read_csv('analysis_scripts/atribucion_componentes_20260626/results_tf_logical.csv'); print(round(t[(t.fast==10)&(t.slow==55)&(t.hyst==0.0)]['pf_fwd'].median(),4))"
 ```
-**Expected:** `0.9167` — the same component with a-priori LOGICAL parameters (primary config 10/55). Below breakeven.
+**Expected:** `0.9167` — the same component with LOGICAL parameters set in its pre-registration (Level B; primary config 10/55). Below breakeven.
 
 **Correct reading:** the 3.32 is not edge — it is contaminated by selection; the 3.32 → 0.92 difference IS the measurement of overfitting. Noise reference: `results_placebo.csv` (median ~0.928 on noise).
 
@@ -58,7 +58,7 @@ python -c "import json; d=json.load(open('cierre_definitivo_20260702/results_C3.
 ```
 **Expected:** deepest ≈ 0.8002, shallowest ≈ 0.8109, random ≈ 0.8099 — the causal rule ("deepest block = biggest liquidity pool") is INERT.
 
-**Mandatory A4 nuance:** sign-robust gap (P(gap≥0) ≤ 3.2%) but magnitude not statistically earned; the committed no-look-ahead smoke certification is irreproducible (independent inspection of the frozen code found no leak; any leak would be symmetric real/placebo). See `auditoria_adversarial/README.md`.
+**Mandatory A4 nuance:** sign-robust gap (P(gap≥0) ≤ 3.2%) but magnitude not statistically earned; the committed no-look-ahead smoke certification is irreproducible (the audit's inspection of the frozen code found no leak; any leak would be symmetric real/placebo). See `auditoria_adversarial/README.md`.
 
 ### 2.4 Hourly seasonality: real but < costs (B6 / E13)
 

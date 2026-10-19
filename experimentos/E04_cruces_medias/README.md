@@ -1,6 +1,6 @@
 # E04 — Exp#1: el cruce de medias aislado, con parámetros lógicos
 
-**Hipótesis:** el componente "cruce de zona de medias" porta edge por sí mismo, con parámetros LÓGICOS fijados a priori (sin optimizar), frente a un random walk.
+**Hipótesis:** el componente "cruce de zona de medias" porta edge por sí mismo, con parámetros LÓGICOS fijados en su pre-registro (nivel B; sin optimizar), frente a un random walk.
 **Nombre popular:** "cruces de medias móviles" — golden cross y variantes; se prueban 14 tipos de media.
 
 ## Pre-registro — Nivel B (documental, commit conjunto)
@@ -19,4 +19,4 @@
 - MR: **0.742** vs placebo **0.853**.
 - **0/14 tipos de media** con mediana > 1. Robusto cross-parámetro.
 - La brecha que sí existe es la del sobreajuste: optimizado-por-activo **3.317** vs lógico **0.917** — la diferencia no es edge, es la medida de la contaminación por selección.
-**Matiz (A3):** la lectura correcta es "indistinguible del ruido **y** sub-breakeven", no "peor que el ruido" (el floor del placebo estaba inflado por una serie sintética, PLBSH3).
+**Matiz (A3):** la lectura correcta es "indistinguible del ruido **y** sub-breakeven" (comparación descriptiva de medianas, sin contraste formal), no "peor que el ruido" (el floor del placebo estaba inflado por una serie sintética, PLBSH3).

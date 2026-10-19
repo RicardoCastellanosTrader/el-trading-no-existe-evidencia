@@ -42,7 +42,7 @@ python -c "import pandas as pd; print(pd.read_csv('analysis_scripts/atribucion_c
 ```bash
 python -c "import pandas as pd; t=pd.read_csv('analysis_scripts/atribucion_componentes_20260626/results_tf_logical.csv'); print(round(t[(t.fast==10)&(t.slow==55)&(t.hyst==0.0)]['pf_fwd'].median(),4))"
 ```
-**Debe salir:** `0.9167` — el mismo componente con parámetros LÓGICOS fijados a priori (config primaria 10/55). Bajo breakeven.
+**Debe salir:** `0.9167` — el mismo componente con parámetros LÓGICOS fijados en su pre-registro (nivel B; config primaria 10/55). Bajo breakeven.
 
 **Lectura correcta:** el 3,32 no es edge — está contaminado por selección; la diferencia 3,32 → 0,92 ES la medida del sobreajuste. Placebo de referencia: `results_placebo.csv` (mediana ~0.928 con ruido).
 
@@ -58,7 +58,7 @@ python -c "import json; d=json.load(open('cierre_definitivo_20260702/results_C3.
 ```
 **Debe salir:** deepest ≈ 0.8002, shallowest ≈ 0.8109, random ≈ 0.8099 — la regla causal ("el bloque más profundo = pool de liquidez mayor") es INERTE.
 
-**Matiz A4 (obligatorio):** brecha de signo robusto (P(brecha≥0) ≤ 3,2%) pero magnitud no ganada estadísticamente; la certificación no-look-ahead del smoke commiteado es irreproducible (la inspección independiente del código congelado no halló fuga; una fuga sería simétrica real/placebo). Ver `auditoria_adversarial/README.md`.
+**Matiz A4 (obligatorio):** brecha de signo robusto (P(brecha≥0) ≤ 3,2%) pero magnitud no ganada estadísticamente; la certificación no-look-ahead del smoke commiteado es irreproducible (la inspección del código congelado por la auditoría no halló fuga; una fuga sería simétrica real/placebo). Ver `auditoria_adversarial/README.md`.
 
 ### 2.4 Estacionalidad horaria: real pero < costes (B6 / E13)
 

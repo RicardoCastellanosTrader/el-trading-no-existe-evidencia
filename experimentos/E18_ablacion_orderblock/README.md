@@ -9,4 +9,4 @@
 - Runner: `cierre_definitivo_20260702/run_C3.py` reusando `analysis_scripts/atribucion_componentes_20260626/ob_detector_v3.py`; datos: velas 1h `data_cache/`; resultados: `results_C3.json`.
 
 ## Veredicto
-**La regla causal es INERTE.** deepest **0.8002** ≈ shallowest **0.8109** ≈ random **0.8099** — las tres variantes son indistinguibles entre sí y todas quedan bajo el floor placebo (0.9891). La pieza del criterio que portaba la hipótesis de liquidez no mueve el resultado en absoluto: lo que queda es la geometría del setup, y la geometría no bate al ruido.
+**La regla causal es INERTE.** deepest **0.8002** ≈ shallowest **0.8109** ≈ random **0.8099** — las tres medianas son prácticamente iguales (diferencias ≤ 0.011; sin contraste formal) y todas quedan bajo el floor placebo (0.9891). La pieza del criterio que portaba la hipótesis de liquidez no mueve el resultado: lo que queda es la geometría del setup, y la geometría no bate al ruido.

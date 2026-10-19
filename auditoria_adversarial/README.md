@@ -1,6 +1,6 @@
 # Auditoría adversarial de los veredictos (meta-auditoría, 2026-07-01/02)
 
-Antes de cerrar el proyecto, los 7 veredictos del arco principal se sometieron a una **meta-auditoría adversarial multiagente**: 39 agentes de IA (Claude, Anthropic) en 2 pasadas independientes, con el mandato explícito de refutar cada veredicto, recomputar los números desde los artefactos primarios y buscar señales positivas suprimidas.
+Antes de cerrar el proyecto, los 7 veredictos del arco principal se sometieron a una **meta-auditoría adversarial multiagente**: 39 agentes de IA (Claude, Anthropic) en 2 pasadas, con el mandato explícito de refutar cada veredicto, recomputar los números desde los artefactos primarios y buscar señales positivas suprimidas.
 
 **Resultado global: 7/7 veredictos "correcto con matices" — ninguno se voltea, ningún auditor halló una señal real suprimida.** Pero la auditoría encontró sub-afirmaciones sobre-vendidas y 2 bugs numéricos, y TODAS las correcciones se aplicaron al registro. El documento primario es [`../cierre_definitivo_20260702/FASE_A_correcciones_documentales.md`](../cierre_definitivo_20260702/FASE_A_correcciones_documentales.md).
 
@@ -10,8 +10,8 @@ Antes de cerrar el proyecto, los 7 veredictos del arco principal se sometieron a
 |---|-----------------|
 | A1 | Edge Real, ancla A2: "EDGE AUSENTE" → "no-concluyente lean-negativo" (CI frágil a 0.04 de la frontera; la conclusión titular no depende de A2) |
 | A2 | Estudio de Capacidad: D6 "muerta" → "muerta para re-rankear dentro de la shortlist" (restricción de rango); D4 → "UNTESTED"; el eslabón "+0.30→−0.05" era no-concluyente infra-potenciado (→ motivó el retest C1) |
-| A3 | Exp#1: "≤ ruido" → "indistinguible del ruido y sub-breakeven" (el floor estaba inflado por una serie placebo inválida, PLBSH3) |
-| A4 | Exp#2: "la línea MÁS FUERTE" → "negativa con signo robusto, magnitud no ganada"; certificación no-look-ahead del smoke irreproducible (inspección independiente sin fuga hallada) |
+| A3 | Exp#1: "≤ ruido" → "indistinguible del ruido y sub-breakeven" (descriptivo, sin contraste formal; el floor estaba inflado por una serie placebo inválida, PLBSH3) |
+| A4 | Exp#2: "la línea MÁS FUERTE" → "negativa con signo robusto, magnitud no ganada"; certificación no-look-ahead del smoke irreproducible (la inspección del código por la auditoría no halló fuga) |
 | A5 | MFE: el gap de supervivencia 23-vs-3pp estaba **inflado ~3-4× por un confound de volatilidad** → ~+6-8pp ≈ +1pb bruto; "peor que aleatorio" era slippage no-matched; funding "REFUTADO" → "NO CONFIRMADO"; **pivote de métrica post-hoc anotado como desviación procesal** |
 | A6 | Nivel 3: "ε²=0.574 era artefacto" → "no contradice la convergencia" (partición selectiva post-hoc detectada; "no construir Frame 3" se sostiene por deployabilidad neta <1) |
 | A7 | Convergencia: "7 líneas independientes" → "**~3 clusters efectivos**" (L1-L5 comparten kernel/datos/placebos; L6, L7 ortogonales) |

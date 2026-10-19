@@ -10,4 +10,4 @@
 - Runner: `cierre_definitivo_20260702/run_C2.py` sobre los trades sellados del run Nivel 3 (`audit_forense_gap_20260612/nivel3_resmoke_trades_*.json`); resultados: `results_C2.json`.
 
 ## Veredicto
-**Refuerza el NO CONFIRMADO.** (a) El placebo wrong-match da **p_perm = 0.4735** — el "acierto" de régimen no tiene especificidad alguna (etiquetas equivocadas rinden estadísticamente igual). (b) La cartera condicional-a-régimen: PF **0.9828** vs agnóstica 0.9308 — la condicionalidad añade una mejora marginal pero **ambas quedan bajo 1.0 neto**: no hay nada deployable que rescatar.
+**Refuerza el NO CONFIRMADO.** (a) El placebo wrong-match da **p_perm = 0.4735** — el "acierto" de régimen no tiene especificidad alguna (las etiquetas equivocadas no se distinguen de las correctas). (b) La cartera condicional-a-régimen: PF **0.9828** vs agnóstica 0.9308 — la condicionalidad añade una mejora marginal pero **ambas quedan bajo 1.0 neto**: no hay nada deployable que rescatar.

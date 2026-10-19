@@ -35,7 +35,7 @@ git log --format='%h %ad %s' --date=iso --  "<ruta prereg>" "<ruta veredicto>"
 
 ### Nivel B — pre-registro documental, commit conjunto (4 de 18)
 
-El documento de pre-registro existe con criterios congelados por escrito (hipótesis, métrica cardinal, listones, zonas de veredicto) pero entró en el MISMO commit que los resultados. Git no puede demostrar la precedencia; la estructura interna de los documentos (secciones de pre-registro redactadas en futuro, veredicto añadido en secciones finales) y el diario de laboratorio la documentan.
+El documento de pre-registro existe con criterios fijados por escrito (hipótesis, métrica cardinal, listones, zonas de veredicto) pero entró en el MISMO commit que los resultados. Git no puede demostrar la precedencia; la estructura interna de los documentos (secciones de pre-registro redactadas en futuro, veredicto añadido en secciones finales) y el diario de laboratorio la documentan.
 
 | Exp | Pre-registro | Commit |
 |-----|--------------|--------|

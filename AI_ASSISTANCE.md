@@ -8,7 +8,7 @@ This project was carried out with extensive artificial-intelligence assistance �
 
 - The **technical implementation and execution** of all project code: GPU kernels, walk-forward pipeline, production bot, validation harness, experiments E01–E18 and their infrastructure.
 - The **adversarial audit** of the verdicts themselves (multi-agent protocol, 39 agents ×2 passes; see [`auditoria_adversarial/`](auditoria_adversarial/README.md)).
-- The **curation of this repository**: history sanitisation, structure, audit guides, and verification of every number against its primary artifact.
+- The **curation of this repository**: history sanitisation, structure, audit guides, and verification of the numbers in the claims-backing table (`afirmaciones_respaldo.md`) against their primary artifacts.
 - **Assistance in drafting the manuscript** ([`paper/`](paper/)), generated from the table of verified claims ([`afirmaciones_respaldo.md`](afirmaciones_respaldo.md)) — never from memory or from summaries.
 
 All of it **under the author's direction, review and approval**, task by task.

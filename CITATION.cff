@@ -7,7 +7,7 @@ authors:
     affiliation: "Independent researcher"
 doi: 10.5281/zenodo.21229491
 repository-code: "https://github.com/RicardoCastellanosTrader/el-trading-no-existe-evidencia"
-version: "1.0.3"
+version: "1.0.4"
 date-released: "2026-10-20"
 license: MIT
 keywords:
@@ -16,14 +16,17 @@ keywords:
   - cryptocurrency
   - pre-registration
   - reproducibility
-  - out-of-sample transfer
+  - selection transfer
 abstract: >-
   Pre-registered, adversarially audited case study (18 experiment families,
-  a 20.9-million-configuration search space, ~6.5x10^8 evaluations per symbol-pass,
-  Binance top-45 - spot 1h candles for the main search and 11 of the 18 families,
-  USDT-M perpetuals for the other 7, live execution on BingX USDT-M perpetuals -,
-  2018-2026, taker costs): out-of-sample transfer
-  of past-performance selection is approximately nil (rho -0.05 independent
-  vs +0.60 in-sample), and no genuine signal cleared the honest bar
-  (magnitudes below costs or below the trivial benchmark). Open artifacts,
-  regeneration scripts and real-money execution logs included.
+  a search space of 20.9 million configurations crossed with each symbol's
+  28-32 presets, Binance top-45 - spot 1h candles for the main search and
+  11 of the 18 families, USDT-M perpetuals for the other 7, live execution
+  on BingX USDT-M perpetuals -, 2018-2026, taker costs): transfer of
+  past-performance selection to another data source is approximately nil
+  (rho -0.05 on Binance futures candles over the same window vs +0.60
+  in-sample; that interval includes both 0 and +0.30: an underpowered test
+  that shows neither a collapse nor a transfer), and no genuine signal
+  cleared the bar set for it (magnitudes below costs or below the trivial
+  benchmark). Open artifacts, regeneration scripts and real-money execution
+  logs included.

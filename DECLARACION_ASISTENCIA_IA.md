@@ -8,7 +8,7 @@ Este proyecto se realizó con asistencia extensiva de inteligencia artificial �
 
 - La **implementación y ejecución técnica** de todo el código del proyecto: kernels GPU, pipeline de walk-forward, bot de producción, harness de validación, experimentos E01–E18 y su infraestructura.
 - La **auditoría adversarial** de los propios veredictos (protocolo multiagente de 39 agentes ×2 pasadas; ver [`auditoria_adversarial/`](auditoria_adversarial/README.md)).
-- La **curación de este repositorio**: sanitización del historial, estructura, guías de auditoría y verificación de cada número contra su artefacto primario.
+- La **curación de este repositorio**: sanitización del historial, estructura, guías de auditoría y verificación de los números de la tabla de respaldo (`afirmaciones_respaldo.md`) contra sus artefactos primarios.
 - **Asistencia en la redacción del manuscrito** ([`paper/`](paper/)), generado a partir de la tabla de afirmaciones verificadas ([`afirmaciones_respaldo.md`](afirmaciones_respaldo.md)) — nunca desde memoria ni desde resúmenes.
 
 Todo ello **bajo dirección, revisión y aprobación del autor**, tarea a tarea.
