@@ -18,8 +18,8 @@ Política del repo: **los datos crudos no se redistribuyen** (fuentes públicas:
 - **Regeneración:** `cs_mom_sandbox/cs_mom.py` descarga y construye el universo. Detalles point-in-time que importan para reproducir: universo 35→45 símbolos según fecha de listado, stitch de renombrados **MATIC→POL** y **RNDR→RENDER**, **SHIB = 1000SHIBUSDT**. El sesgo de supervivencia restante se asume y se declara como techo optimista en los veredictos.
 - E14 (open interest) usa además las métricas OI públicas de data.binance.vision (~150 MB, no incluidas; el runner `cierre_definitivo_20260702/run_B7.py` documenta la descarga).
 
-## 4. Datos independientes W3 (`binance_w3_data/`) — NO INCLUIDO (no tracked)
-- **Usado por:** E02/E16 como ancla INDEPENDIENTE (9 símbolos) — es el dataset que produce el ρ −0.0545. Regenerable con los mismos scripts de descarga (ventana distinta de la de data_cache; la independencia es el punto).
+## 4. Datos W3 de otra fuente (`binance_w3_data/`) — NO INCLUIDO (no tracked)
+- **Usado por:** E02/E16 como ancla de **otra fuente** (9 símbolos) — es el dataset que produce el ρ −0.0545. Regenerable con los mismos scripts de descarga. *(v1.0.3: la versión anterior decía «ventana distinta de la de data_cache; la independencia es el punto». No es así: son velas de futuros de Binance (2023-04-24 → 2026-04-23) que se solapan en el tiempo con `data_cache`; su tercio forward cubre meses que la selección ya había visto como velas al contado, y el pre-registro del Estudio lo marca como solo «Parcial» intocado: `audit_forense_gap_20260612/ESTUDIO_CAPACIDAD_INFORMACION_FASE0_PREREGISTRO.md` L30; `analysis_scripts/bloque2c_w3_validation_20260423/bloque2c_smoke_c.py` L3-7, L35, L50; `output/production/ranking_lite_v5e_BTCUSDT.txt` L18.)*
 
 ## 5. Resultados (SÍ incluidos)
 Los `results_*.json` / `*.csv` pequeños de cada experimento están en sus rutas (ver README de cada E) y son la base de verificación directa. `regime_wf/` (63 MB de CSVs de specialists con métricas walk-forward, 138.000 filas) y `output/` (presets) son RESULTADOS del pipeline, no datos crudos, y se publican para auditoría.

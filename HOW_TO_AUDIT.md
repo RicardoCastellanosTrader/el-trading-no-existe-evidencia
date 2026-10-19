@@ -18,7 +18,7 @@ See **`prerregistros/README.md`** (A/B/C taxonomy, verification commands, OTS se
 
 ## 2. Key findings, one by one
 
-### 2.1 The overfitting signature: ρ +0.60 in-sample vs −0.05 independent (C1 / E16)
+### 2.1 The overfitting signature: ρ +0.60 in-sample vs −0.05 on another source over the same window (C1 / E16)
 
 ```bash
 python -c "import json; d=json.load(open('cierre_definitivo_20260702/results_C1.json')); print(d['spearman_pf_tr_vs_pf_fwd'], d['CI95_symbol_clustered'], d['caveat'])"
@@ -28,9 +28,9 @@ python -c "import json; d=json.load(open('cierre_definitivo_20260702/results_C1.
 ```bash
 python -c "import json; print(round(json.load(open('audit_forense_gap_20260612/estudio_capacidad_fase1_results.json'))['rho_pf_tr_fwd_b2'],4))"
 ```
-**Expected:** `-0.0545` — the same selection against independent data (binance_w3_data, 9 symbols). CI [−0.305, +0.389] (symbol-clustered bootstrap; see `cierre_definitivo_20260702/C1_N2_potencia_VEREDICTO.md`).
+**Expected:** `-0.0545` — the same selection against another data source (binance_w3_data: Binance futures over the same window, whose forward third the selection had already seen as spot; 9 symbols). CI [−0.305, +0.389] (symbol-clustered bootstrap; see `cierre_definitivo_20260702/C1_N2_potencia_VEREDICTO.md`).
 
-**Correct reading (and the one the project uses):** transfer ≈ nil / indistinguishable from zero — NOT "demonstrated collapse" (the independent CI includes 0 and +0.297; 9 symbols = underpowered). The +0.60↔−0.05 gap is the signature of overfitting-to-the-bars. Recompute from raw: `cierre_definitivo_20260702/run_C1_extend.py` + `results_C1_extend.csv`.
+**Correct reading (and the one the project uses):** transfer ≈ nil / indistinguishable from zero — NOT "demonstrated collapse" (the CI on the other source includes 0 and +0.297; 9 symbols = underpowered). The +0.60↔−0.05 gap is the signature of overfitting-to-the-bars. Recompute from raw: `cierre_definitivo_20260702/run_C1_extend.py` + `results_C1_extend.csv`.
 
 ### 2.2 The optimized-vs-logical gap (Exp#1 / E04)
 

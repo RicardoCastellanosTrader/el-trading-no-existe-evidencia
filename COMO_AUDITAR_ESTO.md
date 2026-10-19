@@ -18,7 +18,7 @@ Ver **`prerregistros/README.md`** (taxonomía A/B/C, comandos de verificación, 
 
 ## 2. Hallazgos clave, uno a uno
 
-### 2.1 La firma del sobreajuste: ρ +0,60 in-sample vs −0,05 independiente (C1 / E16)
+### 2.1 La firma del sobreajuste: ρ +0,60 in-sample vs −0,05 en otra fuente de la misma ventana (C1 / E16)
 
 ```bash
 python -c "import json; d=json.load(open('cierre_definitivo_20260702/results_C1.json')); print(d['spearman_pf_tr_vs_pf_fwd'], d['CI95_symbol_clustered'], d['caveat'])"
@@ -28,9 +28,9 @@ python -c "import json; d=json.load(open('cierre_definitivo_20260702/results_C1.
 ```bash
 python -c "import json; print(round(json.load(open('audit_forense_gap_20260612/estudio_capacidad_fase1_results.json'))['rho_pf_tr_fwd_b2'],4))"
 ```
-**Debe salir:** `-0.0545` — la misma selección contra datos independientes (binance_w3_data, 9 símbolos). CI [−0.305, +0.389] (bootstrap symbol-clustered; ver `cierre_definitivo_20260702/C1_N2_potencia_VEREDICTO.md`).
+**Debe salir:** `-0.0545` — la misma selección contra otra fuente de datos (binance_w3_data: futuros de Binance de la misma ventana, cuyo tercio forward la selección ya había visto como contado; 9 símbolos). CI [−0.305, +0.389] (bootstrap symbol-clustered; ver `cierre_definitivo_20260702/C1_N2_potencia_VEREDICTO.md`).
 
-**Lectura correcta (y la que usa el proyecto):** transferencia ≈ nula / indistinguible de cero — NO "colapso demostrado" (el CI independiente incluye 0 y +0.297; 9 símbolos = infra-potenciado). El gap +0.60↔−0.05 es la firma del sobreajuste-a-los-bars. Recomputar desde crudo: `cierre_definitivo_20260702/run_C1_extend.py` + `results_C1_extend.csv`.
+**Lectura correcta (y la que usa el proyecto):** transferencia ≈ nula / indistinguible de cero — NO "colapso demostrado" (el CI sobre la otra fuente incluye 0 y +0.297; 9 símbolos = infra-potenciado). El gap +0.60↔−0.05 es la firma del sobreajuste-a-los-bars. Recomputar desde crudo: `cierre_definitivo_20260702/run_C1_extend.py` + `results_C1_extend.csv`.
 
 ### 2.2 La brecha optimizado vs lógico (Exp#1 / E04)
 

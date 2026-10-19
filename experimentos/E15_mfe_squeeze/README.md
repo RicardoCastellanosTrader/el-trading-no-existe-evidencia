@@ -10,4 +10,4 @@
 - Runner: `cierre_definitivo_20260702/run_B8.py` + `xs_harness.py`; 2 años de datos tick agregados ([`REGENERAR.md`](../../datos/REGENERAR.md)); resultados: `results_B8.json` (+ `results_B8_smoke.json`).
 
 ## Veredicto
-**MUERE — y ratifica E06 con el control correcto.** El gap de supervivencia post-cascada es real incluso vol-matched (BTC **+13.24 pp** [11.1, 15.5], ETH **+13.33 pp** [11.5, 15.3]) — pero el resultado NETO por operación es peor que el control equivalente: BTC 3m net diff **−0.00039 [−0.00062, −0.00017]** — **el CI excluye 0 por el lado negativo**. La señal microestructural existe; su explotación con costes retail destruye valor de forma estadísticamente concluyente.
+**MUERE — y ratifica E06 con el control correcto.** El gap de supervivencia post-cascada es real incluso vol-matched (BTC **+13.24 pp** [11.1, 15.5], ETH **+13.33 pp** [11.5, 15.2]) — pero el resultado NETO por operación es peor que el control equivalente: BTC 3m net diff **−0.00039 [−0.00062, −0.00017]** — **el CI excluye 0 por el lado negativo**. La señal microestructural existe; su explotación con costes retail destruye valor de forma estadísticamente concluyente.

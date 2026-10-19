@@ -21,7 +21,7 @@ Cada experimento tiene su README con: hipótesis, pre-registro (y su nivel de ve
 | [E13](E13_estacionalidad_reloj/README.md) | B6 estacionalidad horaria | "Las mejores horas para operar" | Efecto real no tradeable: máx +5.97 bps < 10 bps coste |
 | [E14](E14_open_interest/README.md) | B7 open interest | "Sigue el posicionamiento" | Sharpe −0.42; no sobrevive 2024 |
 | [E15](E15_mfe_squeeze/README.md) | B8 MFE squeeze (retest E06) | "Cazar el squeeze" | Neto peor que control: diff CI excluye 0 en negativo |
-| [E16](E16_potencia_n2/README.md) | C1 — potencia real de N2 (retest E02) | — | ρ within +0.598 vs independiente −0.054 |
+| [E16](E16_potencia_n2/README.md) | C1 — potencia real de N2 (retest E02) | — | ρ within +0.598 vs otra fuente (misma ventana) −0.054 |
 | [E17](E17_nivel3_patas/README.md) | C2 — patas omitidas Nivel 3 (retest E03) | — | Placebo p=0.47 (sin especificidad); condicional 0.983 < 1 |
 | [E18](E18_ablacion_orderblock/README.md) | C3 — ablación order block (retest E05) | — | Regla causal INERTE: deepest ≈ shallowest ≈ random |
 

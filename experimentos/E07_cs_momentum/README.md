@@ -1,6 +1,6 @@
 # E07 — CS-MOM: momentum cross-sectional market-neutral
 
-**Hipótesis:** el momentum relativo (Jegadeesh-Titman, la anomalía con MAYOR respaldo académico) es explotable market-neutral en perps cripto: largo el quintil más fuerte, corto el más débil.
+**Hipótesis:** el momentum relativo (Jegadeesh-Titman) es explotable market-neutral en perps cripto: largo el quintil más fuerte, corto el más débil.
 **Nombre popular:** "momentum — compra los más fuertes, vende los más débiles".
 
 ## Pre-registro — Nivel B (documental, commit conjunto) — con protocolo de listón honesto
